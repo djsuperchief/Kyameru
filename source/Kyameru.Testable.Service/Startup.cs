@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Kyameru.Testable
+namespace Kyameru.Testable.Service
 {
     public class Startup
     {
@@ -26,7 +26,10 @@ namespace Kyameru.Testable
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            Kyameru.Core.Route.From("File", "c:/test.txt").To(null).Build(services);
+            Kyameru.Route.From("File", "C:/Temp", "Created", "*.*", "true")
+                .Process(new DummyComponents.Something())
+                .To("File", "C:/tools", "Move")
+                .Build(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,10 +46,10 @@ namespace Kyameru.Testable
 
             //app.UseAuthorization();
 
-            /*app.UseEndpoints(endpoints =>
+            app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-            });*/
+            });
         }
     }
 }

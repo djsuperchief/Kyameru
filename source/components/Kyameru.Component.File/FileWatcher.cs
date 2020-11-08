@@ -5,19 +5,21 @@ using Kyameru.Core.Entities;
 
 namespace Kyameru.Component.File
 {
-    public class FileWatcher : Kyameru.Core.Contracts.IFromComponent, Kyameru.Core.Contracts.IToComponent
+    public class FileWatcher : Kyameru.Core.Contracts.IFromComponent
     {
         public event EventHandler<Routable> OnAction;
+
         private string fileName;
         private FileSystemWatcher fsw;
         private string[] fswArgs;
+        private bool isDirectoryWatcher = false;
 
         private readonly Dictionary<string, Action> fswSetup = new Dictionary<string, Action>();
-        private readonly Dictionary<string, Action<Routable, string>> toActions = new Dictionary<string, Action<Routable, string>>();
 
-        public FileWatcher()
+        public FileWatcher(string[] args)
         {
             this.SetupInternalActions();
+            this.fswArgs = args;
         }
 
         public void Process(Routable item)
@@ -25,26 +27,23 @@ namespace Kyameru.Component.File
             throw new Core.Exceptions.ProcessException(Resources.ERROR_MUSTSPECIFYPROCESSARGS);
         }
 
-        public void Process(Routable item, string[] args)
+        public void Setup()
         {
-            this.toActions[args[0]](item, args[1]);
-        }
+            this.VerifyArguments(this.fswArgs);
+            FileAttributes fileAttributes = System.IO.File.GetAttributes(this.fswArgs[0]);
+            if ((fileAttributes & FileAttributes.Directory) == FileAttributes.Directory)
+            {
+                this.isDirectoryWatcher = true;
+            }
 
-        public void Setup(string[] args)
-        {
-            this.VerifyArguments(args);
-            this.fileName = args[0];
-            this.fswArgs = args;
+            this.fileName = this.fswArgs[0];
         }
-
-        
 
         public void Start()
         {
-            this.fsw = new FileSystemWatcher(
-                System.IO.Path.GetDirectoryName(fswArgs[0]),
-                System.IO.Path.GetFileName(fswArgs[0]));
-            this.fsw.IncludeSubdirectories = false;
+            this.fsw = this.SetupFsw();
+
+            this.SetupSubDirectories();
             this.fsw.EnableRaisingEvents = true;
             this.fsw.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName;
             foreach (string item in fswArgs[1].Split(','))
@@ -53,6 +52,28 @@ namespace Kyameru.Component.File
                 {
                     this.fswSetup[item]();
                 }
+            }
+        }
+
+        private FileSystemWatcher SetupFsw()
+        {
+            if (this.isDirectoryWatcher)
+            {
+                return new FileSystemWatcher(this.fswArgs[0], this.fswArgs[2]);
+            }
+            else
+            {
+                return new FileSystemWatcher(
+                    Path.GetDirectoryName(this.fswArgs[0]),
+                    Path.GetFileName(this.fswArgs[0]));
+            }
+        }
+
+        private void SetupSubDirectories()
+        {
+            if (this.fswArgs.Length == 4 && this.isDirectoryWatcher)
+            {
+                this.fsw.IncludeSubdirectories = bool.Parse(this.fswArgs[3]);
             }
         }
 
@@ -86,13 +107,16 @@ namespace Kyameru.Component.File
             throw new NotImplementedException();
         }
 
-        
-
         private void VerifyArguments(string[] args)
         {
-            if(string.IsNullOrWhiteSpace(System.IO.Path.GetExtension(args[0])))
+            if (string.IsNullOrWhiteSpace(args[0]))
             {
                 throw new ArgumentException(Resources.ERROR_EXPECTEDSINGLE, "args[0]");
+            }
+
+            if (string.IsNullOrWhiteSpace(Path.GetFileName(args[0])) && args.Length < 3)
+            {
+                throw new ArgumentException(Resources.ERROR_NOTENOUGHARGUMENTS_DIRECTORY);
             }
         }
 
@@ -101,31 +125,6 @@ namespace Kyameru.Component.File
             this.fswSetup.Add("Created", this.AddCreated);
             this.fswSetup.Add("Changed", this.AddChanged);
             this.fswSetup.Add("Renamed", this.AddRenamed);
-            this.toActions.Add("Move", this.MoveFile);
-            this.toActions.Add("Copy", this.CopyFile);
-            this.toActions.Add("Delete", this.DeleteFile);
-            this.toActions.Add("Write", this.WriteFile);
-        }
-
-        private void WriteFile(Routable item, string arg)
-        {
-            System.IO.File.WriteAllBytes($"{arg}{Path.DirectorySeparatorChar}{item.Headers["SourceFile"]}", (byte[])item.Data);
-            this.DeleteFile(item, string.Empty);
-        }
-
-        private void MoveFile(Routable item, string arg)
-        {
-            System.IO.File.Move(item.Headers["FullSource"], arg);
-        }
-
-        private void CopyFile(Routable item, string arg)
-        {
-            System.IO.File.Copy(item.Headers["FullSource"], arg);
-        }
-
-        private void DeleteFile(Routable item, string arg)
-        {
-            System.IO.File.Delete(item.Headers["FullSource"]);
         }
 
         private void AddRenamed()
@@ -135,9 +134,9 @@ namespace Kyameru.Component.File
 
         private void Fsw_Renamed(object sender, RenamedEventArgs e)
         {
-            if(e.Name == this.fileName)
+            if (e.Name == this.fileName)
             {
-                this.CreateMessage("Rename");
+                this.CreateMessage("Rename", e.FullPath);
             }
         }
 
@@ -148,7 +147,7 @@ namespace Kyameru.Component.File
 
         private void Fsw_Changed(object sender, FileSystemEventArgs e)
         {
-            this.CreateMessage("Changed");
+            this.CreateMessage("Changed", e.FullPath);
         }
 
         private void AddCreated()
@@ -158,20 +157,21 @@ namespace Kyameru.Component.File
 
         private void Fsw_Created(object sender, FileSystemEventArgs e)
         {
-            this.CreateMessage("Created");
+            this.CreateMessage("Created", e.FullPath);
         }
 
-        private void CreateMessage(string method)
+        private void CreateMessage(string method, string sourceFile)
         {
-            FileInfo info = new FileInfo(this.fileName);
+            FileInfo info = new FileInfo(sourceFile);
+            sourceFile = sourceFile.Replace("\\", "/");
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add("SourceDirectory", System.IO.Path.GetDirectoryName(this.fileName));
-            headers.Add("SourceFile", System.IO.Path.GetFileName(this.fileName));
-            headers.Add("FullSource", this.fileName);
+            headers.Add("SourceDirectory", System.IO.Path.GetDirectoryName(sourceFile));
+            headers.Add("SourceFile", System.IO.Path.GetFileName(sourceFile));
+            headers.Add("FullSource", sourceFile);
             headers.Add("DateCreated", info.CreationTimeUtc.ToLongTimeString());
             headers.Add("Readonly", info.IsReadOnly.ToString());
-            headers.Add("ReadType", "byte");
-            Routable dataItem = new Routable(headers, System.IO.File.ReadAllBytes(this.fileName));
+            headers.Add("DataType", "byte");
+            Routable dataItem = new Routable(headers, System.IO.File.ReadAllBytes(sourceFile));
             this.OnAction?.Invoke(this, dataItem);
         }
     }

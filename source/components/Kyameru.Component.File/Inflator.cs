@@ -5,9 +5,15 @@ namespace Kyameru.Component.File
 {
     public class Inflator : IOasis
     {
-        public IFromComponent CreateComponent()
+        
+        public IFromComponent CreateFromComponent(string[] args)
         {
-            return new FileWatcher();
+            return new FileWatcher(args);
+        }
+
+        public IToComponent CreateToComponent(string[] args)
+        {
+            return new FileTo(args);
         }
     }
 }

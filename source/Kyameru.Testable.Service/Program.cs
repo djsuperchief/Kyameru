@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Kyameru.Testable
+namespace Kyameru.Testable.Service
 {
     public class Program
     {

@@ -7,7 +7,7 @@ namespace Kyameru.Core.Contracts
     {
         event EventHandler<Routable> OnAction;
 
-        void Setup(string[] args);
+        void Setup();
 
         void Start();
 

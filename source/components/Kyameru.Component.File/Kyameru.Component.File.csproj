@@ -5,6 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\framework\clobber.core\Kyameru.Core.csproj" />
+    <ProjectReference Include="..\..\framework\kyameru.core\Kyameru.Core.csproj" />
   </ItemGroup>
 </Project>

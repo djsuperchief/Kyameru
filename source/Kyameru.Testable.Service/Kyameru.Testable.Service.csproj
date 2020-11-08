@@ -5,13 +5,16 @@
   </PropertyGroup>
 
 
-  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Kyameru.Testable' " />
   <ItemGroup>
-    <ProjectReference Include="..\..\framework\clobber.core\Kyameru.Core.csproj">
+    <ProjectReference Include="..\components\Kyameru.Component.File\Kyameru.Component.File.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
-    <ProjectReference Include="..\..\components\Kyameru.Component.File\Kyameru.Component.File.csproj">
+    <ProjectReference Include="..\framework\kyameru.core\Kyameru.Core.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DummyComponents\" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
 </Project>

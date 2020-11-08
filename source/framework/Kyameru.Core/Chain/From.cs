@@ -12,10 +12,10 @@ namespace Kyameru.Core.Chain
         private readonly IFromComponent fromComponent;
         private readonly IChain<Routable> next;
 
-        public From(IFromComponent fromComponent, string[] args, IChain<Routable> next)
+        public From(IFromComponent fromComponent, IChain<Routable> next)
         {
             this.fromComponent = fromComponent;
-            this.fromComponent.Setup(args);
+            this.fromComponent.Setup();
             this.fromComponent.OnAction += FromComponent_OnAction;
             this.next = next;
         }

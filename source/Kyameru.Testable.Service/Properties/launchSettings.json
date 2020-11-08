@@ -4,7 +4,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:2639"
+      "applicationUrl": "http://localhost:53008"
     }
   },
   "profiles": {
@@ -16,11 +16,11 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Kyameru.Testable": {
+    "Kyameru.Testable.Service": {
       "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "weatherforecast",
-      "applicationUrl": "http://localhost:35113",
+      "launchBrowser": false,
+      "launchUrl": "health",
+      "applicationUrl": "http://localhost:2188",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
