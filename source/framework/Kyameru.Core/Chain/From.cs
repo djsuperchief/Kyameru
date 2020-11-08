@@ -21,6 +21,19 @@ namespace Kyameru.Core.Chain
             this.fromComponent.OnAction += FromComponent_OnAction;
             this.next = next;
             this.logger = logger;
+            this.fromComponent.OnLog += this.FromComponent_OnLog;
+        }
+
+        private void FromComponent_OnLog(object sender, Log e)
+        {
+            if (e.Error == null)
+            {
+                this.logger.Log(e.LogLevel, e.Message);
+            }
+            else
+            {
+                this.logger.LogError(e.Error, e.Message);
+            }
         }
 
         private void FromComponent_OnAction(object sender, Entities.Routable e)

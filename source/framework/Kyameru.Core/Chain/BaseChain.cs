@@ -7,7 +7,7 @@ namespace Kyameru.Core.Chain
 {
     internal abstract class BaseChain : Contracts.IChain<Entities.Routable>
     {
-        private readonly ILogger logger;
+        protected readonly ILogger logger;
         private IChain<Entities.Routable> Next { get; set; }
 
         protected BaseChain(ILogger logger)

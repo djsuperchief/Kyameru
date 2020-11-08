@@ -12,6 +12,19 @@ namespace Kyameru.Core.Chain
         public Process(ILogger logger, IProcessComponent processComponent) : base(logger)
         {
             this.component = processComponent;
+            this.component.OnLog += this.Component_OnLog;
+        }
+
+        private void Component_OnLog(object sender, Log e)
+        {
+            if (e.Error == null)
+            {
+                this.logger.Log(e.LogLevel, e.Message);
+            }
+            else
+            {
+                this.logger.LogError(e.Error, e.Message);
+            }
         }
 
         public override void Handle(Routable item)

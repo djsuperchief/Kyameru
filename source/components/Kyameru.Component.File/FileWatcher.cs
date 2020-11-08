@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using Kyameru.Core.Entities;
 
+using Microsoft.Extensions.Logging;
+
 namespace Kyameru.Component.File
 {
     public class FileWatcher : Kyameru.Core.Contracts.IFromComponent
     {
         public event EventHandler<Routable> OnAction;
+
+        public event EventHandler<Log> OnLog;
 
         private string fileName;
         private FileSystemWatcher fsw;
@@ -82,29 +86,9 @@ namespace Kyameru.Component.File
             this.fsw.Dispose();
         }
 
-        public void LogInformation(string info)
+        private void Log(LogLevel logLevel, string message, Exception exception = null)
         {
-            throw new NotImplementedException();
-        }
-
-        public void LogWarning(string warning)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LogError(string error)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LogCritical(string critical)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LogException(Exception ex)
-        {
-            throw new NotImplementedException();
+            this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
         }
 
         private void VerifyArguments(string[] args)

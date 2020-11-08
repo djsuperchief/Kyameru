@@ -1,5 +1,6 @@
 ﻿using System;
 using Kyameru.Core.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Testable.Service.DummyComponents
 {
@@ -8,6 +9,8 @@ namespace Kyameru.Testable.Service.DummyComponents
         public Something()
         {
         }
+
+        public event EventHandler<Log> OnLog;
 
         public void LogCritical(string critical)
         {
@@ -36,8 +39,12 @@ namespace Kyameru.Testable.Service.DummyComponents
 
         public void Process(Routable routable)
         {
-            string test = routable.Headers["DataType"];
-            string helloworld = "hello world";
+            this.Log(LogLevel.Information, routable.Headers["DataType"]);
+        }
+
+        private void Log(LogLevel logLevel, string message, Exception exception = null)
+        {
+            this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
         }
     }
 }

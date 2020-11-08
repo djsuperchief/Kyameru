@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Kyameru.Core.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Component.File
 {
@@ -10,6 +11,8 @@ namespace Kyameru.Component.File
         private readonly Dictionary<string, Action<Routable>> toActions = new Dictionary<string, Action<Routable>>();
         private readonly string DestinationFolder;
         private readonly string Action;
+
+        public event EventHandler<Log> OnLog;
 
         public FileTo(string[] args)
         {
@@ -23,37 +26,17 @@ namespace Kyameru.Component.File
             this.toActions[Action](item);
         }
 
-        public void LogCritical(string critical)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LogError(string error)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LogException(Exception ex)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LogInformation(string info)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LogWarning(string warning)
-        {
-            throw new NotImplementedException();
-        }
-
         private void SetupInternalActions()
         {
             this.toActions.Add("Move", this.MoveFile);
             this.toActions.Add("Copy", this.CopyFile);
             this.toActions.Add("Delete", this.DeleteFile);
             this.toActions.Add("Write", this.WriteFile);
+        }
+
+        private void Log(LogLevel logLevel, string message, Exception exception = null)
+        {
+            this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
         }
 
         private void WriteFile(Routable item)
@@ -64,6 +47,7 @@ namespace Kyameru.Component.File
 
         private void MoveFile(Routable item)
         {
+            this.Log(LogLevel.Information, "Moving file");
             System.IO.File.Move(item.Headers["FullSource"], this.GetDestination(item.Headers["SourceFile"]));
         }
 

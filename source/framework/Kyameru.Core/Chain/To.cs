@@ -12,6 +12,19 @@ namespace Kyameru.Core.Chain
         public To(ILogger logger, IToComponent toComponent) : base(logger)
         {
             this.toComponent = toComponent;
+            this.toComponent.OnLog += this.ToComponent_OnLog;
+        }
+
+        private void ToComponent_OnLog(object sender, Log e)
+        {
+            if (e.Error == null)
+            {
+                this.logger.Log(e.LogLevel, e.Message);
+            }
+            else
+            {
+                this.logger.LogError(e.Error, e.Message);
+            }
         }
 
         public override void Handle(Routable item)

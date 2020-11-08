@@ -1,4 +1,5 @@
 ﻿using Kyameru.Core.Entities;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,8 @@ namespace Kyameru.Testable.Service.DummyComponents
 {
     public class SomeOtherProcess : Kyameru.IProcessComponent
     {
+        public event EventHandler<Log> OnLog;
+
         public void LogCritical(string critical)
         {
             throw new NotImplementedException();
@@ -35,7 +38,12 @@ namespace Kyameru.Testable.Service.DummyComponents
 
         public void Process(Routable routable)
         {
-            string test = "test";
+            this.Log(LogLevel.Information, routable.Headers["SourceFile"]);
+        }
+
+        private void Log(LogLevel logLevel, string message, Exception exception = null)
+        {
+            this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
         }
     }
 }

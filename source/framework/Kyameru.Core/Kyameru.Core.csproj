@@ -8,7 +8,6 @@
     <Folder Include="Contracts\" />
     <Folder Include="BaseComponents\" />
     <Folder Include="Chain\" />
-    <Folder Include="Entities\" />
     <Folder Include="Exceptions\" />
   </ItemGroup>
   <ItemGroup>
