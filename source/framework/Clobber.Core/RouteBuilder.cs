@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Kyameru.Core.Contracts;
 
 namespace Kyameru.Core
 {
@@ -8,6 +9,7 @@ namespace Kyameru.Core
         private Contracts.IFromComponent from;
         private List<Contracts.IProcessComponent> components;
         private string[] fromArgs;
+        private string fromString;
 
         public RouteBuilder(Contracts.IFromComponent fromComponent)
         {
@@ -26,9 +28,18 @@ namespace Kyameru.Core
             return this;
         }
 
+        public RouteBuilder(string from, string[] args)
+        {
+            // Components here must be activated by name and therefor must be done
+            Type fromType = Type.GetType($"Kyameru.Component.{from}.Inflator, Kyameru.Component.{from}");
+            IOasis oasis = (IOasis)Activator.CreateInstance(fromType);
+            this.from = oasis.CreateComponent();
+            this.fromArgs = args;
+        }
+
         public Builder To(Contracts.IToComponent toComponent)
         {
-            return new Builder(from, components, toComponent);
+            return new Builder(from, fromArgs, components, toComponent);
         }
 
         

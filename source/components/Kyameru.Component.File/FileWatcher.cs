@@ -5,7 +5,7 @@ using Kyameru.Core.Entities;
 
 namespace Kyameru.Component.File
 {
-    public class Single : Kyameru.Core.Contracts.IFromComponent, Kyameru.Core.Contracts.IToComponent
+    public class FileWatcher : Kyameru.Core.Contracts.IFromComponent, Kyameru.Core.Contracts.IToComponent
     {
         public event EventHandler<Routable> OnAction;
         private string fileName;
@@ -15,7 +15,7 @@ namespace Kyameru.Component.File
         private readonly Dictionary<string, Action> fswSetup = new Dictionary<string, Action>();
         private readonly Dictionary<string, Action<Routable, string>> toActions = new Dictionary<string, Action<Routable, string>>();
 
-        public Single()
+        public FileWatcher()
         {
             this.SetupInternalActions();
         }

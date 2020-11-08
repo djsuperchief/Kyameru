@@ -6,4 +6,12 @@
 
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Kyameru.Testable' " />
+  <ItemGroup>
+    <ProjectReference Include="..\..\framework\clobber.core\Kyameru.Core.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+    <ProjectReference Include="..\..\components\Kyameru.Component.File\Kyameru.Component.File.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

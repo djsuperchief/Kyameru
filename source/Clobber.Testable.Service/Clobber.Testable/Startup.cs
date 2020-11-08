@@ -26,6 +26,7 @@ namespace Kyameru.Testable
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            Kyameru.Core.Route.From("File", "c:/test.txt").To(null).Build(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,16 +37,16 @@ namespace Kyameru.Testable
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
+            /*app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-            });
+            });*/
         }
     }
 }

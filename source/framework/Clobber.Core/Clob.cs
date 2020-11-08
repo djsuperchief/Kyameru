@@ -14,7 +14,17 @@ namespace Kyameru.Core
             return new RouteBuilder(from);
         }
 
+        public static RouteBuilder From<T>(T from) where T : Contracts.IFromComponent
+        {
+            return new RouteBuilder(from);
+        }
+
         public static RouteBuilder From(Contracts.IFromComponent from, string[] args)
+        {
+            return new RouteBuilder(from, args);
+        }
+
+        public static RouteBuilder From(string from, params string[] args)
         {
             return new RouteBuilder(from, args);
         }
