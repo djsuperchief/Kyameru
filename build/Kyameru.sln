@@ -1,0 +1,46 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru", "..\source\console\Kyameru.csproj", "{8579B881-5DD7-45D5-8E13-89599EE46497}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{48E13342-E35A-462A-8BAF-28A34398D495}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Core", "..\source\framework\clobber.core\Kyameru.Core.csproj", "{1ED678C4-B884-4CCD-87DC-58E0B34AECF0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{5892E04C-C762-42DE-BEA5-EF70AB8CA265}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "service", "service", "{EC1342FC-1978-4958-9AED-8517C1CF1F55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Testable", "..\source\Clobber.Testable.Service\Clobber.Testable\Kyameru.Testable.csproj", "{FFF755FB-876C-4974-B45B-435EE8029911}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.File", "..\source\components\Kyameru.Component.File\Kyameru.Component.File.csproj", "{206C7B4D-CB3A-46EB-8070-BA6E0AC98427}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8579B881-5DD7-45D5-8E13-89599EE46497}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8579B881-5DD7-45D5-8E13-89599EE46497}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8579B881-5DD7-45D5-8E13-89599EE46497}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8579B881-5DD7-45D5-8E13-89599EE46497}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1ED678C4-B884-4CCD-87DC-58E0B34AECF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1ED678C4-B884-4CCD-87DC-58E0B34AECF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1ED678C4-B884-4CCD-87DC-58E0B34AECF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1ED678C4-B884-4CCD-87DC-58E0B34AECF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFF755FB-876C-4974-B45B-435EE8029911}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFF755FB-876C-4974-B45B-435EE8029911}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFF755FB-876C-4974-B45B-435EE8029911}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFF755FB-876C-4974-B45B-435EE8029911}.Release|Any CPU.Build.0 = Release|Any CPU
+		{206C7B4D-CB3A-46EB-8070-BA6E0AC98427}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{206C7B4D-CB3A-46EB-8070-BA6E0AC98427}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{206C7B4D-CB3A-46EB-8070-BA6E0AC98427}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{206C7B4D-CB3A-46EB-8070-BA6E0AC98427}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1ED678C4-B884-4CCD-87DC-58E0B34AECF0} = {48E13342-E35A-462A-8BAF-28A34398D495}
+		{FFF755FB-876C-4974-B45B-435EE8029911} = {EC1342FC-1978-4958-9AED-8517C1CF1F55}
+		{206C7B4D-CB3A-46EB-8070-BA6E0AC98427} = {5892E04C-C762-42DE-BEA5-EF70AB8CA265}
+	EndGlobalSection
+EndGlobal
