@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Core.Chain
 {
@@ -11,13 +12,15 @@ namespace Kyameru.Core.Chain
     {
         private readonly IFromComponent fromComponent;
         private readonly IChain<Routable> next;
+        private readonly ILogger logger;
 
-        public From(IFromComponent fromComponent, IChain<Routable> next)
+        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger)
         {
             this.fromComponent = fromComponent;
             this.fromComponent.Setup();
             this.fromComponent.OnAction += FromComponent_OnAction;
             this.next = next;
+            this.logger = logger;
         }
 
         private void FromComponent_OnAction(object sender, Entities.Routable e)

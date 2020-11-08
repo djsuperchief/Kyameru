@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Kyameru.Core.Chain;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Core
 {
@@ -21,17 +23,13 @@ namespace Kyameru.Core
             this.Components = components;
         }
 
-        public void Build()
-        {
-        }
-
-        public void Build(IServiceCollection services)
+        public void Build(IServiceCollection services, ILogger logger)
         {
             IChain<Routable> next = null;
-            IChain<Routable> final = new Chain.To(null, this.To);
+            IChain<Routable> final = new Chain.To(logger, this.To);
             if (this.Components != null && this.Components.Count > 0)
             {
-                next = SetupChain(0);
+                next = SetupChain(0, logger);
             }
             else
             {
@@ -42,20 +40,20 @@ namespace Kyameru.Core
 
             services.AddHostedService<Chain.From>(x =>
             {
-                return new Chain.From(this.From, next);
+                return new Chain.From(this.From, next, x.GetService<ILogger>());
             });
         }
 
-        private IChain<Routable> SetupChain(int i)
+        private IChain<Routable> SetupChain(int i, ILogger logger)
         {
-            Chain.Process chain = new Chain.Process(null, this.Components[i]);
+            Chain.Process chain = new Chain.Process(logger, this.Components[i]);
             if (i < this.Components.Count - 1)
             {
-                chain.SetNext(this.SetupChain(++i));
+                chain.SetNext(this.SetupChain(++i, logger));
             }
             else
             {
-                chain.SetNext(new Chain.To(null, this.To));
+                chain.SetNext(new Chain.To(logger, this.To));
             }
 
             return chain;
