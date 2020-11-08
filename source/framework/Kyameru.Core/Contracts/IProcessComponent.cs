@@ -1,8 +1,10 @@
-﻿using System;
-namespace Kyameru.Core.Contracts
+﻿using Kyameru.Core.Contracts;
+using System;
+
+namespace Kyameru
 {
     public interface IProcessComponent : IComponent
     {
-        void Process(Entities.Routable routable);
+        void Process(Core.Entities.Routable routable);
     }
 }

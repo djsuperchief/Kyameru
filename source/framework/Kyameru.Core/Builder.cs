@@ -11,10 +11,9 @@ namespace Kyameru.Core
         private readonly IFromComponent From;
         private readonly IToComponent To;
         private readonly List<IProcessComponent> Components;
-        
 
         public Builder(Contracts.IFromComponent from,
-            List<Contracts.IProcessComponent> components,
+            List<IProcessComponent> components,
             Contracts.IToComponent to)
         {
             this.From = from;
@@ -24,27 +23,20 @@ namespace Kyameru.Core
 
         public void Build()
         {
-
         }
 
         public void Build(IServiceCollection services)
         {
             IChain<Routable> next = null;
-            if(this.Components != null && this.Components.Count > 0)
+            IChain<Routable> final = new Chain.To(null, this.To);
+            if (this.Components != null && this.Components.Count > 0)
             {
-                next = new Chain.Process(null, this.Components[0]);
-                for (int i = 1; i < this.Components.Count; i++)
-                {
-                    // this needs working on
-                    // setup the chain here
-                }
-                next.SetNext(new Chain.To(null, this.To));
+                next = SetupChain(0);
             }
             else
             {
-                next = new Chain.To(null, this.To);
+                next = final;
             }
-            
 
             // finish the to chain here.
 
@@ -54,5 +46,19 @@ namespace Kyameru.Core
             });
         }
 
+        private IChain<Routable> SetupChain(int i)
+        {
+            Chain.Process chain = new Chain.Process(null, this.Components[i]);
+            if (i < this.Components.Count - 1)
+            {
+                chain.SetNext(this.SetupChain(++i));
+            }
+            else
+            {
+                chain.SetNext(new Chain.To(null, this.To));
+            }
+
+            return chain;
+        }
     }
 }

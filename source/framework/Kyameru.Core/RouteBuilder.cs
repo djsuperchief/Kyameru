@@ -6,14 +6,8 @@ namespace Kyameru.Core
 {
     public class RouteBuilder
     {
-        private Contracts.IFromComponent from;
-        private List<Contracts.IProcessComponent> components;
-
-        
-
-        
-
-
+        private readonly Contracts.IFromComponent from;
+        private List<IProcessComponent> components;
 
         public RouteBuilder(string from, string[] args)
         {
@@ -21,12 +15,11 @@ namespace Kyameru.Core
             Type fromType = Type.GetType($"Kyameru.Component.{from}.Inflator, Kyameru.Component.{from}");
             IOasis oasis = (IOasis)Activator.CreateInstance(fromType);
             this.from = oasis.CreateFromComponent(args);
-            
         }
 
-        public RouteBuilder Process(Contracts.IProcessComponent processComponent)
+        public RouteBuilder Process(IProcessComponent processComponent)
         {
-            if(this.components == null)
+            if (this.components == null)
             {
                 this.components = new List<IProcessComponent>();
             }
@@ -43,7 +36,5 @@ namespace Kyameru.Core
             IToComponent toComponent = oasis.CreateToComponent(args);
             return new Builder(this.from, this.components, toComponent);
         }
-
-        
     }
 }

@@ -28,6 +28,8 @@ namespace Kyameru.Testable.Service
             services.AddControllers();
             Kyameru.Route.From("File", "C:/Temp", "Created", "*.*", "true")
                 .Process(new DummyComponents.Something())
+                .Process(new DummyComponents.Something())
+                .Process(new DummyComponents.SomeOtherProcess())
                 .To("File", "C:/tools", "Move")
                 .Build(services);
         }

@@ -10,7 +10,7 @@ namespace Kyameru.Core.Chain
         private readonly ILogger logger;
         private IChain<Entities.Routable> Next { get; set; }
 
-        public BaseChain(ILogger logger)
+        protected BaseChain(ILogger logger)
         {
             this.logger = logger;
         }

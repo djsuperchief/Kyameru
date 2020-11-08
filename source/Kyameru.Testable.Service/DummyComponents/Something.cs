@@ -3,7 +3,7 @@ using Kyameru.Core.Entities;
 
 namespace Kyameru.Testable.Service.DummyComponents
 {
-    public class Something : Kyameru.Core.Contracts.IProcessComponent
+    public class Something : Kyameru.IProcessComponent
     {
         public Something()
         {

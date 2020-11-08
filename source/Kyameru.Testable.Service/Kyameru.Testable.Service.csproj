@@ -14,7 +14,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="DummyComponents\" />
     <Folder Include="Controllers\" />
   </ItemGroup>
 </Project>
