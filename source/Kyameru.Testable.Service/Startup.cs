@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Kyameru.Testable.Service
 {
@@ -26,6 +27,7 @@ namespace Kyameru.Testable.Service
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddLogging(this.SetupLogging);
             Kyameru.Route.From("File", "C:/Temp", "Created", "*.*", "true")
                 .Process(new DummyComponents.Something())
                 .Process(new DummyComponents.Something())
@@ -52,6 +54,13 @@ namespace Kyameru.Testable.Service
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private void SetupLogging(ILoggingBuilder loggingBuilder)
+        {
+            loggingBuilder.AddConfiguration(this.Configuration.GetSection("Logging"));
+            loggingBuilder.AddConsole();
+            loggingBuilder.AddDebug();
         }
     }
 }

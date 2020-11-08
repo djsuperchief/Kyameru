@@ -23,30 +23,31 @@ namespace Kyameru.Core
             this.Components = components;
         }
 
-        public void Build(IServiceCollection services, ILogger logger)
+        public void Build(IServiceCollection services)
         {
-            IChain<Routable> next = null;
-            IChain<Routable> final = new Chain.To(logger, this.To);
-            if (this.Components != null && this.Components.Count > 0)
-            {
-                next = SetupChain(0, logger);
-            }
-            else
-            {
-                next = final;
-            }
-
-            // finish the to chain here.
-
             services.AddHostedService<Chain.From>(x =>
             {
-                return new Chain.From(this.From, next, x.GetService<ILogger>());
+                ILogger logger = x.GetService<ILogger<Route>>();
+                logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
+                IChain<Routable> next = null;
+                IChain<Routable> final = new Chain.To(logger, this.To);
+                if (this.Components != null && this.Components.Count > 0)
+                {
+                    next = SetupChain(0, logger);
+                }
+                else
+                {
+                    next = final;
+                }
+
+                return new Chain.From(this.From, next, logger);
             });
         }
 
         private IChain<Routable> SetupChain(int i, ILogger logger)
         {
             Chain.Process chain = new Chain.Process(logger, this.Components[i]);
+            logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, this.Components[i].ToString()));
             if (i < this.Components.Count - 1)
             {
                 chain.SetNext(this.SetupChain(++i, logger));
