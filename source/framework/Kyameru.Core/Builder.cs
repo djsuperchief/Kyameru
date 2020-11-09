@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Kyameru.Core.Chain;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
@@ -13,6 +14,7 @@ namespace Kyameru.Core
         private readonly IFromComponent From;
         private readonly IToComponent To;
         private readonly List<IProcessComponent> Components;
+        private IErrorComponent errorComponent;
 
         public Builder(Contracts.IFromComponent from,
             List<IProcessComponent> components,
@@ -41,6 +43,11 @@ namespace Kyameru.Core
 
                 return new Chain.From(this.From, next, logger);
             });
+        }
+
+        public Builder Error(IErrorComponent errorComponent)
+        {
+            throw new NotImplementedException("Currently not implemented.");
         }
 
         private IChain<Routable> SetupChain(int i, ILogger logger)
