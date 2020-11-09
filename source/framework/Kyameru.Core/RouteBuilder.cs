@@ -46,10 +46,7 @@ namespace Kyameru.Core
 
         public Builder To(string to, params string[] args)
         {
-            Type toType = Type.GetType($"Kyameru.Component.{to}.Inflator, Kyameru.Component.{to}");
-            IOasis oasis = (IOasis)Activator.CreateInstance(toType);
-            IToComponent toComponent = oasis.CreateToComponent(args);
-            return new Builder(this.from, this.components, toComponent);
+            return new Builder(this.from, this.components, this.SetTo(to, args));
         }
 
         public Builder To(string componentUri)
