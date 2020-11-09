@@ -13,34 +13,26 @@ namespace Kyameru.Component.File
 
         public event EventHandler<Log> OnLog;
 
-        private string fileName;
         private FileSystemWatcher fsw;
-        private string[] fswArgs;
-        private bool isDirectoryWatcher = false;
 
         private readonly Dictionary<string, Action> fswSetup = new Dictionary<string, Action>();
+        private readonly Dictionary<string, string> config;
 
         public FileWatcher(string[] args)
         {
+            this.config = args.ToConfig();
             this.SetupInternalActions();
-            this.fswArgs = args;
         }
 
-        public void Process(Routable item)
+        public FileWatcher(Dictionary<string, string> headers)
         {
-            throw new Core.Exceptions.ProcessException(Resources.ERROR_MUSTSPECIFYPROCESSARGS);
+            this.config = headers.ToConfig();
+            this.SetupInternalActions();
         }
 
         public void Setup()
         {
-            this.VerifyArguments(this.fswArgs);
-            FileAttributes fileAttributes = System.IO.File.GetAttributes(this.fswArgs[0]);
-            if ((fileAttributes & FileAttributes.Directory) == FileAttributes.Directory)
-            {
-                this.isDirectoryWatcher = true;
-            }
-
-            this.fileName = this.fswArgs[0];
+            this.VerifyArguments();
         }
 
         public void Start()
@@ -50,7 +42,7 @@ namespace Kyameru.Component.File
             this.SetupSubDirectories();
             this.fsw.EnableRaisingEvents = true;
             this.fsw.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName;
-            foreach (string item in fswArgs[1].Split(','))
+            foreach (string item in this.config["Notifications"].Split(','))
             {
                 if (this.fswSetup.ContainsKey(item))
                 {
@@ -61,23 +53,14 @@ namespace Kyameru.Component.File
 
         private FileSystemWatcher SetupFsw()
         {
-            if (this.isDirectoryWatcher)
-            {
-                return new FileSystemWatcher(this.fswArgs[0], this.fswArgs[2]);
-            }
-            else
-            {
-                return new FileSystemWatcher(
-                    Path.GetDirectoryName(this.fswArgs[0]),
-                    Path.GetFileName(this.fswArgs[0]));
-            }
+            return new FileSystemWatcher(this.config["Target"], this.config["Filter"]);
         }
 
         private void SetupSubDirectories()
         {
-            if (this.fswArgs.Length == 4 && this.isDirectoryWatcher)
+            if (this.config.Keys.Count == 4)
             {
-                this.fsw.IncludeSubdirectories = bool.Parse(this.fswArgs[3]);
+                this.fsw.IncludeSubdirectories = bool.Parse(this.config["SubDirectories"]);
             }
         }
 
@@ -91,14 +74,14 @@ namespace Kyameru.Component.File
             this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
         }
 
-        private void VerifyArguments(string[] args)
+        private void VerifyArguments()
         {
-            if (string.IsNullOrWhiteSpace(args[0]))
+            if (string.IsNullOrWhiteSpace(this.config["Target"]))
             {
-                throw new ArgumentException(Resources.ERROR_EXPECTEDSINGLE, "args[0]");
+                throw new ArgumentException(Resources.ERROR_EXPECTEDSINGLE, "Target");
             }
 
-            if (string.IsNullOrWhiteSpace(Path.GetFileName(args[0])) && args.Length < 3)
+            if (this.config.Keys.Count < 3)
             {
                 throw new ArgumentException(Resources.ERROR_NOTENOUGHARGUMENTS_DIRECTORY);
             }
@@ -118,10 +101,10 @@ namespace Kyameru.Component.File
 
         private void Fsw_Renamed(object sender, RenamedEventArgs e)
         {
-            if (e.Name == this.fileName)
-            {
-                this.CreateMessage("Rename", e.FullPath);
-            }
+            //if (e.Name == this.fileName)
+            //{
+            this.CreateMessage("Rename", e.FullPath);
+            //}
         }
 
         private void AddChanged()
