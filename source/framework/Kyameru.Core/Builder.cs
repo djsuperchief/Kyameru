@@ -30,14 +30,13 @@ namespace Kyameru.Core
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
-                IChain<Routable> final = new Chain.To(logger, this.To);
                 if (this.Components != null && this.Components.Count > 0)
                 {
                     next = SetupChain(0, logger);
                 }
                 else
                 {
-                    next = final;
+                    next = new Chain.To(logger, this.To);
                 }
 
                 return new Chain.From(this.From, next, logger);

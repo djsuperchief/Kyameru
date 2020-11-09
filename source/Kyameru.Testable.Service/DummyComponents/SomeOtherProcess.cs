@@ -38,7 +38,7 @@ namespace Kyameru.Testable.Service.DummyComponents
 
         public void Process(Routable routable)
         {
-            this.Log(LogLevel.Information, routable.Headers["SourceFile"]);
+            this.Log(LogLevel.Information, routable.Headers["Test"]);
         }
 
         private void Log(LogLevel logLevel, string message, Exception exception = null)

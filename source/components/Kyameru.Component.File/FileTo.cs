@@ -48,7 +48,14 @@ namespace Kyameru.Component.File
         private void MoveFile(Routable item)
         {
             this.Log(LogLevel.Information, "Moving file");
-            System.IO.File.Move(item.Headers["FullSource"], this.GetDestination(item.Headers["SourceFile"]));
+            try
+            {
+                System.IO.File.Move(item.Headers["FullSource"], this.GetDestination(item.Headers["SourceFile"]));
+            }
+            catch (Exception ex)
+            {
+                this.Log(LogLevel.Error, "Error Moving File", ex);
+            }
         }
 
         private void CopyFile(Routable item)

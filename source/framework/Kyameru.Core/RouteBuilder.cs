@@ -9,7 +9,7 @@ namespace Kyameru.Core
     public class RouteBuilder
     {
         private readonly Contracts.IFromComponent from;
-        private List<IProcessComponent> components;
+        private readonly List<IProcessComponent> components = new List<IProcessComponent>();
 
         public RouteBuilder(string from, string[] args)
         {
@@ -27,13 +27,20 @@ namespace Kyameru.Core
 
         public RouteBuilder Process(IProcessComponent processComponent)
         {
-            if (this.components == null)
-            {
-                this.components = new List<IProcessComponent>();
-            }
-
             this.components.Add(processComponent);
 
+            return this;
+        }
+
+        public RouteBuilder AddHeader(string key, string value)
+        {
+            this.components.Add(new BaseComponents.AddHeader(key, value));
+            return this;
+        }
+
+        public RouteBuilder AddHeader(string key, Func<string> callback)
+        {
+            this.components.Add(new BaseComponents.AddHeader(key, callback));
             return this;
         }
 
