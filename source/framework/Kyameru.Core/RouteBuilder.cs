@@ -19,7 +19,7 @@ namespace Kyameru.Core
         public RouteBuilder(string componentUri)
         {
             UriBuilder uriBuilder = new UriBuilder(componentUri);
-            string query = $"Target={uriBuilder.Path}&{uriBuilder.Query.Substring(1)}";
+            string query = $"Target={uriBuilder.Path}{this.GetQuery(uriBuilder)}";
             this.from = this.SetFrom(
                 uriBuilder.Scheme.ToFirstCaseUpper(), null,
                 this.ParseQuery(query));
@@ -52,11 +52,22 @@ namespace Kyameru.Core
         public Builder To(string componentUri)
         {
             UriBuilder uriBuilder = new UriBuilder(componentUri);
-            string query = $"Target={uriBuilder.Path}&{uriBuilder.Query.Substring(1)}";
+            string query = $"Target={uriBuilder.Path}{this.GetQuery(uriBuilder)}";
             return new Builder(this.from, this.components, this.SetTo(
                 uriBuilder.Scheme.ToFirstCaseUpper(),
                 null,
                 this.ParseQuery(query)));
+        }
+
+        private string GetQuery(UriBuilder uriBuilder)
+        {
+            string response = string.Empty;
+            if (!string.IsNullOrWhiteSpace(uriBuilder.Query))
+            {
+                response = $"&{uriBuilder.Query.Substring(1)}";
+            }
+
+            return response;
         }
 
         private Contracts.IFromComponent SetFrom(string from, string[] args = null, Dictionary<string, string> headers = null)

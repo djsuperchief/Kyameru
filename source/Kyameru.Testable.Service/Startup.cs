@@ -33,7 +33,9 @@ namespace Kyameru.Testable.Service
                 .Process(new DummyComponents.Something())
                 .AddHeader("Test", "This is a test")
                 .Process(new DummyComponents.SomeOtherProcess())
-                .To("file:///C:/tools?Action=Move")
+                .AddHeader("SlackMessage", "Kyameru is the best new processing engine.")
+                .To("slack:///TH7DAGRQE/B01DWN0088P/f23IiCaHrx8NnThl7xUDiDSn")
+                //.To("file:///C:/tools?Action=Move")
                 .Build(services);
         }
 
