@@ -74,7 +74,7 @@ namespace Kyameru.Component.File
 
         private string GetDestination(string filename)
         {
-            return Path.Combine(this.headers["Destination"], filename);
+            return Path.Combine(this.headers["Target"], filename);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Kyameru.Component.File
     internal static class ConfigSetup
     {
         private static string[] fromHeaders = new string[] { "Target", "Notifications", "Filter", "SubDirectories" };
-        private static string[] toHeaders = new string[] { "Destination", "Action" };
+        private static string[] toHeaders = new string[] { "Target", "Action" };
 
         public static Dictionary<string, string> ToFromConfig(this Dictionary<string, string> incoming)
         {

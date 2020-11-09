@@ -33,7 +33,7 @@ namespace Kyameru.Testable.Service
                 .Process(new DummyComponents.Something())
                 .AddHeader("Test", "This is a test")
                 .Process(new DummyComponents.SomeOtherProcess())
-                .To("File", "C:/tools", "Move")
+                .To("file:///C:/tools?Action=Move")
                 .Build(services);
         }
 
