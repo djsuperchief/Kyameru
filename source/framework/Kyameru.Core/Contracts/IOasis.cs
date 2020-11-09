@@ -10,5 +10,7 @@ namespace Kyameru.Core.Contracts
         IFromComponent CreateFromComponent(Dictionary<string, string> headers);
 
         IToComponent CreateToComponent(string[] args);
+
+        IToComponent CreateToComponent(Dictionary<string, string> headers);
     }
 }

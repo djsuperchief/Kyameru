@@ -9,21 +9,25 @@ namespace Kyameru.Component.File
     public class FileTo : Core.Contracts.IToComponent
     {
         private readonly Dictionary<string, Action<Routable>> toActions = new Dictionary<string, Action<Routable>>();
-        private readonly string DestinationFolder;
-        private readonly string Action;
+        private readonly Dictionary<string, string> headers;
 
         public event EventHandler<Log> OnLog;
 
         public FileTo(string[] args)
         {
             this.SetupInternalActions();
-            this.DestinationFolder = args[0];
-            this.Action = args[1];
+            this.headers = args.ToToConfig();
+        }
+
+        public FileTo(Dictionary<string, string> incomingHeaders)
+        {
+            this.SetupInternalActions();
+            this.headers = incomingHeaders.ToToConfig();
         }
 
         public void Process(Routable item)
         {
-            this.toActions[Action](item);
+            this.toActions[this.headers["Action"]](item);
         }
 
         private void SetupInternalActions()
@@ -70,7 +74,7 @@ namespace Kyameru.Component.File
 
         private string GetDestination(string filename)
         {
-            return Path.Combine(this.DestinationFolder, filename);
+            return Path.Combine(this.headers["Destination"], filename);
         }
     }
 }

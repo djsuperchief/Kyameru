@@ -20,5 +20,10 @@ namespace Kyameru.Component.File
         {
             return new FileTo(args);
         }
+
+        public IToComponent CreateToComponent(Dictionary<string, string> headers)
+        {
+            return new FileTo(headers);
+        }
     }
 }

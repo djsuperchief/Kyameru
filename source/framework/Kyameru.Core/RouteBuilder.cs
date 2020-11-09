@@ -52,6 +52,16 @@ namespace Kyameru.Core
             return new Builder(this.from, this.components, toComponent);
         }
 
+        public Builder To(string componentUri)
+        {
+            UriBuilder uriBuilder = new UriBuilder(componentUri);
+            string query = $"Target={uriBuilder.Path}&{uriBuilder.Query.Substring(1)}";
+            return new Builder(this.from, this.components, this.SetTo(
+                uriBuilder.Scheme.ToFirstCaseUpper(),
+                null,
+                this.ParseQuery(query)));
+        }
+
         private Contracts.IFromComponent SetFrom(string from, string[] args = null, Dictionary<string, string> headers = null)
         {
             Contracts.IFromComponent response = null;
@@ -66,6 +76,30 @@ namespace Kyameru.Core
                 else
                 {
                     response = oasis.CreateFromComponent(headers);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_FROM, ex);
+            }
+
+            return response;
+        }
+
+        private IToComponent SetTo(string to, string[] args = null, Dictionary<string, string> headers = null)
+        {
+            IToComponent response = null;
+            try
+            {
+                Type fromType = Type.GetType($"Kyameru.Component.{to}.Inflator, Kyameru.Component.{to}");
+                IOasis oasis = (IOasis)Activator.CreateInstance(fromType);
+                if (headers == null)
+                {
+                    response = oasis.CreateToComponent(args);
+                }
+                else
+                {
+                    response = oasis.CreateToComponent(headers);
                 }
             }
             catch (Exception ex)

@@ -28,20 +28,13 @@ namespace Kyameru.Testable.Service
         {
             services.AddControllers();
             services.AddLogging(this.SetupLogging);
-            Kyameru.Route.From("File:///C:/Temp?Notifications=Created&SubDirectories=true&Filter=*.*")
+            Kyameru.Route.From("file:///C:/Temp?Notifications=Created&SubDirectories=true&Filter=*.*")
                 .Process(new DummyComponents.Something())
                 .Process(new DummyComponents.Something())
                 .AddHeader("Test", "This is a test")
                 .Process(new DummyComponents.SomeOtherProcess())
                 .To("File", "C:/tools", "Move")
                 .Build(services);
-
-            /*Kyameru.Route.From("File", "C:/Temp", "Created", "*.*", "true")
-                .Process(new DummyComponents.Something())
-                .Process(new DummyComponents.Something())
-                .Process(new DummyComponents.SomeOtherProcess())
-                .To("File", "C:/tools", "Move")
-                .Build(services);*/
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

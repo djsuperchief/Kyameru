@@ -20,13 +20,13 @@ namespace Kyameru.Component.File
 
         public FileWatcher(string[] args)
         {
-            this.config = args.ToConfig();
+            this.config = args.ToFromConfig();
             this.SetupInternalActions();
         }
 
         public FileWatcher(Dictionary<string, string> headers)
         {
-            this.config = headers.ToConfig();
+            this.config = headers.ToFromConfig();
             this.SetupInternalActions();
         }
 
