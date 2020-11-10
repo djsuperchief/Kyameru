@@ -3,10 +3,11 @@
 Kyameru is a processing engine built with heavy inspiration from Apache Camel.
 It is currently in very Alpha stage and only contains two components: File and Slack.
 
-## File
-### From
+## Components
+### File
+#### From
 The file component works as a filewatcher creating a routable event with the body data being a byte array representation of the file.
-#### Setup Headers
+##### Setup Headers
 
 Header | Description | Optional
 ------ | ----------- | --------
