@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Kyameru.Core.Contracts;
+using Kyameru.Core.Entities;
 using Kyameru.Core.Extensions;
 
 namespace Kyameru.Core
 {
-    public class RouteBuilder
+    public class RouteBuilder : AbstractBuilder
     {
         private readonly Contracts.IFromComponent from;
         private readonly List<IProcessComponent> components = new List<IProcessComponent>();
@@ -18,11 +19,10 @@ namespace Kyameru.Core
 
         public RouteBuilder(string componentUri)
         {
-            UriBuilder uriBuilder = new UriBuilder(componentUri);
-            string query = $"Target={uriBuilder.Path}{this.GetQuery(uriBuilder)}";
+            Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
             this.from = this.SetFrom(
-                uriBuilder.Scheme.ToFirstCaseUpper(), null,
-                this.ParseQuery(query));
+                route.ComponentName, null,
+                route.Headers);
         }
 
         public RouteBuilder Process(IProcessComponent processComponent)
@@ -44,30 +44,24 @@ namespace Kyameru.Core
             return this;
         }
 
+        public RouteBuilder AddHeader(string key, Func<Routable, string> callback)
+        {
+            this.components.Add(new BaseComponents.AddHeader(key, callback));
+            return this;
+        }
+
         public Builder To(string to, params string[] args)
         {
-            return new Builder(this.from, this.components, this.SetTo(to, args));
+            return new Builder(this.from, this.components, this.CreateTo(to, args));
         }
 
         public Builder To(string componentUri)
         {
-            UriBuilder uriBuilder = new UriBuilder(componentUri);
-            string query = $"Target={uriBuilder.Path}{this.GetQuery(uriBuilder)}";
-            return new Builder(this.from, this.components, this.SetTo(
-                uriBuilder.Scheme.ToFirstCaseUpper(),
+            Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
+            return new Builder(this.from, this.components, this.CreateTo(
+                route.ComponentName,
                 null,
-                this.ParseQuery(query)));
-        }
-
-        private string GetQuery(UriBuilder uriBuilder)
-        {
-            string response = string.Empty;
-            if (!string.IsNullOrWhiteSpace(uriBuilder.Query))
-            {
-                response = $"&{uriBuilder.Query.Substring(1)}";
-            }
-
-            return response;
+                route.Headers));
         }
 
         private Contracts.IFromComponent SetFrom(string from, string[] args = null, Dictionary<string, string> headers = null)
@@ -89,47 +83,6 @@ namespace Kyameru.Core
             catch (Exception ex)
             {
                 throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_FROM, ex);
-            }
-
-            return response;
-        }
-
-        private IToComponent SetTo(string to, string[] args = null, Dictionary<string, string> headers = null)
-        {
-            IToComponent response = null;
-            try
-            {
-                Type fromType = Type.GetType($"Kyameru.Component.{to}.Inflator, Kyameru.Component.{to}");
-                IOasis oasis = (IOasis)Activator.CreateInstance(fromType);
-                if (headers == null)
-                {
-                    response = oasis.CreateToComponent(args);
-                }
-                else
-                {
-                    response = oasis.CreateToComponent(headers);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_FROM, ex);
-            }
-
-            return response;
-        }
-
-        /// <summary>
-        /// Do not want to bring in an entire library to do this.
-        /// </summary>
-        /// <param name="query"></param>
-        /// <returns></returns>
-        private Dictionary<string, string> ParseQuery(string query)
-        {
-            Dictionary<string, string> response = new Dictionary<string, string>();
-            string[] parts = query.Split('&');
-            for (int i = 0; i < parts.Length; i++)
-            {
-                response.Add(parts[i].Split('=')[0], parts[i].Split('=')[1]);
             }
 
             return response;

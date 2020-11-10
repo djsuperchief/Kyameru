@@ -43,7 +43,14 @@ namespace Kyameru.Core.Chain
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            this.fromComponent.Start();
+            try
+            {
+                this.fromComponent.Start();
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, Resources.ERROR_FROM_COMPONENT);
+            }
 
             return Task.CompletedTask;
         }

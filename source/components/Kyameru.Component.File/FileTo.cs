@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.Logging;
@@ -45,31 +46,55 @@ namespace Kyameru.Component.File
 
         private void WriteFile(Routable item)
         {
-            System.IO.File.WriteAllBytes(this.GetDestination(item.Headers["SourceFile"]), (byte[])item.Data);
-            this.DeleteFile(item);
+            this.Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_WRITE, item.Headers["SourceFile"]));
+            try
+            {
+                System.IO.File.WriteAllBytes(this.GetDestination(item.Headers["SourceFile"]), (byte[])item.Body);
+                this.DeleteFile(item);
+            }
+            catch (Exception ex)
+            {
+                this.Log(LogLevel.Error, Resources.ERROR_ACTION_WRITE, ex);
+            }
         }
 
         private void MoveFile(Routable item)
         {
-            this.Log(LogLevel.Information, "Moving file");
+            this.Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_MOVE, item.Headers["SourceFile"]));
             try
             {
                 System.IO.File.Move(item.Headers["FullSource"], this.GetDestination(item.Headers["SourceFile"]));
             }
             catch (Exception ex)
             {
-                this.Log(LogLevel.Error, "Error Moving File", ex);
+                this.Log(LogLevel.Error, Resources.ERROR_ACTION_MOVE, ex);
             }
         }
 
         private void CopyFile(Routable item)
         {
-            System.IO.File.Copy(item.Headers["FullSource"], this.GetDestination(item.Headers["SourceFile"]));
+            this.Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_COPY, item.Headers["SourceFile"]));
+            try
+            {
+                System.IO.File.Copy(item.Headers["FullSource"], this.GetDestination(item.Headers["SourceFile"]));
+            }
+            catch (Exception ex)
+            {
+                this.Log(LogLevel.Error, Resources.ERROR_ACTION_COPY, ex);
+            }
         }
 
         private void DeleteFile(Routable item)
         {
-            System.IO.File.Delete(item.Headers["FullSource"]);
+            this.Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_DELETE, item.Headers["SourceFile"]));
+            try
+            {
+                System.IO.File.Delete(item.Headers["FullSource"]);
+            }
+            catch (Exception ex)
+            {
+                this.Log(LogLevel.Error, Resources.ERROR_ACTION_DELETE, ex);
+            }
         }
 
         private string GetDestination(string filename)
