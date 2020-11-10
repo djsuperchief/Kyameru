@@ -137,14 +137,10 @@ namespace Kyameru.Component.File
             headers.Add("FullSource", sourceFile);
             headers.Add("DateCreated", info.CreationTimeUtc.ToLongTimeString());
             headers.Add("Readonly", info.IsReadOnly.ToString());
+            headers.Add("Method", method);
             headers.Add("DataType", "byte");
             Routable dataItem = new Routable(headers, System.IO.File.ReadAllBytes(sourceFile));
             this.OnAction?.Invoke(this, dataItem);
-        }
-
-        public void SetError(Routable routable)
-        {
-            routable.SetInError("FromFile");
         }
     }
 }

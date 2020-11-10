@@ -7,7 +7,5 @@ namespace Kyameru
     public interface IProcessComponent : IComponent
     {
         void Process(Core.Entities.Routable routable);
-
-        void SetError(Routable routable);
     }
 }

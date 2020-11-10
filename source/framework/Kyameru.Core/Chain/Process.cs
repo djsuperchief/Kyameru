@@ -31,7 +31,15 @@ namespace Kyameru.Core.Chain
         {
             if (!item.InError)
             {
-                this.component.Process(item);
+                try
+                {
+                    this.component.Process(item);
+                }
+                catch (Exception ex)
+                {
+                    this.logger.LogError(ex, ex.Message);
+                    item.SetInError(new Entities.Error("Processing component", "Handle", ex.Message));
+                }
             }
 
             base.Handle(item);

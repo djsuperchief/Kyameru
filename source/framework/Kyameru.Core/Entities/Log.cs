@@ -16,7 +16,7 @@ namespace Kyameru.Core.Entities
         public Log(
             LogLevel logLevel,
             string message,
-            Exception error)
+            Exception error = null)
         {
             this.LogLevel = logLevel;
             this.Message = message;

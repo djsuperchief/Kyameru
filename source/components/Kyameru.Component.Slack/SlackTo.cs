@@ -20,7 +20,7 @@ namespace Kyameru.Component.Slack
         private const string SLACKURI = "https://hooks.slack.com/services";
         private readonly Encoding _encoding = new UTF8Encoding();
 
-        public Dictionary<string, string> headers;
+        private readonly Dictionary<string, string> headers;
 
         public SlackTo(Dictionary<string, string> incomingHeaders)
         {
@@ -52,17 +52,18 @@ namespace Kyameru.Component.Slack
             var dataContent = new StringContent(payloadJson, Encoding.UTF8, "application/json");
             using (HttpClient client = new HttpClient())
             {
+                this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Sending slack message"));
                 var response = client.PostAsync(uri, dataContent).Result;
                 if (!response.IsSuccessStatusCode)
                 {
-                    // do something...probably log
+                    item.SetInError(this.RaiseError("SendSlackMessage", "Error communicating with slack."));
                 }
             }
         }
 
-        public void SetError(Routable routable)
+        private Error RaiseError(string action, string message)
         {
-            routable.SetInError("ToSlack");
+            return new Error("Slack", action, message);
         }
     }
 }

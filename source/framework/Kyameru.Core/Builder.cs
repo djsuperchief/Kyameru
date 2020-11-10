@@ -94,6 +94,7 @@ namespace Kyameru.Core
             }
             else if (this.errorComponent != null)
             {
+                logger.LogInformation(string.Format(Resources.INFO_SETUP_ERR, this.errorComponent.ToString()));
                 toChain.SetNext(new Chain.Error(logger, this.errorComponent));
             }
 

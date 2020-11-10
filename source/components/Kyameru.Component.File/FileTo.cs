@@ -55,6 +55,7 @@ namespace Kyameru.Component.File
             catch (Exception ex)
             {
                 this.Log(LogLevel.Error, Resources.ERROR_ACTION_WRITE, ex);
+                item.SetInError(this.RaiseError("WriteFile", "Error writing file"));
             }
         }
 
@@ -68,6 +69,7 @@ namespace Kyameru.Component.File
             catch (Exception ex)
             {
                 this.Log(LogLevel.Error, Resources.ERROR_ACTION_MOVE, ex);
+                item.SetInError(this.RaiseError("MoveFile", "Error writing file"));
             }
         }
 
@@ -81,6 +83,7 @@ namespace Kyameru.Component.File
             catch (Exception ex)
             {
                 this.Log(LogLevel.Error, Resources.ERROR_ACTION_COPY, ex);
+                item.SetInError(this.RaiseError("CopyFile", "Error writing file"));
             }
         }
 
@@ -94,6 +97,7 @@ namespace Kyameru.Component.File
             catch (Exception ex)
             {
                 this.Log(LogLevel.Error, Resources.ERROR_ACTION_DELETE, ex);
+                item.SetInError(this.RaiseError("DeleteError", "Error writing file"));
             }
         }
 
@@ -102,9 +106,9 @@ namespace Kyameru.Component.File
             return Path.Combine(this.headers["Target"], filename);
         }
 
-        public void SetError(Routable routable)
+        private Error RaiseError(string action, string message)
         {
-            routable.SetInError("ToFile");
+            return new Error("ToFile", action, message);
         }
     }
 }

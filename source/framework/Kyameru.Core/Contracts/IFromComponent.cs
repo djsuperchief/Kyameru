@@ -12,7 +12,5 @@ namespace Kyameru.Core.Contracts
         void Start();
 
         void Stop();
-
-        void SetError(Routable routable);
     }
 }

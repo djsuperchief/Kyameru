@@ -41,11 +41,6 @@ namespace Kyameru.Testable.Service.DummyComponents
             this.Log(LogLevel.Information, routable.Headers["Test"]);
         }
 
-        public void SetError(Routable routable)
-        {
-            routable.SetInError("SomeOtherProcess");
-        }
-
         private void Log(LogLevel logLevel, string message, Exception exception = null)
         {
             this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));

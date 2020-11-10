@@ -33,8 +33,9 @@ namespace Kyameru.Testable.Service
                 {
                     return $"I have moved the file {x.Headers["SourceFile"]}";
                 })
-                .To("slack:///TH7DAGRQE/B01DWN0088P/f23IiCaHrx8NnThl7xUDiDSn")
                 .To("file:///C:/tools?Action=Move")
+                .To("slack:///TH7DAGRQE/B01DWN0088P/f23IiCaHrx8NnThl7xUDiDSn")
+                .Error(new DummyComponents.ErrorHandler())
                 .Build(services);
         }
 
