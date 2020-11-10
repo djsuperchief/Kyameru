@@ -29,7 +29,11 @@ namespace Kyameru.Core.Chain
 
         public override void Handle(Routable item)
         {
-            this.toComponent.Process(item);
+            if (!item.InError)
+            {
+                this.toComponent.Process(item);
+            }
+
             base.Handle(item);
         }
     }

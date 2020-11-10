@@ -42,6 +42,11 @@ namespace Kyameru.Testable.Service.DummyComponents
             this.Log(LogLevel.Information, routable.Headers["DataType"]);
         }
 
+        public void SetError(Routable routable)
+        {
+            routable.SetInError("Something");
+        }
+
         private void Log(LogLevel logLevel, string message, Exception exception = null)
         {
             this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));

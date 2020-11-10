@@ -9,6 +9,8 @@ namespace Kyameru.Core.Entities
 
         public object Body { get; private set; }
 
+        internal bool InError => this.Headers.ContainsKey("InError");
+
         public Routable(Dictionary<string, string> headers, object data)
         {
             this.Headers = headers;
@@ -23,6 +25,14 @@ namespace Kyameru.Core.Entities
         public void SetBody<T>(T value) where T : class
         {
             this.Body = value;
+        }
+
+        public void SetInError(string source)
+        {
+            if (!this.Headers.ContainsKey("InError"))
+            {
+                this.Headers.Add("InError", source);
+            }
         }
     }
 }

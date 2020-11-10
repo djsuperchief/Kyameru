@@ -43,7 +43,8 @@ namespace Kyameru.Core
 
         public Builder Error(IErrorComponent errorComponent)
         {
-            throw new NotImplementedException("Currently not implemented.");
+            this.errorComponent = errorComponent;
+            return this;
         }
 
         public void Build(IServiceCollection services)
@@ -90,6 +91,10 @@ namespace Kyameru.Core
             if (i < this.ToComponents.Count - 1)
             {
                 toChain.SetNext(this.SetupToChain(++i, logger));
+            }
+            else if (this.errorComponent != null)
+            {
+                toChain.SetNext(new Chain.Error(logger, this.errorComponent));
             }
 
             return toChain;

@@ -101,5 +101,10 @@ namespace Kyameru.Component.File
         {
             return Path.Combine(this.headers["Target"], filename);
         }
+
+        public void SetError(Routable routable)
+        {
+            routable.SetInError("ToFile");
+        }
     }
 }

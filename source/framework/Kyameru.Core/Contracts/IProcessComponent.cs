@@ -1,4 +1,5 @@
 ﻿using Kyameru.Core.Contracts;
+using Kyameru.Core.Entities;
 using System;
 
 namespace Kyameru
@@ -6,5 +7,7 @@ namespace Kyameru
     public interface IProcessComponent : IComponent
     {
         void Process(Core.Entities.Routable routable);
+
+        void SetError(Routable routable);
     }
 }

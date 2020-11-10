@@ -54,5 +54,10 @@ namespace Kyameru.Core.BaseComponents
                     break;
             }
         }
+
+        public void SetError(Routable routable)
+        {
+            routable.SetInError("AddHeader");
+        }
     }
 }

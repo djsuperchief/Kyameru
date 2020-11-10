@@ -59,5 +59,10 @@ namespace Kyameru.Component.Slack
                 }
             }
         }
+
+        public void SetError(Routable routable)
+        {
+            routable.SetInError("ToSlack");
+        }
     }
 }

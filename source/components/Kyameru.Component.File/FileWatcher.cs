@@ -141,5 +141,10 @@ namespace Kyameru.Component.File
             Routable dataItem = new Routable(headers, System.IO.File.ReadAllBytes(sourceFile));
             this.OnAction?.Invoke(this, dataItem);
         }
+
+        public void SetError(Routable routable)
+        {
+            routable.SetInError("FromFile");
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Kyameru.Core.Entities;
+using System;
 
 namespace Kyameru.Core.Contracts
 {
