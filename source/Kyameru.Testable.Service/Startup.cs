@@ -29,15 +29,10 @@ namespace Kyameru.Testable.Service
             services.AddControllers();
             services.AddLogging(this.SetupLogging);
             Kyameru.Route.From("file:///C:/Temp?Notifications=Created&SubDirectories=true&Filter=*.*")
-                .Process(new DummyComponents.Something())
-                .Process(new DummyComponents.Something())
-                .AddHeader("Test", "This is a test")
-                .Process(new DummyComponents.SomeOtherProcess())
                 .AddHeader("SlackMessage", (x) =>
                 {
                     return $"I have moved the file {x.Headers["SourceFile"]}";
                 })
-                //.AddHeader("SlackMessage", "Kyameru is the best new processing engine.")
                 .To("slack:///TH7DAGRQE/B01DWN0088P/f23IiCaHrx8NnThl7xUDiDSn")
                 .To("file:///C:/tools?Action=Move")
                 .Build(services);
