@@ -7,6 +7,9 @@ namespace Kyameru.Core
 {
     public class RouteBuilder : AbstractBuilder
     {
+        public bool FromValid => this.from != null;
+        public int ComponentCount => this.components.Count;
+
         private readonly Contracts.IFromComponent from;
         private readonly List<IProcessComponent> components = new List<IProcessComponent>();
 
@@ -59,7 +62,6 @@ namespace Kyameru.Core
                 Type fromType = Type.GetType($"Kyameru.Component.{from}.Inflator, Kyameru.Component.{from}");
                 IOasis oasis = (IOasis)Activator.CreateInstance(fromType);
                 response = oasis.CreateFromComponent(headers);
-                
             }
             catch (Exception ex)
             {
