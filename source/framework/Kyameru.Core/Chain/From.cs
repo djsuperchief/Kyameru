@@ -55,11 +55,11 @@ namespace Kyameru.Core.Chain
             return Task.CompletedTask;
         }
 
-        public override async Task StopAsync(CancellationToken stoppingToken)
+        public override async Task StopAsync(CancellationToken cancellationToken)
         {
             this.fromComponent.Stop();
             this.fromComponent.OnAction -= this.FromComponent_OnAction;
-            await base.StopAsync(stoppingToken);
+            await base.StopAsync(cancellationToken);
         }
     }
 }

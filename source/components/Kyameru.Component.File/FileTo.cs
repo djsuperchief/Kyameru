@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.Logging;
@@ -13,12 +12,6 @@ namespace Kyameru.Component.File
         private readonly Dictionary<string, string> headers;
 
         public event EventHandler<Log> OnLog;
-
-        public FileTo(string[] args)
-        {
-            this.SetupInternalActions();
-            this.headers = args.ToToConfig();
-        }
 
         public FileTo(Dictionary<string, string> incomingHeaders)
         {

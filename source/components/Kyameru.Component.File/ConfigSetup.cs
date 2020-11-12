@@ -26,42 +26,7 @@ namespace Kyameru.Component.File
             return response;
         }
 
-        public static Dictionary<string, string> ToFromConfig(this string[] args)
-        {
-            Dictionary<string, string> response = new Dictionary<string, string>();
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (i > fromHeaders.Length)
-                {
-                    break;
-                }
-
-                response.Add(fromHeaders[i], args[i]);
-            }
-
-            if (!response.ContainsKey("Filter"))
-            {
-                response.Add("Filter", "*.*");
-            }
-
-            return response;
-        }
-
-        public static Dictionary<string, string> ToToConfig(this string[] args)
-        {
-            Dictionary<string, string> response = new Dictionary<string, string>();
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (i > toHeaders.Length)
-                {
-                    break;
-                }
-
-                response.Add(toHeaders[i], args[i]);
-            }
-
-            return response;
-        }
+        
 
         public static Dictionary<string, string> ToToConfig(this Dictionary<string, string> incoming)
         {

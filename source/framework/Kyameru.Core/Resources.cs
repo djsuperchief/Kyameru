@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Kyameru.Core
+﻿namespace Kyameru.Core
 {
     internal static class Resources
     {
@@ -13,5 +9,7 @@ namespace Kyameru.Core
 
         internal const string ERROR_ACTIVATION_FROM = "Error activating from component.";
         internal const string ERROR_FROM_COMPONENT = "Error in starting from component, see inner exception.";
+        internal const string ERROR_HEADER_IMMUTABLE = "Error in setting header, header already exists. Headers are immutable.";
+        internal const string ERROR_HEADER_CALLBACK = "Error executing header callback. See inner exception.";
     }
 }

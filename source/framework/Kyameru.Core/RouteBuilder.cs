@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
-using Kyameru.Core.Extensions;
 
 namespace Kyameru.Core
 {
@@ -12,16 +10,11 @@ namespace Kyameru.Core
         private readonly Contracts.IFromComponent from;
         private readonly List<IProcessComponent> components = new List<IProcessComponent>();
 
-        public RouteBuilder(string from, string[] args)
-        {
-            this.from = this.SetFrom(from, args);
-        }
-
         public RouteBuilder(string componentUri)
         {
             Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
             this.from = this.SetFrom(
-                route.ComponentName, null,
+                route.ComponentName,
                 route.Headers);
         }
 
@@ -50,35 +43,23 @@ namespace Kyameru.Core
             return this;
         }
 
-        public Builder To(string to, params string[] args)
-        {
-            return new Builder(this.from, this.components, this.CreateTo(to, args));
-        }
-
         public Builder To(string componentUri)
         {
             Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
             return new Builder(this.from, this.components, this.CreateTo(
                 route.ComponentName,
-                null,
                 route.Headers));
         }
 
-        private Contracts.IFromComponent SetFrom(string from, string[] args = null, Dictionary<string, string> headers = null)
+        private Contracts.IFromComponent SetFrom(string from, Dictionary<string, string> headers)
         {
             Contracts.IFromComponent response = null;
             try
             {
                 Type fromType = Type.GetType($"Kyameru.Component.{from}.Inflator, Kyameru.Component.{from}");
                 IOasis oasis = (IOasis)Activator.CreateInstance(fromType);
-                if (headers == null)
-                {
-                    response = oasis.CreateFromComponent(args);
-                }
-                else
-                {
-                    response = oasis.CreateFromComponent(headers);
-                }
+                response = oasis.CreateFromComponent(headers);
+                
             }
             catch (Exception ex)
             {

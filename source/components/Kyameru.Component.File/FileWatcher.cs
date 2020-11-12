@@ -18,12 +18,6 @@ namespace Kyameru.Component.File
         private readonly Dictionary<string, Action> fswSetup = new Dictionary<string, Action>();
         private readonly Dictionary<string, string> config;
 
-        public FileWatcher(string[] args)
-        {
-            this.config = args.ToFromConfig();
-            this.SetupInternalActions();
-        }
-
         public FileWatcher(Dictionary<string, string> headers)
         {
             this.config = headers.ToFromConfig();

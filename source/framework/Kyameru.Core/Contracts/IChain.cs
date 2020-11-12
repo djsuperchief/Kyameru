@@ -1,7 +1,6 @@
-﻿using System;
-namespace Kyameru.Core.Contracts
+﻿namespace Kyameru.Core.Contracts
 {
-    public interface IChain<T>  where T: class
+    public interface IChain<T> where T : class
     {
         IChain<T> SetNext(IChain<T> next);
 

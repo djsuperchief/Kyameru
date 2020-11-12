@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Kyameru.Core.Contracts;
-using Kyameru.Core;
+﻿using Kyameru.Core;
 
 namespace Kyameru
 {
@@ -10,21 +7,18 @@ namespace Kyameru
     /// </summary>
     public class Route
     {
-        private Route(IFromComponent from)
+        /// <summary>
+        /// Prevents activation of concrete class.
+        /// </summary>
+        private Route()
         {
         }
 
         /// <summary>
-        /// Creates a new route.
+        /// Creates an instance of the route builder.
         /// </summary>
-        /// <param name="from">A compatable from component.</param>
-        /// <param name="args">Component arguments.</param>
-        /// <returns>Returns a new instance of the <see cref="RouteBuilder"/> class.</returns>
-        public static RouteBuilder From(string from, params string[] args)
-        {
-            return new RouteBuilder(from, args);
-        }
-
+        /// <param name="componentUri">Valid Kyameru URI</param>
+        /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public static RouteBuilder From(string componentUri)
         {
             return new RouteBuilder(componentUri);

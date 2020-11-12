@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Kyameru.Core.Entities
 {
@@ -21,7 +20,14 @@ namespace Kyameru.Core.Entities
 
         internal void AddHeader(string key, string value)
         {
-            this.Headers.Add(key, value);
+            if (!this.Headers.ContainsKey(key))
+            {
+                this.Headers.Add(key, value);
+            }
+            else
+            {
+                throw new Exceptions.ComponentException(Resources.ERROR_HEADER_IMMUTABLE);
+            }
         }
 
         public void SetBody<T>(T value) where T : class

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Kyameru.Core.Chain;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
@@ -30,14 +29,7 @@ namespace Kyameru.Core
             Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
             this.ToComponents.Add(this.CreateTo(
                 route.ComponentName,
-                null,
                 route.Headers));
-            return this;
-        }
-
-        public Builder To(string to, params string[] args)
-        {
-            this.ToComponents.Add(this.CreateTo(to, args));
             return this;
         }
 

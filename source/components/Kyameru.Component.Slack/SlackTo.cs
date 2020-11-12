@@ -2,12 +2,9 @@
 using Kyameru.Core.Entities;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Kyameru.Component.Slack
 {

@@ -1,20 +1,48 @@
 ﻿using Kyameru.Core.Entities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Kyameru.Core.BaseComponents
 {
+    /// <summary>
+    /// Add header component.
+    /// </summary>
     public class AddHeader : IProcessComponent
     {
+        /// <summary>
+        /// Log event
+        /// </summary>
         public event EventHandler<Log> OnLog;
 
+        /// <summary>
+        /// Header value
+        /// </summary>
         private readonly string header;
+
+        /// <summary>
+        /// Value for header
+        /// </summary>
         private readonly string value;
+
+        /// <summary>
+        /// Callback for header value
+        /// </summary>
         private readonly Func<string> callback = null;
+
+        /// <summary>
+        /// Callback for header value
+        /// </summary>
         private readonly Func<Routable, string> callbackTwo = null;
+
+        /// <summary>
+        /// Option to hold which callback to use.
+        /// </summary>
         private readonly int callbackOption;
 
+        /// <summary>
+        /// Adds a header by string value
+        /// </summary>
+        /// <param name="header">Header value to add.</param>
+        /// <param name="value">Value to assign for header.</param>
         public AddHeader(string header, string value)
         {
             this.header = header;
@@ -22,6 +50,11 @@ namespace Kyameru.Core.BaseComponents
             this.callbackOption = 0;
         }
 
+        /// <summary>
+        /// Adds header value by callback.
+        /// </summary>
+        /// <param name="header">Header value to add.</param>
+        /// <param name="callbackOne">Value callback to assign for header.</param>
         public AddHeader(string header, Func<string> callbackOne)
         {
             this.header = header;
@@ -29,6 +62,11 @@ namespace Kyameru.Core.BaseComponents
             this.callbackOption = 1;
         }
 
+        /// <summary>
+        /// Adds header value by callback.
+        /// </summary>
+        /// <param name="header">Header value to add.</param>
+        /// <param name="callbackTwo">Value callback to assign for header.</param>
         public AddHeader(string header, Func<Routable, string> callbackTwo)
         {
             this.header = header;
@@ -36,6 +74,10 @@ namespace Kyameru.Core.BaseComponents
             this.callbackOption = 2;
         }
 
+        /// <summary>
+        /// Process the incoming message.
+        /// </summary>
+        /// <param name="routable">Routable message.</param>
         public void Process(Routable routable)
         {
             // This is not preferred but pressed for time.
@@ -46,13 +88,42 @@ namespace Kyameru.Core.BaseComponents
                     break;
 
                 case 1:
-                    routable.AddHeader(this.header, this.callback());
+                    try
+                    {
+                        routable.AddHeader(this.header, this.callback());
+                    }
+                    catch (Exception ex)
+                    {
+                        routable.SetInError(this.SetError("Callback", Resources.ERROR_HEADER_CALLBACK));
+                        this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Error, Resources.ERROR_HEADER_CALLBACK, ex));
+                    }
+
                     break;
 
                 case 2:
-                    routable.AddHeader(this.header, this.callbackTwo(routable));
+                    try
+                    {
+                        routable.AddHeader(this.header, this.callbackTwo(routable));
+                    }
+                    catch (Exception ex)
+                    {
+                        routable.SetInError(this.SetError("Callback", Resources.ERROR_HEADER_CALLBACK));
+                        this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Error, Resources.ERROR_HEADER_CALLBACK, ex));
+                    }
+
                     break;
             }
+        }
+
+        /// <summary>
+        /// Sets the error object.
+        /// </summary>
+        /// <param name="action">Action performed.</param>
+        /// <param name="message">Error message.</param>
+        /// <returns>Returns an instance of the <see cref="Error"/> class.</returns>
+        private Error SetError(string action, string message)
+        {
+            return new Error("AddHeader", action, message);
         }
     }
 }
