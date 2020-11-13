@@ -10,7 +10,7 @@
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
     <ProjectReference Include="..\components\Kyameru.Component.Slack\Kyameru.Component.Slack.csproj" />
-    <ProjectReference Include="..\core\kyameru.core\Kyameru.Core.csproj">
+    <ProjectReference Include="..\core\Kyameru.Core\Kyameru.Core.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
   </ItemGroup>

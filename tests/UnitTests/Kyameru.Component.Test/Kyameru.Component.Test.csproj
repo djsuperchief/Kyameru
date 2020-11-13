@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\source\core\kyameru.core\Kyameru.Core.csproj" />
+    <ProjectReference Include="..\..\..\source\core\Kyameru.Core\Kyameru.Core.csproj" />
   </ItemGroup>
 
 </Project>
