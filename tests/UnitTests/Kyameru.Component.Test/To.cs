@@ -1,5 +1,6 @@
 ﻿using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace Kyameru.Component.Test
 
         public void Process(Routable item)
         {
-            this.OnLog(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "To Executed"));
+            this.OnLog(this, new Log(LogLevel.Information, "To Executed"));
         }
     }
 }

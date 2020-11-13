@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\source\framework\kyameru.core\Kyameru.Core.csproj" />
+    <ProjectReference Include="..\..\..\source\core\kyameru.core\Kyameru.Core.csproj" />
     <ProjectReference Include="..\Kyameru.Component.Test\Kyameru.Component.Test.csproj" />
   </ItemGroup>
 

@@ -4,7 +4,7 @@ VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{48E13342-E35A-462A-8BAF-28A34398D495}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Core", "..\source\framework\kyameru.core\Kyameru.Core.csproj", "{1ED678C4-B884-4CCD-87DC-58E0B34AECF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Core", "..\source\core\kyameru.core\Kyameru.Core.csproj", "{1ED678C4-B884-4CCD-87DC-58E0B34AECF0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{5892E04C-C762-42DE-BEA5-EF70AB8CA265}"
 EndProject
