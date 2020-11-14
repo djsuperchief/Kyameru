@@ -16,7 +16,6 @@ namespace Kyameru.Tests.ActivationTests
     public class IoCTests
     {
         private readonly IServiceCollection serviceCollection = new ServiceCollection();
-        private readonly Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
         private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
         private readonly Mock<IProcessComponent> processComponent = new Mock<IProcessComponent>();
         private readonly Mock<IErrorComponent> errorComponent = new Mock<IErrorComponent>();
@@ -35,7 +34,7 @@ namespace Kyameru.Tests.ActivationTests
             await service.StartAsync(CancellationToken.None);
             this.logger.Verify();
             await service.StopAsync(CancellationToken.None);
-            Assert.AreEqual(4, this.logger.Invocations.Count);
+            Assert.AreEqual(5, this.logger.Invocations.Count);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace Kyameru.Tests.ActivationTests
             await service.StartAsync(CancellationToken.None);
             this.logger.Verify();
             await service.StopAsync(CancellationToken.None);
-            Assert.AreEqual(9, this.logger.Invocations.Count);
+            Assert.AreEqual(13, this.logger.Invocations.Count);
         }
 
         [SetUp]
