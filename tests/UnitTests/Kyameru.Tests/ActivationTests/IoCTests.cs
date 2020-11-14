@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Kyameru.Core.Contracts;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -18,6 +19,7 @@ namespace Kyameru.Tests.ActivationTests
         private readonly Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
         private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
         private readonly Mock<IProcessComponent> processComponent = new Mock<IProcessComponent>();
+        private readonly Mock<IErrorComponent> errorComponent = new Mock<IErrorComponent>();
 
         [Test]
         public void CanSetupFullTest()
@@ -30,11 +32,21 @@ namespace Kyameru.Tests.ActivationTests
         {
             IHostedService service = this.AddComponent();
 
-            bool isExecuted = false;
             await service.StartAsync(CancellationToken.None);
             this.logger.Verify();
             await service.StopAsync(CancellationToken.None);
             Assert.AreEqual(4, this.logger.Invocations.Count);
+        }
+
+        [Test]
+        public async Task CanExecuteMultipleChains()
+        {
+            IHostedService service = this.AddComponent(true);
+
+            await service.StartAsync(CancellationToken.None);
+            this.logger.Verify();
+            await service.StopAsync(CancellationToken.None);
+            Assert.AreEqual(9, this.logger.Invocations.Count);
         }
 
         [SetUp]
@@ -46,12 +58,25 @@ namespace Kyameru.Tests.ActivationTests
             });
         }
 
-        private IHostedService AddComponent()
+        private IHostedService AddComponent(bool multiChain = false)
         {
-            Kyameru.Route.From("test://hello")
-                .Process(this.processComponent.Object)
-                .To("test://world")
-                .Build(serviceCollection);
+            if (multiChain)
+            {
+                Kyameru.Route.From("test://hello")
+                    .Process(this.processComponent.Object)
+                    .Process(this.processComponent.Object)
+                    .To("test://world")
+                    .To("test://kyameru")
+                    .Error(this.errorComponent.Object)
+                    .Build(this.serviceCollection);
+            }
+            else
+            {
+                Kyameru.Route.From("test://hello")
+                    .Process(this.processComponent.Object)
+                    .To("test://world")
+                    .Build(serviceCollection);
+            }
             IServiceProvider provider = serviceCollection.BuildServiceProvider();
             return provider.GetService<IHostedService>();
         }

@@ -22,7 +22,12 @@ namespace Kyameru.Component.Test
 
         public void Process(Routable item)
         {
-            this.OnLog(this, new Log(LogLevel.Information, "To Executed"));
+            if (item.Headers["Target"] == "kyameru")
+            {
+                item.SetInError(new Error("To", "Process", "Error"));
+                this.OnLog?.Invoke(this, new Log(LogLevel.Error, "Error", new ArgumentException("Error")));
+            }
+            this.OnLog?.Invoke(this, new Log(LogLevel.Information, "To Executed"));
         }
     }
 }

@@ -20,11 +20,6 @@ namespace Kyameru.Core.Chain
             this.Next?.Handle(item);
         }
 
-        public void Log(string logText)
-        {
-            throw new NotImplementedException();
-        }
-
         public IChain<Routable> SetNext(IChain<Routable> next)
         {
             this.Next = next;
