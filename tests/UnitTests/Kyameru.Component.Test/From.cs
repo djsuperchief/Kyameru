@@ -23,7 +23,7 @@ namespace Kyameru.Component.Test
 
         public void Setup()
         {
-            // do nothing
+            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Setup"));
         }
 
         public void Start()
@@ -34,7 +34,7 @@ namespace Kyameru.Component.Test
 
         public void Stop()
         {
-            // do nothing
+            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Stop"));
         }
     }
 }

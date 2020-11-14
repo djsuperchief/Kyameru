@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Kyameru.Component.Slack
+﻿namespace Kyameru.Component.Slack
 {
-    internal class payload
+    internal class Payload
     {
         public string text { get; set; }
     }

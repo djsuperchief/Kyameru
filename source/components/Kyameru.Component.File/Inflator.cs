@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Kyameru.Core.Contracts;
 
 namespace Kyameru.Component.File

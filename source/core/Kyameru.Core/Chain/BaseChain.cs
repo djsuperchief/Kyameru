@@ -1,5 +1,4 @@
-﻿using System;
-using Kyameru.Core.Contracts;
+﻿using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.Logging;
 

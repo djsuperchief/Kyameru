@@ -15,7 +15,6 @@ namespace Kyameru.Component.Slack
         private readonly string[] allowedHeaders = new string[] { "Target" };
 
         private const string SLACKURI = "https://hooks.slack.com/services";
-        private readonly Encoding _encoding = new UTF8Encoding();
 
         private readonly Dictionary<string, string> headers;
 
@@ -40,7 +39,7 @@ namespace Kyameru.Component.Slack
 
         public void Process(Routable item)
         {
-            payload slackPayload = new payload()
+            Payload slackPayload = new Payload()
             {
                 text = item.Headers["SlackMessage"]
             };

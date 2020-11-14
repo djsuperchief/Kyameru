@@ -72,11 +72,13 @@ namespace Kyameru.Component.File
         {
             if (string.IsNullOrWhiteSpace(this.config["Target"]))
             {
-                throw new ArgumentException(Resources.ERROR_EXPECTEDSINGLE, "Target");
+                this.Log(LogLevel.Error, Resources.ERROR_TARGET_UNSPECIFIED);
+                throw new ArgumentException(Resources.ERROR_TARGET_UNSPECIFIED);
             }
 
             if (this.config.Keys.Count < 3)
             {
+                this.Log(LogLevel.Error, Resources.ERROR_NOTENOUGHARGUMENTS_DIRECTORY);
                 throw new ArgumentException(Resources.ERROR_NOTENOUGHARGUMENTS_DIRECTORY);
             }
         }
@@ -95,10 +97,7 @@ namespace Kyameru.Component.File
 
         private void Fsw_Renamed(object sender, RenamedEventArgs e)
         {
-            //if (e.Name == this.fileName)
-            //{
             this.CreateMessage("Rename", e.FullPath);
-            //}
         }
 
         private void AddChanged()
