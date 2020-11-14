@@ -11,6 +11,7 @@ namespace Kyameru.Core
     public class Builder : AbstractBuilder
     {
         public int ToComponentCount => this.ToComponents.Count;
+        public bool WillProcessError => this.errorComponent != null;
 
         private readonly IFromComponent From;
         private readonly List<IToComponent> ToComponents = new List<IToComponent>();

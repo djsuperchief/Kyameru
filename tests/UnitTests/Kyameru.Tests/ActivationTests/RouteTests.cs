@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using Kyameru.Core.Contracts;
+using Moq;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +13,9 @@ namespace Kyameru.Tests.ActivationTests
     [TestFixture(Category = "ActivationTests")]
     public class RouteTests
     {
+        private Mock<IErrorComponent> errorComponent = new Mock<IErrorComponent>();
+        private Mock<IProcessComponent> processingComponent = new Mock<IProcessComponent>();
+
         [Test]
         public void CanCreateFrom()
         {
@@ -51,7 +56,7 @@ namespace Kyameru.Tests.ActivationTests
         public void CanAddProcessingComponent()
         {
             Core.RouteBuilder route = this.CreateRoute();
-            route.Process(new Components.ProcessingComponent());
+            route.Process(this.processingComponent.Object);
             Assert.IsTrue(route.ComponentCount == 1);
         }
 
@@ -71,9 +76,26 @@ namespace Kyameru.Tests.ActivationTests
         }
 
         [Test]
+        public void CanSetupError()
+        {
+            Core.Builder builder = this.CreateTo(this.CreateRoute());
+            builder.Error(this.errorComponent.Object);
+            Assert.IsTrue(builder.WillProcessError);
+        }
+
+        [Test]
+        public void ToThrowsException()
+        {
+            Assert.Throws<Core.Exceptions.ActivationException>(() =>
+           {
+               this.CreateTo(this.CreateRoute(), "invalid://nope");
+           });
+        }
+
+        [Test]
         public void RouteBuilderThrowsException()
         {
-            Assert.Throws<Core.Exceptions.ActivationException>(() => { Core.RouteBuilder route = this.CreateRoute("invalid"); });
+            Assert.Throws<Core.Exceptions.ActivationException>(() => { this.CreateRoute("invalid"); });
         }
 
         private Core.RouteBuilder CreateRoute(string route = "test://hello")

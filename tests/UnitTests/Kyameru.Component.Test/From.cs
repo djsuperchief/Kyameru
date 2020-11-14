@@ -28,7 +28,8 @@ namespace Kyameru.Component.Test
 
         public void Start()
         {
-            // do nothing
+            Routable routable = new Routable(this.headers, "TestData");
+            this.OnAction?.Invoke(this, routable);
         }
 
         public void Stop()
