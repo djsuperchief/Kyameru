@@ -10,6 +10,8 @@ namespace Kyameru.Core
 {
     public class Builder : AbstractBuilder
     {
+        public int ToComponentCount => this.ToComponents.Count;
+
         private readonly IFromComponent From;
         private readonly List<IToComponent> ToComponents = new List<IToComponent>();
         private readonly List<IProcessComponent> Components;

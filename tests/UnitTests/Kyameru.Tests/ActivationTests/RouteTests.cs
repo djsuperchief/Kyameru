@@ -48,6 +48,21 @@ namespace Kyameru.Tests.ActivationTests
         }
 
         [Test]
+        public void CanAddProcessingComponent()
+        {
+            Core.RouteBuilder route = this.CreateRoute();
+            route.Process(new Components.ProcessingComponent());
+            Assert.IsTrue(route.ComponentCount == 1);
+        }
+
+        [Test]
+        public void CanCreateTo()
+        {
+            Core.Builder builder = this.CreateTo(this.CreateRoute());
+            Assert.IsTrue(builder.ToComponentCount == 1);
+        }
+
+        [Test]
         public void RouteBuilderThrowsException()
         {
             Assert.Throws<Core.Exceptions.ActivationException>(() => { Core.RouteBuilder route = this.CreateRoute("invalid"); });
@@ -56,6 +71,11 @@ namespace Kyameru.Tests.ActivationTests
         private Core.RouteBuilder CreateRoute(string route = "test://hello")
         {
             return Route.From(route);
+        }
+
+        private Core.Builder CreateTo(Core.RouteBuilder builder, string route = "test://world")
+        {
+            return builder.To(route);
         }
     }
 }
