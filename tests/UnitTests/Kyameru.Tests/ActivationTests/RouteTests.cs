@@ -63,6 +63,14 @@ namespace Kyameru.Tests.ActivationTests
         }
 
         [Test]
+        public void CanChainTwoTo()
+        {
+            Core.Builder builder = this.CreateTo(this.CreateRoute());
+            builder.To("test://world?myHeader=Test");
+            Assert.IsTrue(builder.ToComponentCount == 2);
+        }
+
+        [Test]
         public void RouteBuilderThrowsException()
         {
             Assert.Throws<Core.Exceptions.ActivationException>(() => { Core.RouteBuilder route = this.CreateRoute("invalid"); });
