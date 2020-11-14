@@ -29,12 +29,9 @@ namespace Kyameru.Testable.Service
             services.AddControllers();
             services.AddLogging(this.SetupLogging);
             Kyameru.Route.From("file:///C:/Temp?Notifications=Created&SubDirectories=true&Filter=*.*")
-                .AddHeader("SlackMessage", (x) =>
-                {
-                    return $"I have moved the file {x.Headers["SourceFile"]}";
-                })
+                .Process(new DummyComponents.Something())
                 .To("file:///C:/tools?Action=Move")
-                .To("slack:///TH7DAGRQE/B01DWN0088P/f23IiCaHrx8NnThl7xUDiDSn")
+                .To("slack:///TH7DAGRQE/B01DWN0088P/f23IiCaHrx8NnThl7xUDiDSn?MessageSource=body")
                 .Error(new DummyComponents.ErrorHandler())
                 .Build(services);
         }

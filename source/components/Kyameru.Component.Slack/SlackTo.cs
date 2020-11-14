@@ -12,7 +12,7 @@ namespace Kyameru.Component.Slack
     {
         public event EventHandler<Log> OnLog;
 
-        private readonly string[] allowedHeaders = new string[] { "Target" };
+        private readonly string[] allowedHeaders = new string[] { "Target", "MessageSource" };
 
         private const string SLACKURI = "https://hooks.slack.com/services";
 
@@ -41,7 +41,7 @@ namespace Kyameru.Component.Slack
         {
             Payload slackPayload = new Payload()
             {
-                text = item.Headers["SlackMessage"]
+                text = this.GetMessageSource(item)
             };
             var payloadJson = JsonSerializer.Serialize(slackPayload);
             string uri = $"{SLACKURI}{this.headers["Target"]}";
@@ -60,6 +60,21 @@ namespace Kyameru.Component.Slack
         private Error RaiseError(string action, string message)
         {
             return new Error("Slack", action, message);
+        }
+
+        private string GetMessageSource(Routable routable)
+        {
+            string response = string.Empty;
+            if (this.headers.ContainsKey("MessageSource") && this.headers["MessageSource"].ToLower() == "body")
+            {
+                response = (string)routable.Body;
+            }
+            else
+            {
+                response = routable.Headers["SlackMessage"];
+            }
+
+            return response;
         }
     }
 }
