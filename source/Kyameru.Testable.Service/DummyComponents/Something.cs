@@ -14,7 +14,6 @@ namespace Kyameru.Testable.Service.DummyComponents
 
         public void Process(Routable routable)
         {
-            //routable.SetBody<string>($"{Guid.NewGuid().ToString("N")} - Moved the file: {routable.Headers["SourceFile"]}.");
             routable.SetBody<string>(System.Text.Encoding.UTF8.GetString(
                 (byte[])routable.Body));
             this.Log(LogLevel.Information, routable.Headers["DataType"]);
