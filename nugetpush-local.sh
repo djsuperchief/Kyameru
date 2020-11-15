@@ -1,5 +1,7 @@
 #!/bin/sh
 
-dotnet pack source/core/Kyameru.Core/Kyameru.Core.csproj
+version="$1"
 
-dotnet nuget push source/core/Kyameru.Core/bin/debug/Kyameru.Core.0.0.1.nupkg -s http://localhost:9011 --api-key password1.
+dotnet pack source/core/Kyameru.Core/Kyameru.Core.csproj -p:PackageVersion=$version
+
+dotnet nuget push source/core/Kyameru.Core/bin/debug/Kyameru.Core.$version.nupkg -s http://localhost:9011 --api-key password1.
