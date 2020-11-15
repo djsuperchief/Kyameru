@@ -4,14 +4,22 @@
         <name>Kyameru.Core</name>
     </assembly>
     <members>
+        <member name="T:Kyameru.Core.AbstractBuilder">
+            <summary>
+            Abstract builder class.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.AbstractBuilder.CreateTo(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Creates the to component.
+            </summary>
+            <param name="to">Valid component name.</param>
+            <param name="headers">Dictionary of headers</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IToComponent"/> interface.</returns>
+        </member>
         <member name="T:Kyameru.Core.BaseComponents.AddHeader">
             <summary>
             Add header component.
-            </summary>
-        </member>
-        <member name="E:Kyameru.Core.BaseComponents.AddHeader.OnLog">
-            <summary>
-            Log event
             </summary>
         </member>
         <member name="F:Kyameru.Core.BaseComponents.AddHeader.header">
@@ -41,24 +49,29 @@
         </member>
         <member name="M:Kyameru.Core.BaseComponents.AddHeader.#ctor(System.String,System.String)">
             <summary>
-            Adds a header by string value
+            Initializes a new instance of the <see cref="T:Kyameru.Core.BaseComponents.AddHeader"/> class.
             </summary>
             <param name="header">Header value to add.</param>
             <param name="value">Value to assign for header.</param>
         </member>
         <member name="M:Kyameru.Core.BaseComponents.AddHeader.#ctor(System.String,System.Func{System.String})">
             <summary>
-            Adds header value by callback.
+            Initializes a new instance of the <see cref="T:Kyameru.Core.BaseComponents.AddHeader"/> class.
             </summary>
             <param name="header">Header value to add.</param>
             <param name="callbackOne">Value callback to assign for header.</param>
         </member>
         <member name="M:Kyameru.Core.BaseComponents.AddHeader.#ctor(System.String,System.Func{Kyameru.Core.Entities.Routable,System.String})">
             <summary>
-            Adds header value by callback.
+            Initializes a new instance of the <see cref="T:Kyameru.Core.BaseComponents.AddHeader"/> class.
             </summary>
             <param name="header">Header value to add.</param>
             <param name="callbackTwo">Value callback to assign for header.</param>
+        </member>
+        <member name="E:Kyameru.Core.BaseComponents.AddHeader.OnLog">
+            <summary>
+            Log event
+            </summary>
         </member>
         <member name="M:Kyameru.Core.BaseComponents.AddHeader.Process(Kyameru.Core.Entities.Routable)">
             <summary>
@@ -73,6 +86,331 @@
             <param name="action">Action performed.</param>
             <param name="message">Error message.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Entities.Error"/> class.</returns>
+        </member>
+        <member name="T:Kyameru.Core.Builder">
+            <summary>
+            Builder facility.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Builder.from">
+            <summary>
+            From component.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Builder.toComponents">
+            <summary>
+            List of to components.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Builder.components">
+            <summary>
+            List of processing components.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Builder.errorComponent">
+            <summary>
+            Error component.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Builder.#ctor(Kyameru.Core.Contracts.IFromComponent,System.Collections.Generic.List{Kyameru.IProcessComponent},Kyameru.Core.Contracts.IToComponent)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Builder"/> class.
+            </summary>
+            <param name="from">From component.</param>
+            <param name="components">List of intermediary components.</param>
+            <param name="to">To component.</param>
+        </member>
+        <member name="P:Kyameru.Core.Builder.ToComponentCount">
+            <summary>
+            Gets the To component count.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.Builder.WillProcessError">
+            <summary>
+            Gets a value indicating whether the error component will process.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Builder.To(System.String)">
+            <summary>
+            Creates a new To component chain.
+            </summary>
+            <param name="componentUri">Valid Kyameru URI.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Builder"/> class.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Builder.Error(Kyameru.Core.Contracts.IErrorComponent)">
+            <summary>
+            Creates a new Error component chain.
+            </summary>
+            <param name="errorComponent">Error component.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Builder"/> class.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Builder.Build(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Builds the final chain into dependency injection.
+            </summary>
+            <param name="services">Service collection.</param>
+        </member>
+        <member name="M:Kyameru.Core.Builder.SetupChain(System.Int32,Microsoft.Extensions.Logging.ILogger,Kyameru.Core.Contracts.IChain{Kyameru.Core.Entities.Routable})">
+            <summary>
+            Sets up the processing chain
+            </summary>
+            <param name="i">Current count.</param>
+            <param name="logger">Logger class.</param>
+            <param name="toComponents">To components.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IChain`1"/> interface.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Builder.SetupToChain(System.Int32,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Sets up the to chain.
+            </summary>
+            <param name="i">Current count.</param>
+            <param name="logger">Logger class.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IChain`1"/> interface.</returns>
+        </member>
+        <member name="T:Kyameru.Core.Chain.BaseChain">
+            <summary>
+            Base chain for processing
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Chain.BaseChain.Logger">
+            <summary>
+            Logger interface.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Chain.BaseChain.#ctor(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Chain.BaseChain"/> class.
+            </summary>
+            <param name="logger">Logging class.</param>
+        </member>
+        <member name="P:Kyameru.Core.Chain.BaseChain.Next">
+            <summary>
+            Gets or sets the next component.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Chain.BaseChain.Handle(Kyameru.Core.Entities.Routable)">
+            <summary>
+            Pass the processing onto the next component.
+            </summary>
+            <param name="item">Message to process.</param>
+        </member>
+        <member name="M:Kyameru.Core.Chain.BaseChain.SetNext(Kyameru.Core.Contracts.IChain{Kyameru.Core.Entities.Routable})">
+            <summary>
+            Sets the next component in the chain.
+            </summary>
+            <param name="next">Next component.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IChain`1"/>/> interface.</returns>
+        </member>
+        <member name="T:Kyameru.Core.Chain.Error">
+            <summary>
+            Error processing.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Chain.Error.errorComponent">
+            <summary>
+            Error component.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Chain.Error.#ctor(Microsoft.Extensions.Logging.ILogger,Kyameru.Core.Contracts.IErrorComponent)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Chain.Error"/> class.
+            </summary>
+            <param name="logger">Logging interface.</param>
+            <param name="errorComponent">Error component.</param>
+        </member>
+        <member name="M:Kyameru.Core.Chain.Error.Handle(Kyameru.Core.Entities.Routable)">
+            <summary>
+            Passes processing to the next in the chain.
+            </summary>
+            <param name="item">Message to process.</param>
+        </member>
+        <member name="M:Kyameru.Core.Chain.Error.ToComponent_OnLog(System.Object,Kyameru.Core.Entities.Log)">
+            <summary>
+            Logging event handler.
+            </summary>
+            <param name="sender">Class sending the event.</param>
+            <param name="e">Log object.</param>
+        </member>
+        <member name="T:Kyameru.Core.Chain.From">
+            <summary>
+            From component.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Chain.From.fromComponent">
+            <summary>
+            Main from component.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Chain.From.next">
+            <summary>
+            Next processing component.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Chain.From.logger">
+            <summary>
+            Logger class.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Chain.From.#ctor(Kyameru.Core.Contracts.IFromComponent,Kyameru.Core.Contracts.IChain{Kyameru.Core.Entities.Routable},Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Chain.From"/> class.
+            </summary>
+            <param name="fromComponent">From component to use.</param>
+            <param name="next">Next processing component.</param>
+            <param name="logger">Logger class.</param>
+        </member>
+        <member name="M:Kyameru.Core.Chain.From.StopAsync(System.Threading.CancellationToken)">
+            <summary>
+            Stops the component.
+            </summary>
+            <param name="cancellationToken">Cancellation Token.</param>
+            <returns>Returns a task.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Chain.From.ExecuteAsync(System.Threading.CancellationToken)">
+            <summary>
+            Executes the component.
+            </summary>
+            <param name="stoppingToken">Stopping Token.</param>
+            <returns>Returns a task.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Chain.From.FromComponent_OnLog(System.Object,Kyameru.Core.Entities.Log)">
+            <summary>
+            Logging event handler.
+            </summary>
+            <param name="sender">Class sending the event.</param>
+            <param name="e">Log object.</param>
+        </member>
+        <member name="M:Kyameru.Core.Chain.From.FromComponent_OnAction(System.Object,Kyameru.Core.Entities.Routable)">
+            <summary>
+            Event raised when the from component starts processing.
+            </summary>
+            <param name="sender">Class sending the event.</param>
+            <param name="e">Message to send.</param>
+        </member>
+        <member name="T:Kyameru.Core.Chain.Process">
+            <summary>
+            Intermediary processing component.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Chain.Process.component">
+            <summary>
+            Core processing component.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Chain.Process.#ctor(Microsoft.Extensions.Logging.ILogger,Kyameru.IProcessComponent)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Chain.Process"/> class.
+            </summary>
+            <param name="logger">Logger class.</param>
+            <param name="processComponent">Processing component.</param>
+        </member>
+        <member name="M:Kyameru.Core.Chain.Process.Handle(Kyameru.Core.Entities.Routable)">
+            <summary>
+            Passes processing onto the next component.
+            </summary>
+            <param name="item">Message to process.</param>
+        </member>
+        <member name="M:Kyameru.Core.Chain.Process.Component_OnLog(System.Object,Kyameru.Core.Entities.Log)">
+            <summary>
+            Logging event handler.
+            </summary>
+            <param name="sender">Class sending the event.</param>
+            <param name="e">Log object.</param>
+        </member>
+        <member name="T:Kyameru.Core.Chain.To">
+            <summary>
+            To component processing class.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Chain.To.toComponent">
+            <summary>
+            To Component.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Chain.To.#ctor(Microsoft.Extensions.Logging.ILogger,Kyameru.Core.Contracts.IToComponent)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Chain.To"/> class.
+            </summary>
+            <param name="logger">Logger class.</param>
+            <param name="toComponent">To component.</param>
+        </member>
+        <member name="M:Kyameru.Core.Chain.To.Handle(Kyameru.Core.Entities.Routable)">
+            <summary>
+            Passes processing onto the next component.
+            </summary>
+            <param name="item">Message to process.</param>
+        </member>
+        <member name="M:Kyameru.Core.Chain.To.ToComponent_OnLog(System.Object,Kyameru.Core.Entities.Log)">
+            <summary>
+            Logging event handler.
+            </summary>
+            <param name="sender">Class sending the event.</param>
+            <param name="e">Log object.</param>
+        </member>
+        <member name="T:Kyameru.Core.Contracts.IChain`1">
+            <summary>
+            Core processing component interface.
+            </summary>
+            <typeparam name="T">Type of processing class.</typeparam>
+        </member>
+        <member name="M:Kyameru.Core.Contracts.IChain`1.SetNext(Kyameru.Core.Contracts.IChain{`0})">
+            <summary>
+            Sets the next processing component.
+            </summary>
+            <param name="next">Next component.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IChain`1"/> interface.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Contracts.IChain`1.Handle(`0)">
+            <summary>
+            Triggers the next component in the chain.
+            </summary>
+            <param name="item">Processing Component.</param>
+        </member>
+        <member name="T:Kyameru.Core.Contracts.IComponent">
+            <summary>
+            Base component.
+            </summary>
+        </member>
+        <member name="E:Kyameru.Core.Contracts.IComponent.OnLog">
+            <summary>
+            Event raised when a component logs.
+            </summary>
+        </member>
+        <member name="T:Kyameru.Core.Contracts.IErrorComponent">
+            <summary>
+            Error component.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Contracts.IErrorComponent.Process(Kyameru.Core.Entities.Routable)">
+            <summary>
+            Process the incoming request.
+            </summary>
+            <param name="item">Message to be processed.</param>
+        </member>
+        <member name="T:Kyameru.Core.Contracts.IFromComponent">
+            <summary>
+            From Component.
+            </summary>
+        </member>
+        <member name="E:Kyameru.Core.Contracts.IFromComponent.OnAction">
+            <summary>
+            Event raised to trigger processing chain.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Contracts.IFromComponent.Setup">
+            <summary>
+            Setup the component.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Contracts.IFromComponent.Start">
+            <summary>
+            Start the core background process.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Contracts.IFromComponent.Stop">
+            <summary>
+            Stop the component.
+            </summary>
         </member>
         <member name="T:Kyameru.Core.Contracts.IOasis">
             <summary>
@@ -93,9 +431,169 @@
             <param name="headers">Dictionary of headers to apply.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IToComponent"/> instance.</returns>
         </member>
+        <member name="T:Kyameru.Core.Contracts.IToComponent">
+            <summary>
+            End processing component.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Contracts.IToComponent.Process(Kyameru.Core.Entities.Routable)">
+            <summary>
+            Process the incoming request.
+            </summary>
+            <param name="item">Message to be processed.</param>
+        </member>
+        <member name="T:Kyameru.Core.Entities.Error">
+            <summary>
+            Error entity.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Entities.Error.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Entities.Error"/> class.
+            </summary>
+            <param name="component">Name of the component.</param>
+            <param name="action">Action being executed.</param>
+            <param name="message">Error message.</param>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Error.Component">
+            <summary>
+            Gets the component string.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Error.CurrentAction">
+            <summary>
+            Gets the executing action.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Error.Message">
+            <summary>
+            Gets the error message.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Entities.Error.ToString">
+            <summary>
+            Serializes the component to Json.
+            </summary>
+            <returns>Returns a Json string representation of the object.</returns>
+        </member>
+        <member name="T:Kyameru.Core.Entities.Log">
+            <summary>
+            Standard log entity.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Entities.Log.#ctor(Microsoft.Extensions.Logging.LogLevel,System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Entities.Log"/> class.
+            </summary>
+            <param name="logLevel">Log level.</param>
+            <param name="message">Log message.</param>
+            <param name="error">Exception class.</param>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Log.LogLevel">
+            <summary>
+            Gets the log level.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Log.Message">
+            <summary>
+            Gets the log message.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Log.Error">
+            <summary>
+            Gets the exception.
+            </summary>
+        </member>
+        <member name="T:Kyameru.Core.Entities.Routable">
+            <summary>
+            Core Kyameru Message.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Entities.Routable.#ctor(System.Collections.Generic.Dictionary{System.String,System.String},System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Entities.Routable"/> class.
+            </summary>
+            <param name="headers">Headers to add.</param>
+            <param name="data">Data to add.</param>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Routable.Headers">
+            <summary>
+            Gets the processing headers.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Routable.Body">
+            <summary>
+            Gets the body of the message.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Routable.Error">
+            <summary>
+            Gets the error of the message.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Routable.InError">
+            <summary>
+            Gets a value indicating whether the message is in error.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Entities.Routable.SetBody``1(``0)">
+            <summary>
+            Sets the body of the message.
+            </summary>
+            <typeparam name="T">Type for the body message.</typeparam>
+            <param name="value">Value to set the body.</param>
+        </member>
+        <member name="M:Kyameru.Core.Entities.Routable.SetInError(Kyameru.Core.Entities.Error)">
+            <summary>
+            Sets the message to be in error.
+            </summary>
+            <param name="error">Error object.</param>
+        </member>
+        <member name="M:Kyameru.Core.Entities.Routable.AddHeader(System.String,System.String)">
+            <summary>
+            Adds a header to the message.
+            </summary>
+            <param name="key">Header key.</param>
+            <param name="value">Header value.</param>
+        </member>
+        <member name="T:Kyameru.Core.Entities.RouteAttributes">
+            <summary>
+            Route attributes class.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Entities.RouteAttributes.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Entities.RouteAttributes"/> class.
+            </summary>
+            <param name="componentUri">Valid Kyameru URI.</param>
+        </member>
+        <member name="P:Kyameru.Core.Entities.RouteAttributes.ComponentName">
+            <summary>
+            Gets the component name.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.Entities.RouteAttributes.Headers">
+            <summary>
+            Gets the headers.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Entities.RouteAttributes.ParseQuery(System.String)">
+            <summary>
+            Parses a URI query string.
+            </summary>
+            <param name="query">Query string.</param>
+            <returns>Returns a dictionary of headers.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Entities.RouteAttributes.GetQuery(System.UriBuilder)">
+            <summary>
+            Gets the query from the URI builder.
+            </summary>
+            <param name="uriBuilder">URI builder class.</param>
+            <returns>Returns a URI query.</returns>
+        </member>
         <member name="T:Kyameru.Core.Exceptions.ActivationException">
             <summary>
-            ActivationException
+            Activation Exception
             </summary>
         </member>
         <member name="M:Kyameru.Core.Exceptions.ActivationException.#ctor(System.String)">
@@ -113,7 +611,7 @@
         </member>
         <member name="T:Kyameru.Core.Exceptions.ComponentException">
             <summary>
-            ComponentException
+            Component Exception
             </summary>
         </member>
         <member name="M:Kyameru.Core.Exceptions.ComponentException.#ctor(System.String)">
@@ -129,6 +627,124 @@
             <param name="message">Error Message.</param>
             <param name="innerException">Inner Exception.</param>
         </member>
+        <member name="T:Kyameru.Core.Exceptions.ProcessException">
+            <summary>
+            Process Exception
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Exceptions.ProcessException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.ProcessException"/> class.
+            </summary>
+            <param name="message">Error Message.</param>
+        </member>
+        <member name="M:Kyameru.Core.Exceptions.ProcessException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.ProcessException"/> class.
+            </summary>
+            <param name="message">Error Message.</param>
+            <param name="innerException">Inner Exception.</param>
+        </member>
+        <member name="T:Kyameru.Core.Extensions.StringExtensions">
+            <summary>
+            String extensions.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Extensions.StringExtensions.ToFirstCaseUpper(System.String)">
+            <summary>
+            Makes the first letter of a string uppercase.
+            </summary>
+            <param name="input">String to process.</param>
+            <returns>Returns the input with the first letter as uppercase.</returns>
+        </member>
+        <member name="T:Kyameru.Core.RouteBuilder">
+            <summary>
+            Route builder.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.RouteBuilder.from">
+            <summary>
+            From component.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.RouteBuilder.components">
+            <summary>
+            List of intermediary components.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.RouteBuilder.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.RouteBuilder"/> class.
+            </summary>
+            <param name="componentUri">Valid Kyameru URI.</param>
+        </member>
+        <member name="P:Kyameru.Core.RouteBuilder.FromValid">
+            <summary>
+            Gets a value indicating whether the from component is valid.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.RouteBuilder.ComponentCount">
+            <summary>
+            Gets the processing component count.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.RouteBuilder.Process(Kyameru.IProcessComponent)">
+            <summary>
+            Adds a processing component.
+            </summary>
+            <param name="processComponent">Component to add.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.RouteBuilder"/> class.</returns>
+        </member>
+        <member name="M:Kyameru.Core.RouteBuilder.AddHeader(System.String,System.String)">
+            <summary>
+            Adds a header
+            </summary>
+            <param name="key">Header key.</param>
+            <param name="value">Header value.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.RouteBuilder"/> class.</returns>
+        </member>
+        <member name="M:Kyameru.Core.RouteBuilder.AddHeader(System.String,System.Func{System.String})">
+            <summary>
+            Adds a header.
+            </summary>
+            <param name="key">Header key.</param>
+            <param name="callback">Header callback.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.RouteBuilder"/> class.</returns>
+        </member>
+        <member name="M:Kyameru.Core.RouteBuilder.AddHeader(System.String,System.Func{Kyameru.Core.Entities.Routable,System.String})">
+            <summary>
+            Adds a header.
+            </summary>
+            <param name="key">Header key.</param>
+            <param name="callback">Header callback.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.RouteBuilder"/> class.</returns>
+        </member>
+        <member name="M:Kyameru.Core.RouteBuilder.To(System.String)">
+            <summary>
+            Adds a to component.
+            </summary>
+            <param name="componentUri">Valid Kyameru URI.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Builder"/> class.</returns>
+        </member>
+        <member name="M:Kyameru.Core.RouteBuilder.SetFrom(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Sets the from component.
+            </summary>
+            <param name="from">Valid from name.</param>
+            <param name="headers">Dictionary of headers.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IFromComponent"/> interface.</returns>
+        </member>
+        <member name="T:Kyameru.IProcessComponent">
+            <summary>
+            Intermediary Processing Component
+            </summary>
+        </member>
+        <member name="M:Kyameru.IProcessComponent.Process(Kyameru.Core.Entities.Routable)">
+            <summary>
+            Process the incoming request.
+            </summary>
+            <param name="routable">Message to be processed.</param>
+        </member>
         <member name="T:Kyameru.Route">
             <summary>
             Core route builder utility.
@@ -136,7 +752,7 @@
         </member>
         <member name="M:Kyameru.Route.#ctor">
             <summary>
-            Prevents activation of concrete class.
+            Prevents a default instance of the <see cref="T:Kyameru.Route"/> class from being created.
             </summary>
         </member>
         <member name="M:Kyameru.Route.From(System.String)">
