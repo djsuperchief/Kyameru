@@ -8,40 +8,86 @@ using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Core
 {
+    /// <summary>
+    /// Builder facility.
+    /// </summary>
     public class Builder : AbstractBuilder
     {
-        public int ToComponentCount => this.ToComponents.Count;
-        public bool WillProcessError => this.errorComponent != null;
+        /// <summary>
+        /// From component.
+        /// </summary>
+        private readonly IFromComponent from;
 
-        private readonly IFromComponent From;
-        private readonly List<IToComponent> ToComponents = new List<IToComponent>();
-        private readonly List<IProcessComponent> Components;
+        /// <summary>
+        /// List of to components.
+        /// </summary>
+        private readonly List<IToComponent> toComponents = new List<IToComponent>();
+
+        /// <summary>
+        /// List of processing components.
+        /// </summary>
+        private readonly List<IProcessComponent> components;
+
+        /// <summary>
+        /// Error component.
+        /// </summary>
         private IErrorComponent errorComponent;
 
-        public Builder(Contracts.IFromComponent from,
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Builder"/> class.
+        /// </summary>
+        /// <param name="from">From component.</param>
+        /// <param name="components">List of intermediary components.</param>
+        /// <param name="to">To component.</param>
+        public Builder(
+            Contracts.IFromComponent from,
             List<IProcessComponent> components,
             Contracts.IToComponent to)
         {
-            this.From = from;
-            this.ToComponents.Add(to);
-            this.Components = components;
+            this.from = from;
+            this.toComponents.Add(to);
+            this.components = components;
         }
 
+        /// <summary>
+        /// Gets the To component count.
+        /// </summary>
+        public int ToComponentCount => this.toComponents.Count;
+
+        /// <summary>
+        /// Gets a value indicating whether the error component will process.
+        /// </summary>
+        public bool WillProcessError => this.errorComponent != null;
+
+        /// <summary>
+        /// Creates a new To component chain.
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder To(string componentUri)
         {
             Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
-            this.ToComponents.Add(this.CreateTo(
+            this.toComponents.Add(this.CreateTo(
                 route.ComponentName,
                 route.Headers));
             return this;
         }
 
+        /// <summary>
+        /// Creates a new Error component chain.
+        /// </summary>
+        /// <param name="errorComponent">Error component.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder Error(IErrorComponent errorComponent)
         {
             this.errorComponent = errorComponent;
             return this;
         }
 
+        /// <summary>
+        /// Builds the final chain into dependency injection.
+        /// </summary>
+        /// <param name="services">Service collection.</param>
         public void Build(IServiceCollection services)
         {
             services.AddHostedService<Chain.From>(x =>
@@ -50,7 +96,7 @@ namespace Kyameru.Core
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
                 IChain<Routable> toChain = this.SetupToChain(0, logger);
-                if (this.Components != null && this.Components.Count > 0)
+                if (this.components != null && this.components.Count > 0)
                 {
                     next = SetupChain(0, logger, toChain);
                 }
@@ -59,15 +105,22 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                return new Chain.From(this.From, next, logger);
+                return new Chain.From(this.from, next, logger);
             });
         }
 
+        /// <summary>
+        /// Sets up the processing chain
+        /// </summary>
+        /// <param name="i">Current count.</param>
+        /// <param name="logger">Logger class.</param>
+        /// <param name="toComponents">To components.</param>
+        /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupChain(int i, ILogger logger, IChain<Routable> toComponents)
         {
-            Chain.Process chain = new Chain.Process(logger, this.Components[i]);
-            logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, this.Components[i].ToString()));
-            if (i < this.Components.Count - 1)
+            Chain.Process chain = new Chain.Process(logger, this.components[i]);
+            logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, this.components[i].ToString()));
+            if (i < this.components.Count - 1)
             {
                 chain.SetNext(this.SetupChain(++i, logger, toComponents));
             }
@@ -79,11 +132,17 @@ namespace Kyameru.Core
             return chain;
         }
 
+        /// <summary>
+        /// Sets up the to chain.
+        /// </summary>
+        /// <param name="i">Current count.</param>
+        /// <param name="logger">Logger class.</param>
+        /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupToChain(int i, ILogger logger)
         {
-            Chain.To toChain = new To(logger, this.ToComponents[i]);
-            logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, this.ToComponents[i].ToString()));
-            if (i < this.ToComponents.Count - 1)
+            Chain.To toChain = new To(logger, this.toComponents[i]);
+            logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, this.toComponents[i].ToString()));
+            if (i < this.toComponents.Count - 1)
             {
                 toChain.SetNext(this.SetupToChain(++i, logger));
             }

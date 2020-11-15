@@ -2,22 +2,69 @@
 
 namespace Kyameru.Core.Entities
 {
+    /// <summary>
+    /// Core Kyameru Message.
+    /// </summary>
     public class Routable
     {
-        public Dictionary<string, string> Headers { get; private set; }
-
-        public object Body { get; private set; }
-
-        public Error Error { get; private set; }
-
-        internal bool InError => this.Error != null;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Routable"/> class.
+        /// </summary>
+        /// <param name="headers">Headers to add.</param>
+        /// <param name="data">Data to add.</param>
         public Routable(Dictionary<string, string> headers, object data)
         {
             this.Headers = headers;
             this.Body = data;
         }
 
+        /// <summary>
+        /// Gets the processing headers.
+        /// </summary>
+        public Dictionary<string, string> Headers { get; private set; }
+
+        /// <summary>
+        /// Gets the body of the message.
+        /// </summary>
+        public object Body { get; private set; }
+
+        /// <summary>
+        /// Gets the error of the message.
+        /// </summary>
+        public Error Error { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the message is in error.
+        /// </summary>
+        internal bool InError => this.Error != null;
+
+        /// <summary>
+        /// Sets the body of the message.
+        /// </summary>
+        /// <typeparam name="T">Type for the body message.</typeparam>
+        /// <param name="value">Value to set the body.</param>
+        public void SetBody<T>(T value) where T : class
+        {
+            this.Body = value;
+        }
+
+        /// <summary>
+        /// Sets the message to be in error.
+        /// </summary>
+        /// <param name="error">Error object.</param>
+        public void SetInError(Error error)
+        {
+            if (this.Error == null)
+            {
+                this.Error = error;
+            }
+        }
+
+        /// <summary>
+        /// Adds a header to the message.
+        /// </summary>
+        /// <param name="key">Header key.</param>
+        /// <param name="value">Header value.</param>
         internal void AddHeader(string key, string value)
         {
             if (!this.Headers.ContainsKey(key))
@@ -27,19 +74,6 @@ namespace Kyameru.Core.Entities
             else
             {
                 throw new Exceptions.ComponentException(Resources.ERROR_HEADER_IMMUTABLE);
-            }
-        }
-
-        public void SetBody<T>(T value) where T : class
-        {
-            this.Body = value;
-        }
-
-        public void SetInError(Error error)
-        {
-            if (this.Error == null)
-            {
-                this.Error = error;
             }
         }
     }

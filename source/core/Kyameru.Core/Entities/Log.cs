@@ -3,14 +3,17 @@ using System;
 
 namespace Kyameru.Core.Entities
 {
+    /// <summary>
+    /// Standard log entity.
+    /// </summary>
     public class Log
     {
-        public LogLevel LogLevel { get; private set; }
-
-        public string Message { get; private set; }
-
-        public Exception Error { get; private set; }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Log"/> class.
+        /// </summary>
+        /// <param name="logLevel">Log level.</param>
+        /// <param name="message">Log message.</param>
+        /// <param name="error">Exception class.</param>
         public Log(
             LogLevel logLevel,
             string message,
@@ -20,5 +23,20 @@ namespace Kyameru.Core.Entities
             this.Message = message;
             this.Error = error;
         }
+
+        /// <summary>
+        /// Gets the log level.
+        /// </summary>
+        public LogLevel LogLevel { get; private set; }
+
+        /// <summary>
+        /// Gets the log message.
+        /// </summary>
+        public string Message { get; private set; }
+
+        /// <summary>
+        /// Gets the exception.
+        /// </summary>
+        public Exception Error { get; private set; }
     }
 }

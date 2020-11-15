@@ -3,7 +3,7 @@ using System;
 namespace Kyameru.Core.Exceptions
 {
     /// <summary>
-    /// ComponentException
+    /// Component Exception
     /// </summary>
     public class ComponentException : Exception
     {

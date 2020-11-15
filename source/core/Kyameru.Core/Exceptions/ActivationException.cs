@@ -3,7 +3,7 @@ using System;
 namespace Kyameru.Core.Exceptions
 {
     /// <summary>
-    /// ActivationException
+    /// Activation Exception
     /// </summary>
     public class ActivationException : Exception
     {

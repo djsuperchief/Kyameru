@@ -9,11 +9,6 @@ namespace Kyameru.Core.BaseComponents
     public class AddHeader : IProcessComponent
     {
         /// <summary>
-        /// Log event
-        /// </summary>
-        public event EventHandler<Log> OnLog;
-
-        /// <summary>
         /// Header value
         /// </summary>
         private readonly string header;
@@ -39,7 +34,7 @@ namespace Kyameru.Core.BaseComponents
         private readonly int callbackOption;
 
         /// <summary>
-        /// Adds a header by string value
+        /// Initializes a new instance of the <see cref="AddHeader"/> class.
         /// </summary>
         /// <param name="header">Header value to add.</param>
         /// <param name="value">Value to assign for header.</param>
@@ -51,7 +46,7 @@ namespace Kyameru.Core.BaseComponents
         }
 
         /// <summary>
-        /// Adds header value by callback.
+        /// Initializes a new instance of the <see cref="AddHeader"/> class.
         /// </summary>
         /// <param name="header">Header value to add.</param>
         /// <param name="callbackOne">Value callback to assign for header.</param>
@@ -63,7 +58,7 @@ namespace Kyameru.Core.BaseComponents
         }
 
         /// <summary>
-        /// Adds header value by callback.
+        /// Initializes a new instance of the <see cref="AddHeader"/> class.
         /// </summary>
         /// <param name="header">Header value to add.</param>
         /// <param name="callbackTwo">Value callback to assign for header.</param>
@@ -73,6 +68,11 @@ namespace Kyameru.Core.BaseComponents
             this.callbackTwo = callbackTwo;
             this.callbackOption = 2;
         }
+
+        /// <summary>
+        /// Log event
+        /// </summary>
+        public event EventHandler<Log> OnLog;
 
         /// <summary>
         /// Process the incoming message.

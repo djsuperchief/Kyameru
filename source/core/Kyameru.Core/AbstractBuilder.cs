@@ -4,8 +4,17 @@ using System.Collections.Generic;
 
 namespace Kyameru.Core
 {
+    /// <summary>
+    /// Abstract builder class.
+    /// </summary>
     public abstract class AbstractBuilder
     {
+        /// <summary>
+        /// Creates the to component.
+        /// </summary>
+        /// <param name="to">Valid component name.</param>
+        /// <param name="headers">Dictionary of headers</param>
+        /// <returns>Returns an instance of the <see cref="IToComponent"/> interface.</returns>
         protected IToComponent CreateTo(string to, Dictionary<string, string> headers)
         {
             IToComponent response = null;

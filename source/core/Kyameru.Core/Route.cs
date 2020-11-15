@@ -8,7 +8,7 @@ namespace Kyameru
     public class Route
     {
         /// <summary>
-        /// Prevents activation of concrete class.
+        /// Prevents a default instance of the <see cref="Route"/> class from being created.
         /// </summary>
         private Route()
         {
