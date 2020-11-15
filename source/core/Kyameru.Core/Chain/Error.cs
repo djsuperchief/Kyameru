@@ -1,6 +1,7 @@
 ﻿using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace Kyameru.Core.Chain
 {
@@ -22,7 +23,7 @@ namespace Kyameru.Core.Chain
         public Error(ILogger logger, IErrorComponent errorComponent) : base(logger)
         {
             this.errorComponent = errorComponent;
-            this.errorComponent.OnLog += this.ToComponent_OnLog;
+            this.errorComponent.OnLog += this.ErrorComponent_OnLog;
         }
 
         /// <summary>
@@ -33,7 +34,14 @@ namespace Kyameru.Core.Chain
         {
             if (item.InError)
             {
-                this.errorComponent.Process(item);
+                try
+                {
+                    this.errorComponent.Process(item);
+                }
+                catch (Exception ex)
+                {
+                    this.ErrorComponent_OnLog(this, new Log(LogLevel.Error, ex.Message, ex));
+                }
             }
         }
 
@@ -42,7 +50,7 @@ namespace Kyameru.Core.Chain
         /// </summary>
         /// <param name="sender">Class sending the event.</param>
         /// <param name="e">Log object.</param>
-        private void ToComponent_OnLog(object sender, Log e)
+        private void ErrorComponent_OnLog(object sender, Log e)
         {
             if (e.Error == null)
             {
