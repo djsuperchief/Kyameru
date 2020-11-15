@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Kyameru.Core</name>
+    </assembly>
+    <members>
+        <member name="T:Kyameru.Core.BaseComponents.AddHeader">
+            <summary>
+            Add header component.
+            </summary>
+        </member>
+        <member name="E:Kyameru.Core.BaseComponents.AddHeader.OnLog">
+            <summary>
+            Log event
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.BaseComponents.AddHeader.header">
+            <summary>
+            Header value
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.BaseComponents.AddHeader.value">
+            <summary>
+            Value for header
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.BaseComponents.AddHeader.callback">
+            <summary>
+            Callback for header value
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.BaseComponents.AddHeader.callbackTwo">
+            <summary>
+            Callback for header value
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.BaseComponents.AddHeader.callbackOption">
+            <summary>
+            Option to hold which callback to use.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.BaseComponents.AddHeader.#ctor(System.String,System.String)">
+            <summary>
+            Adds a header by string value
+            </summary>
+            <param name="header">Header value to add.</param>
+            <param name="value">Value to assign for header.</param>
+        </member>
+        <member name="M:Kyameru.Core.BaseComponents.AddHeader.#ctor(System.String,System.Func{System.String})">
+            <summary>
+            Adds header value by callback.
+            </summary>
+            <param name="header">Header value to add.</param>
+            <param name="callbackOne">Value callback to assign for header.</param>
+        </member>
+        <member name="M:Kyameru.Core.BaseComponents.AddHeader.#ctor(System.String,System.Func{Kyameru.Core.Entities.Routable,System.String})">
+            <summary>
+            Adds header value by callback.
+            </summary>
+            <param name="header">Header value to add.</param>
+            <param name="callbackTwo">Value callback to assign for header.</param>
+        </member>
+        <member name="M:Kyameru.Core.BaseComponents.AddHeader.Process(Kyameru.Core.Entities.Routable)">
+            <summary>
+            Process the incoming message.
+            </summary>
+            <param name="routable">Routable message.</param>
+        </member>
+        <member name="M:Kyameru.Core.BaseComponents.AddHeader.SetError(System.String,System.String)">
+            <summary>
+            Sets the error object.
+            </summary>
+            <param name="action">Action performed.</param>
+            <param name="message">Error message.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Entities.Error"/> class.</returns>
+        </member>
+        <member name="T:Kyameru.Core.Contracts.IOasis">
+            <summary>
+            Component activation interface.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Contracts.IOasis.CreateFromComponent(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Creates a from component.
+            </summary>
+            <param name="headers">Dictionary of headers to apply.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IFromComponent"/> interface.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Contracts.IOasis.CreateToComponent(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Creates a to component.
+            </summary>
+            <param name="headers">Dictionary of headers to apply.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IToComponent"/> instance.</returns>
+        </member>
+        <member name="T:Kyameru.Core.Exceptions.ActivationException">
+            <summary>
+            ActivationException
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Exceptions.ActivationException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.ActivationException"/> class.
+            </summary>
+            <param name="message">Error Message.</param>
+        </member>
+        <member name="M:Kyameru.Core.Exceptions.ActivationException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.ActivationException"/> class.
+            </summary>
+            <param name="message">Error Message.</param>
+            <param name="innerException">Inner Exception.</param>
+        </member>
+        <member name="T:Kyameru.Core.Exceptions.ComponentException">
+            <summary>
+            ComponentException
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Exceptions.ComponentException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.ComponentException"/> class.
+            </summary>
+            <param name="message">Error Message.</param>
+        </member>
+        <member name="M:Kyameru.Core.Exceptions.ComponentException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.ComponentException"/> class.
+            </summary>
+            <param name="message">Error Message.</param>
+            <param name="innerException">Inner Exception.</param>
+        </member>
+        <member name="T:Kyameru.Route">
+            <summary>
+            Core route builder utility.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Route.#ctor">
+            <summary>
+            Prevents activation of concrete class.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Route.From(System.String)">
+            <summary>
+            Creates an instance of the route builder.
+            </summary>
+            <param name="componentUri">Valid Kyameru URI</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.RouteBuilder"/> class.</returns>
+        </member>
+    </members>
+</doc>

@@ -6,21 +6,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{48E13342-E35
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Core", "..\source\core\Kyameru.Core\Kyameru.Core.csproj", "{1ED678C4-B884-4CCD-87DC-58E0B34AECF0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{5892E04C-C762-42DE-BEA5-EF70AB8CA265}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "service", "service", "{EC1342FC-1978-4958-9AED-8517C1CF1F55}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Component.File", "..\source\components\Kyameru.Component.File\Kyameru.Component.File.csproj", "{206C7B4D-CB3A-46EB-8070-BA6E0AC98427}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Testable.Service", "..\source\Kyameru.Testable.Service\Kyameru.Testable.Service.csproj", "{5B05ED29-186D-40F7-AF3D-9515DD486375}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Component.Slack", "..\source\components\Kyameru.Component.Slack\Kyameru.Component.Slack.csproj", "{9A602947-B767-486E-83FC-B64428E6CFF4}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Tests", "..\tests\UnitTests\Kyameru.Tests\Kyameru.Tests.csproj", "{800EFDBF-D68B-422B-AB06-C2984058BB4C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Tests", "..\tests\UnitTests\Kyameru.Tests\Kyameru.Tests.csproj", "{800EFDBF-D68B-422B-AB06-C2984058BB4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Test", "..\tests\UnitTests\Kyameru.Component.Test\Kyameru.Component.Test.csproj", "{CD5311B0-2722-47F7-9D01-36CF4ED7D925}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Component.Test", "..\tests\UnitTests\Kyameru.Component.Test\Kyameru.Component.Test.csproj", "{CD5311B0-2722-47F7-9D01-36CF4ED7D925}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,18 +22,6 @@ Global
 		{1ED678C4-B884-4CCD-87DC-58E0B34AECF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1ED678C4-B884-4CCD-87DC-58E0B34AECF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1ED678C4-B884-4CCD-87DC-58E0B34AECF0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{206C7B4D-CB3A-46EB-8070-BA6E0AC98427}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{206C7B4D-CB3A-46EB-8070-BA6E0AC98427}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{206C7B4D-CB3A-46EB-8070-BA6E0AC98427}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{206C7B4D-CB3A-46EB-8070-BA6E0AC98427}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5B05ED29-186D-40F7-AF3D-9515DD486375}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5B05ED29-186D-40F7-AF3D-9515DD486375}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5B05ED29-186D-40F7-AF3D-9515DD486375}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5B05ED29-186D-40F7-AF3D-9515DD486375}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9A602947-B767-486E-83FC-B64428E6CFF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9A602947-B767-486E-83FC-B64428E6CFF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9A602947-B767-486E-83FC-B64428E6CFF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9A602947-B767-486E-83FC-B64428E6CFF4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{800EFDBF-D68B-422B-AB06-C2984058BB4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{800EFDBF-D68B-422B-AB06-C2984058BB4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{800EFDBF-D68B-422B-AB06-C2984058BB4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -58,9 +36,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1ED678C4-B884-4CCD-87DC-58E0B34AECF0} = {48E13342-E35A-462A-8BAF-28A34398D495}
-		{206C7B4D-CB3A-46EB-8070-BA6E0AC98427} = {5892E04C-C762-42DE-BEA5-EF70AB8CA265}
-		{5B05ED29-186D-40F7-AF3D-9515DD486375} = {EC1342FC-1978-4958-9AED-8517C1CF1F55}
-		{9A602947-B767-486E-83FC-B64428E6CFF4} = {5892E04C-C762-42DE-BEA5-EF70AB8CA265}
 		{800EFDBF-D68B-422B-AB06-C2984058BB4C} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
 		{CD5311B0-2722-47F7-9D01-36CF4ED7D925} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
 	EndGlobalSection
