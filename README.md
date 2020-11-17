@@ -5,12 +5,10 @@ It is currently in very Alpha stage and contains very few components but more wi
 
 ## Basic Overview
 ### Architecture
-![Image of Kyameru Component]
-(docs/arch.png)
+![Image of Kyameru Component](docs/arch.png)
 
 ### Workflow
-![Image of workflow]
-(docs/workflow.png)
+![Image of workflow](docs/workflow.png)
 
 ## Components
 ### File
