@@ -1,7 +1,7 @@
 # Kyameru
 ## About
 Kyameru is a processing engine built with heavy inspiration from Apache Camel.
-It is currently in very Alpha stage and containers very few components but more will be added over the coming weeks and months.
+It is currently in very Alpha stage and contains very few components but more will be added over the coming weeks and months.
 
 ## Basic Overview
 ### Architecture
