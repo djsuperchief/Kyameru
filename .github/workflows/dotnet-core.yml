@@ -18,7 +18,7 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore build/Kyameru.sln
     - name: Build
       run: dotnet build build/Kyameru.sln --configuration Release --no-restore
     - name: Test
