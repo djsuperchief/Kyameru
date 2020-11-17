@@ -6,6 +6,17 @@ It is currently in very Alpha stage and contains very few components but more wi
 ## Basic Overview
 ### Architecture
 ![Image of Kyameru Component](docs/arch.png)
+#### Structure
+Kyameru is built on the Chain Of Responsibility pattern. It is built up using the three main construction objects:
+
+1. Route
+1. RouteBuilder
+1. Builder
+
+Each of the objects above are instantiated in the order specified. Route provides the start of the construction by allowing the definition of a From component. This returns a RouteBuilder object allowing you to add Processing components, add headers or a number of other tasks related to message processing.
+The To component is also created here which in turn returns the final Builder object which allows you to add more To components for final processing and an Error component to handle any chain errors.
+
+The Builder component is responsible for injection into the DI container of .NET Core (which is in turn responsible for resolving ILogger instances) and creates an IHosted service for what is known as a Route.
 
 ### Workflow
 ![Image of workflow](docs/workflow.png)
