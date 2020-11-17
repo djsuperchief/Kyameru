@@ -224,7 +224,7 @@
             </summary>
             <param name="item">Message to process.</param>
         </member>
-        <member name="M:Kyameru.Core.Chain.Error.ToComponent_OnLog(System.Object,Kyameru.Core.Entities.Log)">
+        <member name="M:Kyameru.Core.Chain.Error.ErrorComponent_OnLog(System.Object,Kyameru.Core.Entities.Log)">
             <summary>
             Logging event handler.
             </summary>
