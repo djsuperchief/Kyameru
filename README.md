@@ -50,9 +50,14 @@ The above example is very simple but you can see from the syntax that the From c
 * Query -> Adds the headers Notifications, SubDirectories and Filter
 
 ## Components
-### File
+### File (https://github.com/djsuperchief/Kyameru.Component.File)
+#### From
 
-https://github.com/djsuperchief/Kyameru.Component.File
+The from component is a simple system file watcher raising notifications for when a file has been:
+
+* Added
+* Modified
+* Renamed
 
 ##### Setup Headers
 
@@ -79,6 +84,21 @@ Readonly | Boolean as to whether the file is readonly
 Method | How the file was picked up
 DataType | The data type of the body
 
-### Slack
+#### To
 
-https://github.com/djsuperchief/Kyameru.Component.Slack
+The to component does a couple of very simple actions:
+
+* Moves the picked up source file
+* Copies the picked up source file
+* Deletes the picked up source file
+* Writes the contents of the body of the message to a file with the same name in the destination directory
+
+##### Setup Headers
+
+Header | Description | Optional
+------ | ----------- | --------
+Target | Destination Directory | NO
+Action | Action To Perform | NO
+Overwrite | Overwrites the destination if it exists | YES
+
+### Slack (https://github.com/djsuperchief/Kyameru.Component.Slack)
