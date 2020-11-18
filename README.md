@@ -68,6 +68,17 @@ SubDirectories | Include sub directories | YES
 Kyameru.Route.From("file:///C:/Temp?Notifications=Created&SubDirectories=true&Filter=*.*")
 ```
 
+##### Message Headers Raised
+Header | Description
+------ | -----------
+SourceDirectory | Directory the event is raised from
+SourceFile | File name of file picked up
+FullSource | Full path of the file picked up
+DateCreated | Date and time of the file (UTC)
+Readonly | Boolean as to whether the file is readonly
+Method | How the file was picked up
+DataType | The data type of the body
+
 ### Slack
 
 https://github.com/djsuperchief/Kyameru.Component.Slack
