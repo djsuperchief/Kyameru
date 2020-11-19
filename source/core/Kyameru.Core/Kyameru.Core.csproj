@@ -7,11 +7,13 @@
   <PropertyGroup>
     <!-- Mark the project as being a test project -->
     <SonarQubeTestProject>false</SonarQubeTestProject>
-    <Version>0.0.2</Version>
+    <Version>0.0.5</Version>
     <Copyright>Giles Papworth 2020</Copyright>
     <Description>Kyameru.Core is the main processing engine for Kyameru Process Component.</Description>
     <RepositoryUrl>https://github.com/djsuperchief/Kyameru</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryType>Git</RepositoryType>
+    <PackageProjectUrl>https://github.com/djsuperchief/Kyameru</PackageProjectUrl>
     </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

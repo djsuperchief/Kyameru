@@ -57,10 +57,30 @@ namespace Kyameru.Core.Entities
             string response = string.Empty;
             if (!string.IsNullOrWhiteSpace(uriBuilder.Query))
             {
-                response = $"&{uriBuilder.Query.Substring(1)}";
+                response = $"{uriBuilder.Query.Substring(1)}";
             }
 
-            return response;
+            if (uriBuilder.Port != -1)
+            {
+                response = $"Port={uriBuilder.Port}&{response}";
+            }
+
+            if (!string.IsNullOrWhiteSpace(uriBuilder.Password))
+            {
+                response = $"Password={uriBuilder.Password}&{response}";
+            }
+
+            if (!string.IsNullOrWhiteSpace(uriBuilder.UserName))
+            {
+                response = $"UserName={uriBuilder.UserName}&{response}";
+            }
+
+            if (response.Substring(response.Length - 1) == "&")
+            {
+                response = response.Substring(0, response.Length - 1);
+            }
+
+            return $"&{response}";
         }
     }
 }
