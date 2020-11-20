@@ -75,6 +75,11 @@ namespace Kyameru.Core.Entities
                 response = $"UserName={uriBuilder.UserName}&{response}";
             }
 
+            if (!string.IsNullOrWhiteSpace(uriBuilder.Host))
+            {
+                response = $"Host={uriBuilder.Host}&{response}";
+            }
+
             if (response.Length > 0 && response.Substring(response.Length - 1) == "&")
             {
                 response = response.Substring(0, response.Length - 1);

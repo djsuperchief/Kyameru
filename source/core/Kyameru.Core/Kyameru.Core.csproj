@@ -7,7 +7,7 @@
   <PropertyGroup>
     <!-- Mark the project as being a test project -->
     <SonarQubeTestProject>false</SonarQubeTestProject>
-    <Version>0.0.5</Version>
+    <Version>0.0.8</Version>
     <Copyright>Giles Papworth 2020</Copyright>
     <Description>Kyameru.Core is the main processing engine for Kyameru Process Component.</Description>
     <RepositoryUrl>https://github.com/djsuperchief/Kyameru</RepositoryUrl>
