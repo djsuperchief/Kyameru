@@ -75,12 +75,17 @@ namespace Kyameru.Core.Entities
                 response = $"UserName={uriBuilder.UserName}&{response}";
             }
 
-            if (response.Substring(response.Length - 1) == "&")
+            if (response.Length > 0 && response.Substring(response.Length - 1) == "&")
             {
                 response = response.Substring(0, response.Length - 1);
             }
 
-            return $"&{response}";
+            if (response.Length > 0)
+            {
+                response = $"&{response}";
+            }
+
+            return response;
         }
     }
 }
