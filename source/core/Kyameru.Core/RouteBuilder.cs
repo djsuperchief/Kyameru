@@ -106,7 +106,8 @@ namespace Kyameru.Core
             return new Builder(
                 this.from,
                 this.components,
-                this.CreateTo(route.ComponentName, route.Headers));
+                this.CreateTo(route.ComponentName, route.Headers),
+                this.fromUri);
         }
 
         /// <summary>

@@ -107,12 +107,17 @@
             List of processing components.
             </summary>
         </member>
+        <member name="F:Kyameru.Core.Builder.fromUri">
+            <summary>
+            From URI held to construct atomic component.
+            </summary>
+        </member>
         <member name="F:Kyameru.Core.Builder.errorComponent">
             <summary>
             Error component.
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Builder.#ctor(Kyameru.Core.Contracts.IFromComponent,System.Collections.Generic.List{Kyameru.IProcessComponent},Kyameru.Core.Contracts.IToComponent)">
+        <member name="M:Kyameru.Core.Builder.#ctor(Kyameru.Core.Contracts.IFromComponent,System.Collections.Generic.List{Kyameru.IProcessComponent},Kyameru.Core.Contracts.IToComponent,Kyameru.Core.Entities.RouteAttributes)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Builder"/> class.
             </summary>
@@ -665,6 +670,11 @@
         <member name="F:Kyameru.Core.RouteBuilder.from">
             <summary>
             From component.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.RouteBuilder.fromUri">
+            <summary>
+            From URI held to construct the atomic component.
             </summary>
         </member>
         <member name="F:Kyameru.Core.RouteBuilder.components">
