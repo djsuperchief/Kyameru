@@ -16,6 +16,11 @@ namespace Kyameru.Core
         private readonly Contracts.IFromComponent from;
 
         /// <summary>
+        /// From URI held to construct the atomic component.
+        /// </summary>
+        private readonly RouteAttributes fromUri;
+
+        /// <summary>
         /// List of intermediary components.
         /// </summary>
         private readonly List<IProcessComponent> components = new List<IProcessComponent>();
@@ -26,10 +31,10 @@ namespace Kyameru.Core
         /// <param name="componentUri">Valid Kyameru URI.</param>
         public RouteBuilder(string componentUri)
         {
-            Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
+            this.fromUri = new Entities.RouteAttributes(componentUri);
             this.from = this.SetFrom(
-                route.ComponentName,
-                route.Headers);
+                fromUri.ComponentName,
+                fromUri.Headers);
         }
 
         /// <summary>

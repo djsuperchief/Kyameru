@@ -29,6 +29,11 @@ namespace Kyameru.Core
         private readonly List<IProcessComponent> components;
 
         /// <summary>
+        /// From URI held to construct atomic component.
+        /// </summary>
+        private readonly RouteAttributes fromUri;
+
+        /// <summary>
         /// Error component.
         /// </summary>
         private IErrorComponent errorComponent;
@@ -42,7 +47,8 @@ namespace Kyameru.Core
         public Builder(
             Contracts.IFromComponent from,
             List<IProcessComponent> components,
-            Contracts.IToComponent to)
+            Contracts.IToComponent to,
+            RouteAttributes fromUri)
         {
             this.from = from;
             this.toComponents.Add(to);
@@ -71,6 +77,11 @@ namespace Kyameru.Core
                 route.ComponentName,
                 route.Headers));
             return this;
+        }
+
+        public Builder Atomic()
+        {
+            throw new NotImplementedException("WIP");
         }
 
         /// <summary>
