@@ -2,7 +2,7 @@ name: Publish Package
 
 on:
   push:
-    branches: [ main ]
+    branches: [ release ]
 
 # this needs to be better but also controlled.
 env:
