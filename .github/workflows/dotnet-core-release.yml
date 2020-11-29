@@ -1,9 +1,11 @@
 name: Publish Package
 
 on:
-  create:
-    tags: 
-      - '*.*.*'
+  push:
+    branches: [ main ]
+
+env:
+  VERSION: 0.0.2-beta
 
 jobs:
   build:
@@ -23,6 +25,6 @@ jobs:
     - name: Test
       run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal
     - name: Pack
-      run: dotnet pack source/core/Kyameru.Core/Kyameru.Core.csproj -c Release -p:PackageVersion=${GITHUB_REF##*/}
+      run: dotnet pack source/core/Kyameru.Core/Kyameru.Core.csproj -c Release -p:PackageVersion=$VERSION
     - name: Push
-      run: dotnet nuget push source/core/Kyameru.Core/bin/Release/Kyameru.Core.${GITHUB_REF##*/}.nupkg --api-key ${{ secrets.KYAMERU_NUGET }} -s https://api.nuget.org/v3/index.json
+      run: dotnet nuget push source/core/Kyameru.Core/bin/Release/Kyameru.Core.$VERSION.nupkg --api-key ${{ secrets.KYAMERU_NUGET }} -s https://api.nuget.org/v3/index.json
