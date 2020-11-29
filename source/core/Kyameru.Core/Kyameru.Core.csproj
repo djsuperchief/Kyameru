@@ -14,6 +14,8 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>Git</RepositoryType>
     <PackageProjectUrl>https://github.com/djsuperchief/Kyameru</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <NeutralLanguage>B</NeutralLanguage>
     </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
