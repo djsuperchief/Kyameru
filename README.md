@@ -1,5 +1,5 @@
 # Kyameru
-![Build Status](https://github.com/djsuperchief/Kyameru/workflows/.NET%3ACore/badge.svg)
+![Build Status](https://github.com/djsuperchief/Kyameru/workflows/Build/badge.svg)
 ## About
 Kyameru is a processing engine built with heavy inspiration from Apache Camel.
 It is currently in very Alpha stage and contains very few components but more will be added over the coming weeks and months.
