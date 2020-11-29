@@ -2,7 +2,6 @@ name: .NET Core
 
 on:
   create:
-  push:
     tags: 
       - '*.*.*'
 
