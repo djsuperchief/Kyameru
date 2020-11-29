@@ -6,7 +6,9 @@ It is currently in very Alpha stage and contains very few components but more wi
 
 ## Basic Overview
 ### Architecture
+
 ![Image of Kyameru Component](docs/arch.png)
+
 #### Structure
 Kyameru is built on the Chain Of Responsibility pattern. It is built up using the three main construction objects:
 
