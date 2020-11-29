@@ -25,4 +25,4 @@ jobs:
     - name: Pack
       run: dotnet pack source/core/Kyameru.Core/Kyameru.Core.csproj -c Release -p:PackageVersion=${GITHUB_REF##*/}
     - name: Push
-      run: dotnet nuget push source/core/Kyameru.Core/bin/release/Kyameru.Core.${GITHUB_REF##*/}.nupkg --api-key ${{ secrets.KYAMERU_NUGET }} -s https://api.nuget.org/v3/index.json
+      run: dotnet nuget push source/core/Kyameru.Core/bin/Release/Kyameru.Core.${GITHUB_REF##*/}.nupkg --api-key ${{ secrets.KYAMERU_NUGET }} -s https://api.nuget.org/v3/index.json
