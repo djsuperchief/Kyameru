@@ -118,5 +118,31 @@ The Slack component sends a message to a configured slack webhook.
 #### To
 ##### Setup Headers
 
-Header | Description | Optional
------- | ----------- | --------
+Header | Description | Optional | Default
+------ | ----------- | -------- | -------
+Target | Webhook in slack | NO
+MessageSource | Indicates whether the message for slack should be pulled from the body of the message OR a header. | YES | Header
+
+### Ftp (https://github.com/djsuperchief/Kyameru.Component.Ftp)
+The Ftp component provides a very simple poller, downloader and uploader for Ftp files. It currently can only pull from a single specified directory.
+
+#### From
+Header | Description | Optional | Default
+------ | ----------- | -------- | -------
+Target | Path on server | YES | /
+Host | Ftp host | NO
+Port | Port for the Ftp Server | YES | 21
+PollTime | Amount of time in milliseconds to poll the server | YES | 60000
+Filter | File filter | YES | \*.\*
+UserName | Username to connect with | NO
+Password | Password to connect with (can be left blank for anonymous) | YES | Empty
+Recursive | Currently not used | YES | False
+Delete | Indicates if a file should be deleted once downloaded | YES | False
+
+*Example*
+```
+Kyameru.Route.From("ftp://test@127.0.0.1&PollTime=5000&Filter=50000&Delete=true)
+```
+
+## Current Status
+This project is still very much in beta but has been released to the wider community early for feedback and to be used.
