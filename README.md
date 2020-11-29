@@ -114,3 +114,9 @@ Action | Action To Perform | NO
 Overwrite | Overwrites the destination if it exists | YES
 
 ### Slack (https://github.com/djsuperchief/Kyameru.Component.Slack)
+The Slack component sends a message to a configured slack webhook.
+#### To
+##### Setup Headers
+
+Header | Description | Optional
+------ | ----------- | --------
