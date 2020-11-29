@@ -1,0 +1,29 @@
+name: .NET Core
+
+on:
+  create:
+  push:
+    tags: 
+      - '*.*.*'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+    - name: Install dependencies
+      run: dotnet restore build/Kyameru.sln
+    - name: Build
+      run: dotnet build build/Kyameru.sln --configuration Release --no-restore
+    - name: Test
+      run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal
+    - name: Pack
+      run: dotnet pack source/core/Kyameru.Core/Kyameru.Core.csproj -c Release -p:PackageVersion=${GITHUB_REF##*/}
+    - name: Push
+      run: dotnet nuget push source/core/Kyameru.Core/bin/release/Kyameru.Core.${GITHUB_REF##*/}.nupkg --api-key ${{ secrets.KYAMERU_NUGET }}
