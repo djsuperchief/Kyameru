@@ -27,6 +27,10 @@ What is important is each of the declared components sit within a core Chain obj
 If at any point the Routable message is deemed to be in error, all processing stops and the only component that continues to process is an Error component that is entirely optional.
 
 ### Atomicity
+#### Atomic Option
+Currently under construction, each route can be configured to be atomic. The From component is responsible for the atmic nature of the route for insance if you use the Ftp component and specify that it needs to be atomic, it will not delete the downloaded file from the Ftp server until the To component executes successfully.
+
+#### Current Atomicity.
 Each component is considered atomic as opposed to the entire route. The engineer is expected to be able to handle failures through the use of the Error component to ensure the route is atomic. The reason for this is that a From component cannot assume what the end To component will do and as such cannot assume what action needs to be taken.
 
 #### FTP Example
@@ -57,6 +61,8 @@ The above example is very simple but you can see from the syntax that the From c
 
 ## Components
 ### File (https://github.com/djsuperchief/Kyameru.Component.File)
+The File component can watch a directory for files and raise a message through a route to indicate it has found a new file. It can also move files from one place to another either by writing the contents of the Routable message OR from disk.
+
 #### From
 
 The from component is a simple system file watcher raising notifications for when a file has been:
