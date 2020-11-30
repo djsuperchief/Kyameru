@@ -69,6 +69,8 @@ The above example is very simple but you can see from the syntax that the From c
 ### File (https://github.com/djsuperchief/Kyameru.Component.File)
 ![Build](https://github.com/djsuperchief/Kyameru.Component.File/workflows/Build/badge.svg)
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Kyameru.Component.File)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 The File component can watch a directory for files and raise a message through a route to indicate it has found a new file. It can also move files from one place to another either by writing the contents of the Routable message OR from disk.
 
 #### From
