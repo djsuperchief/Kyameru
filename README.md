@@ -34,7 +34,7 @@ If at any point the Routable message is deemed to be in error, all processing st
 
 ### Atomicity
 #### Atomic Option
-Currently under construction, each route can be configured to be atomic. The From component is responsible for the atmic nature of the route for insance if you use the Ftp component and specify that it needs to be atomic, it will not delete the downloaded file from the Ftp server until the To component executes successfully.
+Currently under construction, each route can be configured to be atomic. The From component is responsible for the atomic nature of the route for insance if you use the Ftp component and specify that it needs to be atomic, it will not delete the downloaded file from the Ftp server until the To component executes successfully.
 
 #### Current Atomicity.
 Each component is considered atomic as opposed to the entire route. The engineer is expected to be able to handle failures through the use of the Error component to ensure the route is atomic. The reason for this is that a From component cannot assume what the end To component will do and as such cannot assume what action needs to be taken.
