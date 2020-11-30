@@ -23,3 +23,4 @@ jobs:
       run: dotnet build build/Kyameru.sln --configuration Release --no-restore
     - name: Test
       run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal
+  

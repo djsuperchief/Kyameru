@@ -1,6 +1,9 @@
 # Kyameru
 ![Build Status](https://github.com/djsuperchief/Kyameru/workflows/Build/badge.svg)
+![CodeQL](https://github.com/djsuperchief/Kyameru/workflows/CodeQL/badge.svg)
+![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Kyameru.Core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## About
 Kyameru is a processing engine built with heavy inspiration from Apache Camel.
 It is currently in very Alpha stage and contains very few components but more will be added over the coming weeks and months.
@@ -32,7 +35,7 @@ If at any point the Routable message is deemed to be in error, all processing st
 
 ### Atomicity
 #### Atomic Option
-Currently under construction, each route can be configured to be atomic. The From component is responsible for the atmic nature of the route for insance if you use the Ftp component and specify that it needs to be atomic, it will not delete the downloaded file from the Ftp server until the To component executes successfully.
+Currently under construction, each route can be configured to be atomic. The From component is responsible for the atomic nature of the route for insance if you use the Ftp component and specify that it needs to be atomic, it will not delete the downloaded file from the Ftp server until the To component executes successfully.
 
 #### Current Atomicity.
 Each component is considered atomic as opposed to the entire route. The engineer is expected to be able to handle failures through the use of the Error component to ensure the route is atomic. The reason for this is that a From component cannot assume what the end To component will do and as such cannot assume what action needs to be taken.
@@ -65,6 +68,10 @@ The above example is very simple but you can see from the syntax that the From c
 
 ## Components
 ### File (https://github.com/djsuperchief/Kyameru.Component.File)
+![Build](https://github.com/djsuperchief/Kyameru.Component.File/workflows/Build/badge.svg)
+![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Kyameru.Component.File)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 The File component can watch a directory for files and raise a message through a route to indicate it has found a new file. It can also move files from one place to another either by writing the contents of the Routable message OR from disk.
 
 #### From
