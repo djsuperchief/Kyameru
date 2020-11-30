@@ -16,6 +16,7 @@
     <PackageProjectUrl>https://github.com/djsuperchief/Kyameru</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>B</NeutralLanguage>
+    <Authors>Giles Papworth</Authors>
     </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
