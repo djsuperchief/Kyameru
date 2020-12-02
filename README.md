@@ -163,3 +163,4 @@ This project is still very much in beta but has been released to the wider commu
 * MSSQL
 * RabbitMQ
 * SQL (GENERIC)
+* sFTP
