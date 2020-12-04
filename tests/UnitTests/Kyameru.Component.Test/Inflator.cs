@@ -9,6 +9,11 @@ namespace Kyameru.Component.Test
 {
     public class Inflator : IOasis
     {
+        public IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers)
+        {
+            throw new NotImplementedException();
+        }
+
         public IFromComponent CreateFromComponent(Dictionary<string, string> headers)
         {
             return new From(headers);

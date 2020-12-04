@@ -39,6 +39,11 @@ namespace Kyameru.Core
         private IErrorComponent errorComponent;
 
         /// <summary>
+        /// Atomic component.
+        /// </summary>
+        private IAtomicComponent atomicComponent;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Builder"/> class.
         /// </summary>
         /// <param name="from">From component.</param>
@@ -79,9 +84,16 @@ namespace Kyameru.Core
             return this;
         }
 
+        /// <summary>
+        /// Creates an atomic component using the original From URI
+        /// </summary>
+        /// <returns><Returns an instance of the <see cref="Builder"/> class</returns>
         public Builder Atomic()
         {
-            throw new NotImplementedException("WIP");
+            this.atomicComponent = this.CreateAtomic(
+                this.fromUri.ComponentName,
+                this.fromUri.Headers);
+            return this;
         }
 
         /// <summary>
@@ -157,10 +169,15 @@ namespace Kyameru.Core
             {
                 toChain.SetNext(this.SetupToChain(++i, logger));
             }
-            else if (this.errorComponent != null)
+            else 
             {
-                logger.LogInformation(string.Format(Resources.INFO_SETUP_ERR, this.errorComponent.ToString()));
-                toChain.SetNext(new Chain.Error(logger, this.errorComponent));
+                
+
+                if (this.errorComponent != null)
+                {
+                    logger.LogInformation(string.Format(Resources.INFO_SETUP_ERR, this.errorComponent.ToString()));
+                    toChain.SetNext(new Chain.Error(logger, this.errorComponent));
+                }
             }
 
             return toChain;
