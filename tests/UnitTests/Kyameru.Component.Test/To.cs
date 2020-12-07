@@ -22,12 +22,16 @@ namespace Kyameru.Component.Test
 
         public void Process(Routable item)
         {
-            if (item.Headers["Target"] == "kyameru")
+            if (this.Headers["Host"] == "kyameru")
             {
                 item.SetInError(new Error("To", "Process", "Error"));
+                GlobalCalls.Calls.Add("TO");
                 this.OnLog?.Invoke(this, new Log(LogLevel.Error, "Error", new ArgumentException("Error")));
             }
-            this.OnLog?.Invoke(this, new Log(LogLevel.Information, "To Executed"));
+
+            GlobalCalls.Calls.Add("TO");
+
+            this.OnLog?.Invoke(this, new Log(LogLevel.Information, "TO"));
         }
     }
 }

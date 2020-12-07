@@ -29,6 +29,8 @@ namespace Kyameru.Component.Test
         public void Start()
         {
             Routable routable = new Routable(this.headers, "TestData");
+            GlobalCalls.Calls.Add("FROM");
+            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "FROM"));
             this.OnAction?.Invoke(this, routable);
         }
 

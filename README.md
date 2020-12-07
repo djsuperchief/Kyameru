@@ -157,3 +157,10 @@ Kyameru.Route.From("ftp://test@127.0.0.1&PollTime=5000&Filter=50000&Delete=true)
 
 ## Current Status
 This project is still very much in beta but has been released to the wider community early for feedback and to be used.
+
+## Components In Progress
+
+* MSSQL (First)
+* RabbitMQ
+* SQL (GENERIC)
+* sFTP
