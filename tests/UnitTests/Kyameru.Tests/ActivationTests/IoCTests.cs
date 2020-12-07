@@ -17,7 +17,6 @@ namespace Kyameru.Tests.ActivationTests
     [TestFixture(Category = "IoC")]
     public class IoCTests
     {
-        private readonly IServiceCollection serviceCollection = new ServiceCollection();
         private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
         private readonly Mock<IProcessComponent> processComponent = new Mock<IProcessComponent>();
         private readonly Mock<IErrorComponent> errorComponent = new Mock<IErrorComponent>();
@@ -48,7 +47,7 @@ namespace Kyameru.Tests.ActivationTests
 
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
-            Assert.AreEqual(20, this.GetCallCount());
+            Assert.AreEqual(20, this.GetCallCount(), $"Output: {string.Join(",", Component.Test.GlobalCalls.Calls)}");
         }
 
         [OneTimeSetUp]
@@ -62,10 +61,7 @@ namespace Kyameru.Tests.ActivationTests
             {
                 Kyameru.Component.Test.GlobalCalls.Calls.Add("ERROR");
             });
-            this.serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
-            {
-                return this.logger.Object;
-            });
+
             this.callPoints.Add("FROM", 1);
             this.callPoints.Add("TO", 2);
             this.callPoints.Add("ATOMIC", 3);
@@ -80,6 +76,11 @@ namespace Kyameru.Tests.ActivationTests
 
         private IHostedService AddComponent(bool multiChain = false)
         {
+            IServiceCollection serviceCollection = new ServiceCollection();
+            serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
+            {
+                return this.logger.Object;
+            });
             if (multiChain)
             {
                 Kyameru.Route.From("test://hello")
@@ -89,7 +90,7 @@ namespace Kyameru.Tests.ActivationTests
                     .To("test://kyameru")
                     .Atomic("test://plop")
                     .Error(this.errorComponent.Object)
-                    .Build(this.serviceCollection);
+                    .Build(serviceCollection);
             }
             else
             {
