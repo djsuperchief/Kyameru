@@ -84,6 +84,14 @@ namespace Kyameru.Tests.ActivationTests
         }
 
         [Test]
+        public void CanSetupAtomic()
+        {
+            Core.Builder builder = this.CreateTo(this.CreateRoute());
+            builder = this.CreateAtomic(builder);
+            Assert.IsTrue(builder.IsAtomic);
+        }
+
+        [Test]
         public void ToThrowsException()
         {
             Assert.Throws<Core.Exceptions.ActivationException>(() =>
@@ -106,6 +114,11 @@ namespace Kyameru.Tests.ActivationTests
         private Core.Builder CreateTo(Core.RouteBuilder builder, string route = "test://world")
         {
             return builder.To(route);
+        }
+
+        private Core.Builder CreateAtomic(Core.Builder builder, string route = "test://hello")
+        {
+            return builder.Atomic(route);
         }
     }
 }

@@ -8,6 +8,10 @@
             <summary>
             Abstract builder class.
             </summary>
+            <remarks>
+            Will make the below more efficient but readable is better for now,
+            optimise later.
+            </remarks>
         </member>
         <member name="M:Kyameru.Core.AbstractBuilder.CreateTo(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
             <summary>
@@ -16,6 +20,29 @@
             <param name="to">Valid component name.</param>
             <param name="headers">Dictionary of headers</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IToComponent"/> interface.</returns>
+        </member>
+        <member name="M:Kyameru.Core.AbstractBuilder.CreateFrom(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Creates the from component.
+            </summary>
+            <param name="to">Valid component name.</param>
+            <param name="headers">Dictionary of headers</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IFromComponent"/> interface.</returns>
+        </member>
+        <member name="M:Kyameru.Core.AbstractBuilder.CreateAtomic(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Creates the atomic component.
+            </summary>
+            <param name="to">Valid component name.</param>
+            <param name="headers">Dictionary of headers</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IAtomicComponent"/> interface.</returns>
+        </member>
+        <member name="M:Kyameru.Core.AbstractBuilder.GetOasis(System.String)">
+            <summary>
+            Gets the IOasis (activator) from the component.
+            </summary>
+            <param name="component"></param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IOasis"/> interface.</returns>
         </member>
         <member name="T:Kyameru.Core.BaseComponents.AddHeader">
             <summary>
@@ -117,6 +144,11 @@
             Error component.
             </summary>
         </member>
+        <member name="F:Kyameru.Core.Builder.atomicComponent">
+            <summary>
+            Atomic component.
+            </summary>
+        </member>
         <member name="M:Kyameru.Core.Builder.#ctor(Kyameru.Core.Contracts.IFromComponent,System.Collections.Generic.List{Kyameru.IProcessComponent},Kyameru.Core.Contracts.IToComponent,Kyameru.Core.Entities.RouteAttributes)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Builder"/> class.
@@ -135,12 +167,30 @@
             Gets a value indicating whether the error component will process.
             </summary>
         </member>
+        <member name="P:Kyameru.Core.Builder.IsAtomic">
+            <summary>
+            Gets a value indicating whether the route is considered to be atomic.
+            </summary>
+        </member>
         <member name="M:Kyameru.Core.Builder.To(System.String)">
             <summary>
             Creates a new To component chain.
             </summary>
             <param name="componentUri">Valid Kyameru URI.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Builder"/> class.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Builder.Atomic">
+            <summary>
+            Creates an atomic component using the original From URI
+            </summary>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Builder"/> class</returns>
+        </member>
+        <member name="M:Kyameru.Core.Builder.Atomic(System.String)">
+            <summary>
+            Creates an atomic component using the original From URI
+            </summary>
+            <param name="componentUri">Valid Kyameru URI.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Builder"/> class</returns>
         </member>
         <member name="M:Kyameru.Core.Builder.Error(Kyameru.Core.Contracts.IErrorComponent)">
             <summary>
@@ -170,6 +220,14 @@
             </summary>
             <param name="i">Current count.</param>
             <param name="logger">Logger class.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IChain`1"/> interface.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Builder.GetFinal(Kyameru.Core.Contracts.IChain{Kyameru.Core.Entities.Routable},Kyameru.Core.Contracts.IChain{Kyameru.Core.Entities.Routable})">
+            <summary>
+            Sets the correct next component.
+            </summary>
+            <param name="input">Component incoming.</param>
+            <param name="target">Target chain.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IChain`1"/> interface.</returns>
         </member>
         <member name="T:Kyameru.Core.Chain.BaseChain">
@@ -352,6 +410,17 @@
             <param name="sender">Class sending the event.</param>
             <param name="e">Log object.</param>
         </member>
+        <member name="T:Kyameru.Core.Contracts.IAtomicComponent">
+            <summary>
+            Atomic component executed after the final to.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Contracts.IAtomicComponent.Process(Kyameru.Core.Entities.Routable)">
+            <summary>
+            Process the incoming request.
+            </summary>
+            <param name="item">Message to be processed.</param>
+        </member>
         <member name="T:Kyameru.Core.Contracts.IChain`1">
             <summary>
             Core processing component interface.
@@ -434,7 +503,14 @@
             Creates a to component.
             </summary>
             <param name="headers">Dictionary of headers to apply.</param>
-            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IToComponent"/> instance.</returns>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IToComponent"/> interface.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Contracts.IOasis.CreateAtomicComponent(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Creates an atomic component.
+            </summary>
+            <param name="headers">Dictionary of headers to apply.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IAtomicComponent"/> interface.</returns>
         </member>
         <member name="T:Kyameru.Core.Contracts.IToComponent">
             <summary>
@@ -735,14 +811,6 @@
             </summary>
             <param name="componentUri">Valid Kyameru URI.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Builder"/> class.</returns>
-        </member>
-        <member name="M:Kyameru.Core.RouteBuilder.SetFrom(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
-            <summary>
-            Sets the from component.
-            </summary>
-            <param name="from">Valid from name.</param>
-            <param name="headers">Dictionary of headers.</param>
-            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IFromComponent"/> interface.</returns>
         </member>
         <member name="T:Kyameru.IProcessComponent">
             <summary>

@@ -32,7 +32,7 @@ namespace Kyameru.Core
         public RouteBuilder(string componentUri)
         {
             this.fromUri = new Entities.RouteAttributes(componentUri);
-            this.from = this.SetFrom(
+            this.from = this.CreateFrom(
                 fromUri.ComponentName,
                 fromUri.Headers);
         }
@@ -110,27 +110,6 @@ namespace Kyameru.Core
                 this.fromUri);
         }
 
-        /// <summary>
-        /// Sets the from component.
-        /// </summary>
-        /// <param name="from">Valid from name.</param>
-        /// <param name="headers">Dictionary of headers.</param>
-        /// <returns>Returns an instance of the <see cref="IFromComponent"/> interface.</returns>
-        private Contracts.IFromComponent SetFrom(string from, Dictionary<string, string> headers)
-        {
-            Contracts.IFromComponent response = null;
-            try
-            {
-                Type fromType = Type.GetType($"Kyameru.Component.{from}.Inflator, Kyameru.Component.{from}");
-                IOasis oasis = (IOasis)Activator.CreateInstance(fromType);
-                response = oasis.CreateFromComponent(headers);
-            }
-            catch (Exception ex)
-            {
-                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_FROM, ex);
-            }
-
-            return response;
-        }
+        
     }
 }

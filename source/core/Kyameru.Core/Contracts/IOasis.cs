@@ -18,7 +18,14 @@ namespace Kyameru.Core.Contracts
         /// Creates a to component.
         /// </summary>
         /// <param name="headers">Dictionary of headers to apply.</param>
-        /// <returns>Returns an instance of the <see cref="IToComponent"/> instance.</returns>
+        /// <returns>Returns an instance of the <see cref="IToComponent"/> interface.</returns>
         IToComponent CreateToComponent(Dictionary<string, string> headers);
+
+        /// <summary>
+        /// Creates an atomic component.
+        /// </summary>
+        /// <param name="headers">Dictionary of headers to apply.</param>
+        /// <returns>Returns an instance of the <see cref="IAtomicComponent"/> interface.</returns>
+        IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers);
     }
 }
