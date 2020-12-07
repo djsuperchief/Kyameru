@@ -58,6 +58,7 @@ namespace Kyameru.Core
             this.from = from;
             this.toComponents.Add(to);
             this.components = components;
+            this.fromUri = fromUri;
         }
 
         /// <summary>
@@ -69,6 +70,11 @@ namespace Kyameru.Core
         /// Gets a value indicating whether the error component will process.
         /// </summary>
         public bool WillProcessError => this.errorComponent != null;
+
+        /// <summary>
+        /// Gets a value indicating whether the route is considered to be atomic.
+        /// </summary>
+        public bool IsAtomic => this.atomicComponent != null;
 
         /// <summary>
         /// Creates a new To component chain.
@@ -87,12 +93,26 @@ namespace Kyameru.Core
         /// <summary>
         /// Creates an atomic component using the original From URI
         /// </summary>
-        /// <returns><Returns an instance of the <see cref="Builder"/> class</returns>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class</returns>
         public Builder Atomic()
         {
             this.atomicComponent = this.CreateAtomic(
                 this.fromUri.ComponentName,
                 this.fromUri.Headers);
+            return this;
+        }
+
+        /// <summary>
+        /// Creates an atomic component using the original From URI
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class</returns>
+        public Builder Atomic(string componentUri)
+        {
+            RouteAttributes route = new RouteAttributes(componentUri);
+            this.atomicComponent = this.CreateAtomic(
+                route.ComponentName,
+                route.Headers);
             return this;
         }
 
@@ -169,18 +189,44 @@ namespace Kyameru.Core
             {
                 toChain.SetNext(this.SetupToChain(++i, logger));
             }
-            else 
+            else
             {
-                
+                IChain<Routable> final = null;
+                if (this.atomicComponent != null)
+                {
+                    logger.LogInformation(string.Format(Resources.INFO_SETUP_ATOMIC, this.atomicComponent.ToString()));
+                    final = new Atomic(logger, this.atomicComponent);
+                }
 
                 if (this.errorComponent != null)
                 {
                     logger.LogInformation(string.Format(Resources.INFO_SETUP_ERR, this.errorComponent.ToString()));
-                    toChain.SetNext(new Chain.Error(logger, this.errorComponent));
+
+                    toChain.SetNext(this.GetFinal(new Chain.Error(logger, this.errorComponent), final));
                 }
             }
 
             return toChain;
+        }
+
+        /// <summary>
+        /// Sets the correct next component.
+        /// </summary>
+        /// <param name="input">Component incoming.</param>
+        /// <param name="target">Target chain.</param>
+        /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
+        private IChain<Routable> GetFinal(IChain<Routable> input, IChain<Routable> target)
+        {
+            if (target == null)
+            {
+                target = input;
+            }
+            else
+            {
+                target.SetNext(input);
+            }
+
+            return target;
         }
     }
 }

@@ -167,6 +167,11 @@
             Gets a value indicating whether the error component will process.
             </summary>
         </member>
+        <member name="P:Kyameru.Core.Builder.IsAtomic">
+            <summary>
+            Gets a value indicating whether the route is considered to be atomic.
+            </summary>
+        </member>
         <member name="M:Kyameru.Core.Builder.To(System.String)">
             <summary>
             Creates a new To component chain.
@@ -174,7 +179,19 @@
             <param name="componentUri">Valid Kyameru URI.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Builder"/> class.</returns>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:Kyameru.Core.Builder.Atomic" -->
+        <member name="M:Kyameru.Core.Builder.Atomic">
+            <summary>
+            Creates an atomic component using the original From URI
+            </summary>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Builder"/> class</returns>
+        </member>
+        <member name="M:Kyameru.Core.Builder.Atomic(System.String)">
+            <summary>
+            Creates an atomic component using the original From URI
+            </summary>
+            <param name="componentUri">Valid Kyameru URI.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Builder"/> class</returns>
+        </member>
         <member name="M:Kyameru.Core.Builder.Error(Kyameru.Core.Contracts.IErrorComponent)">
             <summary>
             Creates a new Error component chain.
@@ -203,6 +220,14 @@
             </summary>
             <param name="i">Current count.</param>
             <param name="logger">Logger class.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IChain`1"/> interface.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Builder.GetFinal(Kyameru.Core.Contracts.IChain{Kyameru.Core.Entities.Routable},Kyameru.Core.Contracts.IChain{Kyameru.Core.Entities.Routable})">
+            <summary>
+            Sets the correct next component.
+            </summary>
+            <param name="input">Component incoming.</param>
+            <param name="target">Target chain.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IChain`1"/> interface.</returns>
         </member>
         <member name="T:Kyameru.Core.Chain.BaseChain">

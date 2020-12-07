@@ -6,6 +6,7 @@
         internal const string INFO_PROCESSINGCOMPONENT = "Setting up processing component {0}...";
         internal const string INFO_SETUP_TO = "Setting up to component {0}...";
         internal const string INFO_SETUP_ERR = "Setting up error component {0}...";
+        internal const string INFO_SETUP_ATOMIC = "Setting up atomic component {0}...";
 
         internal const string ERROR_ACTIVATION_FROM = "Error activating from component.";
         internal const string ERROR_ACTIVATION_TO = "Error activating to component.";

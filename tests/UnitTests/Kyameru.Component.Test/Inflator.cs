@@ -11,7 +11,7 @@ namespace Kyameru.Component.Test
     {
         public IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers)
         {
-            throw new NotImplementedException();
+            return new Atomic(headers);
         }
 
         public IFromComponent CreateFromComponent(Dictionary<string, string> headers)

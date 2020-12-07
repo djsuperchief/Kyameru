@@ -1,4 +1,5 @@
 ﻿using Kyameru.Core.Contracts;
+using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -6,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,6 +21,7 @@ namespace Kyameru.Tests.ActivationTests
         private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
         private readonly Mock<IProcessComponent> processComponent = new Mock<IProcessComponent>();
         private readonly Mock<IErrorComponent> errorComponent = new Mock<IErrorComponent>();
+        private Dictionary<string, int> callPoints = new Dictionary<string, int>();
 
         [Test]
         public void CanSetupFullTest()
@@ -29,32 +32,50 @@ namespace Kyameru.Tests.ActivationTests
         [Test]
         public async Task CanExecute()
         {
+            Component.Test.GlobalCalls.Calls.Clear();
             IHostedService service = this.AddComponent();
 
             await service.StartAsync(CancellationToken.None);
-            this.logger.Verify();
             await service.StopAsync(CancellationToken.None);
-            Assert.AreEqual(5, this.logger.Invocations.Count);
+            Assert.AreEqual(7, this.GetCallCount());
         }
 
         [Test]
         public async Task CanExecuteMultipleChains()
         {
+            Component.Test.GlobalCalls.Calls.Clear();
             IHostedService service = this.AddComponent(true);
 
             await service.StartAsync(CancellationToken.None);
-            this.logger.Verify();
             await service.StopAsync(CancellationToken.None);
-            Assert.AreEqual(13, this.logger.Invocations.Count);
+            Assert.AreEqual(16, this.GetCallCount());
         }
 
-        [SetUp]
+        [OneTimeSetUp]
         public void Init()
         {
+            this.processComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback(() =>
+            {
+                Kyameru.Component.Test.GlobalCalls.Calls.Add("COMPONENT");
+            });
+            this.errorComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback(() =>
+            {
+                Kyameru.Component.Test.GlobalCalls.Calls.Add("ERROR");
+            });
             this.serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
             {
                 return this.logger.Object;
             });
+            this.callPoints.Add("FROM", 1);
+            this.callPoints.Add("TO", 2);
+            this.callPoints.Add("ATOMIC", 3);
+            this.callPoints.Add("COMPONENT", 4);
+            this.callPoints.Add("ERROR", 5);
+        }
+
+        private int GetCallCount()
+        {
+            return Component.Test.GlobalCalls.Calls.Where(this.callPoints.ContainsKey).Sum(x => this.callPoints[x]);
         }
 
         private IHostedService AddComponent(bool multiChain = false)
@@ -66,6 +87,7 @@ namespace Kyameru.Tests.ActivationTests
                     .Process(this.processComponent.Object)
                     .To("test://world")
                     .To("test://kyameru")
+                    .Atomic("test://plop")
                     .Error(this.errorComponent.Object)
                     .Build(this.serviceCollection);
             }
