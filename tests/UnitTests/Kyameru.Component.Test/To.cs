@@ -22,7 +22,7 @@ namespace Kyameru.Component.Test
 
         public void Process(Routable item)
         {
-            if (item.Headers["Target"] == "kyameru")
+            if (this.Headers["Host"] == "kyameru")
             {
                 item.SetInError(new Error("To", "Process", "Error"));
                 GlobalCalls.Calls.Add("TO");

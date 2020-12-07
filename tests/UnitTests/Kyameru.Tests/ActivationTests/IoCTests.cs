@@ -48,7 +48,7 @@ namespace Kyameru.Tests.ActivationTests
 
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
-            Assert.AreEqual(16, this.GetCallCount());
+            Assert.AreEqual(20, this.GetCallCount());
         }
 
         [OneTimeSetUp]
