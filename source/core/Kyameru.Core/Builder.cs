@@ -44,6 +44,11 @@ namespace Kyameru.Core
         private IAtomicComponent atomicComponent;
 
         /// <summary>
+        /// Route Id.
+        /// </summary>
+        private string identity;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Builder"/> class.
         /// </summary>
         /// <param name="from">From component.</param>
@@ -128,6 +133,17 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Sets the identity of the route.
+        /// </summary>
+        /// <param name="id">Name of the route.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder Id(string id)
+        {
+            this.identity = id;
+            return this;
+        }
+
+        /// <summary>
         /// Builds the final chain into dependency injection.
         /// </summary>
         /// <param name="services">Service collection.</param>
@@ -148,7 +164,7 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                return new Chain.From(this.from, next, logger);
+                return new Chain.From(this.from, next, logger, this.identity);
             });
         }
 

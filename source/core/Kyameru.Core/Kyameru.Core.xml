@@ -149,6 +149,11 @@
             Atomic component.
             </summary>
         </member>
+        <member name="F:Kyameru.Core.Builder.identity">
+            <summary>
+            Route Id.
+            </summary>
+        </member>
         <member name="M:Kyameru.Core.Builder.#ctor(Kyameru.Core.Contracts.IFromComponent,System.Collections.Generic.List{Kyameru.IProcessComponent},Kyameru.Core.Contracts.IToComponent,Kyameru.Core.Entities.RouteAttributes)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Builder"/> class.
@@ -197,6 +202,13 @@
             Creates a new Error component chain.
             </summary>
             <param name="errorComponent">Error component.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Builder"/> class.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Builder.Id(System.String)">
+            <summary>
+            Sets the identity of the route.
+            </summary>
+            <param name="id">Name of the route.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Builder"/> class.</returns>
         </member>
         <member name="M:Kyameru.Core.Builder.Build(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
@@ -314,7 +326,12 @@
             Logger class.
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Chain.From.#ctor(Kyameru.Core.Contracts.IFromComponent,Kyameru.Core.Contracts.IChain{Kyameru.Core.Entities.Routable},Microsoft.Extensions.Logging.ILogger)">
+        <member name="F:Kyameru.Core.Chain.From.identity">
+            <summary>
+            Route identity.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Chain.From.#ctor(Kyameru.Core.Contracts.IFromComponent,Kyameru.Core.Contracts.IChain{Kyameru.Core.Entities.Routable},Microsoft.Extensions.Logging.ILogger,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Chain.From"/> class.
             </summary>
@@ -725,6 +742,26 @@
             </summary>
             <param name="message">Error Message.</param>
             <param name="innerException">Inner Exception.</param>
+        </member>
+        <member name="T:Kyameru.Core.Extensions.LoggerExtensions">
+            <summary>
+            Extensions for the logger to implement Logger Message.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Extensions.LoggerExtensions.info">
+            <summary>
+            Information log for from.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Extensions.LoggerExtensions.debug">
+            <summary>
+            Debug log for from
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Extensions.LoggerExtensions.error">
+            <summary>
+            Error log
+            </summary>
         </member>
         <member name="T:Kyameru.Core.Extensions.StringExtensions">
             <summary>
