@@ -9,7 +9,7 @@ on:
 
 # need to add build...somewhere
 jobs:
-  sonarcloud:
+  coveralls:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
