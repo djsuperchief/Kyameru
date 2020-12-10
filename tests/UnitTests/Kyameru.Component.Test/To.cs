@@ -32,6 +32,17 @@ namespace Kyameru.Component.Test
             GlobalCalls.Calls.Add("TO");
 
             this.OnLog?.Invoke(this, new Log(LogLevel.Information, "TO"));
+
+            this.RaiseLogs();
+        }
+
+        private void RaiseLogs()
+        {
+            this.OnLog?.Invoke(this, new Log(LogLevel.Error, "TO"));
+            this.OnLog?.Invoke(this, new Log(LogLevel.Warning, "TO"));
+            this.OnLog?.Invoke(this, new Log(LogLevel.Debug, "TO"));
+            this.OnLog?.Invoke(this, new Log(LogLevel.Trace, "TO"));
+            this.OnLog?.Invoke(this, new Log(LogLevel.Critical, "TO"));
         }
     }
 }
