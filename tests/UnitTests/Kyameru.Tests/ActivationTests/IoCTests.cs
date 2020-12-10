@@ -110,6 +110,7 @@ namespace Kyameru.Tests.ActivationTests
                     .To("test://kyameru")
                     .Atomic("test://plop")
                     .Error(this.errorComponent.Object)
+                    .Id("WillNotExecute")
                     .Build(serviceCollection);
             }
             else
