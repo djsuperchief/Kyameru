@@ -242,6 +242,12 @@
             <param name="target">Target chain.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IChain`1"/> interface.</returns>
         </member>
+        <member name="M:Kyameru.Core.Builder.GetIdentity">
+            <summary>
+            Gets the identity of the route.
+            </summary>
+            <returns>Returns either a random identity or specified.</returns>
+        </member>
         <member name="T:Kyameru.Core.Chain.BaseChain">
             <summary>
             Base chain for processing
@@ -252,11 +258,17 @@
             Logger interface.
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Chain.BaseChain.#ctor(Microsoft.Extensions.Logging.ILogger)">
+        <member name="F:Kyameru.Core.Chain.BaseChain.identity">
+            <summary>
+            Route identity.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Chain.BaseChain.#ctor(Microsoft.Extensions.Logging.ILogger,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Chain.BaseChain"/> class.
             </summary>
             <param name="logger">Logging class.</param>
+            <param name="identity">Identity of route.</param>
         </member>
         <member name="P:Kyameru.Core.Chain.BaseChain.Next">
             <summary>
@@ -276,6 +288,13 @@
             <param name="next">Next component.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IChain`1"/>/> interface.</returns>
         </member>
+        <member name="M:Kyameru.Core.Chain.BaseChain.OnLog(System.Object,Kyameru.Core.Entities.Log)">
+            <summary>
+            Logging event handler.
+            </summary>
+            <param name="sender">Class sending the event.</param>
+            <param name="e">Log object.</param>
+        </member>
         <member name="T:Kyameru.Core.Chain.Error">
             <summary>
             Error processing.
@@ -286,25 +305,19 @@
             Error component.
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Chain.Error.#ctor(Microsoft.Extensions.Logging.ILogger,Kyameru.Core.Contracts.IErrorComponent)">
+        <member name="M:Kyameru.Core.Chain.Error.#ctor(Microsoft.Extensions.Logging.ILogger,Kyameru.Core.Contracts.IErrorComponent,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Chain.Error"/> class.
             </summary>
             <param name="logger">Logging interface.</param>
             <param name="errorComponent">Error component.</param>
+            <param name="identity">Route identity.</param>
         </member>
         <member name="M:Kyameru.Core.Chain.Error.Handle(Kyameru.Core.Entities.Routable)">
             <summary>
             Passes processing to the next in the chain.
             </summary>
             <param name="item">Message to process.</param>
-        </member>
-        <member name="M:Kyameru.Core.Chain.Error.ErrorComponent_OnLog(System.Object,Kyameru.Core.Entities.Log)">
-            <summary>
-            Logging event handler.
-            </summary>
-            <param name="sender">Class sending the event.</param>
-            <param name="e">Log object.</param>
         </member>
         <member name="T:Kyameru.Core.Chain.From">
             <summary>
@@ -377,25 +390,19 @@
             Core processing component.
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Chain.Process.#ctor(Microsoft.Extensions.Logging.ILogger,Kyameru.IProcessComponent)">
+        <member name="M:Kyameru.Core.Chain.Process.#ctor(Microsoft.Extensions.Logging.ILogger,Kyameru.IProcessComponent,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Chain.Process"/> class.
             </summary>
             <param name="logger">Logger class.</param>
             <param name="processComponent">Processing component.</param>
+            <param name="identity">Identity of route.</param>
         </member>
         <member name="M:Kyameru.Core.Chain.Process.Handle(Kyameru.Core.Entities.Routable)">
             <summary>
             Passes processing onto the next component.
             </summary>
             <param name="item">Message to process.</param>
-        </member>
-        <member name="M:Kyameru.Core.Chain.Process.Component_OnLog(System.Object,Kyameru.Core.Entities.Log)">
-            <summary>
-            Logging event handler.
-            </summary>
-            <param name="sender">Class sending the event.</param>
-            <param name="e">Log object.</param>
         </member>
         <member name="T:Kyameru.Core.Chain.To">
             <summary>
@@ -407,25 +414,19 @@
             To Component.
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Chain.To.#ctor(Microsoft.Extensions.Logging.ILogger,Kyameru.Core.Contracts.IToComponent)">
+        <member name="M:Kyameru.Core.Chain.To.#ctor(Microsoft.Extensions.Logging.ILogger,Kyameru.Core.Contracts.IToComponent,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Chain.To"/> class.
             </summary>
             <param name="logger">Logger class.</param>
             <param name="toComponent">To component.</param>
+            <param name="identity">Identity of route.</param>
         </member>
         <member name="M:Kyameru.Core.Chain.To.Handle(Kyameru.Core.Entities.Routable)">
             <summary>
             Passes processing onto the next component.
             </summary>
             <param name="item">Message to process.</param>
-        </member>
-        <member name="M:Kyameru.Core.Chain.To.ToComponent_OnLog(System.Object,Kyameru.Core.Entities.Log)">
-            <summary>
-            Logging event handler.
-            </summary>
-            <param name="sender">Class sending the event.</param>
-            <param name="e">Log object.</param>
         </member>
         <member name="T:Kyameru.Core.Contracts.IAtomicComponent">
             <summary>

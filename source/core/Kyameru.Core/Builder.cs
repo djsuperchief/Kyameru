@@ -177,7 +177,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupChain(int i, ILogger logger, IChain<Routable> toComponents)
         {
-            Chain.Process chain = new Chain.Process(logger, this.components[i]);
+            Chain.Process chain = new Chain.Process(logger, this.components[i], this.GetIdentity());
             logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, this.components[i].ToString()));
             if (i < this.components.Count - 1)
             {
@@ -199,7 +199,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupToChain(int i, ILogger logger)
         {
-            Chain.To toChain = new To(logger, this.toComponents[i]);
+            Chain.To toChain = new To(logger, this.toComponents[i], this.GetIdentity());
             logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, this.toComponents[i].ToString()));
             if (i < this.toComponents.Count - 1)
             {
@@ -211,14 +211,14 @@ namespace Kyameru.Core
                 if (this.atomicComponent != null)
                 {
                     logger.LogInformation(string.Format(Resources.INFO_SETUP_ATOMIC, this.atomicComponent.ToString()));
-                    final = new Atomic(logger, this.atomicComponent);
+                    final = new Atomic(logger, this.atomicComponent, this.GetIdentity());
                 }
 
                 if (this.errorComponent != null)
                 {
                     logger.LogInformation(string.Format(Resources.INFO_SETUP_ERR, this.errorComponent.ToString()));
 
-                    toChain.SetNext(this.GetFinal(new Chain.Error(logger, this.errorComponent), final));
+                    toChain.SetNext(this.GetFinal(new Chain.Error(logger, this.errorComponent, this.GetIdentity()), final));
                 }
             }
 
@@ -243,6 +243,20 @@ namespace Kyameru.Core
             }
 
             return target;
+        }
+
+        /// <summary>
+        /// Gets the identity of the route.
+        /// </summary>
+        /// <returns>Returns either a random identity or specified.</returns>
+        private string GetIdentity()
+        {
+            if (string.IsNullOrWhiteSpace(this.identity))
+            {
+                this.identity = Guid.NewGuid().ToString("N");
+            }
+
+            return this.identity;
         }
     }
 }
