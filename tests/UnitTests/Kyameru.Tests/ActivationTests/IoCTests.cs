@@ -47,7 +47,17 @@ namespace Kyameru.Tests.ActivationTests
 
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
-            Assert.AreEqual(20, this.GetCallCount(), $"Output: {string.Join(",", Component.Test.GlobalCalls.Calls)}");
+            Assert.AreEqual(20, this.GetCallCount());
+        }
+
+        [Test]
+        public async Task CanExecuteAtomic()
+        {
+            Component.Test.GlobalCalls.Calls.Clear();
+            IHostedService service = this.GetNoErrorChain();
+            await service.StartAsync(CancellationToken.None);
+            await service.StopAsync(CancellationToken.None);
+            Assert.AreEqual(6, this.GetCallCount());
         }
 
         [OneTimeSetUp]
@@ -99,6 +109,21 @@ namespace Kyameru.Tests.ActivationTests
                     .To("test://world")
                     .Build(serviceCollection);
             }
+            IServiceProvider provider = serviceCollection.BuildServiceProvider();
+            return provider.GetService<IHostedService>();
+        }
+
+        private IHostedService GetNoErrorChain()
+        {
+            IServiceCollection serviceCollection = new ServiceCollection();
+            serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
+            {
+                return this.logger.Object;
+            });
+            Kyameru.Route.From("test://hello")
+                .To("test://world")
+                .Atomic("test://boom")
+                .Build(serviceCollection);
             IServiceProvider provider = serviceCollection.BuildServiceProvider();
             return provider.GetService<IHostedService>();
         }

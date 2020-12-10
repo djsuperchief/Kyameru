@@ -207,19 +207,21 @@ namespace Kyameru.Core
             }
             else
             {
-                IChain<Routable> final = null;
+                IChain<Routable> atomic = null;
+                IChain<Routable> error = null;
                 if (this.atomicComponent != null)
                 {
                     logger.LogInformation(string.Format(Resources.INFO_SETUP_ATOMIC, this.atomicComponent.ToString()));
-                    final = new Atomic(logger, this.atomicComponent, this.GetIdentity());
+                    atomic = new Atomic(logger, this.atomicComponent, this.GetIdentity());
                 }
 
                 if (this.errorComponent != null)
                 {
                     logger.LogInformation(string.Format(Resources.INFO_SETUP_ERR, this.errorComponent.ToString()));
-
-                    toChain.SetNext(this.GetFinal(new Chain.Error(logger, this.errorComponent, this.GetIdentity()), final));
+                    error = new Chain.Error(logger, this.errorComponent, this.GetIdentity());
                 }
+
+                toChain.SetNext(this.GetFinal(error, atomic));
             }
 
             return toChain;
@@ -228,21 +230,21 @@ namespace Kyameru.Core
         /// <summary>
         /// Sets the correct next component.
         /// </summary>
-        /// <param name="input">Component incoming.</param>
-        /// <param name="target">Target chain.</param>
+        /// <param name="error">Component incoming.</param>
+        /// <param name="atomic">Target chain.</param>
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
-        private IChain<Routable> GetFinal(IChain<Routable> input, IChain<Routable> target)
+        private IChain<Routable> GetFinal(IChain<Routable> error, IChain<Routable> atomic)
         {
-            if (target == null)
+            if (atomic != null && error != null)
             {
-                target = input;
+                atomic.SetNext(error);
             }
-            else
+            else if (atomic == null && error != null)
             {
-                target.SetNext(input);
+                atomic = error;
             }
 
-            return target;
+            return atomic;
         }
 
         /// <summary>

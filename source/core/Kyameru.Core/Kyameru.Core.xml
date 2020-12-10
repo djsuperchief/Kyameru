@@ -238,8 +238,8 @@
             <summary>
             Sets the correct next component.
             </summary>
-            <param name="input">Component incoming.</param>
-            <param name="target">Target chain.</param>
+            <param name="error">Component incoming.</param>
+            <param name="atomic">Target chain.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IChain`1"/> interface.</returns>
         </member>
         <member name="M:Kyameru.Core.Builder.GetIdentity">
