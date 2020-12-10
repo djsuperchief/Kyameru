@@ -24,6 +24,7 @@ namespace Kyameru.Component.Test
         {
             if (this.Headers["Host"] == "kyameru")
             {
+                this.OnLog.Invoke(this, new Log(LogLevel.Warning, "Will not process"));
                 item.SetInError(new Error("To", "Process", "Error"));
                 GlobalCalls.Calls.Add("TO");
                 this.OnLog?.Invoke(this, new Log(LogLevel.Error, "Error", new ArgumentException("Error")));
@@ -32,17 +33,6 @@ namespace Kyameru.Component.Test
             GlobalCalls.Calls.Add("TO");
 
             this.OnLog?.Invoke(this, new Log(LogLevel.Information, "TO"));
-
-            this.RaiseLogs();
-        }
-
-        private void RaiseLogs()
-        {
-            this.OnLog?.Invoke(this, new Log(LogLevel.Error, "TO"));
-            this.OnLog?.Invoke(this, new Log(LogLevel.Warning, "TO"));
-            this.OnLog?.Invoke(this, new Log(LogLevel.Debug, "TO"));
-            this.OnLog?.Invoke(this, new Log(LogLevel.Trace, "TO"));
-            this.OnLog?.Invoke(this, new Log(LogLevel.Critical, "TO"));
         }
     }
 }
