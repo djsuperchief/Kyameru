@@ -60,6 +60,20 @@ namespace Kyameru.Tests.ActivationTests
             Assert.AreEqual(6, this.GetCallCount());
         }
 
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task AddHeaderErrors(bool secondFunction)
+        {
+            Component.Test.GlobalCalls.Calls.Clear();
+            IHostedService service = this.GetHeaderError(secondFunction);
+            await service.StartAsync(CancellationToken.None);
+            await service.StopAsync(CancellationToken.None);
+            Assert.AreEqual(6, this.GetCallCount());
+        }
+
+        #region Setup
+
         [OneTimeSetUp]
         public void Init()
         {
@@ -86,11 +100,7 @@ namespace Kyameru.Tests.ActivationTests
 
         private IHostedService AddComponent(bool multiChain = false)
         {
-            IServiceCollection serviceCollection = new ServiceCollection();
-            serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
-            {
-                return this.logger.Object;
-            });
+            IServiceCollection serviceCollection = this.GetServiceDescriptors();
             if (multiChain)
             {
                 Kyameru.Route.From("test://hello")
@@ -115,11 +125,7 @@ namespace Kyameru.Tests.ActivationTests
 
         private IHostedService GetNoErrorChain()
         {
-            IServiceCollection serviceCollection = new ServiceCollection();
-            serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
-            {
-                return this.logger.Object;
-            });
+            IServiceCollection serviceCollection = this.GetServiceDescriptors();
             Kyameru.Route.From("test://hello")
                 .To("test://world")
                 .Atomic("test://boom")
@@ -127,5 +133,47 @@ namespace Kyameru.Tests.ActivationTests
             IServiceProvider provider = serviceCollection.BuildServiceProvider();
             return provider.GetService<IHostedService>();
         }
+
+        private IHostedService GetHeaderError(bool dual)
+        {
+            IServiceCollection serviceCollection = this.GetServiceDescriptors();
+            if (!dual)
+            {
+                Route.From("test://hello")
+                    .AddHeader("One", () =>
+                    {
+                        throw new NotImplementedException("whoops");
+                    })
+                    .To("test://world")
+                    .Error(this.errorComponent.Object)
+                    .Build(serviceCollection);
+            }
+            else
+            {
+                Route.From("test://hello")
+                    .AddHeader("One", (x) =>
+                    {
+                        throw new NotImplementedException("whoops");
+                    })
+                    .To("test://world")
+                    .Error(this.errorComponent.Object)
+                    .Build(serviceCollection);
+            }
+            IServiceProvider provider = serviceCollection.BuildServiceProvider();
+            return provider.GetService<IHostedService>();
+        }
+
+        private IServiceCollection GetServiceDescriptors()
+        {
+            IServiceCollection serviceCollection = new ServiceCollection();
+            serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
+            {
+                return this.logger.Object;
+            });
+
+            return serviceCollection;
+        }
+
+        #endregion Setup
     }
 }
