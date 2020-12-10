@@ -22,8 +22,9 @@ jobs:
       - name: Build
         run: dotnet build build/Kyameru.sln --configuration Release --no-restore
       - name: Test
-        run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=TestCoverage/
+        run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=TestCoverage/
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./tests/UnitTests/Kyameru.Tests/TestCoverage/coverage.info 
