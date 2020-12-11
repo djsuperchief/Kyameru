@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -29,12 +30,17 @@ namespace Kyameru.Core.Chain
         private readonly ILogger logger;
 
         /// <summary>
+        /// Route identity.
+        /// </summary>
+        private readonly string identity;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="From"/> class.
         /// </summary>
         /// <param name="fromComponent">From component to use.</param>
         /// <param name="next">Next processing component.</param>
         /// <param name="logger">Logger class.</param>
-        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger)
+        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger, string id)
         {
             this.fromComponent = fromComponent;
             this.fromComponent.Setup();
@@ -42,6 +48,7 @@ namespace Kyameru.Core.Chain
             this.next = next;
             this.logger = logger;
             this.fromComponent.OnLog += this.FromComponent_OnLog;
+            this.identity = id;
         }
 
         /// <summary>
@@ -69,7 +76,7 @@ namespace Kyameru.Core.Chain
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, Resources.ERROR_FROM_COMPONENT);
+                this.logger.KyameruException(this.identity, Resources.ERROR_FROM_COMPONENT, ex);
             }
 
             return Task.CompletedTask;
@@ -84,11 +91,11 @@ namespace Kyameru.Core.Chain
         {
             if (e.Error == null)
             {
-                this.logger.Log(e.LogLevel, e.Message);
+                this.logger.KyameruLog(this.identity, e.Message, e.LogLevel);
             }
             else
             {
-                this.logger.LogError(e.Error, e.Message);
+                this.logger.KyameruException(this.identity, e.Message, e.Error);
             }
         }
 

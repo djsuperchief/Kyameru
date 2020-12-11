@@ -80,10 +80,11 @@ namespace Kyameru.Core.BaseComponents
         /// <param name="routable">Routable message.</param>
         public void Process(Routable routable)
         {
-            // This is not preferred but pressed for time.
+            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Debug, Resources.DEBUG_HEADER_DETERMINE));
             switch (this.callbackOption)
             {
                 case 0:
+                    this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Debug, Resources.DEBUG_HEADER_RUNNING));
                     routable.AddHeader(this.header, this.value);
                     break;
 

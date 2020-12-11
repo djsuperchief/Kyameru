@@ -1,6 +1,7 @@
 ﻿using System;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Core.Chain
@@ -20,10 +21,11 @@ namespace Kyameru.Core.Chain
         /// </summary>
         /// <param name="logger">Logger class.</param>
         /// <param name="processComponent">Processing component.</param>
-        public Process(ILogger logger, IProcessComponent processComponent) : base(logger)
+        /// <param name="identity">Identity of route.</param>
+        public Process(ILogger logger, IProcessComponent processComponent, string identity) : base(logger, identity)
         {
             this.component = processComponent;
-            this.component.OnLog += this.Component_OnLog;
+            this.component.OnLog += this.OnLog;
         }
 
         /// <summary>
@@ -40,29 +42,12 @@ namespace Kyameru.Core.Chain
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.LogError(ex, ex.Message);
+                    this.Logger.KyameruException(this.identity, ex.Message, ex);
                     item.SetInError(new Entities.Error("Processing component", "Handle", ex.Message));
                 }
             }
 
             base.Handle(item);
-        }
-
-        /// <summary>
-        /// Logging event handler.
-        /// </summary>
-        /// <param name="sender">Class sending the event.</param>
-        /// <param name="e">Log object.</param>
-        private void Component_OnLog(object sender, Log e)
-        {
-            if (e.Error == null)
-            {
-                this.Logger.Log(e.LogLevel, e.Message);
-            }
-            else
-            {
-                this.Logger.LogError(e.Error, e.Message);
-            }
         }
     }
 }

@@ -24,6 +24,7 @@ namespace Kyameru.Component.Test
         {
             if (this.Headers["Host"] == "kyameru")
             {
+                this.OnLog.Invoke(this, new Log(LogLevel.Warning, "Will not process"));
                 item.SetInError(new Error("To", "Process", "Error"));
                 GlobalCalls.Calls.Add("TO");
                 this.OnLog?.Invoke(this, new Log(LogLevel.Error, "Error", new ArgumentException("Error")));

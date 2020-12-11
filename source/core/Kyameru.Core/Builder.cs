@@ -44,6 +44,11 @@ namespace Kyameru.Core
         private IAtomicComponent atomicComponent;
 
         /// <summary>
+        /// Route Id.
+        /// </summary>
+        private string identity;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Builder"/> class.
         /// </summary>
         /// <param name="from">From component.</param>
@@ -128,6 +133,17 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Sets the identity of the route.
+        /// </summary>
+        /// <param name="id">Name of the route.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder Id(string id)
+        {
+            this.identity = id;
+            return this;
+        }
+
+        /// <summary>
         /// Builds the final chain into dependency injection.
         /// </summary>
         /// <param name="services">Service collection.</param>
@@ -148,7 +164,7 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                return new Chain.From(this.from, next, logger);
+                return new Chain.From(this.from, next, logger, this.identity);
             });
         }
 
@@ -161,7 +177,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupChain(int i, ILogger logger, IChain<Routable> toComponents)
         {
-            Chain.Process chain = new Chain.Process(logger, this.components[i]);
+            Chain.Process chain = new Chain.Process(logger, this.components[i], this.GetIdentity());
             logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, this.components[i].ToString()));
             if (i < this.components.Count - 1)
             {
@@ -183,7 +199,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupToChain(int i, ILogger logger)
         {
-            Chain.To toChain = new To(logger, this.toComponents[i]);
+            Chain.To toChain = new To(logger, this.toComponents[i], this.GetIdentity());
             logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, this.toComponents[i].ToString()));
             if (i < this.toComponents.Count - 1)
             {
@@ -191,19 +207,21 @@ namespace Kyameru.Core
             }
             else
             {
-                IChain<Routable> final = null;
+                IChain<Routable> atomic = null;
+                IChain<Routable> error = null;
                 if (this.atomicComponent != null)
                 {
                     logger.LogInformation(string.Format(Resources.INFO_SETUP_ATOMIC, this.atomicComponent.ToString()));
-                    final = new Atomic(logger, this.atomicComponent);
+                    atomic = new Atomic(logger, this.atomicComponent, this.GetIdentity());
                 }
 
                 if (this.errorComponent != null)
                 {
                     logger.LogInformation(string.Format(Resources.INFO_SETUP_ERR, this.errorComponent.ToString()));
-
-                    toChain.SetNext(this.GetFinal(new Chain.Error(logger, this.errorComponent), final));
+                    error = new Chain.Error(logger, this.errorComponent, this.GetIdentity());
                 }
+
+                toChain.SetNext(this.GetFinal(error, atomic));
             }
 
             return toChain;
@@ -212,21 +230,35 @@ namespace Kyameru.Core
         /// <summary>
         /// Sets the correct next component.
         /// </summary>
-        /// <param name="input">Component incoming.</param>
-        /// <param name="target">Target chain.</param>
+        /// <param name="error">Component incoming.</param>
+        /// <param name="atomic">Target chain.</param>
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
-        private IChain<Routable> GetFinal(IChain<Routable> input, IChain<Routable> target)
+        private IChain<Routable> GetFinal(IChain<Routable> error, IChain<Routable> atomic)
         {
-            if (target == null)
+            if (atomic != null && error != null)
             {
-                target = input;
+                atomic.SetNext(error);
             }
-            else
+            else if (atomic == null && error != null)
             {
-                target.SetNext(input);
+                atomic = error;
             }
 
-            return target;
+            return atomic;
+        }
+
+        /// <summary>
+        /// Gets the identity of the route.
+        /// </summary>
+        /// <returns>Returns either a random identity or specified.</returns>
+        private string GetIdentity()
+        {
+            if (string.IsNullOrWhiteSpace(this.identity))
+            {
+                this.identity = Guid.NewGuid().ToString("N");
+            }
+
+            return this.identity;
         }
     }
 }
