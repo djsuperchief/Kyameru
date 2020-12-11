@@ -76,7 +76,7 @@ namespace Kyameru.Core.Chain
             }
             catch (Exception ex)
             {
-                this.logger.KyameruException(this.identity, Resources.ERROR_FROM_COMPONENT, ex);
+                this.FromComponent_OnLog(this, new Log(LogLevel.Error, ex.Message, ex));
             }
 
             return Task.CompletedTask;

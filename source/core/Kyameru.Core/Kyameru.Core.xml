@@ -569,12 +569,6 @@
             Gets the error message.
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Entities.Error.ToString">
-            <summary>
-            Serializes the component to Json.
-            </summary>
-            <returns>Returns a Json string representation of the object.</returns>
-        </member>
         <member name="T:Kyameru.Core.Entities.Log">
             <summary>
             Standard log entity.

@@ -52,8 +52,7 @@ namespace Kyameru.Tests.ActivationTests
             this.processComponent.Reset();
             this.processComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
             {
-                routable = x;
-                throw new NotImplementedException();
+                throw new Kyameru.Core.Exceptions.ProcessException("Manual Error");
             });
 
             IHostedService service = this.GetHostedService();
@@ -103,7 +102,10 @@ namespace Kyameru.Tests.ActivationTests
 
         private bool IsInError(Routable routable, string component)
         {
-            return routable != null && routable.Error.Component == component;
+            return routable != null
+                && routable.Error.Component == component
+                && routable.Error.CurrentAction == "Handle"
+                && routable.Error.Message == "Manual Error";
         }
 
         private IHostedService GetHostedService(
@@ -117,7 +119,7 @@ namespace Kyameru.Tests.ActivationTests
                 return this.logger.Object;
             });
             string from = $"error://path?Error={fromError}";
-            string to = $"error://path?Error={toError}";
+            string to = $"error://path:test@test.com?Error={toError}";
             string atomic = $"error://path?Error={atomicError}";
 
             Kyameru.Route.From(from)

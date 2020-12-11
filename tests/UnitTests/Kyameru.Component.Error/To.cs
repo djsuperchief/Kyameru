@@ -18,7 +18,7 @@ namespace Kyameru.Component.Error
         {
             if (this.WillError())
             {
-                throw new NotImplementedException();
+                throw new Kyameru.Core.Exceptions.ComponentException("Manual Error");
             }
         }
     }
