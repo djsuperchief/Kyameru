@@ -14,7 +14,7 @@ namespace Kyameru.Component.Test
             return new Atomic(headers);
         }
 
-        public IFromComponent CreateFromComponent(Dictionary<string, string> headers)
+        public IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic)
         {
             return new From(headers);
         }

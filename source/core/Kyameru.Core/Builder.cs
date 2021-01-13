@@ -14,11 +14,6 @@ namespace Kyameru.Core
     public class Builder : AbstractBuilder
     {
         /// <summary>
-        /// From component.
-        /// </summary>
-        private readonly IFromComponent from;
-
-        /// <summary>
         /// List of to components.
         /// </summary>
         private readonly List<IToComponent> toComponents = new List<IToComponent>();
@@ -32,6 +27,11 @@ namespace Kyameru.Core
         /// From URI held to construct atomic component.
         /// </summary>
         private readonly RouteAttributes fromUri;
+
+        /// <summary>
+        /// From component.
+        /// </summary>
+        private IFromComponent from;
 
         /// <summary>
         /// Error component.
@@ -54,13 +54,13 @@ namespace Kyameru.Core
         /// <param name="from">From component.</param>
         /// <param name="components">List of intermediary components.</param>
         /// <param name="to">To component.</param>
+        /// <param name="fromUri">From Uri.</param>
         public Builder(
-            Contracts.IFromComponent from,
             List<IProcessComponent> components,
             Contracts.IToComponent to,
             RouteAttributes fromUri)
         {
-            this.from = from;
+            this.fromUri = fromUri;
             this.toComponents.Add(to);
             this.components = components;
             this.fromUri = fromUri;
@@ -151,6 +151,7 @@ namespace Kyameru.Core
         {
             services.AddHostedService<Chain.From>(x =>
             {
+                this.from = this.CreateFrom(this.fromUri.ComponentName, this.fromUri.Headers, this.IsAtomic);
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;

@@ -37,15 +37,16 @@ namespace Kyameru.Core
         /// <summary>
         /// Creates the from component.
         /// </summary>
-        /// <param name="to">Valid component name.</param>
+        /// <param name="from">Valid component name.</param>
         /// <param name="headers">Dictionary of headers</param>
+        /// <param name="isAtomic">Indicates if the route is atomic.</param>
         /// <returns>Returns an instance of the <see cref="IFromComponent"/> interface.</returns>
-        protected IFromComponent CreateFrom(string from, Dictionary<string, string> headers)
+        protected IFromComponent CreateFrom(string from, Dictionary<string, string> headers, bool isAtomic = false)
         {
             IFromComponent response = null;
             try
             {
-                response = this.GetOasis(from).CreateFromComponent(headers);
+                response = this.GetOasis(from).CreateFromComponent(headers, isAtomic);
             }
             catch (Exception ex)
             {
@@ -58,7 +59,7 @@ namespace Kyameru.Core
         /// <summary>
         /// Creates the atomic component.
         /// </summary>
-        /// <param name="to">Valid component name.</param>
+        /// <param name="from">Valid component name.</param>
         /// <param name="headers">Dictionary of headers</param>
         /// <returns>Returns an instance of the <see cref="IAtomicComponent"/> interface.</returns>
         protected IAtomicComponent CreateAtomic(string from, Dictionary<string, string> headers)

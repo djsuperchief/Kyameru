@@ -17,12 +17,6 @@ namespace Kyameru.Tests.ActivationTests
         private Mock<IProcessComponent> processingComponent = new Mock<IProcessComponent>();
 
         [Test]
-        public void CanCreateFrom()
-        {
-            Assert.IsTrue(this.CreateRoute().FromValid);
-        }
-
-        [Test]
         public void CanAddHeader()
         {
             Core.RouteBuilder route = this.CreateRoute();
@@ -103,7 +97,7 @@ namespace Kyameru.Tests.ActivationTests
         [Test]
         public void RouteBuilderThrowsException()
         {
-            Assert.Throws<Core.Exceptions.ActivationException>(() => { this.CreateRoute("invalid"); });
+            Assert.Throws<Core.Exceptions.RouteUriException>(() => { this.CreateRoute(string.Empty); });
         }
 
         private Core.RouteBuilder CreateRoute(string route = "test://hello")
