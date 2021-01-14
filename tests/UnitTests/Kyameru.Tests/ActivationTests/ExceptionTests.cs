@@ -1,5 +1,6 @@
 ﻿using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -98,6 +99,24 @@ namespace Kyameru.Tests.ActivationTests
             await service.StopAsync(CancellationToken.None);
 
             Assert.IsTrue(this.IsInError(routable, "Atomic Component"));
+        }
+
+        [Test]
+        public async Task ErrorComponentErrors()
+        {
+            Routable routable = null;
+            this.errorComponent.Reset();
+            this.errorComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            {
+                routable = x;
+                throw new ProcessException("Manual Error", new IndexOutOfRangeException("Random index"));
+            });
+
+            IHostedService service = this.GetHostedService(false, false, true);
+            await service.StartAsync(CancellationToken.None);
+            await service.StopAsync(CancellationToken.None);
+
+            Assert.IsTrue(this.IsInError(routable, "Error Component"));
         }
 
         private bool IsInError(Routable routable, string component)

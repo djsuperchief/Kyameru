@@ -21,19 +21,20 @@
             <param name="headers">Dictionary of headers</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IToComponent"/> interface.</returns>
         </member>
-        <member name="M:Kyameru.Core.AbstractBuilder.CreateFrom(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+        <member name="M:Kyameru.Core.AbstractBuilder.CreateFrom(System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Boolean)">
             <summary>
             Creates the from component.
             </summary>
-            <param name="to">Valid component name.</param>
+            <param name="from">Valid component name.</param>
             <param name="headers">Dictionary of headers</param>
+            <param name="isAtomic">Indicates if the route is atomic.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IFromComponent"/> interface.</returns>
         </member>
         <member name="M:Kyameru.Core.AbstractBuilder.CreateAtomic(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
             <summary>
             Creates the atomic component.
             </summary>
-            <param name="to">Valid component name.</param>
+            <param name="from">Valid component name.</param>
             <param name="headers">Dictionary of headers</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IAtomicComponent"/> interface.</returns>
         </member>
@@ -119,24 +120,24 @@
             Builder facility.
             </summary>
         </member>
-        <member name="F:Kyameru.Core.Builder.from">
-            <summary>
-            From component.
-            </summary>
-        </member>
-        <member name="F:Kyameru.Core.Builder.toComponents">
-            <summary>
-            List of to components.
-            </summary>
-        </member>
         <member name="F:Kyameru.Core.Builder.components">
             <summary>
             List of processing components.
             </summary>
         </member>
+        <member name="F:Kyameru.Core.Builder.toUris">
+            <summary>
+            List of to component uris.
+            </summary>
+        </member>
         <member name="F:Kyameru.Core.Builder.fromUri">
             <summary>
             From URI held to construct atomic component.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Builder.from">
+            <summary>
+            From component.
             </summary>
         </member>
         <member name="F:Kyameru.Core.Builder.errorComponent">
@@ -154,13 +155,14 @@
             Route Id.
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Builder.#ctor(Kyameru.Core.Contracts.IFromComponent,System.Collections.Generic.List{Kyameru.IProcessComponent},Kyameru.Core.Contracts.IToComponent,Kyameru.Core.Entities.RouteAttributes)">
+        <member name="M:Kyameru.Core.Builder.#ctor(System.Collections.Generic.List{Kyameru.IProcessComponent},Kyameru.Core.Entities.RouteAttributes,Kyameru.Core.Entities.RouteAttributes)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Builder"/> class.
             </summary>
             <param name="from">From component.</param>
             <param name="components">List of intermediary components.</param>
             <param name="to">To component.</param>
+            <param name="fromUri">From Uri.</param>
         </member>
         <member name="P:Kyameru.Core.Builder.ToComponentCount">
             <summary>
@@ -344,13 +346,20 @@
             Route identity.
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Chain.From.#ctor(Kyameru.Core.Contracts.IFromComponent,Kyameru.Core.Contracts.IChain{Kyameru.Core.Entities.Routable},Microsoft.Extensions.Logging.ILogger,System.String)">
+        <member name="F:Kyameru.Core.Chain.From.IsAtomicRoute">
+            <summary>
+            value indicating whether the route will be atomic.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Chain.From.#ctor(Kyameru.Core.Contracts.IFromComponent,Kyameru.Core.Contracts.IChain{Kyameru.Core.Entities.Routable},Microsoft.Extensions.Logging.ILogger,System.String,System.Boolean)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Chain.From"/> class.
             </summary>
             <param name="fromComponent">From component to use.</param>
             <param name="next">Next processing component.</param>
             <param name="logger">Logger class.</param>
+            <param name="id">Identity of the route.</param>
+            <param name="isAtomicRoute">Value indicating whether the route is atomic.</param>
         </member>
         <member name="M:Kyameru.Core.Chain.From.StopAsync(System.Threading.CancellationToken)">
             <summary>
@@ -509,11 +518,12 @@
             Component activation interface.
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Contracts.IOasis.CreateFromComponent(System.Collections.Generic.Dictionary{System.String,System.String})">
+        <member name="M:Kyameru.Core.Contracts.IOasis.CreateFromComponent(System.Collections.Generic.Dictionary{System.String,System.String},System.Boolean)">
             <summary>
             Creates a from component.
             </summary>
             <param name="headers">Dictionary of headers to apply.</param>
+            <param name="isAtomic">Indicates if the route is atomic.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IFromComponent"/> interface.</returns>
         </member>
         <member name="M:Kyameru.Core.Contracts.IOasis.CreateToComponent(System.Collections.Generic.Dictionary{System.String,System.String})">
@@ -567,6 +577,11 @@
         <member name="P:Kyameru.Core.Entities.Error.Message">
             <summary>
             Gets the error message.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Error.InnerError">
+            <summary>
+            Gets the inner error.
             </summary>
         </member>
         <member name="T:Kyameru.Core.Entities.Log">
@@ -689,13 +704,7 @@
             Activation Exception
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Exceptions.ActivationException.#ctor(System.String)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.ActivationException"/> class.
-            </summary>
-            <param name="message">Error Message.</param>
-        </member>
-        <member name="M:Kyameru.Core.Exceptions.ActivationException.#ctor(System.String,System.Exception)">
+        <member name="M:Kyameru.Core.Exceptions.ActivationException.#ctor(System.String,System.Exception,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.ActivationException"/> class.
             </summary>
@@ -738,6 +747,18 @@
             <param name="message">Error Message.</param>
             <param name="innerException">Inner Exception.</param>
         </member>
+        <member name="T:Kyameru.Core.Exceptions.RouteUriException">
+            <summary>
+            RouteException
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Exceptions.RouteUriException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.RouteUriException"/> class.
+            </summary>
+            <param name="message">Error Message.</param>
+            <param name="innerException">Inner Exception.</param>
+        </member>
         <member name="T:Kyameru.Core.Extensions.LoggerExtensions">
             <summary>
             Extensions for the logger to implement Logger Message.
@@ -775,11 +796,6 @@
             Route builder.
             </summary>
         </member>
-        <member name="F:Kyameru.Core.RouteBuilder.from">
-            <summary>
-            From component.
-            </summary>
-        </member>
         <member name="F:Kyameru.Core.RouteBuilder.fromUri">
             <summary>
             From URI held to construct the atomic component.
@@ -795,11 +811,6 @@
             Initializes a new instance of the <see cref="T:Kyameru.Core.RouteBuilder"/> class.
             </summary>
             <param name="componentUri">Valid Kyameru URI.</param>
-        </member>
-        <member name="P:Kyameru.Core.RouteBuilder.FromValid">
-            <summary>
-            Gets a value indicating whether the from component is valid.
-            </summary>
         </member>
         <member name="P:Kyameru.Core.RouteBuilder.ComponentCount">
             <summary>

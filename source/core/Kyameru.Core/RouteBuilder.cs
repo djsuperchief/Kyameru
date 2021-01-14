@@ -11,11 +11,6 @@ namespace Kyameru.Core
     public class RouteBuilder : AbstractBuilder
     {
         /// <summary>
-        /// From component.
-        /// </summary>
-        private readonly Contracts.IFromComponent from;
-
-        /// <summary>
         /// From URI held to construct the atomic component.
         /// </summary>
         private readonly RouteAttributes fromUri;
@@ -32,15 +27,7 @@ namespace Kyameru.Core
         public RouteBuilder(string componentUri)
         {
             this.fromUri = new Entities.RouteAttributes(componentUri);
-            this.from = this.CreateFrom(
-                fromUri.ComponentName,
-                fromUri.Headers);
         }
-
-        /// <summary>
-        /// Gets a value indicating whether the from component is valid.
-        /// </summary>
-        public bool FromValid => this.from != null;
 
         /// <summary>
         /// Gets the processing component count.
@@ -104,12 +91,9 @@ namespace Kyameru.Core
         {
             Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
             return new Builder(
-                this.from,
                 this.components,
-                this.CreateTo(route.ComponentName, route.Headers),
+                route,
                 this.fromUri);
         }
-
-        
     }
 }

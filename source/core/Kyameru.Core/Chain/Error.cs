@@ -3,12 +3,16 @@ using Kyameru.Core.Entities;
 using Kyameru.Core.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Kyameru.Tests")]
 
 namespace Kyameru.Core.Chain
 {
     /// <summary>
     /// Error processing.
     /// </summary>
+
     internal class Error : BaseChain
     {
         /// <summary>
@@ -43,6 +47,7 @@ namespace Kyameru.Core.Chain
                 catch (Exception ex)
                 {
                     this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    item.SetInError(new Entities.Error("Error Component", "Handle", ex.Message));
                 }
             }
         }

@@ -14,24 +14,24 @@ namespace Kyameru.Core
     public class Builder : AbstractBuilder
     {
         /// <summary>
-        /// From component.
-        /// </summary>
-        private readonly IFromComponent from;
-
-        /// <summary>
-        /// List of to components.
-        /// </summary>
-        private readonly List<IToComponent> toComponents = new List<IToComponent>();
-
-        /// <summary>
         /// List of processing components.
         /// </summary>
         private readonly List<IProcessComponent> components;
 
         /// <summary>
+        /// List of to component uris.
+        /// </summary>
+        private readonly List<RouteAttributes> toUris = new List<RouteAttributes>();
+
+        /// <summary>
         /// From URI held to construct atomic component.
         /// </summary>
         private readonly RouteAttributes fromUri;
+
+        /// <summary>
+        /// From component.
+        /// </summary>
+        private IFromComponent from;
 
         /// <summary>
         /// Error component.
@@ -54,14 +54,14 @@ namespace Kyameru.Core
         /// <param name="from">From component.</param>
         /// <param name="components">List of intermediary components.</param>
         /// <param name="to">To component.</param>
+        /// <param name="fromUri">From Uri.</param>
         public Builder(
-            Contracts.IFromComponent from,
             List<IProcessComponent> components,
-            Contracts.IToComponent to,
+            RouteAttributes to,
             RouteAttributes fromUri)
         {
-            this.from = from;
-            this.toComponents.Add(to);
+            this.fromUri = fromUri;
+            this.toUris.Add(to);
             this.components = components;
             this.fromUri = fromUri;
         }
@@ -69,7 +69,7 @@ namespace Kyameru.Core
         /// <summary>
         /// Gets the To component count.
         /// </summary>
-        public int ToComponentCount => this.toComponents.Count;
+        public int ToComponentCount => this.toUris.Count;
 
         /// <summary>
         /// Gets a value indicating whether the error component will process.
@@ -89,9 +89,8 @@ namespace Kyameru.Core
         public Builder To(string componentUri)
         {
             Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
-            this.toComponents.Add(this.CreateTo(
-                route.ComponentName,
-                route.Headers));
+            this.toUris.Add(route);
+
             return this;
         }
 
@@ -151,6 +150,7 @@ namespace Kyameru.Core
         {
             services.AddHostedService<Chain.From>(x =>
             {
+                this.from = this.CreateFrom(this.fromUri.ComponentName, this.fromUri.Headers, this.IsAtomic);
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
@@ -199,9 +199,9 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupToChain(int i, ILogger logger)
         {
-            Chain.To toChain = new To(logger, this.toComponents[i], this.GetIdentity());
-            logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, this.toComponents[i].ToString()));
-            if (i < this.toComponents.Count - 1)
+            Chain.To toChain = new To(logger, this.GetToComponent(i), this.GetIdentity());
+            logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, this.GetToComponent(i).ToString()));
+            if (i < this.toUris.Count - 1)
             {
                 toChain.SetNext(this.SetupToChain(++i, logger));
             }
@@ -225,6 +225,11 @@ namespace Kyameru.Core
             }
 
             return toChain;
+        }
+
+        private IToComponent GetToComponent(int index)
+        {
+            return this.CreateTo(this.toUris[index].ComponentName, this.toUris[index].Headers);
         }
 
         /// <summary>

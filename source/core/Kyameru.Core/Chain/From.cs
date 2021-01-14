@@ -35,12 +35,19 @@ namespace Kyameru.Core.Chain
         private readonly string identity;
 
         /// <summary>
+        /// value indicating whether the route will be atomic.
+        /// </summary>
+        private readonly bool IsAtomicRoute;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="From"/> class.
         /// </summary>
         /// <param name="fromComponent">From component to use.</param>
         /// <param name="next">Next processing component.</param>
         /// <param name="logger">Logger class.</param>
-        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger, string id)
+        /// <param name="id">Identity of the route.</param>
+        /// <param name="isAtomicRoute">Value indicating whether the route is atomic.</param>
+        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger, string id, bool isAtomicRoute = false)
         {
             this.fromComponent = fromComponent;
             this.fromComponent.Setup();
@@ -49,6 +56,7 @@ namespace Kyameru.Core.Chain
             this.logger = logger;
             this.fromComponent.OnLog += this.FromComponent_OnLog;
             this.identity = id;
+            this.IsAtomicRoute = isAtomicRoute;
         }
 
         /// <summary>
