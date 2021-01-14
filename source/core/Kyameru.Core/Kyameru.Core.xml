@@ -120,14 +120,14 @@
             Builder facility.
             </summary>
         </member>
-        <member name="F:Kyameru.Core.Builder.toComponents">
-            <summary>
-            List of to components.
-            </summary>
-        </member>
         <member name="F:Kyameru.Core.Builder.components">
             <summary>
             List of processing components.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Builder.toUris">
+            <summary>
+            List of to component uris.
             </summary>
         </member>
         <member name="F:Kyameru.Core.Builder.fromUri">
@@ -155,7 +155,7 @@
             Route Id.
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Builder.#ctor(System.Collections.Generic.List{Kyameru.IProcessComponent},Kyameru.Core.Contracts.IToComponent,Kyameru.Core.Entities.RouteAttributes)">
+        <member name="M:Kyameru.Core.Builder.#ctor(System.Collections.Generic.List{Kyameru.IProcessComponent},Kyameru.Core.Entities.RouteAttributes,Kyameru.Core.Entities.RouteAttributes)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Builder"/> class.
             </summary>
@@ -699,13 +699,7 @@
             Activation Exception
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Exceptions.ActivationException.#ctor(System.String)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.ActivationException"/> class.
-            </summary>
-            <param name="message">Error Message.</param>
-        </member>
-        <member name="M:Kyameru.Core.Exceptions.ActivationException.#ctor(System.String,System.Exception)">
+        <member name="M:Kyameru.Core.Exceptions.ActivationException.#ctor(System.String,System.Exception,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.ActivationException"/> class.
             </summary>

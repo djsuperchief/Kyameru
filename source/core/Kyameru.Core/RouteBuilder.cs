@@ -92,7 +92,7 @@ namespace Kyameru.Core
             Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
             return new Builder(
                 this.components,
-                this.CreateTo(route.ComponentName, route.Headers),
+                route,
                 this.fromUri);
         }
     }

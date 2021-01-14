@@ -86,15 +86,6 @@ namespace Kyameru.Tests.ActivationTests
         }
 
         [Test]
-        public void ToThrowsException()
-        {
-            Assert.Throws<Core.Exceptions.ActivationException>(() =>
-           {
-               this.CreateTo(this.CreateRoute(), "invalid://nope");
-           });
-        }
-
-        [Test]
         public void RouteBuilderThrowsException()
         {
             Assert.Throws<Core.Exceptions.RouteUriException>(() => { this.CreateRoute(string.Empty); });

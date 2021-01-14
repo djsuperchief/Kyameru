@@ -28,7 +28,7 @@ namespace Kyameru.Core
             }
             catch (Exception ex)
             {
-                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_TO, ex);
+                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_TO, ex, "To");
             }
 
             return response;
@@ -50,7 +50,7 @@ namespace Kyameru.Core
             }
             catch (Exception ex)
             {
-                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_FROM, ex);
+                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_FROM, ex, "From");
             }
 
             return response;
@@ -71,7 +71,7 @@ namespace Kyameru.Core
             }
             catch (Exception ex)
             {
-                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATING_ATOMIC, ex);
+                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATING_ATOMIC, ex, "Atomic");
             }
 
             return response;
