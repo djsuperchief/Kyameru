@@ -579,6 +579,11 @@
             Gets the error message.
             </summary>
         </member>
+        <member name="P:Kyameru.Core.Entities.Error.InnerError">
+            <summary>
+            Gets the inner error.
+            </summary>
+        </member>
         <member name="T:Kyameru.Core.Entities.Log">
             <summary>
             Standard log entity.
@@ -746,12 +751,6 @@
             <summary>
             RouteException
             </summary>
-        </member>
-        <member name="M:Kyameru.Core.Exceptions.RouteUriException.#ctor(System.String)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.RouteUriException"/> class.
-            </summary>
-            <param name="message">Error Message.</param>
         </member>
         <member name="M:Kyameru.Core.Exceptions.RouteUriException.#ctor(System.String,System.Exception)">
             <summary>

@@ -34,5 +34,10 @@ namespace Kyameru.Core.Entities
         /// Gets the error message.
         /// </summary>
         public string Message { get; private set; }
+
+        /// <summary>
+        /// Gets the inner error.
+        /// </summary>
+        public Error InnerError { get; set; }
     }
 }
