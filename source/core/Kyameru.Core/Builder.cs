@@ -14,11 +14,6 @@ namespace Kyameru.Core
     public class Builder : AbstractBuilder
     {
         /// <summary>
-        /// List of to components.
-        /// </summary>
-        //private readonly List<IToComponent> toComponents = new List<IToComponent>();
-
-        /// <summary>
         /// List of processing components.
         /// </summary>
         private readonly List<IProcessComponent> components;
@@ -95,9 +90,7 @@ namespace Kyameru.Core
         {
             Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
             this.toUris.Add(route);
-            /*this.toComponents.Add(this.CreateTo(
-                route.ComponentName,
-                route.Headers));*/
+
             return this;
         }
 
