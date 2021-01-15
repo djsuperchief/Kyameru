@@ -1,11 +1,9 @@
 ﻿using Kyameru.Core.Contracts;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace Kyameru.Component.Test
+namespace Kyameru.Component.Error
 {
     public class Inflator : IOasis
     {

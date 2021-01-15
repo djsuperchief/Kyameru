@@ -1,5 +1,6 @@
 ﻿using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Core.Chain
@@ -15,12 +16,19 @@ namespace Kyameru.Core.Chain
         protected readonly ILogger Logger;
 
         /// <summary>
+        /// Route identity.
+        /// </summary>
+        protected readonly string identity;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BaseChain"/> class.
         /// </summary>
         /// <param name="logger">Logging class.</param>
-        protected BaseChain(ILogger logger)
+        /// <param name="identity">Identity of route.</param>
+        protected BaseChain(ILogger logger, string identity)
         {
             this.Logger = logger;
+            this.identity = identity;
         }
 
         /// <summary>
@@ -46,6 +54,23 @@ namespace Kyameru.Core.Chain
         {
             this.Next = next;
             return this.Next;
+        }
+
+        /// <summary>
+        /// Logging event handler.
+        /// </summary>
+        /// <param name="sender">Class sending the event.</param>
+        /// <param name="e">Log object.</param>
+        protected void OnLog(object sender, Log e)
+        {
+            if (e.Error == null)
+            {
+                this.Logger.KyameruLog(this.identity, e.Message, e.LogLevel);
+            }
+            else
+            {
+                this.Logger.KyameruError(this.identity, e.Message);
+            }
         }
     }
 }

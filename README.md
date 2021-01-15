@@ -1,6 +1,7 @@
 # Kyameru
 ![Build Status](https://github.com/djsuperchief/Kyameru/workflows/Build/badge.svg)
 ![CodeQL](https://github.com/djsuperchief/Kyameru/workflows/CodeQL/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/djsuperchief/Kyameru/badge.svg?branch=main)](https://coveralls.io/github/djsuperchief/Kyameru?branch=main)
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Kyameru.Core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 

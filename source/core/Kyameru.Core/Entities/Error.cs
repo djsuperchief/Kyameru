@@ -36,12 +36,8 @@ namespace Kyameru.Core.Entities
         public string Message { get; private set; }
 
         /// <summary>
-        /// Serializes the component to Json.
+        /// Gets the inner error.
         /// </summary>
-        /// <returns>Returns a Json string representation of the object.</returns>
-        public override string ToString()
-        {
-            return JsonSerializer.Serialize(this);
-        }
+        public Error InnerError { get; set; }
     }
 }

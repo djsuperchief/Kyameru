@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\source\core\Kyameru.Core\Kyameru.Core.csproj" />
+    <ProjectReference Include="..\Kyameru.Component.Error\Kyameru.Component.Error.csproj" />
     <ProjectReference Include="..\Kyameru.Component.Test\Kyameru.Component.Test.csproj" />
   </ItemGroup>
 
@@ -25,6 +26,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Mocks\" />
   </ItemGroup>
 
 </Project>

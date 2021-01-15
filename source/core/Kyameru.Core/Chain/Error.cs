@@ -1,13 +1,18 @@
 ﻿using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Kyameru.Tests")]
 
 namespace Kyameru.Core.Chain
 {
     /// <summary>
     /// Error processing.
     /// </summary>
+
     internal class Error : BaseChain
     {
         /// <summary>
@@ -20,10 +25,11 @@ namespace Kyameru.Core.Chain
         /// </summary>
         /// <param name="logger">Logging interface.</param>
         /// <param name="errorComponent">Error component.</param>
-        public Error(ILogger logger, IErrorComponent errorComponent) : base(logger)
+        /// <param name="identity">Route identity.</param>
+        public Error(ILogger logger, IErrorComponent errorComponent, string identity) : base(logger, identity)
         {
             this.errorComponent = errorComponent;
-            this.errorComponent.OnLog += this.ErrorComponent_OnLog;
+            this.errorComponent.OnLog += this.OnLog;
         }
 
         /// <summary>
@@ -40,25 +46,9 @@ namespace Kyameru.Core.Chain
                 }
                 catch (Exception ex)
                 {
-                    this.ErrorComponent_OnLog(this, new Log(LogLevel.Error, ex.Message, ex));
+                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    item.SetInError(new Entities.Error("Error Component", "Handle", ex.Message));
                 }
-            }
-        }
-
-        /// <summary>
-        /// Logging event handler.
-        /// </summary>
-        /// <param name="sender">Class sending the event.</param>
-        /// <param name="e">Log object.</param>
-        private void ErrorComponent_OnLog(object sender, Log e)
-        {
-            if (e.Error == null)
-            {
-                this.Logger.Log(e.LogLevel, e.Message);
-            }
-            else
-            {
-                this.Logger.LogError(e.Error, e.Message);
             }
         }
     }

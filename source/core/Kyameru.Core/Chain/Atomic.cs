@@ -1,6 +1,7 @@
 ﻿using System;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Core.Chain
@@ -9,42 +10,28 @@ namespace Kyameru.Core.Chain
     {
         private readonly IAtomicComponent atomicComponent;
 
-        
-
-        public Atomic(ILogger logger, IAtomicComponent atomicComponent) : base(logger)
+        public Atomic(ILogger logger, IAtomicComponent atomicComponent, string identity) : base(logger, identity)
         {
             this.atomicComponent = atomicComponent;
-            this.atomicComponent.OnLog += AtomicComponent_OnLog;
+            this.atomicComponent.OnLog += OnLog;
         }
 
         public override void Handle(Routable item)
         {
-            if(!item.InError)
+            if (!item.InError)
             {
                 try
                 {
                     this.atomicComponent.Process(item);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    this.Logger.LogError(ex, ex.Message);
+                    this.Logger.KyameruException(this.identity, ex.Message, ex);
                     item.SetInError(new Entities.Error("Atomic Component", "Handle", ex.Message));
                 }
             }
 
             base.Handle(item);
-        }
-
-        private void AtomicComponent_OnLog(object sender, Entities.Log e)
-        {
-            if (e.Error == null)
-            {
-                this.Logger.Log(e.LogLevel, e.Message);
-            }
-            else
-            {
-                this.Logger.LogError(e.Error, e.Message);
-            }
         }
     }
 }

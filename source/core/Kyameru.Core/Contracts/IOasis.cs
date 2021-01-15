@@ -11,8 +11,9 @@ namespace Kyameru.Core.Contracts
         /// Creates a from component.
         /// </summary>
         /// <param name="headers">Dictionary of headers to apply.</param>
+        /// <param name="isAtomic">Indicates if the route is atomic.</param>
         /// <returns>Returns an instance of the <see cref="IFromComponent"/> interface.</returns>
-        IFromComponent CreateFromComponent(Dictionary<string, string> headers);
+        IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic);
 
         /// <summary>
         /// Creates a to component.

@@ -58,6 +58,11 @@ namespace Kyameru.Core.Entities
             {
                 this.Error = error;
             }
+            else
+            {
+                error.InnerError = this.Error;
+                this.Error = error;
+            }
         }
 
         /// <summary>

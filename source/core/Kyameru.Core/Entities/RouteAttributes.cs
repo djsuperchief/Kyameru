@@ -15,9 +15,16 @@ namespace Kyameru.Core.Entities
         /// <param name="componentUri">Valid Kyameru URI.</param>
         public RouteAttributes(string componentUri)
         {
-            UriBuilder uriBuilder = new UriBuilder(componentUri);
-            this.ComponentName = uriBuilder.Scheme.ToFirstCaseUpper();
-            this.Headers = this.ParseQuery($"Target={uriBuilder.Path}{this.GetQuery(uriBuilder)}");
+            try
+            {
+                UriBuilder uriBuilder = new UriBuilder(componentUri);
+                this.ComponentName = uriBuilder.Scheme.ToFirstCaseUpper();
+                this.Headers = this.ParseQuery($"Target={uriBuilder.Path}{this.GetQuery(uriBuilder)}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exceptions.RouteUriException(Resources.ERROR_ROUTE_URI, ex);
+            }
         }
 
         /// <summary>

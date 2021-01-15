@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -29,12 +30,24 @@ namespace Kyameru.Core.Chain
         private readonly ILogger logger;
 
         /// <summary>
+        /// Route identity.
+        /// </summary>
+        private readonly string identity;
+
+        /// <summary>
+        /// value indicating whether the route will be atomic.
+        /// </summary>
+        private readonly bool IsAtomicRoute;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="From"/> class.
         /// </summary>
         /// <param name="fromComponent">From component to use.</param>
         /// <param name="next">Next processing component.</param>
         /// <param name="logger">Logger class.</param>
-        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger)
+        /// <param name="id">Identity of the route.</param>
+        /// <param name="isAtomicRoute">Value indicating whether the route is atomic.</param>
+        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger, string id, bool isAtomicRoute = false)
         {
             this.fromComponent = fromComponent;
             this.fromComponent.Setup();
@@ -42,6 +55,8 @@ namespace Kyameru.Core.Chain
             this.next = next;
             this.logger = logger;
             this.fromComponent.OnLog += this.FromComponent_OnLog;
+            this.identity = id;
+            this.IsAtomicRoute = isAtomicRoute;
         }
 
         /// <summary>
@@ -69,7 +84,7 @@ namespace Kyameru.Core.Chain
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, Resources.ERROR_FROM_COMPONENT);
+                this.FromComponent_OnLog(this, new Log(LogLevel.Error, ex.Message, ex));
             }
 
             return Task.CompletedTask;
@@ -84,11 +99,11 @@ namespace Kyameru.Core.Chain
         {
             if (e.Error == null)
             {
-                this.logger.Log(e.LogLevel, e.Message);
+                this.logger.KyameruLog(this.identity, e.Message, e.LogLevel);
             }
             else
             {
-                this.logger.LogError(e.Error, e.Message);
+                this.logger.KyameruException(this.identity, e.Message, e.Error);
             }
         }
 

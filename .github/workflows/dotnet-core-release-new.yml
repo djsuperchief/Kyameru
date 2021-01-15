@@ -1,12 +1,13 @@
-name: Publish Package
+name: Publish Package New
 
 on:
-  push:
-    branches: [ release ]
+  release:
+    types:
+      - published
 
 # this needs to be better but also controlled.
 env:
-  VERSION: 0.0.9-beta
+  VERSION: ${{ github.event.release.tag_name }}
 
 jobs:
   build:
@@ -25,6 +26,8 @@ jobs:
       run: dotnet build build/Kyameru.sln --configuration Release --no-restore
     - name: Test
       run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal
+    - name: Output VERSION
+      run: echo "${{ VERSION }}"
     #- name: Pack
     #  run: dotnet pack source/core/Kyameru.Core/Kyameru.Core.csproj -c Release -p:PackageVersion=$VERSION
     #- name: Push

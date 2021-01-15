@@ -14,24 +14,24 @@ namespace Kyameru.Core
     public class Builder : AbstractBuilder
     {
         /// <summary>
-        /// From component.
-        /// </summary>
-        private readonly IFromComponent from;
-
-        /// <summary>
-        /// List of to components.
-        /// </summary>
-        private readonly List<IToComponent> toComponents = new List<IToComponent>();
-
-        /// <summary>
         /// List of processing components.
         /// </summary>
         private readonly List<IProcessComponent> components;
 
         /// <summary>
+        /// List of to component uris.
+        /// </summary>
+        private readonly List<RouteAttributes> toUris = new List<RouteAttributes>();
+
+        /// <summary>
         /// From URI held to construct atomic component.
         /// </summary>
         private readonly RouteAttributes fromUri;
+
+        /// <summary>
+        /// From component.
+        /// </summary>
+        private IFromComponent from;
 
         /// <summary>
         /// Error component.
@@ -44,19 +44,24 @@ namespace Kyameru.Core
         private IAtomicComponent atomicComponent;
 
         /// <summary>
+        /// Route Id.
+        /// </summary>
+        private string identity;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Builder"/> class.
         /// </summary>
         /// <param name="from">From component.</param>
         /// <param name="components">List of intermediary components.</param>
         /// <param name="to">To component.</param>
+        /// <param name="fromUri">From Uri.</param>
         public Builder(
-            Contracts.IFromComponent from,
             List<IProcessComponent> components,
-            Contracts.IToComponent to,
+            RouteAttributes to,
             RouteAttributes fromUri)
         {
-            this.from = from;
-            this.toComponents.Add(to);
+            this.fromUri = fromUri;
+            this.toUris.Add(to);
             this.components = components;
             this.fromUri = fromUri;
         }
@@ -64,7 +69,7 @@ namespace Kyameru.Core
         /// <summary>
         /// Gets the To component count.
         /// </summary>
-        public int ToComponentCount => this.toComponents.Count;
+        public int ToComponentCount => this.toUris.Count;
 
         /// <summary>
         /// Gets a value indicating whether the error component will process.
@@ -84,9 +89,8 @@ namespace Kyameru.Core
         public Builder To(string componentUri)
         {
             Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
-            this.toComponents.Add(this.CreateTo(
-                route.ComponentName,
-                route.Headers));
+            this.toUris.Add(route);
+
             return this;
         }
 
@@ -128,6 +132,17 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Sets the identity of the route.
+        /// </summary>
+        /// <param name="id">Name of the route.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder Id(string id)
+        {
+            this.identity = id;
+            return this;
+        }
+
+        /// <summary>
         /// Builds the final chain into dependency injection.
         /// </summary>
         /// <param name="services">Service collection.</param>
@@ -135,6 +150,7 @@ namespace Kyameru.Core
         {
             services.AddHostedService<Chain.From>(x =>
             {
+                this.from = this.CreateFrom(this.fromUri.ComponentName, this.fromUri.Headers, this.IsAtomic);
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
@@ -148,7 +164,7 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                return new Chain.From(this.from, next, logger);
+                return new Chain.From(this.from, next, logger, this.identity);
             });
         }
 
@@ -161,7 +177,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupChain(int i, ILogger logger, IChain<Routable> toComponents)
         {
-            Chain.Process chain = new Chain.Process(logger, this.components[i]);
+            Chain.Process chain = new Chain.Process(logger, this.components[i], this.GetIdentity());
             logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, this.components[i].ToString()));
             if (i < this.components.Count - 1)
             {
@@ -183,50 +199,71 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupToChain(int i, ILogger logger)
         {
-            Chain.To toChain = new To(logger, this.toComponents[i]);
-            logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, this.toComponents[i].ToString()));
-            if (i < this.toComponents.Count - 1)
+            Chain.To toChain = new To(logger, this.GetToComponent(i), this.GetIdentity());
+            logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, this.GetToComponent(i).ToString()));
+            if (i < this.toUris.Count - 1)
             {
                 toChain.SetNext(this.SetupToChain(++i, logger));
             }
             else
             {
-                IChain<Routable> final = null;
+                IChain<Routable> atomic = null;
+                IChain<Routable> error = null;
                 if (this.atomicComponent != null)
                 {
                     logger.LogInformation(string.Format(Resources.INFO_SETUP_ATOMIC, this.atomicComponent.ToString()));
-                    final = new Atomic(logger, this.atomicComponent);
+                    atomic = new Atomic(logger, this.atomicComponent, this.GetIdentity());
                 }
 
                 if (this.errorComponent != null)
                 {
                     logger.LogInformation(string.Format(Resources.INFO_SETUP_ERR, this.errorComponent.ToString()));
-
-                    toChain.SetNext(this.GetFinal(new Chain.Error(logger, this.errorComponent), final));
+                    error = new Chain.Error(logger, this.errorComponent, this.GetIdentity());
                 }
+
+                toChain.SetNext(this.GetFinal(error, atomic));
             }
 
             return toChain;
         }
 
+        private IToComponent GetToComponent(int index)
+        {
+            return this.CreateTo(this.toUris[index].ComponentName, this.toUris[index].Headers);
+        }
+
         /// <summary>
         /// Sets the correct next component.
         /// </summary>
-        /// <param name="input">Component incoming.</param>
-        /// <param name="target">Target chain.</param>
+        /// <param name="error">Component incoming.</param>
+        /// <param name="atomic">Target chain.</param>
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
-        private IChain<Routable> GetFinal(IChain<Routable> input, IChain<Routable> target)
+        private IChain<Routable> GetFinal(IChain<Routable> error, IChain<Routable> atomic)
         {
-            if (target == null)
+            if (atomic != null && error != null)
             {
-                target = input;
+                atomic.SetNext(error);
             }
-            else
+            else if (atomic == null && error != null)
             {
-                target.SetNext(input);
+                atomic = error;
             }
 
-            return target;
+            return atomic;
+        }
+
+        /// <summary>
+        /// Gets the identity of the route.
+        /// </summary>
+        /// <returns>Returns either a random identity or specified.</returns>
+        private string GetIdentity()
+        {
+            if (string.IsNullOrWhiteSpace(this.identity))
+            {
+                this.identity = Guid.NewGuid().ToString("N");
+            }
+
+            return this.identity;
         }
     }
 }
