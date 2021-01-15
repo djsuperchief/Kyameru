@@ -27,7 +27,7 @@ jobs:
     - name: Test
       run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal
     - name: Output VERSION
-      run: echo "${{ VERSION }}"
+      run: echo "$VERSION"
     #- name: Pack
     #  run: dotnet pack source/core/Kyameru.Core/Kyameru.Core.csproj -c Release -p:PackageVersion=$VERSION
     #- name: Push
