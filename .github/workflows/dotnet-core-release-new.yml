@@ -1,4 +1,4 @@
-name: Publish Package New
+name: Publish Release Package
 
 on:
   release:
@@ -28,5 +28,5 @@ jobs:
       run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal
     - name: Pack
       run: dotnet pack source/core/Kyameru.Core/Kyameru.Core.csproj -c Release -p:PackageVersion=$VERSION
-    #- name: Push
-    #  run: dotnet nuget push source/core/Kyameru.Core/bin/Release/Kyameru.Core.$VERSION.nupkg --api-key ${{ secrets.KYAMERU_NUGET }} -s https://api.nuget.org/v3/index.json
+    - name: Push
+      run: dotnet nuget push source/core/Kyameru.Core/bin/Release/Kyameru.Core.$VERSION.nupkg --api-key ${{ secrets.KYAMERU_NUGET }} -s https://api.nuget.org/v3/index.json
