@@ -19,6 +19,7 @@ namespace Kyameru.Tests.ActivationTests
     {
         private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
         private readonly Mock<IProcessComponent> processComponent = new Mock<IProcessComponent>();
+        private readonly Mock<IProcessComponent> diProcessor = new Mock<IProcessComponent>();
         private readonly Mock<IErrorComponent> errorComponent = new Mock<IErrorComponent>();
         private Dictionary<string, int> callPoints = new Dictionary<string, int>();
 
@@ -37,6 +38,24 @@ namespace Kyameru.Tests.ActivationTests
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
             Assert.AreEqual(7, this.GetCallCount());
+        }
+
+        [Test]
+        public async Task CanRunDIComponent()
+        {
+            AutoResetEvent autoResetEvent = new AutoResetEvent(false);
+            Routable routable = null;
+            this.diProcessor.Reset();
+            this.diProcessor.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            {
+                routable = x;
+            });
+            IHostedService service = this.SetupDIComponent();
+
+            await service.StartAsync(CancellationToken.None);
+            autoResetEvent.WaitOne(TimeSpan.FromSeconds(5));
+            await service.StopAsync(CancellationToken.None);
+            Assert.AreEqual("Yes", routable.Headers["ComponentRan"]);
         }
 
         [Test]
@@ -124,6 +143,19 @@ namespace Kyameru.Tests.ActivationTests
             return provider.GetService<IHostedService>();
         }
 
+        private IHostedService SetupDIComponent()
+        {
+            IServiceCollection serviceCollection = this.GetServiceDescriptors();
+            Kyameru.Route.From("test://hello")
+                .Process<Mocks.IMyComponent>()
+                .Process(this.diProcessor.Object)
+                .To("test://world")
+                .Build(serviceCollection);
+
+            IServiceProvider provider = serviceCollection.BuildServiceProvider();
+            return provider.GetService<IHostedService>();
+        }
+
         private IHostedService GetNoErrorChain()
         {
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
@@ -171,6 +203,7 @@ namespace Kyameru.Tests.ActivationTests
             {
                 return this.logger.Object;
             });
+            serviceCollection.AddTransient<Mocks.IMyComponent, Mocks.MyComponent>();
 
             return serviceCollection;
         }

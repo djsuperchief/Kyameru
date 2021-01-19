@@ -155,7 +155,7 @@
             Route Id.
             </summary>
         </member>
-        <member name="M:Kyameru.Core.Builder.#ctor(System.Collections.Generic.List{Kyameru.IProcessComponent},Kyameru.Core.Entities.RouteAttributes,Kyameru.Core.Entities.RouteAttributes)">
+        <member name="M:Kyameru.Core.Builder.#ctor(System.Collections.Generic.List{Kyameru.Core.Entities.Processable},Kyameru.Core.Entities.RouteAttributes,Kyameru.Core.Entities.RouteAttributes)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Builder"/> class.
             </summary>
@@ -219,7 +219,7 @@
             </summary>
             <param name="services">Service collection.</param>
         </member>
-        <member name="M:Kyameru.Core.Builder.SetupChain(System.Int32,Microsoft.Extensions.Logging.ILogger,Kyameru.Core.Contracts.IChain{Kyameru.Core.Entities.Routable})">
+        <member name="M:Kyameru.Core.Builder.SetupChain(System.Int32,Microsoft.Extensions.Logging.ILogger,Kyameru.Core.Contracts.IChain{Kyameru.Core.Entities.Routable},System.IServiceProvider)">
             <summary>
             Sets up the processing chain
             </summary>
