@@ -18,7 +18,7 @@ namespace Kyameru.Core
         /// <summary>
         /// List of intermediary components.
         /// </summary>
-        private readonly List<IProcessComponent> components = new List<IProcessComponent>();
+        private readonly List<Entities.Processable> components = new List<Entities.Processable>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RouteBuilder"/> class.
@@ -41,7 +41,14 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public RouteBuilder Process(IProcessComponent processComponent)
         {
-            this.components.Add(processComponent);
+            this.components.Add(Entities.Processable.Create(processComponent));
+
+            return this;
+        }
+
+        public RouteBuilder Process<T>() where T : IProcessComponent
+        {
+            this.components.Add(Entities.Processable.Create<T>());
 
             return this;
         }
@@ -54,7 +61,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public RouteBuilder AddHeader(string key, string value)
         {
-            this.components.Add(new BaseComponents.AddHeader(key, value));
+            this.components.Add(Entities.Processable.Create(new BaseComponents.AddHeader(key, value)));
             return this;
         }
 
@@ -66,7 +73,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public RouteBuilder AddHeader(string key, Func<string> callback)
         {
-            this.components.Add(new BaseComponents.AddHeader(key, callback));
+            this.components.Add(Entities.Processable.Create(new BaseComponents.AddHeader(key, callback)));
             return this;
         }
 
@@ -78,7 +85,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public RouteBuilder AddHeader(string key, Func<Routable, string> callback)
         {
-            this.components.Add(new BaseComponents.AddHeader(key, callback));
+            this.components.Add(Entities.Processable.Create(new BaseComponents.AddHeader(key, callback)));
             return this;
         }
 

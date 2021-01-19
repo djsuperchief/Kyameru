@@ -16,7 +16,7 @@ namespace Kyameru.Core
         /// <summary>
         /// List of processing components.
         /// </summary>
-        private readonly List<IProcessComponent> components;
+        private readonly List<Entities.Processable> components;
 
         /// <summary>
         /// List of to component uris.
@@ -56,7 +56,7 @@ namespace Kyameru.Core
         /// <param name="to">To component.</param>
         /// <param name="fromUri">From Uri.</param>
         public Builder(
-            List<IProcessComponent> components,
+            List<Entities.Processable> components,
             RouteAttributes to,
             RouteAttributes fromUri)
         {
@@ -157,7 +157,7 @@ namespace Kyameru.Core
                 IChain<Routable> toChain = this.SetupToChain(0, logger);
                 if (this.components != null && this.components.Count > 0)
                 {
-                    next = SetupChain(0, logger, toChain);
+                    next = SetupChain(0, logger, toChain, x);
                 }
                 else
                 {
@@ -175,13 +175,13 @@ namespace Kyameru.Core
         /// <param name="logger">Logger class.</param>
         /// <param name="toComponents">To components.</param>
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
-        private IChain<Routable> SetupChain(int i, ILogger logger, IChain<Routable> toComponents)
+        private IChain<Routable> SetupChain(int i, ILogger logger, IChain<Routable> toComponents, IServiceProvider serviceProvider)
         {
-            Chain.Process chain = new Chain.Process(logger, this.components[i], this.GetIdentity());
+            Chain.Process chain = new Chain.Process(logger, this.components[i].GetComponent(serviceProvider), this.GetIdentity());
             logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, this.components[i].ToString()));
             if (i < this.components.Count - 1)
             {
-                chain.SetNext(this.SetupChain(++i, logger, toComponents));
+                chain.SetNext(this.SetupChain(++i, logger, toComponents, serviceProvider));
             }
             else
             {
