@@ -28,4 +28,7 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="EntityTests\" />
+  </ItemGroup>
 </Project>
