@@ -11,7 +11,7 @@ namespace Kyameru.Tests.Mocks
 
         public void Process(Routable routable)
         {
-            routable.AddHeader("ComponentRan", "Yes");
+            routable.SetHeader("ComponentRan", "Yes");
         }
     }
 }

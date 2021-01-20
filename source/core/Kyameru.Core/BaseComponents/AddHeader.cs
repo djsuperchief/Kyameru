@@ -85,13 +85,13 @@ namespace Kyameru.Core.BaseComponents
             {
                 case 0:
                     this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Debug, Resources.DEBUG_HEADER_RUNNING));
-                    routable.AddHeader(this.header, this.value);
+                    routable.SetHeader(this.header, this.value);
                     break;
 
                 case 1:
                     try
                     {
-                        routable.AddHeader(this.header, this.callback());
+                        routable.SetHeader(this.header, this.callback());
                     }
                     catch (Exception ex)
                     {
@@ -104,7 +104,7 @@ namespace Kyameru.Core.BaseComponents
                 case 2:
                     try
                     {
-                        routable.AddHeader(this.header, this.callbackTwo(routable));
+                        routable.SetHeader(this.header, this.callbackTwo(routable));
                     }
                     catch (Exception ex)
                     {

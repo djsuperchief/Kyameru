@@ -14,14 +14,14 @@ namespace Kyameru.Core.Entities
         /// <param name="data">Data to add.</param>
         public Routable(Dictionary<string, string> headers, object data)
         {
-            this.Headers = headers;
+            this.Headers = new Headers(headers);
             this.Body = data;
         }
 
         /// <summary>
         /// Gets the processing headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; private set; }
+        public Headers Headers { get; private set; }
 
         /// <summary>
         /// Gets the body of the message.
@@ -66,20 +66,13 @@ namespace Kyameru.Core.Entities
         }
 
         /// <summary>
-        /// Adds a header to the message.
+        /// Adds or Sets a header to the message.
         /// </summary>
         /// <param name="key">Header key.</param>
         /// <param name="value">Header value.</param>
-        internal void AddHeader(string key, string value)
+        internal void SetHeader(string key, string value)
         {
-            if (!this.Headers.ContainsKey(key))
-            {
-                this.Headers.Add(key, value);
-            }
-            else
-            {
-                throw new Exceptions.ComponentException(Resources.ERROR_HEADER_IMMUTABLE);
-            }
+            this.Headers.SetHeader(key, value);
         }
     }
 }
