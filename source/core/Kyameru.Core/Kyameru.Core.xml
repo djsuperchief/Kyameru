@@ -584,6 +584,30 @@
             Gets the inner error.
             </summary>
         </member>
+        <member name="F:Kyameru.Core.Entities.Headers.headerStorage">
+            <summary>
+            Header dictionary.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Entities.Headers.immutable">
+            <summary>
+            List of immutable header keys.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Headers.Item(System.String)">
+            <summary>
+            Gets a header value by key.
+            </summary>
+            <param name="key">Dictionary key</param>
+            <returns>Dictionary value.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Entities.Headers.SetHeader(System.String,System.String)">
+            <summary>
+            Sets a header.
+            </summary>
+            <param name="key">Header key (prepended by &amp; indicates immutable).</param>
+            <param name="value">Header Value.</param>
+        </member>
         <member name="T:Kyameru.Core.Entities.Log">
             <summary>
             Standard log entity.
@@ -657,9 +681,9 @@
             </summary>
             <param name="error">Error object.</param>
         </member>
-        <member name="M:Kyameru.Core.Entities.Routable.AddHeader(System.String,System.String)">
+        <member name="M:Kyameru.Core.Entities.Routable.SetHeader(System.String,System.String)">
             <summary>
-            Adds a header to the message.
+            Adds or Sets a header to the message.
             </summary>
             <param name="key">Header key.</param>
             <param name="value">Header value.</param>
@@ -728,6 +752,17 @@
             </summary>
             <param name="message">Error Message.</param>
             <param name="innerException">Inner Exception.</param>
+        </member>
+        <member name="T:Kyameru.Core.Exceptions.CoreException">
+            <summary>
+            Kyameru Core Exception
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Exceptions.CoreException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.CoreException"/> class.
+            </summary>
+            <param name="message">Error Message.</param>
         </member>
         <member name="T:Kyameru.Core.Exceptions.ProcessException">
             <summary>
