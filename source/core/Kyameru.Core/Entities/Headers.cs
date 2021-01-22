@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Kyameru.Core.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,8 +24,9 @@ namespace Kyameru.Core.Entities
         /// <param name="headers">Headers to create.</param>
         public Headers(Dictionary<string, string> headers)
         {
-            this.headerStorage = headers;
-            this.immutable = this.headerStorage.Keys.Where(x => x.Substring(0, 1) == "&").ToList();
+            this.headerStorage = headers.GetMutableValues();
+            this.headerStorage.AddRange(headers.GetImmutableValues());
+            this.immutable = headers.Keys.Where(x => x.Substring(0, 1) == "&").Select(x => x[1..]).ToList();
         }
 
         /// <summary>
