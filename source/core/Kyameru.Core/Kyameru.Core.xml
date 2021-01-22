@@ -594,6 +594,12 @@
             List of immutable header keys.
             </summary>
         </member>
+        <member name="M:Kyameru.Core.Entities.Headers.#ctor(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Entities.Headers"/> class.
+            </summary>
+            <param name="headers">Headers to create.</param>
+        </member>
         <member name="P:Kyameru.Core.Entities.Headers.Item(System.String)">
             <summary>
             Gets a header value by key.

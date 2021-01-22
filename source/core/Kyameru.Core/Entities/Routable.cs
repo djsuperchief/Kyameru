@@ -70,7 +70,7 @@ namespace Kyameru.Core.Entities
         /// </summary>
         /// <param name="key">Header key.</param>
         /// <param name="value">Header value.</param>
-        internal void SetHeader(string key, string value)
+        public void SetHeader(string key, string value)
         {
             this.Headers.SetHeader(key, value);
         }
