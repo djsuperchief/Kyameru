@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Kyameru.Core.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,17 +11,22 @@ namespace Kyameru.Core.Entities
         /// <summary>
         /// Header dictionary.
         /// </summary>
-        private Dictionary<string, string> headerStorage = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> headerStorage;
 
         /// <summary>
         /// List of immutable header keys.
         /// </summary>
-        private List<string> immutable = new List<string>();
+        private readonly List<string> immutable;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Headers"/> class.
+        /// </summary>
+        /// <param name="headers">Headers to create.</param>
         public Headers(Dictionary<string, string> headers)
         {
-            this.headerStorage = headers;
-            this.immutable = this.headerStorage.Keys.ToList();
+            this.headerStorage = headers.GetMutableValues();
+            this.headerStorage.AddRange(headers.GetImmutableValues());
+            this.immutable = headers.Keys.Where(x => x.Substring(0, 1) == "&").Select(x => x[1..]).ToList();
         }
 
         /// <summary>
@@ -50,8 +56,7 @@ namespace Kyameru.Core.Entities
                 throw new Exceptions.CoreException(Resources.ERROR_HEADER_IMMUTABLE);
             }
 
-
-            if(this.headerStorage.ContainsKey(key))
+            if (this.headerStorage.ContainsKey(key))
             {
                 this.headerStorage[key] = value;
             }
@@ -60,7 +65,7 @@ namespace Kyameru.Core.Entities
                 this.headerStorage.Add(key, value);
             }
 
-            if(isImmutable)
+            if (isImmutable)
             {
                 this.immutable.Add(key);
             }

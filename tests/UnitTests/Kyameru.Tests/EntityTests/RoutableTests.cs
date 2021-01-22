@@ -35,7 +35,7 @@ namespace Kyameru.Tests.EntityTests
         {
             return new Routable(new System.Collections.Generic.Dictionary<string, string>()
             {
-                {"Test", "value" }
+                {"&Test", "value" }
             }, "test");
         }
     }
