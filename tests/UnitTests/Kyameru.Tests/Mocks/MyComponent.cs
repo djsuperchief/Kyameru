@@ -11,6 +11,7 @@ namespace Kyameru.Tests.Mocks
 
         public void Process(Routable routable)
         {
+            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Setting header"));
             routable.SetHeader("ComponentRan", "Yes");
         }
     }

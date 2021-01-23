@@ -18,6 +18,7 @@ namespace Kyameru.Component.Error
         {
             if (this.WillError())
             {
+                this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Error, "Error", new Kyameru.Core.Exceptions.ComponentException("Manual Error")));
                 throw new Kyameru.Core.Exceptions.ComponentException("Manual Error");
             }
         }

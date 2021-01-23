@@ -135,11 +135,6 @@
             From URI held to construct atomic component.
             </summary>
         </member>
-        <member name="F:Kyameru.Core.Builder.from">
-            <summary>
-            From component.
-            </summary>
-        </member>
         <member name="F:Kyameru.Core.Builder.errorComponent">
             <summary>
             Error component.
@@ -159,7 +154,6 @@
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Builder"/> class.
             </summary>
-            <param name="from">From component.</param>
             <param name="components">List of intermediary components.</param>
             <param name="to">To component.</param>
             <param name="fromUri">From Uri.</param>
@@ -226,6 +220,7 @@
             <param name="i">Current count.</param>
             <param name="logger">Logger class.</param>
             <param name="toComponents">To components.</param>
+            <param name="serviceProvider">DI service provider.</param>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.Contracts.IChain`1"/> interface.</returns>
         </member>
         <member name="M:Kyameru.Core.Builder.SetupToChain(System.Int32,Microsoft.Extensions.Logging.ILogger)">
@@ -584,6 +579,11 @@
             Gets the inner error.
             </summary>
         </member>
+        <member name="T:Kyameru.Core.Entities.Headers">
+            <summary>
+            Headers collection.
+            </summary>
+        </member>
         <member name="F:Kyameru.Core.Entities.Headers.headerStorage">
             <summary>
             Header dictionary.
@@ -641,6 +641,74 @@
             <summary>
             Gets the exception.
             </summary>
+        </member>
+        <member name="T:Kyameru.Core.Entities.Processable">
+            <summary>
+            Processable component construct.
+            </summary>
+        </member>
+        <member name="T:Kyameru.Core.Entities.Processable.InvocationType">
+            <summary>
+            Enum indicating what kind of activation should be used.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Entities.Processable.InvocationType.DI">
+            <summary>
+            Dependency injected.
+            </summary>
+        </member>
+        <member name="F:Kyameru.Core.Entities.Processable.InvocationType.Concrete">
+            <summary>
+            Concrete implementation.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Entities.Processable.#ctor(Kyameru.IProcessComponent)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Entities.Processable"/> class.
+            </summary>
+            <param name="target">Target component.</param>
+        </member>
+        <member name="M:Kyameru.Core.Entities.Processable.#ctor(System.Type)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Kyameru.Core.Entities.Processable"/> class.
+            </summary>
+            <param name="type">Type to pull from DI.</param>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Processable.Invocation">
+            <summary>
+            Gets the invocation type.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Processable.ComponentType">
+            <summary>
+            Gets the component type.
+            </summary>
+        </member>
+        <member name="P:Kyameru.Core.Entities.Processable.Component">
+            <summary>
+            Gets the component.
+            </summary>
+        </member>
+        <member name="M:Kyameru.Core.Entities.Processable.Create``1">
+            <summary>
+            Creates an instance of the <see cref="T:Kyameru.Core.Entities.Processable"/> class.
+            </summary>
+            <typeparam name="T">Type of component.</typeparam>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Entities.Processable"/> class.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Entities.Processable.Create(Kyameru.IProcessComponent)">
+            <summary>
+            Creates an instance of the <see cref="T:Kyameru.Core.Entities.Processable"/> class.
+            </summary>
+            <param name="component">Concrete component.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.Entities.Processable"/> class.</returns>
+        </member>
+        <member name="M:Kyameru.Core.Entities.Processable.GetComponent(System.IServiceProvider)">
+            <summary>
+            Gets the component from either local store or service provider.
+            </summary>
+            <param name="provider">DI Service Provider.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.IProcessComponent"/> class.</returns>
         </member>
         <member name="T:Kyameru.Core.Entities.Routable">
             <summary>
@@ -734,12 +802,18 @@
             Activation Exception
             </summary>
         </member>
+        <member name="P:Kyameru.Core.Exceptions.ActivationException.Component">
+            <summary>
+            Gets the component responsible for exception.
+            </summary>
+        </member>
         <member name="M:Kyameru.Core.Exceptions.ActivationException.#ctor(System.String,System.Exception,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Kyameru.Core.Exceptions.ActivationException"/> class.
             </summary>
             <param name="message">Error Message.</param>
             <param name="innerException">Inner Exception.</param>
+            <param name="component">Component responsible for error.</param>
         </member>
         <member name="T:Kyameru.Core.Exceptions.ComponentException">
             <summary>
@@ -863,6 +937,13 @@
             Adds a processing component.
             </summary>
             <param name="processComponent">Component to add.</param>
+            <returns>Returns an instance of the <see cref="T:Kyameru.Core.RouteBuilder"/> class.</returns>
+        </member>
+        <member name="M:Kyameru.Core.RouteBuilder.Process``1">
+            <summary>
+            Create a new process component.
+            </summary>
+            <typeparam name="T">Type of process component.</typeparam>
             <returns>Returns an instance of the <see cref="T:Kyameru.Core.RouteBuilder"/> class.</returns>
         </member>
         <member name="M:Kyameru.Core.RouteBuilder.AddHeader(System.String,System.String)">
