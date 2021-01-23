@@ -67,97 +67,11 @@ The above example is very simple but you can see from the syntax that the From c
 * Path is C:/Test -> this sets the component header "Target" to C:/Test
 * Query -> Adds the headers Notifications, SubDirectories and Filter
 
-## Components
-### File (https://github.com/djsuperchief/Kyameru.Component.File)
-![Build](https://github.com/djsuperchief/Kyameru.Component.File/workflows/Build/badge.svg)
-![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Kyameru.Component.File)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-The File component can watch a directory for files and raise a message through a route to indicate it has found a new file. It can also move files from one place to another either by writing the contents of the Routable message OR from disk.
-
-#### From
-
-The from component is a simple system file watcher raising notifications for when a file has been:
-
-* Added
-* Modified
-* Renamed
-
-##### Setup Headers
-
-Header | Description | Optional
------- | ----------- | --------
-Target | Folder to watch | NO
-Notifications | Type of notification to raise | NO
-Filter | File watch filter | NO
-SubDirectories | Include sub directories | YES
-
-*Example Syntax*
-```
-Kyameru.Route.From("file:///C:/Temp?Notifications=Created&SubDirectories=true&Filter=*.*")
-```
-
-##### Message Headers Raised
-Header | Description
------- | -----------
-SourceDirectory | Directory the event is raised from
-SourceFile | File name of file picked up
-FullSource | Full path of the file picked up
-DateCreated | Date and time of the file (UTC)
-Readonly | Boolean as to whether the file is readonly
-Method | How the file was picked up
-DataType | The data type of the body
-
-#### To
-
-The to component does a couple of very simple actions:
-
-* Moves the picked up source file
-* Copies the picked up source file
-* Deletes the picked up source file
-* Writes the contents of the body of the message to a file with the same name in the destination directory
-
-##### Setup Headers
-
-Header | Description | Optional
------- | ----------- | --------
-Target | Destination Directory | NO
-Action | Action To Perform | NO
-Overwrite | Overwrites the destination if it exists | YES
-
-### Slack (https://github.com/djsuperchief/Kyameru.Component.Slack)
-The Slack component sends a message to a configured slack webhook.
-#### To
-##### Setup Headers
-
-Header | Description | Optional | Default
------- | ----------- | -------- | -------
-Target | Webhook in slack | NO
-MessageSource | Indicates whether the message for slack should be pulled from the body of the message OR a header. | YES | Header
-
-### Ftp (https://github.com/djsuperchief/Kyameru.Component.Ftp)
-The Ftp component provides a very simple poller, downloader and uploader for Ftp files. It currently can only pull from a single specified directory.
-
-#### From
-Header | Description | Optional | Default
------- | ----------- | -------- | -------
-Target | Path on server | YES | /
-Host | Ftp host | NO
-Port | Port for the Ftp Server | YES | 21
-PollTime | Amount of time in milliseconds to poll the server | YES | 60000
-Filter | File filter | YES | \*.\*
-UserName | Username to connect with | NO
-Password | Password to connect with (can be left blank for anonymous) | YES | Empty
-Recursive | Currently not used | YES | False
-Delete | Indicates if a file should be deleted once downloaded | YES | False
-
-*Example*
-```
-Kyameru.Route.From("ftp://test@127.0.0.1&PollTime=5000&Filter=50000&Delete=true)
-```
-
 ## Current Status
 This project is still very much in beta but has been released to the wider community early for feedback and to be used.
+
+## Wiki (WIP)
+[Wiki Home](https://github.com/djsuperchief/Kyameru/wiki)
 
 ## Components In Progress
 
