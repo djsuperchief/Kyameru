@@ -21,7 +21,7 @@ namespace Kyameru.Tests.ActivationTests
         private readonly Mock<IProcessComponent> processComponent = new Mock<IProcessComponent>();
         private readonly Mock<IProcessComponent> diProcessor = new Mock<IProcessComponent>();
         private readonly Mock<IErrorComponent> errorComponent = new Mock<IErrorComponent>();
-        private Dictionary<string, int> callPoints = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> callPoints = new Dictionary<string, int>();
 
         [Test]
         public void CanSetupFullTest()

@@ -46,6 +46,11 @@ namespace Kyameru.Core
             return this;
         }
 
+        /// <summary>
+        /// Create a new process component.
+        /// </summary>
+        /// <typeparam name="T">Type of process component.</typeparam>
+        /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public RouteBuilder Process<T>() where T : IProcessComponent
         {
             this.components.Add(Entities.Processable.Create<T>());

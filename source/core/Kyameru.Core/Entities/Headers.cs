@@ -6,6 +6,9 @@ using System.Text;
 
 namespace Kyameru.Core.Entities
 {
+    /// <summary>
+    /// Headers collection.
+    /// </summary>
     public class Headers
     {
         /// <summary>

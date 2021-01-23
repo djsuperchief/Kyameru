@@ -13,8 +13,8 @@ namespace Kyameru.Tests.ActivationTests
     [TestFixture(Category = "ActivationTests")]
     public class RouteTests
     {
-        private Mock<IErrorComponent> errorComponent = new Mock<IErrorComponent>();
-        private Mock<IProcessComponent> processingComponent = new Mock<IProcessComponent>();
+        private readonly Mock<IErrorComponent> errorComponent = new Mock<IErrorComponent>();
+        private readonly Mock<IProcessComponent> processingComponent = new Mock<IProcessComponent>();
 
         [Test]
         public void CanAddHeader()

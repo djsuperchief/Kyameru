@@ -29,11 +29,6 @@ namespace Kyameru.Core
         private readonly RouteAttributes fromUri;
 
         /// <summary>
-        /// From component.
-        /// </summary>
-        private IFromComponent from;
-
-        /// <summary>
         /// Error component.
         /// </summary>
         private IErrorComponent errorComponent;
@@ -51,7 +46,6 @@ namespace Kyameru.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="Builder"/> class.
         /// </summary>
-        /// <param name="from">From component.</param>
         /// <param name="components">List of intermediary components.</param>
         /// <param name="to">To component.</param>
         /// <param name="fromUri">From Uri.</param>
@@ -150,7 +144,7 @@ namespace Kyameru.Core
         {
             services.AddHostedService<Chain.From>(x =>
             {
-                this.from = this.CreateFrom(this.fromUri.ComponentName, this.fromUri.Headers, this.IsAtomic);
+                IFromComponent from = this.CreateFrom(this.fromUri.ComponentName, this.fromUri.Headers, this.IsAtomic);
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
@@ -164,7 +158,7 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                return new Chain.From(this.from, next, logger, this.identity);
+                return new Chain.From(from, next, logger, this.identity);
             });
         }
 
@@ -174,6 +168,7 @@ namespace Kyameru.Core
         /// <param name="i">Current count.</param>
         /// <param name="logger">Logger class.</param>
         /// <param name="toComponents">To components.</param>
+        /// <param name="serviceProvider">DI service provider.</param>
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupChain(int i, ILogger logger, IChain<Routable> toComponents, IServiceProvider serviceProvider)
         {

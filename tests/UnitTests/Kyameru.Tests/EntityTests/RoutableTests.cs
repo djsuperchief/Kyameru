@@ -31,6 +31,15 @@ namespace Kyameru.Tests.EntityTests
             Assert.AreEqual("jpg", routable.Headers["FileType"]);
         }
 
+        [Test]
+        public void SetBodyWorks()
+        {
+            string body = "body text";
+            Routable routable = this.CreateMessage();
+            routable.SetBody<string>(body);
+            Assert.AreEqual(body, routable.Body);
+        }
+
         private Routable CreateMessage()
         {
             return new Routable(new System.Collections.Generic.Dictionary<string, string>()
