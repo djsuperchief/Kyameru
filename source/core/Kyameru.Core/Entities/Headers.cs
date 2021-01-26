@@ -46,6 +46,13 @@ namespace Kyameru.Core.Entities
         }
 
         /// <summary>
+        /// Gets a value indicating if the key exists.
+        /// </summary>
+        /// <param name="key">Key to find.</param>
+        /// <returns>Returns a boolean indicating whether the key exists.</returns>
+        public bool ContainsKey(string key) => this.headerStorage.ContainsKey(key);
+
+        /// <summary>
         /// Sets a header.
         /// </summary>
         /// <param name="key">Header key (prepended by &amp; indicates immutable).</param>

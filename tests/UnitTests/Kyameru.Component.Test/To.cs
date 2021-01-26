@@ -30,6 +30,11 @@ namespace Kyameru.Component.Test
                 this.OnLog?.Invoke(this, new Log(LogLevel.Error, "Error", new ArgumentException("Error")));
             }
 
+            if(item.Headers.ContainsKey("SetExit") && item.Headers["SetExit"] == "true")
+            {
+                item.SetExitRoute("Exit triggered");
+            }
+
             GlobalCalls.Calls.Add("TO");
 
             this.OnLog?.Invoke(this, new Log(LogLevel.Information, "TO"));
