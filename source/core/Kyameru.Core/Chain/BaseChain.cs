@@ -42,7 +42,14 @@ namespace Kyameru.Core.Chain
         /// <param name="item">Message to process.</param>
         public virtual void Handle(Routable item)
         {
-            this.Next?.Handle(item);
+            if (!item.ExitRoute)
+            {
+                this.Next?.Handle(item);
+            }
+            else
+            {
+                this.Logger.KyameruWarning(this.identity, string.Format(Resources.WARNING_ROUTE_EXIT, item.ExitReason));
+            }
         }
 
         /// <summary>

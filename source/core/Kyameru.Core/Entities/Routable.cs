@@ -34,6 +34,16 @@ namespace Kyameru.Core.Entities
         public Error Error { get; private set; }
 
         /// <summary>
+        /// Gets a value indicating whether the route should exit early.
+        /// </summary>
+        public bool ExitRoute { get; private set; }
+
+        /// <summary>
+        /// Gets the exit reason.
+        /// </summary>
+        public string ExitReason { get; private set; }
+
+        /// <summary>
         /// Gets a value indicating whether the message is in error.
         /// </summary>
         internal bool InError => this.Error != null;
@@ -73,6 +83,19 @@ namespace Kyameru.Core.Entities
         public void SetHeader(string key, string value)
         {
             this.Headers.SetHeader(key, value);
+        }
+
+        /// <summary>
+        /// Sets the routable entity to be in an exit state
+        /// </summary>
+        /// <param name="message">Reason for exit.</param>
+        /// <remarks>
+        /// It is assumed that if the entity is set in an exit status then it will never be unset.
+        /// </remarks>
+        public void SetExitRoute(string message)
+        {
+            this.ExitRoute = true;
+            this.ExitReason = message;
         }
     }
 }
