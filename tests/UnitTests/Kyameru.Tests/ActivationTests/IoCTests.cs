@@ -91,6 +91,27 @@ namespace Kyameru.Tests.ActivationTests
             Assert.AreEqual(6, this.GetCallCount());
         }
 
+        [Test]
+        public async Task MultipleRoutesWork()
+        {
+            int calls = 0;
+            this.processComponent.Reset();
+            this.processComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            {
+                calls++;
+            });
+
+            IEnumerable<IHostedService> services = this.AddTwoRoutes();
+            Assert.AreEqual(2, services.Count());
+            for (int i = 0; i < services.Count(); i++)
+            {
+                await services.ElementAt(i).StartAsync(CancellationToken.None);
+                await services.ElementAt(i).StopAsync(CancellationToken.None);
+            }
+
+            Assert.AreEqual(2, calls);
+        }
+
         #region Setup
 
         [OneTimeSetUp]
@@ -141,6 +162,22 @@ namespace Kyameru.Tests.ActivationTests
             }
             IServiceProvider provider = serviceCollection.BuildServiceProvider();
             return provider.GetService<IHostedService>();
+        }
+
+        private IEnumerable<IHostedService> AddTwoRoutes()
+        {
+            IServiceCollection serviceCollection = this.GetServiceDescriptors();
+            Kyameru.Route.From("test://first")
+                    .Process(this.processComponent.Object)
+                    .To("test://world")
+                    .Build(serviceCollection);
+
+            Kyameru.Route.From("test://second")
+                    .Process(this.processComponent.Object)
+                    .To("test://world")
+                    .Build(serviceCollection);
+            IServiceProvider provider = serviceCollection.BuildServiceProvider();
+            return provider.GetServices<IHostedService>();
         }
 
         private IHostedService SetupDIComponent()

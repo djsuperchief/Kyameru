@@ -4,6 +4,7 @@ using Kyameru.Core.Chain;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Core
@@ -142,7 +143,7 @@ namespace Kyameru.Core
         /// <param name="services">Service collection.</param>
         public void Build(IServiceCollection services)
         {
-            services.AddHostedService<Chain.From>(x =>
+            services.AddTransient<IHostedService>(x =>
             {
                 IFromComponent from = this.CreateFrom(this.fromUri.ComponentName, this.fromUri.Headers, this.IsAtomic);
                 ILogger logger = x.GetService<ILogger<Route>>();
