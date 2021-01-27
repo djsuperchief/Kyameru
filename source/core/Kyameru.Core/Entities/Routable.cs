@@ -53,9 +53,10 @@ namespace Kyameru.Core.Entities
         /// </summary>
         /// <typeparam name="T">Type for the body message.</typeparam>
         /// <param name="value">Value to set the body.</param>
-        public void SetBody<T>(T value) where T : class
+        public void SetBody<T>(T value)
         {
             this.Body = value;
+            this.Headers.SetHeader("DataType", typeof(T).Name);
         }
 
         /// <summary>

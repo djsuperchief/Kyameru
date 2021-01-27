@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core.Contracts;
@@ -51,21 +53,34 @@ namespace Kyameru.Tests.EntityTests
         }
 
         [Test]
+        [TestCaseSource("BodyTestCases")]
+        public void SetBodyWorksWithHeader(IBodyTests bodyTest)
+        {
+            Assert.IsTrue(bodyTest.IsEqual(this.CreateMessage()));
+        }
+
+        [Test]
         [TestCase("TO", true)]
         [TestCase("ATOMIC", false)]
         public async Task ProcessExitWorks(string call, bool setupComponent)
         {
             this.component.Reset();
-                this.component.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            this.component.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            {
+                x.SetHeader("SetExit", "true");
+                if (setupComponent)
                 {
-                    x.SetHeader("SetExit", "true");
-                    if (setupComponent)
-                    {
-                        x.SetExitRoute("Manually triggered exit");
-                    }
-                });
-            
+                    x.SetExitRoute("Manually triggered exit");
+                }
+            });
+
             Assert.IsFalse(await this.RunProcess(call));
+        }
+
+        public static IEnumerable<IBodyTests> BodyTestCases()
+        {
+            yield return new BodyTests<string>("test", "String");
+            yield return new BodyTests<int>(1, "Int32");
         }
 
         private async Task<bool> RunProcess(string callsContain)
