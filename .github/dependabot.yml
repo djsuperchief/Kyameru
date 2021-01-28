@@ -1,0 +1,7 @@
+version: 2
+updates:
+  - directory: "/source/core/Kyameru.Core"
+    open-pull-requests-limit: 5
+    package-ecosystem: "nuget"
+    schedule:
+      interval: "daily"
