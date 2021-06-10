@@ -143,6 +143,7 @@ namespace Kyameru.Core
         /// <param name="services">Service collection.</param>
         public void Build(IServiceCollection services)
         {
+            this.RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
             {
                 IFromComponent from = this.CreateFrom(this.fromUri.ComponentName, this.fromUri.Headers, services, x, this.IsAtomic);
@@ -161,6 +162,18 @@ namespace Kyameru.Core
 
                 return new Chain.From(from, next, logger, this.identity);
             });
+        }
+
+        /// <summary>
+        /// Runs internal DI registration in to and from components.
+        /// </summary>
+        private void RunComponentDiRegistration(IServiceCollection services)
+        {
+            this.RegisterFromServices(services, this.fromUri.ComponentName);
+            for(int i = 0; i < this.toUris.Count; i++)
+            {
+                this.RegisterToServices(services, this.toUris[i].ComponentName);
+            }
         }
 
         /// <summary>

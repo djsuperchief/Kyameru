@@ -34,10 +34,17 @@ namespace Kyameru.Core.Contracts
         IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers);
 
         /// <summary>
-        /// Registers internal services
+        /// Registers internal to services
         /// </summary>
         /// <param name="serviceCollection">IoC collection</param>
         /// <returns>Returns the <see cref="IServiceCollection"/>.</returns>
-        IServiceCollection RegisterServices(IServiceCollection serviceCollection);
+        IServiceCollection RegisterTo(IServiceCollection serviceCollection);
+
+        /// <summary>
+        /// Registers internal from services
+        /// </summary>
+        /// <param name="serviceCollection">IoC collection</param>
+        /// <returns>Returns the <see cref="IServiceCollection"/>.</returns>
+        IServiceCollection RegisterFrom(IServiceCollection serviceCollection);
     }
 }

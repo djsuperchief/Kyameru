@@ -20,7 +20,7 @@ namespace Kyameru.Core
         /// <param name="to">Valid component name.</param>
         /// <param name="headers">Dictionary of headers</param>
         /// <returns>Returns an instance of the <see cref="IToComponent"/> interface.</returns>
-        protected IToComponent CreateTo(string to, Dictionary<string, string> headers, IServiceCollection serviceCollection, IServiceProvider serviceProvider)
+        protected IToComponent CreateTo(string to, Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             IToComponent response = null;
             try
@@ -42,14 +42,12 @@ namespace Kyameru.Core
         /// <param name="headers">Dictionary of headers</param>
         /// <param name="isAtomic">Indicates if the route is atomic.</param>
         /// <returns>Returns an instance of the <see cref="IFromComponent"/> interface.</returns>
-        protected IFromComponent CreateFrom(string from, Dictionary<string, string> headers, IServiceCollection serviceCollection, IServiceProvider serviceProvider, bool isAtomic = false)
+        protected IFromComponent CreateFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic = false)
         {
             IFromComponent response = null;
             try
-            {
-                IOasis activator = this.GetOasis(from);
-                activator.RegisterServices(serviceCollection);
-                response = activator.CreateFromComponent(headers, isAtomic, serviceProvider);
+            {               
+                response = this.GetOasis(from).CreateFromComponent(headers, isAtomic, serviceProvider);
             }
             catch (Exception ex)
             {
@@ -80,17 +78,29 @@ namespace Kyameru.Core
             return response;
         }
 
-        protected void RegisterServices(IServiceCollection serviceCollection, string component)
+        protected void RegisterToServices(IServiceCollection serviceCollection, string component)
         {
             try
             {
-                this.GetOasis(component).RegisterServices(serviceCollection);
+                this.GetOasis(component).RegisterTo(serviceCollection);
             }
             catch(Exception ex)
             {
-                throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, "RegisterServices");
+                throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, "RegisterToServices");
             }
         }
+
+        protected void RegisterFromServices(IServiceCollection serviceCollection, string component)
+        {
+            try
+            {
+                this.GetOasis(component).RegisterFrom(serviceCollection);
+            }
+            catch (Exception ex)
+            {
+                throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, "RegisterFromServices");
+            }
+        } 
 
         /// <summary>
         /// Gets the IOasis (activator) from the component.

@@ -23,7 +23,12 @@ namespace Kyameru.Component.Error
             return new To(headers);
         }
 
-        public IServiceCollection RegisterServices(IServiceCollection serviceCollection)
+        public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
+        {
+            return serviceCollection;
+        }
+
+        public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
         {
             return serviceCollection;
         }

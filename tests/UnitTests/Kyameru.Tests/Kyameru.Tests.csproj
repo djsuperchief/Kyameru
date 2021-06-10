@@ -19,6 +19,7 @@
     <ProjectReference Include="..\..\..\source\core\Kyameru.Core\Kyameru.Core.csproj" />
     <ProjectReference Include="..\Kyameru.Component.Error\Kyameru.Component.Error.csproj" />
     <ProjectReference Include="..\Kyameru.Component.Test\Kyameru.Component.Test.csproj" />
+    <ProjectReference Include="..\Kyameru.Component.Injectiontest\Kyameru.Component.Injectiontest.csproj" />
   </ItemGroup>
 
   <ItemGroup>
