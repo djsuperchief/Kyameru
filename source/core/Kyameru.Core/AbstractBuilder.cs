@@ -1,4 +1,5 @@
 ﻿using Kyameru.Core.Contracts;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 
@@ -19,12 +20,12 @@ namespace Kyameru.Core
         /// <param name="to">Valid component name.</param>
         /// <param name="headers">Dictionary of headers</param>
         /// <returns>Returns an instance of the <see cref="IToComponent"/> interface.</returns>
-        protected IToComponent CreateTo(string to, Dictionary<string, string> headers)
+        protected IToComponent CreateTo(string to, Dictionary<string, string> headers, IServiceCollection serviceCollection, IServiceProvider serviceProvider)
         {
             IToComponent response = null;
             try
             {
-                response = this.GetOasis(to).CreateToComponent(headers);
+                response = this.GetOasis(to).CreateToComponent(headers, serviceProvider);
             }
             catch (Exception ex)
             {
@@ -41,12 +42,14 @@ namespace Kyameru.Core
         /// <param name="headers">Dictionary of headers</param>
         /// <param name="isAtomic">Indicates if the route is atomic.</param>
         /// <returns>Returns an instance of the <see cref="IFromComponent"/> interface.</returns>
-        protected IFromComponent CreateFrom(string from, Dictionary<string, string> headers, bool isAtomic = false)
+        protected IFromComponent CreateFrom(string from, Dictionary<string, string> headers, IServiceCollection serviceCollection, IServiceProvider serviceProvider, bool isAtomic = false)
         {
             IFromComponent response = null;
             try
             {
-                response = this.GetOasis(from).CreateFromComponent(headers, isAtomic);
+                IOasis activator = this.GetOasis(from);
+                activator.RegisterServices(serviceCollection);
+                response = activator.CreateFromComponent(headers, isAtomic, serviceProvider);
             }
             catch (Exception ex)
             {
@@ -75,6 +78,18 @@ namespace Kyameru.Core
             }
 
             return response;
+        }
+
+        protected void RegisterServices(IServiceCollection serviceCollection, string component)
+        {
+            try
+            {
+                this.GetOasis(component).RegisterServices(serviceCollection);
+            }
+            catch(Exception ex)
+            {
+                throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, "RegisterServices");
+            }
         }
 
         /// <summary>

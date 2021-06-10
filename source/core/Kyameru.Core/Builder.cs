@@ -145,11 +145,11 @@ namespace Kyameru.Core
         {
             services.AddTransient<IHostedService>(x =>
             {
-                IFromComponent from = this.CreateFrom(this.fromUri.ComponentName, this.fromUri.Headers, this.IsAtomic);
+                IFromComponent from = this.CreateFrom(this.fromUri.ComponentName, this.fromUri.Headers, services, x, this.IsAtomic);
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
-                IChain<Routable> toChain = this.SetupToChain(0, logger);
+                IChain<Routable> toChain = this.SetupToChain(0, logger, services, x);
                 if (this.components != null && this.components.Count > 0)
                 {
                     next = SetupChain(0, logger, toChain, x);
@@ -193,13 +193,13 @@ namespace Kyameru.Core
         /// <param name="i">Current count.</param>
         /// <param name="logger">Logger class.</param>
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
-        private IChain<Routable> SetupToChain(int i, ILogger logger)
+        private IChain<Routable> SetupToChain(int i, ILogger logger, IServiceCollection serviceCollection, IServiceProvider serviceProvider)
         {
-            Chain.To toChain = new To(logger, this.GetToComponent(i), this.GetIdentity());
-            logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, this.GetToComponent(i).ToString()));
+            Chain.To toChain = new To(logger, this.GetToComponent(i, serviceCollection, serviceProvider), this.GetIdentity());
+            logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, toChain?.ToString()));
             if (i < this.toUris.Count - 1)
             {
-                toChain.SetNext(this.SetupToChain(++i, logger));
+                toChain.SetNext(this.SetupToChain(++i, logger, serviceCollection, serviceProvider));
             }
             else
             {
@@ -223,9 +223,9 @@ namespace Kyameru.Core
             return toChain;
         }
 
-        private IToComponent GetToComponent(int index)
+        private IToComponent GetToComponent(int index, IServiceCollection serviceCollection, IServiceProvider serviceProvider)
         {
-            return this.CreateTo(this.toUris[index].ComponentName, this.toUris[index].Headers);
+            return this.CreateTo(this.toUris[index].ComponentName, this.toUris[index].Headers, serviceCollection, serviceProvider);
         }
 
         /// <summary>
