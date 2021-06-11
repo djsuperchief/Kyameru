@@ -205,6 +205,7 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="i">Current count.</param>
         /// <param name="logger">Logger class.</param>
+        /// <param name="serviceProvider">DI service provider.</param>
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupToChain(int i, ILogger logger, IServiceProvider serviceProvider)
         {

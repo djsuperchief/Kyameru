@@ -19,6 +19,7 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="to">Valid component name.</param>
         /// <param name="headers">Dictionary of headers</param>
+        /// <param name="serviceProvider">DI Service provider.</param>
         /// <returns>Returns an instance of the <see cref="IToComponent"/> interface.</returns>
         protected IToComponent CreateTo(string to, Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
@@ -40,6 +41,7 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="from">Valid component name.</param>
         /// <param name="headers">Dictionary of headers</param>
+        /// <param name="serviceProvider">DI Service provider.</param>
         /// <param name="isAtomic">Indicates if the route is atomic.</param>
         /// <returns>Returns an instance of the <see cref="IFromComponent"/> interface.</returns>
         protected IFromComponent CreateFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic = false)
@@ -78,6 +80,11 @@ namespace Kyameru.Core
             return response;
         }
 
+        /// <summary>
+        /// Registers to services through DI.
+        /// </summary>
+        /// <param name="serviceCollection">DI Service descriptors</param>
+        /// <param name="component">Component to target.</param>
         protected void RegisterToServices(IServiceCollection serviceCollection, string component)
         {
             try
@@ -90,6 +97,11 @@ namespace Kyameru.Core
             }
         }
 
+        /// <summary>
+        /// Registers from services through DI.
+        /// </summary>
+        /// <param name="serviceCollection">DI Service descriptors</param>
+        /// <param name="component">Component to target.</param>
         protected void RegisterFromServices(IServiceCollection serviceCollection, string component)
         {
             try
