@@ -1,4 +1,5 @@
 ﻿using Kyameru.Core.Contracts;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,14 +13,24 @@ namespace Kyameru.Component.Error
             return new Atomic(headers);
         }
 
-        public IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic)
+        public IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
         {
             return new From(headers);
         }
 
-        public IToComponent CreateToComponent(Dictionary<string, string> headers)
+        public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             return new To(headers);
+        }
+
+        public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
+        {
+            return serviceCollection;
+        }
+
+        public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
+        {
+            return serviceCollection;
         }
     }
 }
