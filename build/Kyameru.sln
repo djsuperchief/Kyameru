@@ -14,6 +14,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Component.Test", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Error", "..\tests\UnitTests\Kyameru.Component.Error\Kyameru.Component.Error.csproj", "{DC1BDE5F-794F-4E27-B73D-10CD22E5CEC8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Injectiontest", "..\tests\UnitTests\Kyameru.Component.Injectiontest\Kyameru.Component.Injectiontest.csproj", "{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +38,10 @@ Global
 		{DC1BDE5F-794F-4E27-B73D-10CD22E5CEC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC1BDE5F-794F-4E27-B73D-10CD22E5CEC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC1BDE5F-794F-4E27-B73D-10CD22E5CEC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -45,6 +51,7 @@ Global
 		{800EFDBF-D68B-422B-AB06-C2984058BB4C} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
 		{CD5311B0-2722-47F7-9D01-36CF4ED7D925} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
 		{DC1BDE5F-794F-4E27-B73D-10CD22E5CEC8} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
+		{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {86AAF1E5-3D43-424B-9101-A04C77A0D14F}

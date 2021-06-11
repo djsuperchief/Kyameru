@@ -143,13 +143,14 @@ namespace Kyameru.Core
         /// <param name="services">Service collection.</param>
         public void Build(IServiceCollection services)
         {
+            this.RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
             {
-                IFromComponent from = this.CreateFrom(this.fromUri.ComponentName, this.fromUri.Headers, this.IsAtomic);
+                IFromComponent from = this.CreateFrom(this.fromUri.ComponentName, this.fromUri.Headers, x, this.IsAtomic);
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
-                IChain<Routable> toChain = this.SetupToChain(0, logger);
+                IChain<Routable> toChain = this.SetupToChain(0, logger, x);
                 if (this.components != null && this.components.Count > 0)
                 {
                     next = SetupChain(0, logger, toChain, x);
@@ -161,6 +162,18 @@ namespace Kyameru.Core
 
                 return new Chain.From(from, next, logger, this.identity);
             });
+        }
+
+        /// <summary>
+        /// Runs internal DI registration in to and from components.
+        /// </summary>
+        private void RunComponentDiRegistration(IServiceCollection services)
+        {
+            this.RegisterFromServices(services, this.fromUri.ComponentName);
+            for(int i = 0; i < this.toUris.Count; i++)
+            {
+                this.RegisterToServices(services, this.toUris[i].ComponentName);
+            }
         }
 
         /// <summary>
@@ -192,14 +205,15 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="i">Current count.</param>
         /// <param name="logger">Logger class.</param>
+        /// <param name="serviceProvider">DI service provider.</param>
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
-        private IChain<Routable> SetupToChain(int i, ILogger logger)
+        private IChain<Routable> SetupToChain(int i, ILogger logger, IServiceProvider serviceProvider)
         {
-            Chain.To toChain = new To(logger, this.GetToComponent(i), this.GetIdentity());
-            logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, this.GetToComponent(i).ToString()));
+            Chain.To toChain = new To(logger, this.GetToComponent(i, serviceProvider), this.GetIdentity());
+            logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, toChain?.ToString()));
             if (i < this.toUris.Count - 1)
             {
-                toChain.SetNext(this.SetupToChain(++i, logger));
+                toChain.SetNext(this.SetupToChain(++i, logger, serviceProvider));
             }
             else
             {
@@ -223,9 +237,9 @@ namespace Kyameru.Core
             return toChain;
         }
 
-        private IToComponent GetToComponent(int index)
+        private IToComponent GetToComponent(int index, IServiceProvider serviceProvider)
         {
-            return this.CreateTo(this.toUris[index].ComponentName, this.toUris[index].Headers);
+            return this.CreateTo(this.toUris[index].ComponentName, this.toUris[index].Headers, serviceProvider);
         }
 
         /// <summary>
