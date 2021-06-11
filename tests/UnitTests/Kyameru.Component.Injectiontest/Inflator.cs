@@ -14,6 +14,11 @@ namespace Kyameru.Component.Injectiontest
 
         public IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
         {
+            if(headers.ContainsKey("WillError"))
+            {
+                throw new NotImplementedException("from");
+            }
+
             IMyFrom response = serviceProvider.GetRequiredService<IMyFrom>();
             response.AddHeaders(headers);
             return response;
@@ -21,6 +26,11 @@ namespace Kyameru.Component.Injectiontest
 
         public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
+            if (headers.ContainsKey("WillError"))
+            {
+                throw new NotImplementedException("to");
+            }
+
             IMyTo response = serviceProvider.GetRequiredService<IMyTo>();
             response.AddHeaders(headers);
             return response;

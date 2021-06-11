@@ -41,6 +41,35 @@ namespace Kyameru.Tests.ActivationTests
             Assert.AreEqual("Injected Test Complete", routable?.Body);
         }
 
+        [Test]
+        [TestCase("from", "Error activating from component.")]
+        [TestCase("to", "Error activating to component.")]
+        public async Task CanComponentsStart(string componentToError, string expected)
+        {
+            IServiceCollection serviceCollection = this.GetServiceDescriptors();
+            string fromHeaders = componentToError == "from" ? "?WillError=true" : string.Empty;
+            string toHeaders = componentToError == "to" ? "?WillError=true" : string.Empty;
+            string actual = string.Empty;
+            try
+            {
+                Kyameru.Route.From($"injectiontest:///mememe{fromHeaders}")
+                    .Process(this.processComponent.Object)
+                    .To($"injectiontest:///somewhere{toHeaders}")
+                    .Build(serviceCollection);
+
+                IServiceProvider provider = serviceCollection.BuildServiceProvider();
+                IHostedService service = provider.GetService<IHostedService>();
+                await service.StartAsync(CancellationToken.None);
+                await service.StopAsync(CancellationToken.None);
+            }
+            catch(Exception ex)
+            {
+                actual = ex.Message;
+            }
+
+            Assert.AreEqual(expected, actual);
+        }
+
         private IServiceCollection GetServiceDescriptors()
         {
             IServiceCollection serviceCollection = new ServiceCollection();
