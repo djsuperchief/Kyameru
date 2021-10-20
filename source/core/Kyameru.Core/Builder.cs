@@ -90,7 +90,7 @@ namespace Kyameru.Core
         }
 
         /// <summary>
-        /// Creates an atomic component using the original From URI
+        /// Creates an atomic component using the original From URI.
         /// </summary>
         /// <returns>Returns an instance of the <see cref="Builder"/> class</returns>
         public Builder Atomic()
