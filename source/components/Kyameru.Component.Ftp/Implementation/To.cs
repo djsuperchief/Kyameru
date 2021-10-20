@@ -13,7 +13,7 @@ namespace Kyameru.Component.Ftp
     /// <summary>
     /// To component.
     /// </summary>
-    public class To : IToComponent
+    public class To : IFtpTo
     {
         /// <summary>
         /// Ftp settings.
@@ -62,13 +62,13 @@ namespace Kyameru.Component.Ftp
         {
             try
             {
-                this.ftpClient.UploadFile(this.GetSource(item), item.Headers.GetKeyValue("SourceFile"));
+                this.ftpClient.UploadFile(this.GetSource(item), item.Headers["SourceFile"]);
                 this.ArchiveFile(item);
             }
             catch (Exception ex)
             {
-                item.SetInError(this.GetError("Upload", string.Format(Resources.ERROR_UPLOADING, item.Headers.GetKeyValue("FileName"))));
-                this.RaiseLog(string.Format(Resources.ERROR_UPLOADING, item.Headers.GetKeyValue("FileName")), LogLevel.Error, ex);
+                item.SetInError(this.GetError("Upload", string.Format(Resources.ERROR_UPLOADING, item.Headers["FileName"])));
+                this.RaiseLog(string.Format(Resources.ERROR_UPLOADING, item.Headers["FileName"]), LogLevel.Error, ex);
             }
         }
 
@@ -131,7 +131,7 @@ namespace Kyameru.Component.Ftp
             byte[] response = null;
             if (this.source == "File" || string.IsNullOrWhiteSpace(this.source))
             {
-                response = System.IO.File.ReadAllBytes(item.Headers.GetKeyValue("FullSource"));
+                response = System.IO.File.ReadAllBytes(item.Headers["FullSource"]);
             }
             else
             {

@@ -13,7 +13,7 @@ namespace Kyameru.Component.Ftp
     /// <summary>
     /// FTP From Component
     /// </summary>
-    public class From : IFromComponent
+    public class From : IFtpFrom
     {
         private readonly FtpSettings ftpSettings;
         private readonly IWebRequestUtility webRequestUtility;
