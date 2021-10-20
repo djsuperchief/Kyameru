@@ -209,7 +209,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupToChain(int i, ILogger logger, IServiceProvider serviceProvider)
         {
-            Chain.To toChain = new To(logger, this.GetToComponent(i, serviceProvider), this.GetIdentity());
+            To toChain = new To(logger, this.GetToComponent(i, serviceProvider), this.GetIdentity());
             logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, toChain?.ToString()));
             if (i < this.toUris.Count - 1)
             {
