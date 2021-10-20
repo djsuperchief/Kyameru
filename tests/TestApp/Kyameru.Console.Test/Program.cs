@@ -16,7 +16,7 @@ namespace Kyameru.Console.Test
 
                 Kyameru.Route.From("file:///c:/Temp?Notifications=Created&SubDirectories=true&Filter=*.*")
                 .Process(new ProcessingComp())
-                .To("slack:///TH7DAGRQE/B01DWN0088P/f23IiCaHrx8NnThl7xUDiDSn?MessageSource=Body&Channel=general&Username=Kyameru")
+                .To("slack:///nope?MessageSource=Body&Channel=general&Username=Kyameru")
                 .Build(services);
 
             }).ConfigureLogging((hostContext, services) =>
