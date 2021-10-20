@@ -50,6 +50,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Component.Slack", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Component.Slack.Tests", "..\source\components\Kyameru.Component.Slack\Tests\Kyameru.Component.Slack.Tests.csproj", "{6E8B98A0-A22B-45F1-BC11-75CD52574203}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestApp", "TestApp", "{EE72AA94-6DF0-4482-8368-065BF58FC154}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Console.Test", "..\tests\TestApp\Kyameru.Console.Test\Kyameru.Console.Test.csproj", "{054934B3-4921-49B0-A3C1-E5D71A94C0E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -100,6 +104,10 @@ Global
 		{6E8B98A0-A22B-45F1-BC11-75CD52574203}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E8B98A0-A22B-45F1-BC11-75CD52574203}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E8B98A0-A22B-45F1-BC11-75CD52574203}.Release|Any CPU.Build.0 = Release|Any CPU
+		{054934B3-4921-49B0-A3C1-E5D71A94C0E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{054934B3-4921-49B0-A3C1-E5D71A94C0E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{054934B3-4921-49B0-A3C1-E5D71A94C0E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{054934B3-4921-49B0-A3C1-E5D71A94C0E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -127,6 +135,7 @@ Global
 		{EEA23055-DEEF-481F-9E26-553068FDF116} = {3780C4F7-97F8-4BA6-8B53-3D738ED2C96E}
 		{02BDCF43-9BB5-4DA8-BB6E-7AEF5BBED46A} = {712ED882-1B81-46D4-B157-0DA5759C5D54}
 		{6E8B98A0-A22B-45F1-BC11-75CD52574203} = {EEA23055-DEEF-481F-9E26-553068FDF116}
+		{054934B3-4921-49B0-A3C1-E5D71A94C0E9} = {EE72AA94-6DF0-4482-8368-065BF58FC154}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {86AAF1E5-3D43-424B-9101-A04C77A0D14F}
