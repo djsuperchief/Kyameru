@@ -186,7 +186,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupChain(int i, ILogger logger, IChain<Routable> toComponents, IServiceProvider serviceProvider)
         {
-            Chain.Process chain = new Chain.Process(logger, this.components[i].GetComponent(serviceProvider), this.GetIdentity());
+            Process chain = new Chain.Process(logger, this.components[i].GetComponent(serviceProvider), this.GetIdentity());
             logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, this.components[i].ToString()));
             if (i < this.components.Count - 1)
             {
