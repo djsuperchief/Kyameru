@@ -83,7 +83,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder To(string componentUri)
         {
-            Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
+            RouteAttributes route = new Entities.RouteAttributes(componentUri);
             this.toUris.Add(route);
 
             return this;
