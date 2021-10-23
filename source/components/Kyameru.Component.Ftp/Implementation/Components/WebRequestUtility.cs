@@ -3,6 +3,7 @@ using Kyameru.Component.Ftp.Enums;
 using Kyameru.Component.Ftp.Settings;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 
@@ -11,6 +12,7 @@ namespace Kyameru.Component.Ftp.Components
     /// <summary>
 	/// Web request facility.
 	/// </summary>
+    [ExcludeFromCodeCoverage]
     internal class WebRequestUtility : IWebRequestUtility
     {
         /// <summary>
