@@ -15,11 +15,6 @@ namespace Kyameru.Component.Slack
         /// </summary>
         /// <param name="headers">Headers to process.</param>
         /// <returns>Throws a not implemented exception</returns>
-        public IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
-        {
-            throw new NotImplementedException();
-        }
-
         public IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers)
         {
             throw new NotImplementedException();
@@ -53,7 +48,6 @@ namespace Kyameru.Component.Slack
 
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddTransient<ISlackTo, SlackTo>();
             return serviceCollection;
         }
     }

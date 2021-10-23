@@ -28,13 +28,11 @@ namespace Kyameru.Component.Ftp
 
         public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddTransient<IFtpFrom, From>();
             return serviceCollection;
         }
 
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddTransient<IFtpTo, To>();
             return serviceCollection;
         }
     }

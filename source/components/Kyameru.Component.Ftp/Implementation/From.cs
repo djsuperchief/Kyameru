@@ -31,6 +31,8 @@ namespace Kyameru.Component.Ftp
             this.webRequestUtility = webRequestUtility;
         }
 
+        public bool PollerIsActive => this.poller.Enabled;
+
         /// <summary>
         /// Event raised on action
         /// </summary>

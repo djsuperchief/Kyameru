@@ -46,7 +46,15 @@ namespace Kyameru.Component.Slack.Tests
             Slack.Inflator inflator = new Inflator();
             Assert.Throws<NotImplementedException>(() => { inflator.CreateAtomicComponent(headers); });
         }
-        private IServiceCollection GetServiceDescriptors()
+
+        [Test]
+        public void RegisterFromThrows()
+        {
+            Assert.Throws<NotImplementedException>(() => this.GetServiceDescriptors(true));
+        }
+
+
+        private IServiceCollection GetServiceDescriptors(bool tryFrom = false)
         {
 
             IServiceCollection serviceDescriptors = new ServiceCollection();
@@ -57,6 +65,10 @@ namespace Kyameru.Component.Slack.Tests
 
             Inflator inflator = new Inflator();
             inflator.RegisterTo(serviceDescriptors);
+            if(tryFrom)
+            {
+                inflator.RegisterFrom(serviceDescriptors);
+            }
 
             return serviceDescriptors;
         }

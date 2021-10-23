@@ -41,6 +41,8 @@ namespace Kyameru.Component.Ftp.Tests.Routes
 
             Assert.AreEqual("Hello ftp", Encoding.UTF8.GetString((byte[])routable.Body));
             webRequestFactory.Verify(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>()), times);
+            from.Stop();
+            Assert.False(from.PollerIsActive);
         }
 
         public Mock<IWebRequestUtility> GetWebRequest()

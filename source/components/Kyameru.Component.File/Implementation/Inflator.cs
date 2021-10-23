@@ -43,12 +43,12 @@ namespace Kyameru.Component.File
 
         public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
         {
-            return serviceCollection.InstallFromService();
+            return serviceCollection;
         }
 
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
         {
-            return serviceCollection.InstallToService();
+            return serviceCollection;
         }
     }
 }
