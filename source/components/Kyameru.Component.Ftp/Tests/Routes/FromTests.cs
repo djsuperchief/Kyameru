@@ -54,7 +54,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
 
         private RouteAttributes GetRoute(bool delete)
         {
-            return new RouteAttributes($"ftp://test@127.0.0.1/out&Delete={delete}&PollTime=5000");
+            return new RouteAttributes($"ftp://test:banana@127.0.0.1/out&Delete={delete}&PollTime=5000");
         }
     }
 }
