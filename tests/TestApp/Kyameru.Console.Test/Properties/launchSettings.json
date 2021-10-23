@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Kyameru.Console.Test": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "SlackAddress": "TH7DAGRQE/B01DWN0088P/wjQoFv9i0yXGgrAFTAdMa6n8"
+      }
+    }
+  }
+}

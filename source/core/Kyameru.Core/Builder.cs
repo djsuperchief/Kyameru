@@ -83,14 +83,14 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder To(string componentUri)
         {
-            Entities.RouteAttributes route = new Entities.RouteAttributes(componentUri);
+            RouteAttributes route = new Entities.RouteAttributes(componentUri);
             this.toUris.Add(route);
 
             return this;
         }
 
         /// <summary>
-        /// Creates an atomic component using the original From URI
+        /// Creates an atomic component using the original From URI.
         /// </summary>
         /// <returns>Returns an instance of the <see cref="Builder"/> class</returns>
         public Builder Atomic()
@@ -102,7 +102,7 @@ namespace Kyameru.Core
         }
 
         /// <summary>
-        /// Creates an atomic component using the original From URI
+        /// Creates an atomic component using the original From URI.
         /// </summary>
         /// <param name="componentUri">Valid Kyameru URI.</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class</returns>
@@ -209,7 +209,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupToChain(int i, ILogger logger, IServiceProvider serviceProvider)
         {
-            Chain.To toChain = new To(logger, this.GetToComponent(i, serviceProvider), this.GetIdentity());
+            To toChain = new To(logger, this.GetToComponent(i, serviceProvider), this.GetIdentity());
             logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, toChain?.ToString()));
             if (i < this.toUris.Count - 1)
             {
