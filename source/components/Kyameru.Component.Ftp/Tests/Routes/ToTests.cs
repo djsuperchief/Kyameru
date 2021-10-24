@@ -1,6 +1,7 @@
 ﻿using Kyameru.Component.Ftp.Contracts;
 using Kyameru.Component.Ftp.Settings;
 using Kyameru.Core.Entities;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -14,7 +15,9 @@ namespace Kyameru.Component.Ftp.Tests.Routes
     public class ToTests
     {
         [Test]
-        public void CanUploadFile()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void CanUploadFile(bool stringBody)
         {
             Mock<IWebRequestUtility> webRequestUtility = this.GetWebRequest();
             To to = new To(this.GetRoute().Headers, webRequestUtility.Object);
@@ -24,6 +27,11 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             },
             Encoding.UTF8.GetBytes("Hello")
             );
+            if(stringBody)
+            {
+                routable.SetBody<string>("Hello");
+            }
+
             to.Process(routable);
             webRequestUtility.VerifyAll();
         }
@@ -36,6 +44,39 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             Routable routable = this.WriteFile();
             to.Process(routable);
             Assert.IsTrue(System.IO.File.Exists("MockOut/Archive/test.txt"));
+        }
+
+        [Test]
+        [TestCase(LogLevel.Information)]
+        [TestCase(LogLevel.Error)]
+        public void CorrectLogRecieved(LogLevel logLevel)
+        {
+            LogLevel recieved = LogLevel.Debug;
+            Mock<IWebRequestUtility> webRequestUtility = this.GetWebRequest();
+            if (logLevel == LogLevel.Error)
+            {
+                webRequestUtility.Setup(x => x.UploadFile(It.IsAny<byte[]>(), It.IsAny<FtpSettings>(), It.IsAny<string>())).Throws(new OutOfMemoryException());
+            }
+
+            To to = new To(this.GetRoute().Headers, webRequestUtility.Object);
+            Routable routable = new Routable(new Dictionary<string, string>()
+            {
+                { "SourceFile", "Test.txt" }
+            },
+            Encoding.UTF8.GetBytes("Hello")
+            );
+            to.OnLog += (sender, e) =>
+            {
+                recieved = e.LogLevel;
+            };
+
+            to.Process(routable);
+            Assert.AreEqual(logLevel, recieved);
+        }
+
+        private void To_OnLog(object sender, Log e)
+        {
+            throw new NotImplementedException();
         }
 
         private Routable WriteFile()
