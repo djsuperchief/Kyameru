@@ -98,7 +98,8 @@ namespace Kyameru.Component.Ftp.Components
         /// <param name="fileName">Name of file to upload.</param>
         public void UploadFile(byte[] file, FtpSettings settings, string fileName)
         {
-            FtpWebRequest request = this.GetFtpWebRequest($"{settings.Path}/{fileName}", FtpOperation.Upload, settings, true);
+            string path = settings.Path.Substring(settings.Path.Length - 1, 1) == "/" ? settings.Path.Substring(0, settings.Path.Length - 1) : settings.Path;
+            FtpWebRequest request = this.GetFtpWebRequest($"{path}/{fileName}", FtpOperation.Upload, settings, true);
             request.ContentLength = file.Length;
             using (Stream ftpStream = request.GetRequestStream())
             {
@@ -108,7 +109,12 @@ namespace Kyameru.Component.Ftp.Components
 
         private FtpWebRequest GetFtpWebRequest(string path, FtpOperation method, Settings.FtpSettings settings, bool closeConnection = false)
         {
-            FtpWebRequest response = (FtpWebRequest)WebRequest.Create($"ftp://{settings.Host}:{settings.Port}/{path}");
+            if(path.Substring(0,1) != "/")
+            {
+                path = $"/{path}";
+            }
+
+            FtpWebRequest response = (FtpWebRequest)WebRequest.Create($"ftp://{settings.Host}:{settings.Port}{path}");
             response.Method = this.ftpClientOperation[method];
             response.UseBinary = true;
             response.KeepAlive = !closeConnection;

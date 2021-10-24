@@ -11,7 +11,7 @@ namespace Kyameru.Console.Test
 
         public void Process(Routable routable)
         {
-            routable.SetBody<string>("Farts are not food");
+            routable.SetBody<string>("Kyameru testing...sorry #notsorry");
         }
     }
 }

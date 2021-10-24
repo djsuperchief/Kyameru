@@ -47,7 +47,11 @@ namespace Kyameru.Component.Ftp
             this.source = config.GetKeyValue("Source");
             this.ftpSettings = new FtpSettings(config);
             this.ftpClient = new FtpClient(this.ftpSettings, webRequestUtility);
+            this.ftpClient.OnLog += FtpClient_OnLog;
+            this.ftpClient.OnError += FtpClient_OnError;
         }
+
+
 
         /// <summary>
         /// Logging event.
@@ -135,7 +139,14 @@ namespace Kyameru.Component.Ftp
             }
             else
             {
-                response = (byte[])item.Body;
+                if (item.Headers.ContainsKey("DataType") && item.Headers["DataType"] == "String")
+                {
+                    response = System.Text.Encoding.UTF8.GetBytes((string)item.Body);
+                }
+                else
+                {
+                    response = (byte[])item.Body;
+                }
             }
 
             return response;
@@ -162,6 +173,17 @@ namespace Kyameru.Component.Ftp
         private Error GetError(string action, string message)
         {
             return new Error("ToFtp", action, message);
+        }
+
+        private void FtpClient_OnError(object sender, Exception e)
+        {
+            this.OnLog?.Invoke(this, this.RaiseLog(Resources.ERROR_FTPPROCESSING, LogLevel.Error, e));
+        }
+
+
+        private void FtpClient_OnLog(object sender, string e)
+        {
+            this.OnLog?.Invoke(this, this.RaiseLog(e, LogLevel.Information));
         }
     }
 }
