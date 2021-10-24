@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.File\Implementation\Kyameru.Component.File.csproj" />
+    <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Ftp\Implementation\Kyameru.Component.Ftp.csproj" />
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Slack\Implementation\Kyameru.Component.Slack.csproj" />
   </ItemGroup>
 

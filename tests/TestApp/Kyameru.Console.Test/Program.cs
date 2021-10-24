@@ -17,7 +17,8 @@ namespace Kyameru.Console.Test
 
                 Kyameru.Route.From("file:///c:/Temp?Notifications=Created&SubDirectories=true&Filter=*.*")
                 .Process(new ProcessingComp())
-                .To($"slack:///{slackAddress}?MessageSource=Body&Channel=general&Username=Kyameru")
+                //.To($"slack:///{slackAddress}?MessageSource=Body&Channel=general&Username=Kyameru")
+                .To("ftp://kyameru:Password1.@192.168.1.249/&Source=Body")
                 .Build(services);
 
             }).ConfigureLogging((hostContext, services) =>
