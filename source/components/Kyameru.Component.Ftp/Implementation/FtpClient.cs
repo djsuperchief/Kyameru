@@ -94,6 +94,7 @@ namespace Kyameru.Component.Ftp
             catch (Exception ex)
             {
                 this.RaiseError(ex);
+                throw;
             }
         }
 
