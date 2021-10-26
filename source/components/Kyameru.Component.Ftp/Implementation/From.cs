@@ -55,6 +55,7 @@ namespace Kyameru.Component.Ftp
             this.ftp.OnDownloadFile += this.Ftp_OnDownloadFile;
             this.ftp.OnLog += this.Ftp_OnLog;
             this.ftp.OnError += this.Ftp_OnError;
+            this.webRequestUtility.OnLog += WebRequestUtility_OnLog;
         }
 
         /// <summary>
@@ -102,7 +103,7 @@ namespace Kyameru.Component.Ftp
         /// </summary>
         public void Start()
         {
-            //this.ftp.Poll();
+            this.ftp.Poll();
             this.poller.Start();
         }
 
@@ -113,5 +114,10 @@ namespace Kyameru.Component.Ftp
         {
             this.poller.Stop();
         }
+        private void WebRequestUtility_OnLog(object sender, string e)
+        {
+            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, e));
+        }
+
     }
 }

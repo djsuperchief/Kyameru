@@ -61,7 +61,8 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             To to = new To(this.GetRoute().Headers, webRequestUtility.Object);
             Routable routable = new Routable(new Dictionary<string, string>()
             {
-                { "SourceFile", "Test.txt" }
+                { "SourceFile", "Test.txt" },
+                {"FileName", "Test.txt" }
             },
             Encoding.UTF8.GetBytes("Hello")
             );

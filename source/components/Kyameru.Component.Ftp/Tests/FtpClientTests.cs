@@ -29,7 +29,7 @@ namespace Kyameru.Component.Ftp.Tests
                 errorThrown = true;
             };
 
-            client.UploadFile("bloop.txt");
+            Assert.Throws<OutOfMemoryException>(() => client.UploadFile("bloop.txt"));
             Assert.True(errorThrown);
 
         }

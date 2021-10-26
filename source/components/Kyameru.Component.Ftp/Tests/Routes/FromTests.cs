@@ -28,6 +28,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
 
             webRequestFactory.Setup(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>())).Verifiable();
             From from = new From(this.GetRoute(deletes).Headers, webRequestFactory.Object);
+
             Routable routable = null;
             from.OnAction += delegate (object sender, Routable e)
             {
@@ -43,6 +44,23 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             webRequestFactory.Verify(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>()), times);
             from.Stop();
             Assert.False(from.PollerIsActive);
+            
+        }
+
+        [Test]
+        public void WebRequestLogIsHandled()
+        {
+            bool hasLogged = false;
+            Mock<IWebRequestUtility> webRequestFactory = this.GetWebRequest();
+            From from = new From(this.GetRoute(false).Headers, webRequestFactory.Object);
+            from.Setup();
+            from.OnLog += (object sender, Log e) =>
+            {
+                hasLogged = true;
+            };
+
+            webRequestFactory.Raise(x => x.OnLog += null, this, "test");
+            Assert.IsTrue(hasLogged);
         }
 
         public Mock<IWebRequestUtility> GetWebRequest()
@@ -50,7 +68,6 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             Mock<IWebRequestUtility> response = new Mock<IWebRequestUtility>();
             response.Setup(x => x.DownloadFile("Test.txt", It.IsAny<FtpSettings>())).Returns(Encoding.UTF8.GetBytes("Hello ftp"));
             response.Setup(x => x.GetDirectoryContents(It.IsAny<FtpSettings>())).Returns(new List<string>() { "Test.txt" });
-
             return response;
         }
 

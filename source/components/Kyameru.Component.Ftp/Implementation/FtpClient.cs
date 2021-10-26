@@ -63,7 +63,7 @@ namespace Kyameru.Component.Ftp
         internal void Poll()
         {
             List<string> files = this.GetDirectoryContents();
-            if (files.Count > 0)
+            if (files?.Count > 0)
             {
                 DownloadFiles(files);
                 DeleteFiles(files);
@@ -94,6 +94,7 @@ namespace Kyameru.Component.Ftp
             catch (Exception ex)
             {
                 this.RaiseError(ex);
+                throw;
             }
         }
 

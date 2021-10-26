@@ -1,5 +1,6 @@
 ﻿using Kyameru.Component.Ftp.Contracts;
 using Kyameru.Component.Ftp.Enums;
+using Kyameru.Component.Ftp.Extensions;
 using Kyameru.Component.Ftp.Settings;
 using System;
 using System.Collections.Generic;
@@ -39,7 +40,8 @@ namespace Kyameru.Component.Ftp.Components
         /// <param name="closeConnection">Value indicating whether the connection sould be closed.</param>
         public void DeleteFile(FtpSettings settings, string fileName, bool closeConnection = true)
         {
-            FtpWebRequest request = this.GetFtpWebRequest($"{settings.Path}/{fileName}", FtpOperation.Delete, settings, closeConnection);
+            this.RaiseLog($"Deleting file {fileName}");
+            FtpWebRequest request = this.GetFtpWebRequest($"{settings.Path.StripEndingSlash()}/{fileName}", FtpOperation.Delete, settings, closeConnection);
             request.GetResponse();
         }
 
@@ -52,7 +54,8 @@ namespace Kyameru.Component.Ftp.Components
         public byte[] DownloadFile(string fileName, FtpSettings settings)
         {
             byte[] file = null;
-            FtpWebRequest request = this.GetFtpWebRequest($"{settings.Path}/{fileName}", FtpOperation.Download, settings);
+            this.RaiseLog($"Downloading file {fileName}");
+            FtpWebRequest request = this.GetFtpWebRequest($"{settings.Path.StripEndingSlash()}/{fileName}", FtpOperation.Download, settings);
             using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
             using (MemoryStream responseStream = new MemoryStream())
             {
@@ -70,6 +73,7 @@ namespace Kyameru.Component.Ftp.Components
         /// <returns>Returns a list of files and directories.</returns>
         public List<string> GetDirectoryContents(FtpSettings settings)
         {
+            this.RaiseLog("Getting FTP directory contents...");
             List<string> response = new List<string>();
             FtpWebRequest ftp = this.GetFtpWebRequest(settings.Path, FtpOperation.List, settings, false);
             using (FtpWebResponse ftpResponse = (FtpWebResponse)ftp.GetResponse())
@@ -98,6 +102,7 @@ namespace Kyameru.Component.Ftp.Components
         /// <param name="fileName">Name of file to upload.</param>
         public void UploadFile(byte[] file, FtpSettings settings, string fileName)
         {
+            this.RaiseLog("Uploading file to FTP");
             string path = settings.Path.Substring(settings.Path.Length - 1, 1) == "/" ? settings.Path.Substring(0, settings.Path.Length - 1) : settings.Path;
             FtpWebRequest request = this.GetFtpWebRequest($"{path}/{fileName}", FtpOperation.Upload, settings, true);
             request.ContentLength = file.Length;
