@@ -45,10 +45,10 @@ jobs:
         shell: pwsh
         run: |
           cd build
-          $results = dotnet list package KyameruFull.sln --vulnerable --include-transitive
+          $results = dotnet list KyameruFull.sln package --vulnerable --include-transitive
           if($results -like '*High*' || $results -like '*Critical*') {
             Write-Host 'Packages vulnerable'
-            dotnet list package KyameruFull.sln --vulnerable --include-transitive
+            dotnet list KyameruFull.sln package --vulnerable --include-transitive
             exit 1
           }
 
