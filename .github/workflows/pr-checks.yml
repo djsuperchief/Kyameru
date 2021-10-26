@@ -16,7 +16,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-            dotnet-version: 3.1.301
+            dotnet-version: 3.1.x
       - name: Install dependencies
         run: dotnet restore build/KyameruFull.sln
       - name: Build
@@ -30,6 +30,27 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ./build/TestCoverage/coverage.info 
 
+  nuget-security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+            dotnet-version: 5.0.x
+      
+      - name: Restore Solution
+        run: dotnet restore build/KyameruFull.sln
+      - name: Scan for security risks
+        shell: pwsh
+        run: |
+          cd build
+          $results = dotnet list KyameruFull.sln package --vulnerable --include-transitive
+          if($results -like '*High*' || $results -like '*Critical*') {
+            Write-Host 'Packages vulnerable'
+            dotnet list KyameruFull.sln package --vulnerable --include-transitive
+            exit 1
+          }
 
   analyze:
     name: Analyze
