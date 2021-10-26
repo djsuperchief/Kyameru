@@ -23,5 +23,10 @@ namespace Kyameru.Component.Ftp.Extensions
 
             return false;
         }
+
+        public static string StripEndingSlash(this string input)
+        {
+            return input.Substring(input.Length - 1, 1) == "/" ? input.Substring(0, input.Length - 1) : input;
+        }
     }
 }

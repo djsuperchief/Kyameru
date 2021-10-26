@@ -15,10 +15,15 @@ namespace Kyameru.Console.Test
             {
                 services.AddLogging();
 
-                Kyameru.Route.From("file:///c:/Temp?Notifications=Created&SubDirectories=true&Filter=*.*")
+                /*Kyameru.Route.From("file:///c:/Temp?Notifications=Created&SubDirectories=true&Filter=*.*")
                 .Process(new ProcessingComp())
                 //.To($"slack:///{slackAddress}?MessageSource=Body&Channel=general&Username=Kyameru")
                 .To("ftp://kyameru:Password1.@192.168.1.249/&Source=Body")
+                .Build(services);*/
+
+                Kyameru.Route.From("ftp://kyameru:Password1.@192.168.1.249/&PollTime=50000&Filter=50000&Delete=false")
+                .To("file:///C:/Temp?Action=Write")
+                .Id("FtpTest")
                 .Build(services);
 
             }).ConfigureLogging((hostContext, services) =>

@@ -1,5 +1,6 @@
 ﻿using Kyameru.Component.Ftp.Enums;
 using Kyameru.Component.Ftp.Settings;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
@@ -49,5 +50,10 @@ namespace Kyameru.Component.Ftp.Contracts
         /// <param name="settings">Ftp Settings.</param>
         /// <returns>Returns a list of directory contents.</returns>
         List<string> GetDirectoryContents(FtpSettings settings);
+
+        /// <summary>
+        /// Logging event.
+        /// </summary>
+        event EventHandler<string> OnLog;
     }
 }
