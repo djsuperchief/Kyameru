@@ -1,34 +1,34 @@
 ﻿using Kyameru.Component.File.Utilities;
 using Kyameru.Core.Entities;
 using Moq;
-using NUnit.Framework;
+using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Kyameru.Component.File.Tests
 {
-    [TestFixture]
     public class FileToExceptionTests
     {
         private readonly Mock<IFileUtils> fileUtils = new Mock<IFileUtils>();
 
-        [Test]
-        [TestCase("Move")]
-        [TestCase("Copy")]
-        [TestCase("Delete")]
-        [TestCase("Write")]
+        [Theory]
+        [InlineData("Move")]
+        [InlineData("Copy")]
+        [InlineData("Delete")]
+        [InlineData("Write")]
         public void ActionSetsError(string action)
         {
+            this.Init();
             FileTo fileTo = this.GetFileTo(action);
             Routable message = this.GetRoutable();
             fileTo.Process(message);
             Assert.NotNull(message.Error);
         }
 
-        [SetUp]
         public void Init()
         {
+            this.fileUtils.Reset();
             this.fileUtils.Setup(x => x.CopyFile(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Throws(new NotImplementedException());
             this.fileUtils.Setup(x => x.CreateDirectory(It.IsAny<string>())).Throws(new NotImplementedException());
             this.fileUtils.Setup(x => x.Delete(It.IsAny<string>())).Throws(new NotImplementedException());

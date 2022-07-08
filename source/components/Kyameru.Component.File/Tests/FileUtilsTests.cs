@@ -2,11 +2,10 @@
 using System.IO;
 using System.Reflection;
 using Kyameru.Component.File.Utilities;
-using NUnit.Framework;
+using Xunit;
 
 namespace Kyameru.Component.File.Tests
 {
-    [TestFixture]
     public class FileUtilsTests
     {
 
@@ -19,31 +18,34 @@ namespace Kyameru.Component.File.Tests
             this.fileLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace("\\", "/") + "/fileUtils";
             this.fileUtils = new FileUtils();
             this.toFile = $"{this.fileLocation}/test.txt";
+            this.Init();
         }
 
-        [Test]
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void WriteBytesOverwrites(bool overwrite)
         {
             byte[] data = System.Text.Encoding.UTF8.GetBytes("Data");
-            this.WriteFile(overwrite);           
-            Assert.DoesNotThrow(() => this.fileUtils.WriteAllBytes(toFile, data, overwrite));
+            this.WriteFile(overwrite);
+            var exception = Record.Exception(() => this.fileUtils.WriteAllBytes(toFile, data, overwrite));
+            Assert.Null(exception);
         }
 
-        [Test]
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void WriteAlltextOverwrites(bool overwrite)
         {
             string data = "Data";
             this.WriteFile(overwrite);
-            Assert.DoesNotThrow(() => this.fileUtils.WriteAllText(this.toFile, data, overwrite));
+            var exception = Record.Exception(() => this.fileUtils.WriteAllText(this.toFile, data, overwrite));
+            Assert.Null(exception);
         }
 
-        [Test]
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void MoveFileOverrites(bool overwrite)
         {
             string destination = $"{this.fileLocation}/to/dest.txt";
@@ -55,13 +57,13 @@ namespace Kyameru.Component.File.Tests
 
             System.IO.File.WriteAllText(toFile, "data");
             this.fileUtils.Move(toFile, destination, overwrite);
-            Assert.AreEqual("data", System.IO.File.ReadAllText(destination));
-            Assert.IsFalse(System.IO.File.Exists(this.toFile));
+            Assert.Equal("data", System.IO.File.ReadAllText(destination));
+            Assert.False(System.IO.File.Exists(this.toFile));
         }
 
-        [Test]
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void CopyFileOverwrites(bool overwrite)
         {
             string destination = $"{this.fileLocation}/to/dest.txt";
@@ -72,11 +74,10 @@ namespace Kyameru.Component.File.Tests
             }
             System.IO.File.WriteAllText(toFile, "data");
             this.fileUtils.CopyFile(toFile, destination, overwrite);
-            Assert.AreEqual("data", System.IO.File.ReadAllText(destination));
-            Assert.IsTrue(System.IO.File.Exists(this.toFile));
+            Assert.Equal("data", System.IO.File.ReadAllText(destination));
+            Assert.True(System.IO.File.Exists(this.toFile));
         }
 
-        [SetUp]
         public void Init()
         {
             if(Directory.Exists(this.fileLocation))

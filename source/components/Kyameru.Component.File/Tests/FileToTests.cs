@@ -1,5 +1,5 @@
 ﻿using Kyameru.Component.File.Utilities;
-using NUnit.Framework;
+using Xunit;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +8,6 @@ using System.Text;
 
 namespace Kyameru.Component.File.Tests
 {
-    [TestFixture]
     public class FileToTests
     {
         private readonly string fileLocation;
@@ -21,11 +20,11 @@ namespace Kyameru.Component.File.Tests
             this.serviceProvider = serviceHelper.GetServiceProvider();
         }
 
-        [Test]
-        [TestCase("Move", "String")]
-        [TestCase("Copy", "String")]
-        [TestCase("Write", "String")]
-        [TestCase("Write", "Byte")]
+        [Theory]
+        [InlineData("Move", "String")]
+        [InlineData("Copy", "String")]
+        [InlineData("Write", "String")]
+        [InlineData("Write", "Byte")]
         public void CanDoAction(string action, string bodyType)
         {
             string randomFileName = $"{Guid.NewGuid().ToString("N")}.txt";
@@ -44,10 +43,10 @@ namespace Kyameru.Component.File.Tests
             }
 
             fileTo.Process(routable);
-            Assert.IsTrue(System.IO.File.Exists($"{this.fileLocation}/target/{randomFileName}"));
+            Assert.True(System.IO.File.Exists($"{this.fileLocation}/target/{randomFileName}"));
         }
 
-        [Test]
+        [Fact]
         public void CanDeleteFile()
         {
             string randomFileName = $"{Guid.NewGuid().ToString("N")}.txt";
@@ -58,7 +57,7 @@ namespace Kyameru.Component.File.Tests
                 { "SourceFile", randomFileName }
             };
             fileTo.Process(new Core.Entities.Routable(routableHeaders, System.Text.Encoding.UTF8.GetBytes("test file")));
-            Assert.IsFalse(System.IO.File.Exists($"test/{randomFileName}"));
+            Assert.False(System.IO.File.Exists($"test/{randomFileName}"));
         }
 
         private FileTo Setup(string action, string randomFileName)
