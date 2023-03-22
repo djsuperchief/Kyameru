@@ -78,7 +78,7 @@ namespace Kyameru.Component.File.Tests
             Assert.True(System.IO.File.Exists(this.toFile));
         }
 
-        public void Init()
+        private void Init()
         {
             if(Directory.Exists(this.fileLocation))
             {

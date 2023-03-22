@@ -26,7 +26,7 @@ namespace Kyameru.Core
         /// <param name="componentUri">Valid Kyameru URI.</param>
         public RouteBuilder(string componentUri)
         {
-            this.fromUri = new Entities.RouteAttributes(componentUri);
+            this.fromUri = new RouteAttributes(componentUri);
         }
 
         /// <summary>

@@ -62,15 +62,16 @@ namespace Kyameru.Component.Slack.Tests
             {
                 return this.logger.Object;
             });
-
+            
             Inflator inflator = new Inflator();
             inflator.RegisterTo(serviceDescriptors);
             if(tryFrom)
             {
                 inflator.RegisterFrom(serviceDescriptors);
             }
-
+            
             return serviceDescriptors;
+            
         }
 
         private IServiceProvider GetServiceProvider()

@@ -26,7 +26,7 @@ namespace Kyameru.Component.File.Tests
             Assert.NotNull(message.Error);
         }
 
-        public void Init()
+        private void Init()
         {
             this.fileUtils.Reset();
             this.fileUtils.Setup(x => x.CopyFile(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Throws(new NotImplementedException());
