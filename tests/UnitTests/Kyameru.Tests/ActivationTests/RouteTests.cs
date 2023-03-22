@@ -1,30 +1,29 @@
 ﻿using Kyameru.Core.Contracts;
 using Moq;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Kyameru.Tests.ActivationTests
 {
-    [TestFixture(Category = "ActivationTests")]
     public class RouteTests
     {
         private readonly Mock<IErrorComponent> errorComponent = new Mock<IErrorComponent>();
         private readonly Mock<IProcessComponent> processingComponent = new Mock<IProcessComponent>();
 
-        [Test]
+        [Fact]
         public void CanAddHeader()
         {
             Core.RouteBuilder route = this.CreateRoute();
             route.AddHeader("Test", "Test");
-            Assert.IsTrue(route.ComponentCount == 1);
+            Assert.True(route.ComponentCount == 1);
         }
 
-        [Test]
+        [Fact]
         public void CanAddHeaderAction()
         {
             Core.RouteBuilder route = this.CreateRoute();
@@ -32,10 +31,10 @@ namespace Kyameru.Tests.ActivationTests
             {
                 return x.Headers["Target"];
             });
-            Assert.IsTrue(route.ComponentCount == 1);
+            Assert.True(route.ComponentCount == 1);
         }
 
-        [Test]
+        [Fact]
         public void CanAddHeaderActionTwo()
         {
             Core.RouteBuilder route = this.CreateRoute();
@@ -43,49 +42,49 @@ namespace Kyameru.Tests.ActivationTests
             {
                 return "World";
             });
-            Assert.IsTrue(route.ComponentCount == 1);
+            Assert.True(route.ComponentCount == 1);
         }
 
-        [Test]
+        [Fact]
         public void CanAddProcessingComponent()
         {
             Core.RouteBuilder route = this.CreateRoute();
             route.Process(this.processingComponent.Object);
-            Assert.IsTrue(route.ComponentCount == 1);
+            Assert.True(route.ComponentCount == 1);
         }
 
-        [Test]
+        [Fact]
         public void CanCreateTo()
         {
             Core.Builder builder = this.CreateTo(this.CreateRoute());
-            Assert.IsTrue(builder.ToComponentCount == 1);
+            Assert.True(builder.ToComponentCount == 1);
         }
 
-        [Test]
+        [Fact]
         public void CanChainTwoTo()
         {
             Core.Builder builder = this.CreateTo(this.CreateRoute());
             builder.To("test://world?myHeader=Test");
-            Assert.IsTrue(builder.ToComponentCount == 2);
+            Assert.True(builder.ToComponentCount == 2);
         }
 
-        [Test]
+        [Fact]
         public void CanSetupError()
         {
             Core.Builder builder = this.CreateTo(this.CreateRoute());
             builder.Error(this.errorComponent.Object);
-            Assert.IsTrue(builder.WillProcessError);
+            Assert.True(builder.WillProcessError);
         }
 
-        [Test]
+        [Fact]
         public void CanSetupAtomic()
         {
             Core.Builder builder = this.CreateTo(this.CreateRoute());
             builder = this.CreateAtomic(builder);
-            Assert.IsTrue(builder.IsAtomic);
+            Assert.True(builder.IsAtomic);
         }
 
-        [Test]
+        [Fact]
         public void RouteBuilderThrowsException()
         {
             Assert.Throws<Core.Exceptions.RouteUriException>(() => { this.CreateRoute(string.Empty); });
