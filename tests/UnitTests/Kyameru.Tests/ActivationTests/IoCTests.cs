@@ -146,21 +146,21 @@ namespace Kyameru.Facts.ActivationFacts
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
             if (multiChain)
             {
-                Kyameru.Route.From("Fact://hello")
+                Kyameru.Route.From("Test://hello")
                     .Process(this.processComponent.Object)
                     .Process(this.processComponent.Object)
-                    .To("Fact://world")
-                    .To("Fact://kyameru")
-                    .Atomic("Fact://plop")
+                    .To("Test://world")
+                    .To("Test://kyameru")
+                    .Atomic("Test://plop")
                     .Error(this.errorComponent.Object)
                     .Id("WillNotExecute")
                     .Build(serviceCollection);
             }
             else
             {
-                Kyameru.Route.From("Fact://hello")
+                Kyameru.Route.From("Test://hello")
                     .Process(this.processComponent.Object)
-                    .To("Fact://world")
+                    .To("Test://world")
                     .Build(serviceCollection);
             }
             IServiceProvider provider = serviceCollection.BuildServiceProvider();
@@ -170,14 +170,14 @@ namespace Kyameru.Facts.ActivationFacts
         private IEnumerable<IHostedService> AddTwoRoutes()
         {
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
-            Kyameru.Route.From("Fact://first")
+            Kyameru.Route.From("Test://first")
                     .Process(this.processComponent.Object)
-                    .To("Fact://world")
+                    .To("Test://world")
                     .Build(serviceCollection);
 
-            Kyameru.Route.From("Fact://second")
+            Kyameru.Route.From("Test://second")
                     .Process(this.processComponent.Object)
-                    .To("Fact://world")
+                    .To("Test://world")
                     .Build(serviceCollection);
             IServiceProvider provider = serviceCollection.BuildServiceProvider();
             return provider.GetServices<IHostedService>();
@@ -186,10 +186,10 @@ namespace Kyameru.Facts.ActivationFacts
         private IHostedService SetupDIComponent()
         {
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
-            Kyameru.Route.From("Fact://hello")
+            Kyameru.Route.From("Test://hello")
                 .Process<Tests.Mocks.IMyComponent>()
                 .Process(this.diProcessor.Object)
-                .To("Fact://world")
+                .To("Test://world")
                 .Build(serviceCollection);
 
             IServiceProvider provider = serviceCollection.BuildServiceProvider();
@@ -199,9 +199,9 @@ namespace Kyameru.Facts.ActivationFacts
         private IHostedService GetNoErrorChain()
         {
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
-            Kyameru.Route.From("Fact://hello")
-                .To("Fact://world")
-                .Atomic("Fact://boom")
+            Kyameru.Route.From("Test://hello")
+                .To("Test://world")
+                .Atomic("Test://boom")
                 .Build(serviceCollection);
             IServiceProvider provider = serviceCollection.BuildServiceProvider();
             return provider.GetService<IHostedService>();
@@ -212,23 +212,23 @@ namespace Kyameru.Facts.ActivationFacts
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
             if (!dual)
             {
-                Route.From("Fact://hello")
+                Route.From("Test://hello")
                     .AddHeader("One", () =>
                     {
                         throw new NotImplementedException("whoops");
                     })
-                    .To("Fact://world")
+                    .To("Test://world")
                     .Error(this.errorComponent.Object)
                     .Build(serviceCollection);
             }
             else
             {
-                Route.From("Fact://hello")
+                Route.From("Test://hello")
                     .AddHeader("One", (x) =>
                     {
                         throw new NotImplementedException("whoops");
                     })
-                    .To("Fact://world")
+                    .To("Test://world")
                     .Error(this.errorComponent.Object)
                     .Build(serviceCollection);
             }
