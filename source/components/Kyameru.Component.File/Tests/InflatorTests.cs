@@ -1,23 +1,21 @@
-﻿using NUnit.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Xunit;
 
 namespace Kyameru.Component.File.Tests
 {
-    [TestFixture]
     public class InflatorTests
     {
         private IServiceProvider serviceProvider;
         private ServiceHelper serviceHelper = new ServiceHelper();
 
-        [SetUp]
-        public void Init()
+        public InflatorTests()
         {
             this.serviceProvider = this.serviceHelper.GetServiceProvider();
         }
 
-        [Test]
+        [Fact]
         public void CanGetFrom()
         {
             Dictionary<string, string> headers = new Dictionary<string, string>()
@@ -31,7 +29,7 @@ namespace Kyameru.Component.File.Tests
             Assert.NotNull(inflator.CreateFromComponent(headers, false, this.serviceProvider));
         }
 
-        [Test]
+        [Fact]
         public void CanGetTo()
         {
             Dictionary<string, string> headers = new Dictionary<string, string>()
@@ -45,7 +43,7 @@ namespace Kyameru.Component.File.Tests
             Assert.NotNull(inflator.CreateToComponent(headers, this.serviceProvider));
         }
 
-        [Test]
+        [Fact]
         public void AtomicThrows()
         {
             Inflator inflator = new Inflator();

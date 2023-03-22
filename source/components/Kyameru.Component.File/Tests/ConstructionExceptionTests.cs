@@ -1,24 +1,22 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using NUnit.Framework;
+using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Kyameru.Component.File.Tests
 {
-    [TestFixture(Category = "Exception Tests")]
     public class ConstructionExceptionTests
     {
-        private IServiceProvider serviceProvider;
+        private readonly IServiceProvider serviceProvider;
         private ServiceHelper serviceHelper = new ServiceHelper();
 
-        [OneTimeSetUp]
-        public void Init()
+        public ConstructionExceptionTests()
         {
             this.serviceProvider = this.serviceHelper.GetServiceProvider();
         }
 
-        [Test]
+        [Fact]
         public void EmptyTargetThrowsError()
         {
             Dictionary<string, string> headers = new Dictionary<string, string>()
@@ -30,7 +28,7 @@ namespace Kyameru.Component.File.Tests
             Assert.Throws<ArgumentException>(() => _ = inflator.CreateFromComponent(headers, false, this.serviceProvider));
         }
 
-        [Test]
+        [Fact]
         public void EmptyNotificationsThrowsError()
         {
             Dictionary<string, string> headers = new Dictionary<string, string>()

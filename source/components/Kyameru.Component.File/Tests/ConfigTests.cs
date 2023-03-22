@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using NUnit.Framework;
+using Xunit;
 
 namespace Kyameru.Component.File.Tests
 {
-    [TestFixture]
     public class ConfigTests
     {
         private string[] optionalFrom = new string[] { "Filter", "SubDirectories", "InitialScan", "Ignore", "IgnoreStrings" };
 
-        [Test]
+        [Fact]
         public void FromDefaultsWork()
         {
             Dictionary<string, string> headers = new Dictionary<string, string>()
@@ -19,7 +18,7 @@ namespace Kyameru.Component.File.Tests
             };
 
             Dictionary<string, string> resolved = headers.ToFromConfig();
-            Assert.IsTrue(this.ValidateFromHeaders(resolved));
+            Assert.True(this.ValidateFromHeaders(resolved));
         }
 
 

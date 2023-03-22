@@ -57,17 +57,16 @@ namespace Kyameru.Component.Ftp.Tests
 
         private IServiceCollection GetServiceDescriptors()
         {
-
             IServiceCollection serviceDescriptors = new ServiceCollection();
             serviceDescriptors.AddTransient<ILogger<Kyameru.Route>>(sp =>
             {
                 return this.logger.Object;
             });
-
+            
             Inflator inflator = new Inflator();
             inflator.RegisterTo(serviceDescriptors);
             inflator.RegisterFrom(serviceDescriptors);
-
+            
             return serviceDescriptors;
         }
 

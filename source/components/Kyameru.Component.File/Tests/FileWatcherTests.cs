@@ -1,6 +1,5 @@
 ﻿using Kyameru.Core.Entities;
 using Moq;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,10 +7,10 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using Kyameru.Component.File.Utilities;
+using Xunit;
 
 namespace Kyameru.Component.File.Tests
 {
-    [TestFixture]
     public class FileWatcherTests
     {
         private readonly string location;
@@ -22,7 +21,7 @@ namespace Kyameru.Component.File.Tests
             this.location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/test";
         }
 
-        [Test]
+        [Fact]
         public void CreatedWorks()
         {
             this.CheckFile("created.tdd");
@@ -42,10 +41,10 @@ namespace Kyameru.Component.File.Tests
             this.fileSystemWatcher.Raise(x => x.Created += null, new FileSystemEventArgs(WatcherChangeTypes.Created, this.location, "Created.tdd"));
             bool wasAssigned = resetEvent.WaitOne(TimeSpan.FromSeconds(5));
             from.Stop();
-            Assert.IsTrue(!string.IsNullOrWhiteSpace(method));
+            Assert.True(!string.IsNullOrWhiteSpace(method));
         }
 
-        [Test]
+        [Fact]
         public void ChangedWorks()
         {
             string filename = $"{Guid.NewGuid().ToString("N")}.txt";
@@ -66,12 +65,12 @@ namespace Kyameru.Component.File.Tests
             System.IO.File.WriteAllText($"{this.location}/{filename}", "more data added");
             this.fileSystemWatcher.Raise(x => x.Changed += null, new FileSystemEventArgs(WatcherChangeTypes.Changed, this.location, filename));
             bool wasAssigned = resetEvent.WaitOne(TimeSpan.FromSeconds(5));
-            Assert.AreEqual("Changed", method);
+            Assert.Equal("Changed", method);
         }
 
-        [Test]
-        [TestCase("true", 21)]
-        [TestCase("false", 1)]
+        [Theory]
+        [InlineData("true", 21)]
+        [InlineData("false", 1)]
         public void ScannerWorks(string subDirectories, int expected)
         {
             string contents = "test data";
@@ -104,12 +103,12 @@ namespace Kyameru.Component.File.Tests
             from.Setup();
             from.Start();
             resetEvent.WaitOne(TimeSpan.FromSeconds(5));
-            Assert.AreEqual(expected, count);
+            Assert.Equal(expected, count);
         }
 
-        [Test]
-        [TestCase("in|inner", "")]
-        [TestCase("", ".stuff|stuffing")]
+        [Theory]
+        [InlineData("in|inner", "")]
+        [InlineData("", ".stuff|stuffing")]
         public void IgnoreWorks(string directories, string strings)
         {
             string contents = "test data";
@@ -141,7 +140,7 @@ namespace Kyameru.Component.File.Tests
             from.Setup();
             from.Start();
             resetEvent.WaitOne(TimeSpan.FromSeconds(5));
-            Assert.AreEqual(0, count);
+            Assert.Equal(0, count);
         }
 
         public File.FileWatcher Setup(
