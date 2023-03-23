@@ -20,7 +20,7 @@ namespace Kyameru.Component.Test
         public void Process(Routable item)
         {
             this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "ATOMIC"));
-            GlobalCalls.Calls.Add("ATOMIC");
+            GlobalCalls.AddCall(item.Headers["TestName"], "ATOMIC");
         }
     }
 }

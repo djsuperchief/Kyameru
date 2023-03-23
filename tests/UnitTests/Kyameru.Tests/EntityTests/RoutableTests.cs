@@ -63,6 +63,7 @@ namespace Kyameru.Tests.EntityTests
         [InlineData("ATOMIC", false)]
         public async Task ProcessExitWorks(string call, bool setupComponent)
         {
+            string testName = $"ProcessExitWorks_{call}";
             this.component.Reset();
             this.component.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
             {
@@ -73,7 +74,7 @@ namespace Kyameru.Tests.EntityTests
                 }
             });
 
-            Assert.False(await this.RunProcess(call));
+            Assert.False(await this.RunProcess(call, testName));
         }
 
         public static IEnumerable<object[]> BodyTestCases()
@@ -82,14 +83,13 @@ namespace Kyameru.Tests.EntityTests
             yield return new object[] { new BodyTests<int>(1, "Int32") };
         }
 
-        private async Task<bool> RunProcess(string callsContain)
+        private async Task<bool> RunProcess(string callsContain, string test)
         {
-            Component.Test.GlobalCalls.Calls.Clear();
-            IHostedService service = this.GetRoute();
+            IHostedService service = this.GetRoute(test);
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
 
-            return Kyameru.Component.Test.GlobalCalls.Calls.Contains(callsContain);
+            return Kyameru.Component.Test.GlobalCalls.CallDict[test].Contains(callsContain);
         }
 
         private Routable CreateMessage()
@@ -100,10 +100,10 @@ namespace Kyameru.Tests.EntityTests
             }, "test");
         }
 
-        private IHostedService GetRoute()
+        private IHostedService GetRoute(string test)
         {
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
-            Kyameru.Route.From("test://hello")
+            Kyameru.Route.From($"test://hello?TestName={test}")
                 .Process(this.component.Object)
                 .To("test://world")
                 .Atomic("test://boom")
