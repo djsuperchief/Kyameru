@@ -24,7 +24,11 @@ namespace Kyameru.Facts.ActivationFacts
 
         public IoCFacts()
         {
-            Init();
+            this.callPoints.Add("FROM", 1);
+            this.callPoints.Add("TO", 2);
+            this.callPoints.Add("ATOMIC", 3);
+            this.callPoints.Add("COMPONENT", 4);
+            this.callPoints.Add("ERROR", 5);
         }
 
         [Fact]
@@ -115,18 +119,7 @@ namespace Kyameru.Facts.ActivationFacts
             Assert.Equal(2, calls);
         }
 
-        #region Setup
-
-        public void Init()
-        {
-
-
-            this.callPoints.Add("FROM", 1);
-            this.callPoints.Add("TO", 2);
-            this.callPoints.Add("ATOMIC", 3);
-            this.callPoints.Add("COMPONENT", 4);
-            this.callPoints.Add("ERROR", 5);
-        }
+        #region Helpers
 
         private int GetCallCount(string test)
         {
@@ -250,6 +243,6 @@ namespace Kyameru.Facts.ActivationFacts
             return serviceCollection;
         }
 
-        #endregion Setup
+        #endregion Helpers
     }
 }
