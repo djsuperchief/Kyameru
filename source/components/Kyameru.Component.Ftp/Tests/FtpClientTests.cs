@@ -2,21 +2,20 @@
 using Kyameru.Component.Ftp.Settings;
 using Kyameru.Core.Entities;
 using Moq;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using Xunit;
 
 namespace Kyameru.Component.Ftp.Tests
 {
-    [TestFixture]
     public class FtpClientTests
     {
         private readonly Mock<IWebRequestUtility> webRequestUtility = new Mock<IWebRequestUtility>();
 
-        [Test]
+        [Fact]
         public void UploadThrowsError()
         {
             this.webRequestUtility.Reset();
@@ -34,7 +33,7 @@ namespace Kyameru.Component.Ftp.Tests
 
         }
 
-        [Test]
+        [Fact]
         public void GetDirectoryContentsErrors()
         {
             AutoResetEvent resetEvent = new AutoResetEvent(false);
@@ -59,7 +58,7 @@ namespace Kyameru.Component.Ftp.Tests
 
         }
 
-        [Test]
+        [Fact]
         public void DownloadFileErrors()
         {
             AutoResetEvent resetEvent = new AutoResetEvent(false);
@@ -85,13 +84,13 @@ namespace Kyameru.Component.Ftp.Tests
 
         }
 
-        [Test]
+        [Fact]
         public void DeleteFileErrors()
         {
             AutoResetEvent resetEvent = new AutoResetEvent(false);
             this.webRequestUtility.Reset();
             this.webRequestUtility.Setup(x => x.GetDirectoryContents(It.IsAny<FtpSettings>())).Returns(new List<string>() { "file.txt" });
-            this.webRequestUtility.Setup(x => x.DeleteFile(It.IsAny<FtpSettings>(),It.IsAny<string>(),It.IsAny<bool>())).Throws(new OutOfMemoryException());
+            this.webRequestUtility.Setup(x => x.DeleteFile(It.IsAny<FtpSettings>(), It.IsAny<string>(), It.IsAny<bool>())).Throws(new OutOfMemoryException());
             RouteAttributes route = new RouteAttributes($"ftp://test:banana@127.0.0.1/out&Delete=true&PollTime=1");
             From from = new From(route.Headers, webRequestUtility.Object);
             bool errorThrown = false;

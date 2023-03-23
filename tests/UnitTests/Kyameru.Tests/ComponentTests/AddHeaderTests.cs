@@ -1,24 +1,23 @@
 ﻿using Kyameru.Core.Entities;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Xunit;
 
 namespace Kyameru.Tests.ComponentTests
 {
-    [TestFixture(Category = "Components")]
     public class AddHeaderTests
     {
-        [Test]
+        [Fact]
         public void CanProcessString()
         {
             Kyameru.Core.BaseComponents.AddHeader header = new Core.BaseComponents.AddHeader("Processing", "String");
             Routable routable = new Routable(new Dictionary<string, string>(), "Test");
             header.Process(routable);
-            Assert.AreEqual("String", routable.Headers["Processing"]);
+            Assert.Equal("String", routable.Headers["Processing"]);
         }
 
-        [Test]
+        [Fact]
         public void CanProcessCallbackOne()
         {
             Kyameru.Core.BaseComponents.AddHeader header = new Core.BaseComponents.AddHeader("Processing", () =>
@@ -27,10 +26,10 @@ namespace Kyameru.Tests.ComponentTests
             });
             Routable routable = new Routable(new Dictionary<string, string>(), "Test");
             header.Process(routable);
-            Assert.AreEqual("CallbackOne", routable.Headers["Processing"]);
+            Assert.Equal("CallbackOne", routable.Headers["Processing"]);
         }
 
-        [Test]
+        [Fact]
         public void CanProcessCallbackTwo()
         {
             Kyameru.Core.BaseComponents.AddHeader header = new Core.BaseComponents.AddHeader("Processing", (x) =>
@@ -39,10 +38,10 @@ namespace Kyameru.Tests.ComponentTests
             });
             Routable routable = new Routable(new Dictionary<string, string>() { { "Target", "drive" } }, "Test");
             header.Process(routable);
-            Assert.AreEqual("drive", routable.Headers["Processing"]);
+            Assert.Equal("drive", routable.Headers["Processing"]);
         }
 
-        [Test]
+        [Fact]
         public void SetErrorWorks()
         {
             Kyameru.Core.BaseComponents.AddHeader header = new Core.BaseComponents.AddHeader("Processing", (x) =>

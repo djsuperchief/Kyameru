@@ -9,24 +9,23 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Kyameru.Tests.EntityTests
 {
-    [TestFixture]
     public class RoutableTests
     {
         private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
         private readonly Mock<IProcessComponent> component = new Mock<IProcessComponent>();
 
-        [Test]
+        [Fact]
         public void CreatedHeaderError()
         {
             Routable routable = this.CreateMessage();
             Assert.Throws<Kyameru.Core.Exceptions.CoreException>(() => routable.SetHeader("Test", "changed"));
         }
 
-        [Test]
+        [Fact]
         public void UserImmutableThrowsHeader()
         {
             Routable routable = this.CreateMessage();
@@ -34,34 +33,34 @@ namespace Kyameru.Tests.EntityTests
             Assert.Throws<Kyameru.Core.Exceptions.CoreException>(() => routable.SetHeader("Nope", "yep"));
         }
 
-        [Test]
+        [Fact]
         public void UserMutableWorks()
         {
             Routable routable = this.CreateMessage();
             routable.SetHeader("FileType", "txt");
             routable.SetHeader("FileType", "jpg");
-            Assert.AreEqual("jpg", routable.Headers["FileType"]);
+            Assert.Equal("jpg", routable.Headers["FileType"]);
         }
 
-        [Test]
+        [Fact]
         public void SetBodyWorks()
         {
             string body = "body text";
             Routable routable = this.CreateMessage();
             routable.SetBody<string>(body);
-            Assert.AreEqual(body, routable.Body);
+            Assert.Equal(body, routable.Body);
         }
 
-        [Test]
-        [TestCaseSource("BodyTestCases")]
+        [Theory]
+        [MemberData(nameof(BodyTestCases))]
         public void SetBodyWorksWithHeader(IBodyTests bodyTest)
         {
-            Assert.IsTrue(bodyTest.IsEqual(this.CreateMessage()));
+            Assert.True(bodyTest.IsEqual(this.CreateMessage()));
         }
 
-        [Test]
-        [TestCase("TO", true)]
-        [TestCase("ATOMIC", false)]
+        [Theory]
+        [InlineData("TO", true)]
+        [InlineData("ATOMIC", false)]
         public async Task ProcessExitWorks(string call, bool setupComponent)
         {
             this.component.Reset();
@@ -74,13 +73,13 @@ namespace Kyameru.Tests.EntityTests
                 }
             });
 
-            Assert.IsFalse(await this.RunProcess(call));
+            Assert.False(await this.RunProcess(call));
         }
 
-        public static IEnumerable<IBodyTests> BodyTestCases()
+        public static IEnumerable<object[]> BodyTestCases()
         {
-            yield return new BodyTests<string>("test", "String");
-            yield return new BodyTests<int>(1, "Int32");
+            yield return new object[] { new BodyTests<string>("test", "String") };
+            yield return new object[] { new BodyTests<int>(1, "Int32") };
         }
 
         private async Task<bool> RunProcess(string callsContain)

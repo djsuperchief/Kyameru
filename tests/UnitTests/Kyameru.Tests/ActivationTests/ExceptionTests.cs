@@ -5,23 +5,22 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Kyameru.Tests.ActivationTests
 {
-    [TestFixture(Category = "Exceptions")]
     public class ExceptionTests
     {
         private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
         private readonly Mock<IErrorComponent> errorComponent = new Mock<IErrorComponent>();
         private readonly Mock<IProcessComponent> processComponent = new Mock<IProcessComponent>();
 
-        [Test]
+        [Fact]
         public async Task FromException()
         {
             Routable routable = null;
@@ -37,10 +36,10 @@ namespace Kyameru.Tests.ActivationTests
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
 
-            Assert.IsNull(routable);
+            Assert.Null(routable);
         }
 
-        [Test]
+        [Fact]
         public async Task ComponentError()
         {
             Routable routable = null;
@@ -60,10 +59,10 @@ namespace Kyameru.Tests.ActivationTests
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
 
-            Assert.IsTrue(this.IsInError(routable, "Processing component"));
+            Assert.True(this.IsInError(routable, "Processing component"));
         }
 
-        [Test]
+        [Fact]
         public async Task ToError()
         {
             Routable routable = null;
@@ -79,10 +78,10 @@ namespace Kyameru.Tests.ActivationTests
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
 
-            Assert.IsTrue(this.IsInError(routable, "To Component"));
+            Assert.True(this.IsInError(routable, "To Component"));
         }
 
-        [Test]
+        [Fact]
         public async Task AtomicError()
         {
             Routable routable = null;
@@ -98,10 +97,10 @@ namespace Kyameru.Tests.ActivationTests
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
 
-            Assert.IsTrue(this.IsInError(routable, "Atomic Component"));
+            Assert.True(this.IsInError(routable, "Atomic Component"));
         }
 
-        [Test]
+        [Fact]
         public async Task ErrorComponentErrors()
         {
             Routable routable = null;
@@ -116,7 +115,7 @@ namespace Kyameru.Tests.ActivationTests
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
 
-            Assert.IsTrue(this.IsInError(routable, "Error Component"));
+            Assert.True(this.IsInError(routable, "Error Component"));
         }
 
         private bool IsInError(Routable routable, string component)

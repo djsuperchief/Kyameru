@@ -3,24 +3,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Kyameru.Tests.ActivationTests
 {
-    [TestFixture]
+
     public class ActivationExceptionTests
     {
         private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
 
-        [Test]
-        [TestCase("RegisterFromServices", "invalid", "test", "test")]
-        [TestCase("Atomic", "test", "invalid", "test")]
-        [TestCase("RegisterToServices", "test", "test", "invalid")]
+        [Theory]
+        [InlineData("RegisterFromServices", "invalid", "test", "test")]
+        [InlineData("Atomic", "test", "invalid", "test")]
+        [InlineData("RegisterToServices", "test", "test", "invalid")]
         public void ComponentInvalid(string expected, string from, string atomic, string to)
         {
             string errorComponent = string.Empty;
@@ -32,7 +32,7 @@ namespace Kyameru.Tests.ActivationTests
             {
                 errorComponent = ex.Component;
             }
-            Assert.AreEqual(expected, errorComponent);
+            Assert.Equal(expected, errorComponent);
         }
 
         private IHostedService GetHostedService(

@@ -6,17 +6,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Kyameru.Tests.ActivationTests
 {
-    [TestFixture(Category = "IoC")]
     public class InjectedComponentsTests
     {
         private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
         private readonly Mock<IProcessComponent> processComponent = new Mock<IProcessComponent>();
 
-        [Test]
+        [Fact]
         public async Task CanActivateAndRun()
         {
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
@@ -38,12 +37,12 @@ namespace Kyameru.Tests.ActivationTests
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
 
-            Assert.AreEqual("Injected Test Complete", routable?.Body);
+            Assert.Equal("Injected Test Complete", routable?.Body);
         }
 
-        [Test]
-        [TestCase("from", "Error activating from component.")]
-        [TestCase("to", "Error activating to component.")]
+        [Theory]
+        [InlineData("from", "Error activating from component.")]
+        [InlineData("to", "Error activating to component.")]
         public async Task CanComponentsStart(string componentToError, string expected)
         {
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
@@ -62,12 +61,12 @@ namespace Kyameru.Tests.ActivationTests
                 await service.StartAsync(CancellationToken.None);
                 await service.StopAsync(CancellationToken.None);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 actual = ex.Message;
             }
 
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
         private IServiceCollection GetServiceDescriptors()
@@ -83,5 +82,5 @@ namespace Kyameru.Tests.ActivationTests
         }
     }
 
-    
+
 }
