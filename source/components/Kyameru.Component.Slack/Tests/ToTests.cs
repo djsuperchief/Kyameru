@@ -1,29 +1,28 @@
 ﻿using Kyameru.Core.Entities;
 using Moq;
 using Moq.Protected;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Kyameru.Component.Slack.Tests
 {
-    [TestFixture]
     public class ToTests
     {
-        [Test]
+        [Fact]
         public void CanSendMessageFromBody()
         {
             SlackTo slackTo = this.GetComponent("Body", this.SetupOkHandler());
             Routable routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
             slackTo.Process(routable);
-            Assert.IsNull(routable.Error);
+            Assert.Null(routable.Error);
         }
 
-        [Test]
+        [Fact]
         public void SendMessageInError()
         {
             SlackTo slackTo = this.GetComponent("Body", this.SetupErrorHandler());
@@ -32,7 +31,7 @@ namespace Kyameru.Component.Slack.Tests
             Assert.NotNull(routable.Error);
         }
 
-        [Test]
+        [Fact]
         public void CanSendMessageFromHeader()
         {
             Dictionary<string, string> headers = new Dictionary<string, string>()
@@ -42,25 +41,26 @@ namespace Kyameru.Component.Slack.Tests
             SlackTo slackTo = this.GetComponent("Header", this.SetupOkHandler());
             Routable routable = new Routable(headers, "This is a slack message");
             slackTo.Process(routable);
-            Assert.IsNull(routable.Error);
+            Assert.Null(routable.Error);
         }
 
-        [Test]
+        [Fact]
         public void LoggingIsTriggered()
         {
             bool callbackMade = false;
             SlackTo slackTo = this.GetComponent("Body", this.SetupOkHandler());
             Routable routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
-            slackTo.OnLog += delegate(object sender, Log log) {
+            slackTo.OnLog += delegate (object sender, Log log)
+            {
                 callbackMade = true;
-	        };
+            };
             slackTo.Process(routable);
-            Assert.IsTrue(callbackMade);
+            Assert.True(callbackMade);
 
         }
 
 
-        [Test]
+        [Fact]
         public void BlankHeaderErrors()
         {
             SlackTo slackTo = this.GetComponent("Header", this.SetupOkHandler());
