@@ -2,20 +2,18 @@
 using Kyameru.Component.Ftp.Settings;
 using Kyameru.Core.Entities;
 using Moq;
-using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using Xunit;
 
 namespace Kyameru.Component.Ftp.Tests.Routes
 {
-    [TestFixture(Category = "Routes")]
     public class FromTests
     {
-        [Test]
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void FromDownloadsAndDeletes(bool deletes)
         {
             Mock<IWebRequestUtility> webRequestFactory = this.GetWebRequest();
@@ -40,14 +38,14 @@ namespace Kyameru.Component.Ftp.Tests.Routes
 
             autoReset.WaitOne(60000);
 
-            Assert.AreEqual("Hello ftp", Encoding.UTF8.GetString((byte[])routable.Body));
+            Assert.Equal("Hello ftp", Encoding.UTF8.GetString((byte[])routable.Body));
             webRequestFactory.Verify(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>()), times);
             from.Stop();
             Assert.False(from.PollerIsActive);
-            
+
         }
 
-        [Test]
+        [Fact]
         public void WebRequestLogIsHandled()
         {
             bool hasLogged = false;
@@ -60,7 +58,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             };
 
             webRequestFactory.Raise(x => x.OnLog += null, this, "test");
-            Assert.IsTrue(hasLogged);
+            Assert.True(hasLogged);
         }
 
         public Mock<IWebRequestUtility> GetWebRequest()

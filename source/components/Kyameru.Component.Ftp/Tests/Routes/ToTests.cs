@@ -3,20 +3,19 @@ using Kyameru.Component.Ftp.Settings;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Xunit;
 
 namespace Kyameru.Component.Ftp.Tests.Routes
 {
-    [TestFixture(Category = "Routes")]
     public class ToTests
     {
-        [Test]
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void CanUploadFile(bool stringBody)
         {
             Mock<IWebRequestUtility> webRequestUtility = this.GetWebRequest();
@@ -27,7 +26,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             },
             Encoding.UTF8.GetBytes("Hello")
             );
-            if(stringBody)
+            if (stringBody)
             {
                 routable.SetBody<string>("Hello");
             }
@@ -36,19 +35,19 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             webRequestUtility.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void CanUploadAndArchive()
         {
             Mock<IWebRequestUtility> webRequestUtility = this.GetWebRequest();
             To to = new To(this.GetRoute(true, "File").Headers, webRequestUtility.Object);
             Routable routable = this.WriteFile();
             to.Process(routable);
-            Assert.IsTrue(System.IO.File.Exists("MockOut/Archive/test.txt"));
+            Assert.True(System.IO.File.Exists("MockOut/Archive/test.txt"));
         }
 
-        [Test]
-        [TestCase(LogLevel.Information)]
-        [TestCase(LogLevel.Error)]
+        [Theory]
+        [InlineData(LogLevel.Information)]
+        [InlineData(LogLevel.Error)]
         public void CorrectLogRecieved(LogLevel logLevel)
         {
             LogLevel recieved = LogLevel.Debug;
@@ -72,7 +71,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             };
 
             to.Process(routable);
-            Assert.AreEqual(logLevel, recieved);
+            Assert.Equal(logLevel, recieved);
         }
 
         private void To_OnLog(object sender, Log e)

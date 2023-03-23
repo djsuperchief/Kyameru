@@ -3,20 +3,19 @@ using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Xunit;
 
 namespace Kyameru.Component.Ftp.Tests
 {
-    [TestFixture]
     public class InflatorTests
     {
         private readonly Mock<ILogger<Kyameru.Route>> logger = new Mock<ILogger<Route>>();
 
 
-        [Test]
+        [Fact]
         public void ActivateFromWorks()
         {
             IServiceProvider serviceProvider = this.GetServiceProvider();
@@ -24,14 +23,14 @@ namespace Kyameru.Component.Ftp.Tests
             Assert.NotNull(fromComponent);
         }
 
-        [Test]
+        [Fact]
         public void AtomicThrows()
         {
             IServiceProvider serviceProvider = this.GetServiceProvider();
             Assert.Throws<NotImplementedException>(() => new Ftp.Inflator().CreateAtomicComponent(this.GetHeaders()));
         }
 
-        [Test]
+        [Fact]
         public void ActivateToWorks()
         {
             IServiceProvider serviceProvider = this.GetServiceProvider();
@@ -62,11 +61,11 @@ namespace Kyameru.Component.Ftp.Tests
             {
                 return this.logger.Object;
             });
-            
+
             Inflator inflator = new Inflator();
             inflator.RegisterTo(serviceDescriptors);
             inflator.RegisterFrom(serviceDescriptors);
-            
+
             return serviceDescriptors;
         }
 
