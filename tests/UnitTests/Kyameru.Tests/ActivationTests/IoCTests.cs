@@ -24,24 +24,28 @@ namespace Kyameru.Facts.ActivationFacts
 
         public IoCFacts()
         {
-            Init();
+            this.callPoints.Add("FROM", 1);
+            this.callPoints.Add("TO", 2);
+            this.callPoints.Add("ATOMIC", 3);
+            this.callPoints.Add("COMPONENT", 4);
+            this.callPoints.Add("ERROR", 5);
         }
 
         [Fact]
         public void CanSetupFullFact()
         {
-            Assert.NotNull(this.AddComponent());
+            Assert.NotNull(this.AddComponent("CanSetupFullFact"));
         }
 
         [Fact]
         public async Task CanExecute()
         {
-            Component.Test.GlobalCalls.Calls.Clear();
-            IHostedService service = this.AddComponent();
+            Component.Test.GlobalCalls.Clear("CanExecute");
+            IHostedService service = this.AddComponent("CanExecute");
 
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
-            Assert.Equal(7, this.GetCallCount());
+            Assert.Equal(7, this.GetCallCount("CanExecute"));
         }
 
         [Fact]
@@ -65,22 +69,20 @@ namespace Kyameru.Facts.ActivationFacts
         [Fact]
         public async Task CanExecuteMultipleChains()
         {
-            Component.Test.GlobalCalls.Calls.Clear();
-            IHostedService service = this.AddComponent(true);
+            IHostedService service = this.AddComponent("CanExecuteMultipleChains", true);
 
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
-            Assert.Equal(20, this.GetCallCount());
+            Assert.Equal(20, this.GetCallCount("CanExecuteMultipleChains"));
         }
 
         [Fact]
         public async Task CanExecuteAtomic()
         {
-            Component.Test.GlobalCalls.Calls.Clear();
-            IHostedService service = this.GetNoErrorChain();
+            IHostedService service = this.GetNoErrorChain("CanExecuteAtomic");
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
-            Assert.Equal(6, this.GetCallCount());
+            Assert.Equal(6, this.GetCallCount("CanExecuteAtomic"));
         }
 
         [Theory]
@@ -88,11 +90,12 @@ namespace Kyameru.Facts.ActivationFacts
         [InlineData(false)]
         public async Task AddHeaderErrors(bool secondFunction)
         {
-            Component.Test.GlobalCalls.Calls.Clear();
-            IHostedService service = this.GetHeaderError(secondFunction);
+            string testName = $"AddHeaderErrors_{secondFunction.ToString()}";
+            Component.Test.GlobalCalls.Clear(testName);
+            IHostedService service = this.GetHeaderError(secondFunction, testName);
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
-            Assert.Equal(6, this.GetCallCount());
+            Assert.Equal(1, this.GetCallCount(testName));
         }
 
         [Fact]
@@ -116,37 +119,29 @@ namespace Kyameru.Facts.ActivationFacts
             Assert.Equal(2, calls);
         }
 
-        #region Setup
+        #region Helpers
 
-        public void Init()
+        private int GetCallCount(string test)
         {
+            return Component.Test.GlobalCalls.CallDict[test].Sum(x => this.callPoints[x]);
+        }
+
+        private IHostedService AddComponent(string test, bool multiChain = false)
+        {
+            IServiceCollection serviceCollection = this.GetServiceDescriptors();
+
             this.processComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback(() =>
             {
-                Kyameru.Component.Test.GlobalCalls.Calls.Add("COMPONENT");
+                Kyameru.Component.Test.GlobalCalls.AddCall(test, "COMPONENT");
             });
             this.errorComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback(() =>
             {
-                Kyameru.Component.Test.GlobalCalls.Calls.Add("ERROR");
+                Kyameru.Component.Test.GlobalCalls.AddCall(test, "ERROR");
             });
 
-            this.callPoints.Add("FROM", 1);
-            this.callPoints.Add("TO", 2);
-            this.callPoints.Add("ATOMIC", 3);
-            this.callPoints.Add("COMPONENT", 4);
-            this.callPoints.Add("ERROR", 5);
-        }
-
-        private int GetCallCount()
-        {
-            return Component.Test.GlobalCalls.Calls.Where(this.callPoints.ContainsKey).Sum(x => this.callPoints[x]);
-        }
-
-        private IHostedService AddComponent(bool multiChain = false)
-        {
-            IServiceCollection serviceCollection = this.GetServiceDescriptors();
             if (multiChain)
             {
-                Kyameru.Route.From("Test://hello")
+                Kyameru.Route.From($"Test://hello?TestName={test}")
                     .Process(this.processComponent.Object)
                     .Process(this.processComponent.Object)
                     .To("Test://world")
@@ -158,7 +153,7 @@ namespace Kyameru.Facts.ActivationFacts
             }
             else
             {
-                Kyameru.Route.From("Test://hello")
+                Kyameru.Route.From($"Test://hello?TestName={test}")
                     .Process(this.processComponent.Object)
                     .To("Test://world")
                     .Build(serviceCollection);
@@ -170,12 +165,12 @@ namespace Kyameru.Facts.ActivationFacts
         private IEnumerable<IHostedService> AddTwoRoutes()
         {
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
-            Kyameru.Route.From("Test://first")
+            Kyameru.Route.From("Test://first?TestName=TwoRoutes")
                     .Process(this.processComponent.Object)
                     .To("Test://world")
                     .Build(serviceCollection);
 
-            Kyameru.Route.From("Test://second")
+            Kyameru.Route.From("Test://second?TestName=TwoRoutes")
                     .Process(this.processComponent.Object)
                     .To("Test://world")
                     .Build(serviceCollection);
@@ -186,7 +181,7 @@ namespace Kyameru.Facts.ActivationFacts
         private IHostedService SetupDIComponent()
         {
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
-            Kyameru.Route.From("Test://hello")
+            Kyameru.Route.From("Test://hello?TestName=DITest")
                 .Process<Tests.Mocks.IMyComponent>()
                 .Process(this.diProcessor.Object)
                 .To("Test://world")
@@ -196,10 +191,10 @@ namespace Kyameru.Facts.ActivationFacts
             return provider.GetService<IHostedService>();
         }
 
-        private IHostedService GetNoErrorChain()
+        private IHostedService GetNoErrorChain(string test)
         {
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
-            Kyameru.Route.From("Test://hello")
+            Kyameru.Route.From($"Test://hello?TestName={test}")
                 .To("Test://world")
                 .Atomic("Test://boom")
                 .Build(serviceCollection);
@@ -207,12 +202,12 @@ namespace Kyameru.Facts.ActivationFacts
             return provider.GetService<IHostedService>();
         }
 
-        private IHostedService GetHeaderError(bool dual)
+        private IHostedService GetHeaderError(bool dual, string test)
         {
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
             if (!dual)
             {
-                Route.From("Test://hello")
+                Route.From($"Test://hello?TestName={test}")
                     .AddHeader("One", () =>
                     {
                         throw new NotImplementedException("whoops");
@@ -223,7 +218,7 @@ namespace Kyameru.Facts.ActivationFacts
             }
             else
             {
-                Route.From("Test://hello")
+                Route.From($"Test://hello?TestName={test}")
                     .AddHeader("One", (x) =>
                     {
                         throw new NotImplementedException("whoops");
@@ -248,6 +243,6 @@ namespace Kyameru.Facts.ActivationFacts
             return serviceCollection;
         }
 
-        #endregion Setup
+        #endregion Helpers
     }
 }
