@@ -355,3 +355,4 @@ coverage.info
 coverage.json
 TestCoverage.info
 .idea
+*/**/.DS_Store

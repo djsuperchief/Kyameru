@@ -1,0 +1,29 @@
+# Stack for local testing
+version: '3.4'
+
+networks:
+  kyameru:
+    driver: bridge
+
+services:
+  # localstack for AWS testing
+  localstack-s3:
+    image: localstack/localstack:1.2.0
+    container_name: localstack-s3
+    networks:
+        - kyameru
+    ports:
+        - "4566:4566"
+    environment:
+        - SERVICES=s3,sqs,lambda,sts,iam
+        - DEFAULT_REGION=eu-west-2
+        - DATA_DIR=/tmp/localstack/data
+        - DOCKER_HOST=unix:///var/run/docker.sock
+        - LAMBDA_EXECUTOR=docker
+        - LAMBDA_DOCKER_NETWORK=kyameru
+    volumes:
+        - "${TMPDIR:-/tmp/localstack}:/var/lib/localstack"
+        - "./init-scripts/init.sh:/docker-entrypoint-initaws.d/init.sh"
+        - "./init-scripts/dtt.expire.json:/config/dtt.expire.json"
+        - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: always

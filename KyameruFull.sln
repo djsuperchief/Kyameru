@@ -4,7 +4,7 @@ VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Core", "source\core\Kyameru.Core\Kyameru.Core.csproj", "{1ED678C4-B884-4CCD-87DC-58E0B34AECF0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Tests", "tests\UnitTests\Kyameru.Tests\Kyameru.Tests.csproj", "{800EFDBF-D68B-422B-AB06-C2984058BB4C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Tests", "tests\UnitTests\Kyameru.Tests\Kyameru.Tests.csproj", "{800EFDBF-D68B-422B-AB06-C2984058BB4C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Component.Test", "tests\UnitTests\Kyameru.Component.Test\Kyameru.Component.Test.csproj", "{CD5311B0-2722-47F7-9D01-36CF4ED7D925}"
 EndProject
@@ -38,7 +38,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Component.Ftp", "so
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{42E960C3-07D3-46F1-A13F-AAFB288A915E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Component.Ftp.Tests", "source\components\Kyameru.Component.Ftp\Tests\Kyameru.Component.Ftp.Tests.csproj", "{D053986E-5499-4636-8B16-5B0138F77312}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Ftp.Tests", "source\components\Kyameru.Component.Ftp\Tests\Kyameru.Component.Ftp.Tests.csproj", "{D053986E-5499-4636-8B16-5B0138F77312}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Slack", "Slack", "{3780C4F7-97F8-4BA6-8B53-3D738ED2C96E}"
 EndProject
@@ -48,11 +48,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{EEA23055
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Component.Slack", "source\components\Kyameru.Component.Slack\Implementation\Kyameru.Component.Slack.csproj", "{02BDCF43-9BB5-4DA8-BB6E-7AEF5BBED46A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Component.Slack.Tests", "source\components\Kyameru.Component.Slack\Tests\Kyameru.Component.Slack.Tests.csproj", "{6E8B98A0-A22B-45F1-BC11-75CD52574203}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Slack.Tests", "source\components\Kyameru.Component.Slack\Tests\Kyameru.Component.Slack.Tests.csproj", "{6E8B98A0-A22B-45F1-BC11-75CD52574203}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestApp", "TestApp", "{EE72AA94-6DF0-4482-8368-065BF58FC154}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Console.Test", "tests\TestApp\Kyameru.Console.Test\Kyameru.Console.Test.csproj", "{054934B3-4921-49B0-A3C1-E5D71A94C0E9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQS", "SQS", "{B9193A2C-6E3F-400C-AF50-55994C509E4E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{69D682A6-AC89-406E-A00E-AC835AF4FE21}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{7646C6E1-835A-41CC-A98F-ADEE6F815A6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.SQS", "source\components\Kyameru.Component.SQS\Implementation\Kyameru.Component.SQS.csproj", "{0BBCF2F6-F960-431A-8388-80F69F0F55B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -108,6 +116,10 @@ Global
 		{054934B3-4921-49B0-A3C1-E5D71A94C0E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{054934B3-4921-49B0-A3C1-E5D71A94C0E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{054934B3-4921-49B0-A3C1-E5D71A94C0E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BBCF2F6-F960-431A-8388-80F69F0F55B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BBCF2F6-F960-431A-8388-80F69F0F55B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BBCF2F6-F960-431A-8388-80F69F0F55B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BBCF2F6-F960-431A-8388-80F69F0F55B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -136,6 +148,10 @@ Global
 		{02BDCF43-9BB5-4DA8-BB6E-7AEF5BBED46A} = {712ED882-1B81-46D4-B157-0DA5759C5D54}
 		{6E8B98A0-A22B-45F1-BC11-75CD52574203} = {EEA23055-DEEF-481F-9E26-553068FDF116}
 		{054934B3-4921-49B0-A3C1-E5D71A94C0E9} = {EE72AA94-6DF0-4482-8368-065BF58FC154}
+		{B9193A2C-6E3F-400C-AF50-55994C509E4E} = {BDB4F8AE-F117-4999-AD26-86E5BBC6FD6F}
+		{69D682A6-AC89-406E-A00E-AC835AF4FE21} = {B9193A2C-6E3F-400C-AF50-55994C509E4E}
+		{7646C6E1-835A-41CC-A98F-ADEE6F815A6F} = {B9193A2C-6E3F-400C-AF50-55994C509E4E}
+		{0BBCF2F6-F960-431A-8388-80F69F0F55B4} = {69D682A6-AC89-406E-A00E-AC835AF4FE21}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {86AAF1E5-3D43-424B-9101-A04C77A0D14F}

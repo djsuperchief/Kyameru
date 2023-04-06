@@ -22,5 +22,10 @@ namespace Kyameru.Core.Exceptions
         {
             this.Component = component;
         }
+
+        public ActivationException(string message, string component) : base(message)
+        {
+            this.Component = component;
+        }
     }
 }
