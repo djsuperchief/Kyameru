@@ -36,9 +36,10 @@ namespace Kyameru.Component.SQS
             return response;
         }
 
-        public static AwsConfig ParseHeadersToConfig(this Dictionary<string, string> incoming)
+        public static AwsConfig ParseHeadersToAwsConfig(this Dictionary<string, string> incoming)
         {
-            return new AwsConfig(incoming);
+            // Not sure why I am not parsing directly into AWS config?
+            return new AwsConfig(ParseHeaders(incoming));
         }
 
         private static void SetOptionalHeaders(Dictionary<string, string> response)

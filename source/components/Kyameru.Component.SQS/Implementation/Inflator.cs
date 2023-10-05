@@ -24,7 +24,7 @@ namespace Kyameru.Component.SQS
 
         public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
-            throw new NotImplementedException();
+            return new SqsTo(headers);
         }
 
         public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
