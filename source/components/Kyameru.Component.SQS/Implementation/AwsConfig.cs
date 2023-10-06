@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Amazon;
+using Amazon.Runtime;
 using Amazon.Runtime.Internal.Transform;
 
 namespace Kyameru.Component.SQS
@@ -11,6 +13,8 @@ namespace Kyameru.Component.SQS
         public string AccessKey { get; private set; }
 
         public string SecretKey { get; private set; }
+
+        public RegionEndpoint Region { get; set; }
 
         public Dictionary<string, string> OtherHeaders { get; set; }
 
@@ -48,6 +52,7 @@ namespace Kyameru.Component.SQS
             PropertyAssignment.Add("serviceurl", SetServiceUrl);
             PropertyAssignment.Add("accesskey", SetAccessKey);
             PropertyAssignment.Add("secretkey", SetSecretKey);
+            PropertyAssignment.Add("region", SetRegionKey);
         }
 
         public void SetServiceUrl(string value) => ServiceUrl = value;
@@ -55,6 +60,8 @@ namespace Kyameru.Component.SQS
         private void SetAccessKey(string value) => AccessKey = value;
 
         private void SetSecretKey(string value) => SecretKey = value;
+
+        private void SetRegionKey(string value) => Region = RegionEndpoint.GetBySystemName(value);
 
         private void AddToOther(string key, string value) => OtherHeaders.Add(key, value);
     }
