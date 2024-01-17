@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -62,6 +62,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{7646C6E1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.SQS", "source\components\Kyameru.Component.SQS\Implementation\Kyameru.Component.SQS.csproj", "{0BBCF2F6-F960-431A-8388-80F69F0F55B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.SQS.Tests", "source\components\Kyameru.Component.SQS\Tests\Kyameru.Component.SQS.Tests\Kyameru.Component.SQS.Tests.csproj", "{54A7BB2B-7622-4C89-AF68-0DC424CB616C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -120,6 +122,10 @@ Global
 		{0BBCF2F6-F960-431A-8388-80F69F0F55B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BBCF2F6-F960-431A-8388-80F69F0F55B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BBCF2F6-F960-431A-8388-80F69F0F55B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54A7BB2B-7622-4C89-AF68-0DC424CB616C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54A7BB2B-7622-4C89-AF68-0DC424CB616C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54A7BB2B-7622-4C89-AF68-0DC424CB616C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54A7BB2B-7622-4C89-AF68-0DC424CB616C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,6 +158,7 @@ Global
 		{69D682A6-AC89-406E-A00E-AC835AF4FE21} = {B9193A2C-6E3F-400C-AF50-55994C509E4E}
 		{7646C6E1-835A-41CC-A98F-ADEE6F815A6F} = {B9193A2C-6E3F-400C-AF50-55994C509E4E}
 		{0BBCF2F6-F960-431A-8388-80F69F0F55B4} = {69D682A6-AC89-406E-A00E-AC835AF4FE21}
+		{54A7BB2B-7622-4C89-AF68-0DC424CB616C} = {7646C6E1-835A-41CC-A98F-ADEE6F815A6F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {86AAF1E5-3D43-424B-9101-A04C77A0D14F}
