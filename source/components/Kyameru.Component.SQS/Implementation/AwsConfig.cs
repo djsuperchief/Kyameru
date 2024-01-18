@@ -18,8 +18,7 @@ namespace Kyameru.Component.SQS
 
         public Dictionary<string, string> OtherHeaders { get; set; }
 
-        // This is required in case the target is localstack.
-        public bool IsLocalstack { get; set; }
+        public int MyProperty { get; set; }
 
         private readonly Dictionary<string, Action<string>> PropertyAssignment = new Dictionary<string, Action<string>>();
 
@@ -56,7 +55,6 @@ namespace Kyameru.Component.SQS
             PropertyAssignment.Add("accesskey", SetAccessKey);
             PropertyAssignment.Add("secretkey", SetSecretKey);
             PropertyAssignment.Add("region", SetRegionKey);
-            PropertyAssignment.Add("localstack", SetLocalstack);
         }
 
         public void SetServiceUrl(string value) => ServiceUrl = value;
@@ -68,8 +66,6 @@ namespace Kyameru.Component.SQS
         private void SetRegionKey(string value) => Region = RegionEndpoint.GetBySystemName(value);
 
         private void AddToOther(string key, string value) => OtherHeaders.Add(key, value);
-
-        private void SetLocalstack(string value) => IsLocalstack = bool.Parse(value);
     }
 }
 
