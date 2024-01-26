@@ -12,7 +12,7 @@ namespace Kyameru.Component.SQS
         //private Dictionary<string, string> headers;
 
         private AwsConfig awsConfig;
-        private AmazonSQSClient sqsClient;
+        private IAmazonSQS sqsClient;
 
         public event EventHandler<Log> OnLog;
 
@@ -28,7 +28,13 @@ namespace Kyameru.Component.SQS
 
         private async Task SendSqsMessage(Routable item)
         {
-            sqsClient = new AmazonSQSClient(awsConfig.AccessKey, awsConfig.SecretKey, awsConfig.Region);
+            foreach (var header in awsConfig.OtherHeaders)
+            {
+                // add the extra headers to the message headers. Currently this includes everything.
+                item.SetHeader(header.Key, header.Value);
+            }
+            var awsClient = SqsClient.GetSqsClient(awsConfig);
+            var sqsClient = new SqsClient(awsClient);
 
         }
     }

@@ -44,6 +44,11 @@ namespace Kyameru.Core.Entities
         public string ExitReason { get; private set; }
 
         /// <summary>
+        /// Gets the body data types
+        /// </summary>
+        public string BodyDataType => Headers["DataType"];
+
+        /// <summary>
         /// Gets a value indicating whether the message is in error.
         /// </summary>
         internal bool InError => this.Error != null;

@@ -21,9 +21,13 @@ namespace Kyameru.Component.SQS
 
         public RegionEndpoint Region { get; private set; }
 
+        public string AuthenticationRegion { get; private set; }
+
         public string Queue { get; private set; }
 
         public bool UseHttp { get; private set; }
+
+        public bool UseProfile => !string.IsNullOrWhiteSpace(Profile);
 
         public Dictionary<string, string> OtherHeaders { get; private set; }
 
