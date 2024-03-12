@@ -5,13 +5,15 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Kyameru.Component.Slack
 {
     /// <summary>
     /// Main To Component.
     /// </summary>
-    public class SlackTo : ISlackTo
+    public class SlackTo : IToComponent
     {
         /// <summary>
         /// Allowed headers.
@@ -74,28 +76,50 @@ namespace Kyameru.Component.Slack
         /// <param name="item">Message to process.</param>
         public void Process(Routable item)
         {
-            Payload slackPayload = new Payload()
-            {
-                text = this.GetMessageSource(item),
-                channel = this.GetHeader("Channel"),
-                username = this.GetHeader("Username")
-            };
-
+            var slackMessage = GetSlackMessage(item);
             if (item.Error == null)
             {
-                var payloadJson = JsonSerializer.Serialize(slackPayload);
-                string uri = $"{SLACKURI}{this.headers["Target"]}";
-                var dataContent = new StringContent(payloadJson, Encoding.UTF8, "application/json");
                 using (HttpClient client = this.GetHttpClient())
                 {
                     this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Sending slack message"));
-                    var response = client.PostAsync(uri, dataContent).Result;
+                    var response = client.PostAsync(slackMessage.Uri, slackMessage.DataContent).Result;
                     if (!response.IsSuccessStatusCode)
                     {
                         item.SetInError(this.RaiseError("SendSlackMessage", "Error communicating with slack."));
                     }
                 }
             }
+        }
+
+        public async Task ProcessAsync(Routable item, CancellationToken cancellationToken)
+        {
+            var slackMessage = GetSlackMessage(item);
+            if (item.Error == null)
+            {
+                using (HttpClient client = this.GetHttpClient())
+                {
+                    this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Sending slack message"));
+                    var response = await client.PostAsync(slackMessage.Uri, slackMessage.DataContent);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        item.SetInError(this.RaiseError("SendSlackMessage", "Error communicating with slack."));
+                    }
+                }
+            }
+        }
+
+        private SlackMessage GetSlackMessage(Routable item)
+        {
+            return new SlackMessage
+            {
+                Uri = $"{SLACKURI}{this.headers["Target"]}",
+                Payload = new Payload()
+                {
+                    text = this.GetMessageSource(item),
+                    channel = this.GetHeader("Channel"),
+                    username = this.GetHeader("Username")
+                }
+            };
         }
 
         /// <summary>
@@ -157,12 +181,14 @@ namespace Kyameru.Component.Slack
         private string GetHeader(string header)
         {
             string response = string.Empty;
-            if(this.headers.ContainsKey(header))
+            if (this.headers.ContainsKey(header))
             {
                 response = this.headers[header];
             }
 
             return response;
         }
+
+
     }
 }

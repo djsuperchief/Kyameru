@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Core.Entities;
 
 namespace Kyameru.Core.Contracts
@@ -27,5 +29,15 @@ namespace Kyameru.Core.Contracts
         /// Stop the component.
         /// </summary>
         void Stop();
+
+        /// <summary>
+        /// Start the core background process async.
+        /// </summary>
+        Task StartAsync(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Stop the component async.
+        /// </summary>
+        Task StopAsync(CancellationToken cancellationToken);
     }
 }

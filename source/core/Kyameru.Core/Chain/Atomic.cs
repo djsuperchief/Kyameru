@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Extensions;
@@ -32,6 +34,30 @@ namespace Kyameru.Core.Chain
             }
 
             base.Handle(item);
+        }
+
+        /// <summary>
+        /// Process the atomic part of the component
+        /// </summary>
+        /// <param name="item">Message to be processed.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns an instance of the <see cref="Task"/> class.</returns>
+        public override async Task HandleAsync(Routable item, CancellationToken cancellationToken)
+        {
+            if (!item.InError)
+            {
+                try
+                {
+                    await this.atomicComponent.ProcessAsync(item, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    item.SetInError(new Entities.Error("Atomic Component", "Handle", ex.Message));
+                }
+            }
+
+            await base.HandleAsync(item, cancellationToken);
         }
     }
 }
