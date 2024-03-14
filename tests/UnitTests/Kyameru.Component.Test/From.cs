@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Kyameru.Component.Test
@@ -37,6 +38,20 @@ namespace Kyameru.Component.Test
         public void Stop()
         {
             this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Stop"));
+        }
+
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            Start();
+
+            await Task.CompletedTask;
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            Stop();
+
+            await Task.CompletedTask;
         }
     }
 }

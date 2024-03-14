@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Kyameru.Console.Test
 {
@@ -12,6 +14,13 @@ namespace Kyameru.Console.Test
         public void Process(Routable routable)
         {
             routable.SetBody<string>("Kyameru testing...sorry #notsorry");
+        }
+
+        public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
+        {
+            Process(routable);
+
+            await Task.CompletedTask;
         }
     }
 }

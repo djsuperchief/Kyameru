@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Component.File.Utilities;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.Logging;
@@ -61,6 +63,16 @@ namespace Kyameru.Component.File
             this.toActions[this.headers["Action"]](item);
         }
 
+        public async Task ProcessAsync(Routable item, CancellationToken cancellationToken)
+        {
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                Process(item);
+            }
+
+            await Task.CompletedTask;
+        }
+
         /// <summary>
         /// Sets up internal delegates.
         /// </summary>
@@ -93,7 +105,7 @@ namespace Kyameru.Component.File
             try
             {
                 this.EnsureDestinationExists();
-                if(item.Headers["DataType"] == "String")
+                if (item.Headers["DataType"] == "String")
                 {
                     this.fileUtils.WriteAllText(this.GetDestination(item.Headers["SourceFile"]), (string)item.Body, this.overwrite);
                 }
@@ -101,7 +113,7 @@ namespace Kyameru.Component.File
                 {
                     this.fileUtils.WriteAllBytes(this.GetDestination(item.Headers["SourceFile"]), (byte[])item.Body, this.overwrite);
                 }
-                
+
                 this.DeleteFile(item);
             }
             catch (Exception ex)

@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace Kyameru.Component.Ftp
@@ -19,7 +21,7 @@ namespace Kyameru.Component.Ftp
         private readonly IWebRequestUtility webRequestUtility;
         private FtpClient ftp;
 
-        private Timer poller;
+        private System.Timers.Timer poller;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="From"/> class.
@@ -49,7 +51,7 @@ namespace Kyameru.Component.Ftp
         public void Setup()
         {
             this.ftp = new FtpClient(this.ftpSettings, this.webRequestUtility);
-            this.poller = new Timer(this.ftpSettings.PollTime);
+            this.poller = new System.Timers.Timer(this.ftpSettings.PollTime);
             this.poller.Elapsed += this.Poller_Elapsed;
             this.poller.AutoReset = true;
             this.ftp.OnDownloadFile += this.Ftp_OnDownloadFile;
@@ -105,6 +107,22 @@ namespace Kyameru.Component.Ftp
         {
             this.ftp.Poll();
             this.poller.Start();
+        }
+
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                Start();
+            }
+
+            await Task.CompletedTask;
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            Stop();
+            await Task.CompletedTask;
         }
 
         /// <summary>

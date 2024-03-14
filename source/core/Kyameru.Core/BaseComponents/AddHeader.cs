@@ -1,5 +1,7 @@
 ﻿using Kyameru.Core.Entities;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Kyameru.Core.BaseComponents
 {
@@ -114,6 +116,23 @@ namespace Kyameru.Core.BaseComponents
 
                     break;
             }
+        }
+
+        /// <summary>
+        /// Process the incoming request.
+        /// </summary>
+        /// <param name="routable">Message to be processed.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>Returns an instance of the <see cref="Task"/></returns>
+        public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
+        {
+
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                Process(routable);
+            }
+
+            await Task.CompletedTask;
         }
 
         /// <summary>

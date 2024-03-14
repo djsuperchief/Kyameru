@@ -3,6 +3,8 @@ using Kyameru.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Kyameru.Component.Error
 {
@@ -32,9 +34,26 @@ namespace Kyameru.Component.Error
             this.OnAction?.Invoke(this, routable);
         }
 
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                Start();
+            }
+
+            await Task.CompletedTask;
+        }
+
         public void Stop()
         {
             // nothing to do.
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            Stop();
+
+            await Task.CompletedTask;
         }
     }
 }

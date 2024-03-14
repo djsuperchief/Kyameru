@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Kyameru.Component.Test
@@ -38,6 +39,13 @@ namespace Kyameru.Component.Test
             GlobalCalls.AddCall(item.Headers["TestName"], "TO");
 
             this.OnLog?.Invoke(this, new Log(LogLevel.Information, "TO"));
+        }
+
+        public async Task ProcessAsync(Routable item, CancellationToken cancellationToken)
+        {
+            Process(item);
+
+            await Task.CompletedTask;
         }
     }
 }

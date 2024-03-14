@@ -99,7 +99,7 @@ namespace Kyameru.Component.Slack
                 using (HttpClient client = this.GetHttpClient())
                 {
                     this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Sending slack message"));
-                    var response = await client.PostAsync(slackMessage.Uri, slackMessage.DataContent);
+                    var response = await client.PostAsync(slackMessage.Uri, slackMessage.DataContent, cancellationToken);
                     if (!response.IsSuccessStatusCode)
                     {
                         item.SetInError(this.RaiseError("SendSlackMessage", "Error communicating with slack."));

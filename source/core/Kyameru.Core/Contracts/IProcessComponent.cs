@@ -16,6 +16,12 @@ namespace Kyameru
         /// <param name="routable">Message to be processed.</param>
         void Process(Routable routable);
 
+        /// <summary>
+        /// Process the incoming request.
+        /// </summary>
+        /// <param name="routable">Message to be processed.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>Returns an instance of the <see cref="Task"/></returns>
         Task ProcessAsync(Routable routable, CancellationToken cancellationToken);
     }
 }

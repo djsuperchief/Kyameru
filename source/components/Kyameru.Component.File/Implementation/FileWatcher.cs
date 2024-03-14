@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Component.File.Utilities;
 using Kyameru.Core.Entities;
 
@@ -97,12 +99,28 @@ namespace Kyameru.Component.File
             }
         }
 
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                Start();
+            }
+
+            await Task.CompletedTask;
+        }
+
         /// <summary>
         /// Stops the component.
         /// </summary>
         public void Stop()
         {
             this.fsw.Dispose();
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            Stop();
+            await Task.CompletedTask;
         }
 
         /// <summary>

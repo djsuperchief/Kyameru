@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Kyameru.Component.Ftp
 {
@@ -74,6 +76,16 @@ namespace Kyameru.Component.Ftp
                 item.SetInError(this.GetError("Upload", string.Format(Resources.ERROR_UPLOADING, item.Headers["FileName"])));
                 this.RaiseLog(string.Format(Resources.ERROR_UPLOADING, item.Headers["FileName"]), LogLevel.Error, ex);
             }
+        }
+
+        public async Task ProcessAsync(Routable item, CancellationToken cancellationToken)
+        {
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                Process(item);
+            }
+
+            await Task.CompletedTask;
         }
 
         /// <summary>
