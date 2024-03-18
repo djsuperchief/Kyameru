@@ -52,7 +52,7 @@ namespace Kyameru.Core.Chain
         /// <param name="logger">Logger class.</param>
         /// <param name="id">Identity of the route.</param>
         /// <param name="isAtomicRoute">Value indicating whether the route is atomic.</param>
-        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger, string id, bool isAtomicRoute = false, bool async = false)
+        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger, string id, bool isAtomicRoute = false, bool isAsync = false)
         {
             this.fromComponent = fromComponent;
             this.fromComponent.Setup();
@@ -62,7 +62,7 @@ namespace Kyameru.Core.Chain
             this.fromComponent.OnLog += this.FromComponent_OnLog;
             this.identity = id;
             this.IsAtomicRoute = isAtomicRoute;
-            isAsync = async;
+            this.isAsync = isAsync;
         }
 
         /// <summary>

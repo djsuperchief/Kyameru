@@ -24,9 +24,10 @@ namespace Kyameru.Core
         /// Initializes a new instance of the <see cref="RouteBuilder"/> class.
         /// </summary>
         /// <param name="componentUri">Valid Kyameru URI.</param>
-        public RouteBuilder(string componentUri)
+        /// <param name="isAsync">Indicates if the from should start async.</param>
+        public RouteBuilder(string componentUri, bool isAsync = false)
         {
-            this.fromUri = new RouteAttributes(componentUri);
+            fromUri = new RouteAttributes(componentUri, isAsync);
         }
 
         /// <summary>

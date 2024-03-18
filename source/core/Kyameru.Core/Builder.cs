@@ -58,7 +58,6 @@ namespace Kyameru.Core
             this.fromUri = fromUri;
             this.toUris.Add(to);
             this.components = components;
-            this.fromUri = fromUri;
         }
 
         /// <summary>
@@ -179,7 +178,7 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                return new Chain.From(from, next, logger, this.identity);
+                return new Chain.From(from, next, logger, this.identity, this.IsAtomic, this.fromUri.FromAsync);
             });
         }
 

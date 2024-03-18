@@ -40,6 +40,31 @@ namespace Kyameru.Tests.ActivationTests
             Assert.Equal("Injected Test Complete", routable?.Body);
         }
 
+        [Fact]
+        public async Task CanActivateAndRunAsync()
+        {
+            IServiceCollection serviceCollection = this.GetServiceDescriptors();
+            Routable routable = null;
+            this.processComponent.Reset();
+            this.processComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            {
+                routable = x;
+            });
+
+            Kyameru.Route.FromAsync("injectiontest:///mememe")
+                .Process(this.processComponent.Object)
+                .To("injectiontest:///somewhere")
+                .Build(serviceCollection);
+
+
+            IServiceProvider provider = serviceCollection.BuildServiceProvider();
+            IHostedService service = provider.GetService<IHostedService>();
+            await service.StartAsync(CancellationToken.None);
+            await service.StopAsync(CancellationToken.None);
+
+            Assert.Equal("Injected Test Complete", routable?.Body);
+        }
+
         [Theory]
         [InlineData("from", "Error activating from component.")]
         [InlineData("to", "Error activating to component.")]

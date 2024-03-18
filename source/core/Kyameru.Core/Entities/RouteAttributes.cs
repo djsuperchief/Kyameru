@@ -13,13 +13,15 @@ namespace Kyameru.Core.Entities
         /// Initializes a new instance of the <see cref="RouteAttributes"/> class.
         /// </summary>
         /// <param name="componentUri">Valid Kyameru URI.</param>
-        public RouteAttributes(string componentUri)
+        /// <param name="isAsync">Indicates if the from is async (applicable to from only)</param>
+        public RouteAttributes(string componentUri, bool isAsync = false)
         {
             try
             {
                 UriBuilder uriBuilder = new UriBuilder(componentUri);
                 this.ComponentName = uriBuilder.Scheme.ToFirstCaseUpper();
                 this.Headers = this.ParseQuery($"Target={uriBuilder.Path}{this.GetQuery(uriBuilder)}");
+                this.FromAsync = isAsync;
             }
             catch (Exception ex)
             {
@@ -36,6 +38,14 @@ namespace Kyameru.Core.Entities
         /// Gets the headers.
         /// </summary>
         public Dictionary<string, string> Headers { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the from route should be async.
+        /// </summary>
+        /// <remarks>
+        /// This needs to be done in a better way. The from async should not be shared across all route parts
+        /// </remarks>
+        public bool FromAsync { get; private set; }
 
         /// <summary>
         /// Parses a URI query string.

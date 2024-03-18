@@ -23,5 +23,15 @@ namespace Kyameru
         {
             return new RouteBuilder(componentUri);
         }
+
+        /// <summary>
+        /// Creates an instance of the route builder.
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI</param>
+        /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
+        public static RouteBuilder FromAsync(string componentUri)
+        {
+            return new RouteBuilder(componentUri, true);
+        }
     }
 }
