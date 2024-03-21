@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Kyameru.Core;
 using Kyameru.Core.Entities;
 
 namespace Kyameru.Component.Injectiontest
@@ -11,10 +14,11 @@ namespace Kyameru.Component.Injectiontest
 
         public event EventHandler<Routable> OnAction;
         public event EventHandler<Log> OnLog;
+        public event AsyncEventHandler<RoutableEventData> OnActionAsync;
 
         public MyFrom()
         {
-            
+
         }
 
         public void AddHeaders(Dictionary<string, string> headers)
@@ -38,6 +42,21 @@ namespace Kyameru.Component.Injectiontest
         public void Stop()
         {
             this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Stop"));
+        }
+
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                Start();
+            }
+
+            await Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }

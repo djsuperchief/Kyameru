@@ -4,6 +4,8 @@ using Kyameru.Core.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("Kyameru.Tests")]
 
@@ -50,6 +52,24 @@ namespace Kyameru.Core.Chain
                     item.SetInError(new Entities.Error("Error Component", "Handle", ex.Message));
                 }
             }
+        }
+
+        public override async Task HandleAsync(Routable item, CancellationToken cancellationToken)
+        {
+            if (item.InError)
+            {
+                try
+                {
+                    await this.errorComponent.ProcessAsync(item, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    item.SetInError(new Entities.Error("Error Component", "Handle", ex.Message));
+                }
+            }
+
+            await base.HandleAsync(item, cancellationToken);
         }
     }
 }

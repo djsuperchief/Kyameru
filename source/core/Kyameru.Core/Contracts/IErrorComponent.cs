@@ -5,12 +5,12 @@ namespace Kyameru.Core.Contracts
     /// <summary>
     /// Error component.
     /// </summary>
-    public interface IErrorComponent : IComponent
+    public interface IErrorComponent : IProcessComponent
     {
         /// <summary>
         /// Process the incoming request.
         /// </summary>
         /// <param name="item">Message to be processed.</param>
-        void Process(Routable item);
+        //void Process(Routable item);
     }
 }

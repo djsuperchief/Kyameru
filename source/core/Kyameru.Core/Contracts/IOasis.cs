@@ -15,6 +15,7 @@ namespace Kyameru.Core.Contracts
         /// <param name="headers">Dictionary of headers to apply.</param>
         /// <param name="isAtomic">Indicates if the route is atomic.</param>
         /// <param name="serviceProvider">DI Service provider</param>
+        /// <param name="isAsync">Indicates if the route is processed async</param>
         /// <returns>Returns an instance of the <see cref="IFromComponent"/> interface.</returns>
         IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider);
 

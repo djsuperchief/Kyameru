@@ -143,6 +143,20 @@ namespace Kyameru.Core
         /// <param name="services">Service collection.</param>
         public void Build(IServiceCollection services)
         {
+            Build(services, false);
+        }
+
+        /// <summary>
+        /// Builds the final chain into dependency injection.
+        /// </summary>
+        /// <param name="services">Service collection.</param>
+        public void BuildAsync(IServiceCollection services)
+        {
+            Build(services, true);
+        }
+
+        private void Build(IServiceCollection services, bool isAsync)
+        {
             this.RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
             {
@@ -160,7 +174,7 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                return new Chain.From(from, next, logger, this.identity);
+                return new Chain.From(from, next, logger, this.identity, this.IsAtomic, isAsync);
             });
         }
 
@@ -170,7 +184,7 @@ namespace Kyameru.Core
         private void RunComponentDiRegistration(IServiceCollection services)
         {
             this.RegisterFromServices(services, this.fromUri.ComponentName);
-            for(int i = 0; i < this.toUris.Count; i++)
+            for (int i = 0; i < this.toUris.Count; i++)
             {
                 this.RegisterToServices(services, this.toUris[i].ComponentName);
             }

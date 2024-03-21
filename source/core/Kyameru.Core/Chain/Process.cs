@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Extensions;
@@ -48,6 +50,24 @@ namespace Kyameru.Core.Chain
             }
 
             base.Handle(item);
+        }
+
+        public override async Task HandleAsync(Routable routable, CancellationToken cancellationToken)
+        {
+            if (!routable.InError)
+            {
+                try
+                {
+                    await this.component.ProcessAsync(routable, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    routable.SetInError(new Entities.Error("Processing component", "Handle", ex.Message));
+                }
+            }
+
+            await base.HandleAsync(routable, cancellationToken);
         }
     }
 }

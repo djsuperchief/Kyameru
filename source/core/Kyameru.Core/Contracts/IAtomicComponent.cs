@@ -6,12 +6,12 @@ namespace Kyameru.Core.Contracts
     /// <summary>
     /// Atomic component executed after the final to.
     /// </summary>
-    public interface IAtomicComponent : IComponent
+    public interface IAtomicComponent : IProcessComponent
     {
         /// <summary>
         /// Process the incoming request.
         /// </summary>
         /// <param name="item">Message to be processed.</param>
-        void Process(Routable item);
+        ///void Process(Routable item);
     }
 }

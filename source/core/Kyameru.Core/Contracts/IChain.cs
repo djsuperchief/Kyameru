@@ -1,4 +1,8 @@
-﻿namespace Kyameru.Core.Contracts
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Primitives;
+
+namespace Kyameru.Core.Contracts
 {
     /// <summary>
     /// Core processing component interface.
@@ -18,5 +22,12 @@
         /// </summary>
         /// <param name="item">Processing Component.</param>
         void Handle(T item);
+
+        /// <summary>
+        /// Triggers the next component in the chain.
+        /// </summary>
+        /// <param name="item">Processing Component.</param>
+        /// <param name="cancellationToken">Cancellation Token</param>
+        Task HandleAsync(T item, CancellationToken cancellationToken);
     }
 }

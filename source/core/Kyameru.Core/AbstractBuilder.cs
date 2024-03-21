@@ -43,12 +43,13 @@ namespace Kyameru.Core
         /// <param name="headers">Dictionary of headers</param>
         /// <param name="serviceProvider">DI Service provider.</param>
         /// <param name="isAtomic">Indicates if the route is atomic.</param>
+        /// <param name="isAsync">Indicates if the route will be processed async</param>
         /// <returns>Returns an instance of the <see cref="IFromComponent"/> interface.</returns>
-        protected IFromComponent CreateFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic = false)
+        protected IFromComponent CreateFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic)
         {
             IFromComponent response = null;
             try
-            {               
+            {
                 response = this.GetOasis(from).CreateFromComponent(headers, isAtomic, serviceProvider);
             }
             catch (Exception ex)
@@ -91,7 +92,7 @@ namespace Kyameru.Core
             {
                 this.GetOasis(component).RegisterTo(serviceCollection);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, "RegisterToServices");
             }
@@ -112,7 +113,7 @@ namespace Kyameru.Core
             {
                 throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, "RegisterFromServices");
             }
-        } 
+        }
 
         /// <summary>
         /// Gets the IOasis (activator) from the component.
