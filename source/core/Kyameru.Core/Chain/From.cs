@@ -39,6 +39,7 @@ namespace Kyameru.Core.Chain
         /// </summary>
         private readonly bool IsAtomicRoute;
         private readonly bool isAsync;
+        private readonly bool raiseExceptions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="From"/> class.
@@ -48,7 +49,9 @@ namespace Kyameru.Core.Chain
         /// <param name="logger">Logger class.</param>
         /// <param name="id">Identity of the route.</param>
         /// <param name="isAtomicRoute">Value indicating whether the route is atomic.</param>
-        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger, string id, bool isAtomicRoute, bool isAsync)
+        /// <param name="isAsync">Value indicating that the route should be executed async</param>
+        /// <param name="raiseExceptions">Value indicating that the route should throw route exceptions up</param>
+        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger, string id, bool isAtomicRoute, bool isAsync, bool raiseExceptions)
         {
             this.fromComponent = fromComponent;
             this.fromComponent.Setup();
@@ -60,6 +63,7 @@ namespace Kyameru.Core.Chain
             this.IsAtomicRoute = isAtomicRoute;
             this.isAsync = isAsync;
             fromComponent.OnActionAsync += FromComponent_OnActionAsync;
+            this.raiseExceptions = raiseExceptions;
         }
 
 
@@ -108,6 +112,11 @@ namespace Kyameru.Core.Chain
             catch (Exception ex)
             {
                 this.FromComponent_OnLog(this, new Log(LogLevel.Error, ex.Message, ex));
+                if (this.raiseExceptions)
+                {
+                    throw;
+                }
+
             }
 
             await Task.CompletedTask;

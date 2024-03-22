@@ -40,6 +40,12 @@ namespace Kyameru.Core
         private IAtomicComponent atomicComponent;
 
         /// <summary>
+        /// Value indicating whether exceptions should be raised from the route.
+        /// False indicates framework should "swallow" the exception but still log it.
+        /// </summary>
+        private bool raiseExceptions;
+
+        /// <summary>
         /// Route Id.
         /// </summary>
         private string identity;
@@ -59,6 +65,7 @@ namespace Kyameru.Core
             this.toUris.Add(to);
             this.components = components;
             this.fromUri = fromUri;
+            this.raiseExceptions = false;
         }
 
         /// <summary>
@@ -138,6 +145,16 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Indicates that the framework will bubble a route exception up to consumer.
+        /// </summary>
+        /// <returns></returns>
+        public Builder RaiseExceptions()
+        {
+            this.raiseExceptions = true;
+            return this;
+        }
+
+        /// <summary>
         /// Builds the final chain into dependency injection.
         /// </summary>
         /// <param name="services">Service collection.</param>
@@ -174,7 +191,7 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                return new Chain.From(from, next, logger, this.identity, this.IsAtomic, isAsync);
+                return new Chain.From(from, next, logger, this.identity, this.IsAtomic, isAsync, raiseExceptions);
             });
         }
 

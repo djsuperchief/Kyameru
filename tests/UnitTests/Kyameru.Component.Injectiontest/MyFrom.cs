@@ -33,10 +33,7 @@ namespace Kyameru.Component.Injectiontest
 
         public void Start()
         {
-            Routable routable = new Routable(this.headers, "InjectedData");
-            GlobalCalls.Calls.Add("FROM");
-            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "FROM"));
-            this.OnAction?.Invoke(this, routable);
+            this.OnAction?.Invoke(this, DoProcessing("FROM"));
         }
 
         public void Stop()
@@ -46,17 +43,24 @@ namespace Kyameru.Component.Injectiontest
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            if (!cancellationToken.IsCancellationRequested)
-            {
-                Start();
-            }
+            var eventData = new RoutableEventData(DoProcessing("FROMASYNC"), cancellationToken);
+            await this.OnActionAsync?.Invoke(this, eventData);
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            Stop();
 
             await Task.CompletedTask;
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        private Routable DoProcessing(string call)
         {
-            throw new NotImplementedException();
+            var routable = new Routable(this.headers, "InjectedData");
+            routable.SetHeader("&FROM", "ASYNC");
+            GlobalCalls.Calls.Add(call);
+            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, call));
+            return routable;
         }
     }
 }

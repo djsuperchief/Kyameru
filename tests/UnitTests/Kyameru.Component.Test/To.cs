@@ -23,11 +23,26 @@ namespace Kyameru.Component.Test
 
         public void Process(Routable item)
         {
+            DoProcessing(item, "TO");
+        }
+
+        public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
+        {
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                DoProcessing(routable, "TOASYNC");
+            }
+
+            await Task.CompletedTask;
+        }
+
+        private void DoProcessing(Routable item, string call)
+        {
             if (this.Headers["Host"] == "kyameru")
             {
                 this.OnLog.Invoke(this, new Log(LogLevel.Warning, "Will not process"));
                 item.SetInError(new Error("To", "Process", "Error"));
-                GlobalCalls.AddCall(item.Headers["TestName"], "TO");
+                GlobalCalls.AddCall(item.Headers["TestName"], call);
                 this.OnLog?.Invoke(this, new Log(LogLevel.Error, "Error", new ArgumentException("Error")));
             }
 
@@ -36,19 +51,9 @@ namespace Kyameru.Component.Test
                 item.SetExitRoute("Exit triggered");
             }
 
-            GlobalCalls.AddCall(item.Headers["TestName"], "TO");
+            GlobalCalls.AddCall(item.Headers["TestName"], call);
 
-            this.OnLog?.Invoke(this, new Log(LogLevel.Information, "TO"));
-        }
-
-        public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
-        {
-            if (!cancellationToken.IsCancellationRequested)
-            {
-                Process(routable);
-            }
-
-            await Task.CompletedTask;
+            this.OnLog?.Invoke(this, new Log(LogLevel.Information, call));
         }
     }
 }

@@ -46,6 +46,7 @@ namespace Kyameru.Core.Chain
         {
             if (!item.ExitRoute)
             {
+
                 this.Next?.Handle(item);
             }
             else
@@ -63,7 +64,12 @@ namespace Kyameru.Core.Chain
         {
             if (!item.ExitRoute)
             {
-                await this.Next?.HandleAsync(item, cancellationToken);
+                // Really?
+                if (this.Next != null)
+                {
+                    await this.Next?.HandleAsync(item, cancellationToken);
+                }
+
             }
             else
             {

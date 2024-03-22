@@ -41,14 +41,25 @@ namespace Kyameru.Component.Error
             // nothing to do.
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                if (this.WillError())
+                {
+                    throw new NotImplementedException();
+                }
+
+                Routable routable = new Routable(this.headers, "Test Data");
+                await this.OnActionAsync?.Invoke(this, new RoutableEventData(routable, cancellationToken));
+            }
+
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            // do nothing
+            await Task.CompletedTask;
         }
     }
 }

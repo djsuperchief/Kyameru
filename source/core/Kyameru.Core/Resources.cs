@@ -18,6 +18,8 @@
 
         internal const string ERROR_ROUTE_URI = "Error in constructing route from URI, see inner exception.";
 
+        internal const string ERROR_HEADER_IMMUTABLE_ADDED = "Error adding immutable header {0}, already present.";
+
         internal const string WARNING_ROUTE_EXIT = "Route indicated for early exit. {0}";
 
         internal const string DEBUG_HEADER_DETERMINE = "Determining which header callback to use.";

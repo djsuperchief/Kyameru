@@ -8,10 +8,6 @@ namespace Kyameru.Core.Contracts
     /// </summary>
     public interface IAtomicComponent : IProcessComponent
     {
-        /// <summary>
-        /// Process the incoming request.
-        /// </summary>
-        /// <param name="item">Message to be processed.</param>
-        ///void Process(Routable item);
+
     }
 }

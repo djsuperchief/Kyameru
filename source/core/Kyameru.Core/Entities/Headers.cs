@@ -74,11 +74,6 @@ namespace Kyameru.Core.Entities
             {
                 this.headerStorage.Add(key, value);
             }
-
-            if (isImmutable)
-            {
-                this.immutable.Add(key);
-            }
         }
 
         private bool IsImmutable(string key, out string editedKey)
@@ -88,6 +83,10 @@ namespace Kyameru.Core.Entities
             {
                 response = true;
                 key = key[1..];
+                if (this.immutable.Count(x => x == key) > 0)
+                {
+                    new Exceptions.RouteDataException(string.Format(Resources.ERROR_HEADER_IMMUTABLE_ADDED, key));
+                }
                 this.immutable.Add(key);
             }
 
