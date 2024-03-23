@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Component.File.Utilities;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.Logging;
@@ -16,6 +18,9 @@ namespace Kyameru.Component.File
         /// Valid actions
         /// </summary>
         private readonly Dictionary<string, Action<Routable>> toActions = new Dictionary<string, Action<Routable>>();
+
+        private readonly Dictionary<string, Func<Routable, CancellationToken, Task>> toActionsAsync =
+            new Dictionary<string, Func<Routable, CancellationToken, Task>>();
 
         /// <summary>
         /// Valid headers
@@ -61,13 +66,22 @@ namespace Kyameru.Component.File
             this.toActions[this.headers["Action"]](item);
         }
 
+        public async Task ProcessAsync(Routable item, CancellationToken cancellationToken)
+        {
+            this.toActions[this.headers["Action"]](item);
+            await Task.CompletedTask;
+        }
+
         /// <summary>
         /// Sets up internal delegates.
         /// </summary>
         private void SetupInternalActions()
         {
+            // TODO: Add async versions.
             this.toActions.Add("Move", this.MoveFile);
+            this.toActionsAsync.Add("Move", this.MoveFileAsync);
             this.toActions.Add("Copy", this.CopyFile);
+            this.toActionsAsync.Add("Copy", this.CopyFileAsync);
             this.toActions.Add("Delete", this.DeleteFile);
             this.toActions.Add("Write", this.WriteFile);
         }
@@ -93,7 +107,7 @@ namespace Kyameru.Component.File
             try
             {
                 this.EnsureDestinationExists();
-                if(item.Headers["DataType"] == "String")
+                if (item.Headers["DataType"] == "String")
                 {
                     this.fileUtils.WriteAllText(this.GetDestination(item.Headers["SourceFile"]), (string)item.Body, this.overwrite);
                 }
@@ -101,7 +115,33 @@ namespace Kyameru.Component.File
                 {
                     this.fileUtils.WriteAllBytes(this.GetDestination(item.Headers["SourceFile"]), (byte[])item.Body, this.overwrite);
                 }
-                
+
+                this.DeleteFile(item);
+            }
+            catch (Exception ex)
+            {
+                this.Log(LogLevel.Error, Resources.ERROR_ACTION_WRITE, ex);
+                item.SetInError(this.RaiseError("WriteFile", "Error writing file"));
+            }
+        }
+
+        private async Task WriteFileAsync(Routable item, CancellationToken cancellationToken)
+        {
+            this.Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_WRITE, item.Headers["SourceFile"]));
+            try
+            {
+                this.EnsureDestinationExists();
+                if (item.Headers["DataType"] == "String")
+                {
+                    await this.fileUtils.WriteAllTextAsync(this.GetDestination(item.Headers["SourceFile"]),
+                        (string)item.Body, this.overwrite, cancellationToken);
+                }
+                else
+                {
+                    await this.fileUtils.WriteAllBytesAsync(this.GetDestination(item.Headers["SourceFile"]),
+                        (byte[])item.Body, this.overwrite, cancellationToken);
+                }
+
                 this.DeleteFile(item);
             }
             catch (Exception ex)
@@ -130,6 +170,21 @@ namespace Kyameru.Component.File
             }
         }
 
+        private async Task MoveFileAsync(Routable item, CancellationToken cancellationToken)
+        {
+            this.Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_MOVE, item.Headers["SourceFile"]));
+            try
+            {
+                await this.EnsureDestinationExistsAsync(cancellationToken);
+                await this.fileUtils.MoveAsync(item.Headers["FullSource"], this.GetDestination(item.Headers["SourceFile"]), this.overwrite, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.Log(LogLevel.Error, Resources.ERROR_ACTION_MOVE, ex);
+                item.SetInError(this.RaiseError("MoveFile", "Error writing file"));
+            }
+        }
+
         /// <summary>
         /// Ensures destination folder exists.
         /// </summary>
@@ -138,6 +193,14 @@ namespace Kyameru.Component.File
             if (!System.IO.Directory.Exists(this.headers["Target"]))
             {
                 this.fileUtils.CreateDirectory(this.headers["Target"]);
+            }
+        }
+
+        private async Task EnsureDestinationExistsAsync(CancellationToken cancellationToken)
+        {
+            if (!System.IO.Directory.Exists(this.headers["Target"]))
+            {
+                await this.fileUtils.CreateDirectoryAsync(this.headers["Target"], cancellationToken);
             }
         }
 
