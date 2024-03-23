@@ -2,7 +2,7 @@ name: kyameru-pr
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, release]
 
 #GITHUB_WORKSPACE
 

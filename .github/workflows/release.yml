@@ -1,8 +1,10 @@
-name: Build
+name: kyameru-pr
 
 on:
-  push:
-    branches: [ main ]
+  pull_request:
+    branches: [main]
+
+#GITHUB_WORKSPACE
 
 jobs:
   dotnet-test:
@@ -26,6 +28,26 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ./build/TestCoverage/coverage.info 
 
+  nuget-security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+            dotnet-version: 7.0.x
+      
+      - name: Restore Solution
+        run: dotnet restore KyameruFull.sln
+      - name: Scan for security risks
+        shell: pwsh
+        run: |
+          $results = dotnet list KyameruFull.sln package --vulnerable --include-transitive
+          if($results -like '*High*' || $results -like '*Critical*') {
+            Write-Host 'Packages vulnerable'
+            dotnet list KyameruFull.sln package --vulnerable --include-transitive
+            exit 1
+          }
 
   # analyze:
   #   name: Analyze
@@ -71,4 +93,3 @@ jobs:
 
   #   - name: Perform CodeQL Analysis
   #     uses: github/codeql-action/analyze@v2
-
