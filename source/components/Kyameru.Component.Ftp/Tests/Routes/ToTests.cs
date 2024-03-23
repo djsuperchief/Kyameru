@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Kyameru.Component.Ftp.Tests.Routes
@@ -32,6 +34,23 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             }
 
             to.Process(routable);
+            webRequestUtility.VerifyAll();
+        }
+
+        [Fact]
+        public async Task CanUploadFileAsync()
+        {
+            var tokenSource = new CancellationTokenSource();
+            Mock<IWebRequestUtility> webRequestUtility = this.GetWebRequest();
+            To to = new To(this.GetRoute().Headers, webRequestUtility.Object);
+            Routable routable = new Routable(new Dictionary<string, string>()
+                {
+                    { "SourceFile", "Test.txt" }
+                },
+                "Hello"u8.ToArray()
+            );
+
+            await to.ProcessAsync(routable, tokenSource.Token);
             webRequestUtility.VerifyAll();
         }
 
