@@ -15,10 +15,11 @@ jobs:
       - uses: actions/checkout@v3
       - name: generate_tag
         run: |
-          VERSION_PREFIX="v"
-          VERSION_MAJOR_MINOR="${SEMVER}"
-          VERSION_PATCH=$(git tag --list "${VERSION_PREFIX}${VERSION_MAJOR_MINOR}*" --sort=-version:refname | head -n 1 | grep -oE '[0-9]+$')
-          echo "CURRENT TAG: ${VERSION_PATCH}
+          echo "test"
+          #VERSION_PREFIX="v"
+          #VERSION_MAJOR_MINOR="${SEMVER}"
+          #VERSION_PATCH=$(git tag --list "${VERSION_PREFIX}${VERSION_MAJOR_MINOR}*" --sort=-version:refname | head -n 1 | grep -oE '[0-9]+$')
+          #echo "CURRENT TAG: ${VERSION_PATCH}
           #if [ -z "$VERSION_PATCH" ]; then
           #  VERSION_PATCH=0
           #else
