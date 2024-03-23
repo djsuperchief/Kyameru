@@ -3,7 +3,7 @@ name: kyameru-pr
 on:
   push:
     branches:
-      - *
+      - "*"
 
 env:
   SEMVER: ${{ vars.SEMVER }}
