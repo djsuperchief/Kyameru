@@ -18,7 +18,7 @@ jobs:
           echo "${SEMVER}"
           VERSION_PREFIX=""
           VERSION_MAJOR_MINOR="${SEMVER}"
-          VERSION_PATCH=$(git tag --list "${VERSION_PREFIX}${VERSION_MAJOR_MINOR}.*" --sort=-version:refname | head -n 1)
+          VERSION_PATCH=$(git tag --list "${VERSION_PREFIX}${VERSION_MAJOR_MINOR}*" --sort=-version:refname | head -n 1)
           echo "CURRENT TAG: ${VERSION_PATCH}"
           VERSION_PATCH="${VERSION_PATCH//-rc}"
           VERSION_PATCH="${VERSION_PATCH//$SEMVER}"
