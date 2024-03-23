@@ -12,7 +12,8 @@ jobs:
   test-tag:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        fetch-depth: 0
       - name: generate_tag
         run: |
           ls -l
