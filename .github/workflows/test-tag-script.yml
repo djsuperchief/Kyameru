@@ -1,4 +1,4 @@
-name: kyameru-pr
+name: kyameru-pipeline-test
 
 on:
   push:
@@ -26,3 +26,9 @@ jobs:
           NEW_TAG="${VERSION_PREFIX}${VERSION_MAJOR_MINOR}${VERSION_PATCH}"
           echo "Generated new tag: $NEW_TAG"
           echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+      - name: Push Git Tag
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
