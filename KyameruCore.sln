@@ -1,0 +1,59 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30523.141
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{48E13342-E35A-462A-8BAF-28A34398D495}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Tests", "tests\UnitTests\Kyameru.Tests\Kyameru.Tests.csproj", "{800EFDBF-D68B-422B-AB06-C2984058BB4C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kyameru.Component.Test", "tests\UnitTests\Kyameru.Component.Test\Kyameru.Component.Test.csproj", "{CD5311B0-2722-47F7-9D01-36CF4ED7D925}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Error", "tests\UnitTests\Kyameru.Component.Error\Kyameru.Component.Error.csproj", "{DC1BDE5F-794F-4E27-B73D-10CD22E5CEC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Injectiontest", "tests\UnitTests\Kyameru.Component.Injectiontest\Kyameru.Component.Injectiontest.csproj", "{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Core", "source\core\Kyameru.Core\Kyameru.Core.csproj", "{5533BCC2-1320-4CB5-B8B2-AFB467CE6264}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{800EFDBF-D68B-422B-AB06-C2984058BB4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{800EFDBF-D68B-422B-AB06-C2984058BB4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{800EFDBF-D68B-422B-AB06-C2984058BB4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{800EFDBF-D68B-422B-AB06-C2984058BB4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD5311B0-2722-47F7-9D01-36CF4ED7D925}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD5311B0-2722-47F7-9D01-36CF4ED7D925}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD5311B0-2722-47F7-9D01-36CF4ED7D925}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD5311B0-2722-47F7-9D01-36CF4ED7D925}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC1BDE5F-794F-4E27-B73D-10CD22E5CEC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC1BDE5F-794F-4E27-B73D-10CD22E5CEC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC1BDE5F-794F-4E27-B73D-10CD22E5CEC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC1BDE5F-794F-4E27-B73D-10CD22E5CEC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5533BCC2-1320-4CB5-B8B2-AFB467CE6264}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5533BCC2-1320-4CB5-B8B2-AFB467CE6264}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5533BCC2-1320-4CB5-B8B2-AFB467CE6264}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5533BCC2-1320-4CB5-B8B2-AFB467CE6264}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{800EFDBF-D68B-422B-AB06-C2984058BB4C} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
+		{CD5311B0-2722-47F7-9D01-36CF4ED7D925} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
+		{DC1BDE5F-794F-4E27-B73D-10CD22E5CEC8} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
+		{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
+		{5533BCC2-1320-4CB5-B8B2-AFB467CE6264} = {48E13342-E35A-462A-8BAF-28A34398D495}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {86AAF1E5-3D43-424B-9101-A04C77A0D14F}
+	EndGlobalSection
+EndGlobal

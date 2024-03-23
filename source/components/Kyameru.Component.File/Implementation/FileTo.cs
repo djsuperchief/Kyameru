@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Component.File.Utilities;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.Logging;
@@ -16,6 +18,9 @@ namespace Kyameru.Component.File
         /// Valid actions
         /// </summary>
         private readonly Dictionary<string, Action<Routable>> toActions = new Dictionary<string, Action<Routable>>();
+
+        private readonly Dictionary<string, Func<Routable, CancellationToken, Task>> toActionsAsync =
+            new Dictionary<string, Func<Routable, CancellationToken, Task>>();
 
         /// <summary>
         /// Valid headers
@@ -41,10 +46,10 @@ namespace Kyameru.Component.File
         /// <param name="incomingHeaders">Incoming headers.</param>
         public FileTo(Dictionary<string, string> incomingHeaders, IFileUtils fileUtils)
         {
-            this.SetupInternalActions();
-            this.headers = incomingHeaders.ToToConfig();
+            SetupInternalActions();
+            headers = incomingHeaders.ToToConfig();
             this.fileUtils = fileUtils;
-            this.overwrite = bool.Parse(this.headers["Overwrite"]);
+            overwrite = bool.Parse(headers["Overwrite"]);
         }
 
         /// <summary>
@@ -58,7 +63,13 @@ namespace Kyameru.Component.File
         /// <param name="item">Message to process.</param>
         public void Process(Routable item)
         {
-            this.toActions[this.headers["Action"]](item);
+            toActions[headers["Action"]](item);
+        }
+
+        public async Task ProcessAsync(Routable item, CancellationToken cancellationToken)
+        {
+            await toActionsAsync[headers["Action"]](item, cancellationToken);
+            
         }
 
         /// <summary>
@@ -66,11 +77,18 @@ namespace Kyameru.Component.File
         /// </summary>
         private void SetupInternalActions()
         {
-            this.toActions.Add("Move", this.MoveFile);
-            this.toActions.Add("Copy", this.CopyFile);
-            this.toActions.Add("Delete", this.DeleteFile);
-            this.toActions.Add("Write", this.WriteFile);
+            toActions.Add("Move", MoveFile);
+            toActionsAsync.Add("Move", MoveFileAsync);
+            toActions.Add("Copy", CopyFile);
+            toActionsAsync.Add("Copy", this.CopyFileAsync);
+            toActions.Add("Delete", DeleteFile);
+            toActionsAsync.Add("Delete", DeleteFileAsync);
+            toActions.Add("Write", WriteFile);
+            toActionsAsync.Add("Write", WriteFileAsync);
         }
+
+
+
 
         /// <summary>
         /// Abstraction for logging event.
@@ -80,7 +98,7 @@ namespace Kyameru.Component.File
         /// <param name="exception">Log exception.</param>
         private void Log(LogLevel logLevel, string message, Exception exception = null)
         {
-            this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
+            OnLog?.Invoke(this, new Log(logLevel, message, exception));
         }
 
         /// <summary>
@@ -89,25 +107,51 @@ namespace Kyameru.Component.File
         /// <param name="item">Message to process.</param>
         private void WriteFile(Routable item)
         {
-            this.Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_WRITE, item.Headers["SourceFile"]));
+            Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_WRITE, item.Headers["SourceFile"]));
             try
             {
-                this.EnsureDestinationExists();
-                if(item.Headers["DataType"] == "String")
+                EnsureDestinationExists();
+                if (item.Headers["DataType"] == "String")
                 {
-                    this.fileUtils.WriteAllText(this.GetDestination(item.Headers["SourceFile"]), (string)item.Body, this.overwrite);
+                    fileUtils.WriteAllText(GetDestination(item.Headers["SourceFile"]), (string)item.Body, overwrite);
                 }
                 else
                 {
-                    this.fileUtils.WriteAllBytes(this.GetDestination(item.Headers["SourceFile"]), (byte[])item.Body, this.overwrite);
+                    fileUtils.WriteAllBytes(GetDestination(item.Headers["SourceFile"]), (byte[])item.Body, overwrite);
                 }
-                
-                this.DeleteFile(item);
+
+                DeleteFile(item);
             }
             catch (Exception ex)
             {
-                this.Log(LogLevel.Error, Resources.ERROR_ACTION_WRITE, ex);
-                item.SetInError(this.RaiseError("WriteFile", "Error writing file"));
+                Log(LogLevel.Error, Resources.ERROR_ACTION_WRITE, ex);
+                item.SetInError(RaiseError("WriteFile", "Error writing file"));
+            }
+        }
+
+        private async Task WriteFileAsync(Routable item, CancellationToken cancellationToken)
+        {
+            Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_WRITE, item.Headers["SourceFile"]));
+            try
+            {
+                await EnsureDestinationExistsAsync(cancellationToken);
+                if (item.Headers["DataType"] == "String")
+                {
+                    await fileUtils.WriteAllTextAsync(GetDestination(item.Headers["SourceFile"]),
+                        (string)item.Body, overwrite, cancellationToken);
+                }
+                else
+                {
+                    await fileUtils.WriteAllBytesAsync(GetDestination(item.Headers["SourceFile"]),
+                        (byte[])item.Body, overwrite, cancellationToken);
+                }
+
+                DeleteFile(item);
+            }
+            catch (Exception ex)
+            {
+                Log(LogLevel.Error, Resources.ERROR_ACTION_WRITE, ex);
+                item.SetInError(RaiseError("WriteFile", "Error writing file"));
             }
         }
 
@@ -117,16 +161,31 @@ namespace Kyameru.Component.File
         /// <param name="item">Message to process.</param>
         private void MoveFile(Routable item)
         {
-            this.Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_MOVE, item.Headers["SourceFile"]));
+            Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_MOVE, item.Headers["SourceFile"]));
             try
             {
-                this.EnsureDestinationExists();
-                this.fileUtils.Move(item.Headers["FullSource"], this.GetDestination(item.Headers["SourceFile"]), this.overwrite);
+                EnsureDestinationExists();
+                fileUtils.Move(item.Headers["FullSource"], GetDestination(item.Headers["SourceFile"]), overwrite);
             }
             catch (Exception ex)
             {
-                this.Log(LogLevel.Error, Resources.ERROR_ACTION_MOVE, ex);
-                item.SetInError(this.RaiseError("MoveFile", "Error writing file"));
+                Log(LogLevel.Error, Resources.ERROR_ACTION_MOVE, ex);
+                item.SetInError(RaiseError("MoveFile", "Error writing file"));
+            }
+        }
+
+        private async Task MoveFileAsync(Routable item, CancellationToken cancellationToken)
+        {
+            Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_MOVE, item.Headers["SourceFile"]));
+            try
+            {
+                await EnsureDestinationExistsAsync(cancellationToken);
+                await fileUtils.MoveAsync(item.Headers["FullSource"], GetDestination(item.Headers["SourceFile"]), overwrite, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Log(LogLevel.Error, Resources.ERROR_ACTION_MOVE, ex);
+                item.SetInError(RaiseError("MoveFile", "Error writing file"));
             }
         }
 
@@ -135,9 +194,17 @@ namespace Kyameru.Component.File
         /// </summary>
         private void EnsureDestinationExists()
         {
-            if (!System.IO.Directory.Exists(this.headers["Target"]))
+            if (!Directory.Exists(headers["Target"]))
             {
-                this.fileUtils.CreateDirectory(this.headers["Target"]);
+                fileUtils.CreateDirectory(headers["Target"]);
+            }
+        }
+
+        private async Task EnsureDestinationExistsAsync(CancellationToken cancellationToken)
+        {
+            if (!Directory.Exists(headers["Target"]))
+            {
+                await fileUtils.CreateDirectoryAsync(headers["Target"], cancellationToken);
             }
         }
 
@@ -147,16 +214,32 @@ namespace Kyameru.Component.File
         /// <param name="item">Message to process.</param>
         private void CopyFile(Routable item)
         {
-            this.Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_COPY, item.Headers["SourceFile"]));
+            Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_COPY, item.Headers["SourceFile"]));
             try
             {
-                this.EnsureDestinationExists();
-                this.fileUtils.CopyFile(item.Headers["FullSource"], this.GetDestination(item.Headers["SourceFile"]), this.overwrite);
+                EnsureDestinationExists();
+                fileUtils.CopyFile(item.Headers["FullSource"], GetDestination(item.Headers["SourceFile"]), overwrite);
             }
             catch (Exception ex)
             {
-                this.Log(LogLevel.Error, Resources.ERROR_ACTION_COPY, ex);
-                item.SetInError(this.RaiseError("CopyFile", "Error writing file"));
+                Log(LogLevel.Error, Resources.ERROR_ACTION_COPY, ex);
+                item.SetInError(RaiseError("CopyFile", "Error writing file"));
+            }
+        }
+        
+        private async Task CopyFileAsync(Routable item, CancellationToken cancellationToken)
+        {
+            Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_COPY, item.Headers["SourceFile"]));
+            try
+            {
+                await EnsureDestinationExistsAsync(cancellationToken);
+                await fileUtils.CopyFileAsync(item.Headers["FullSource"], GetDestination(item.Headers["SourceFile"]),
+                    overwrite, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Log(LogLevel.Error, Resources.ERROR_ACTION_COPY, ex);
+                item.SetInError(RaiseError("CopyFile", "Error writing file"));
             }
         }
 
@@ -166,15 +249,29 @@ namespace Kyameru.Component.File
         /// <param name="item">Message to process.</param>
         private void DeleteFile(Routable item)
         {
-            this.Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_DELETE, item.Headers["SourceFile"]));
+            Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_DELETE, item.Headers["SourceFile"]));
             try
             {
-                this.fileUtils.Delete(item.Headers["FullSource"]);
+                fileUtils.Delete(item.Headers["FullSource"]);
             }
             catch (Exception ex)
             {
-                this.Log(LogLevel.Error, Resources.ERROR_ACTION_DELETE, ex);
-                item.SetInError(this.RaiseError("DeleteError", "Error writing file"));
+                Log(LogLevel.Error, Resources.ERROR_ACTION_DELETE, ex);
+                item.SetInError(RaiseError("DeleteError", "Error writing file"));
+            }
+        }
+        
+        private async Task DeleteFileAsync(Routable item, CancellationToken cancellationToken)
+        {
+            Log(LogLevel.Information, string.Format(Resources.INFO_ACTION_DELETE, item.Headers["SourceFile"]));
+            try
+            {
+                await fileUtils.DeleteAsync(item.Headers["FullSource"], cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Log(LogLevel.Error, Resources.ERROR_ACTION_DELETE, ex);
+                item.SetInError(RaiseError("DeleteError", "Error writing file"));
             }
         }
 
@@ -185,7 +282,7 @@ namespace Kyameru.Component.File
         /// <returns>Returns a valid destination for the file.</returns>
         private string GetDestination(string filename)
         {
-            return Path.Combine(this.headers["Target"], filename);
+            return Path.Combine(headers["Target"], filename);
         }
 
         /// <summary>

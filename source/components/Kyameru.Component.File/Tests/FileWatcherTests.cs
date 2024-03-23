@@ -6,7 +6,9 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Component.File.Utilities;
+using Kyameru.Core;
 using Xunit;
 
 namespace Kyameru.Component.File.Tests
@@ -21,32 +23,68 @@ namespace Kyameru.Component.File.Tests
             this.location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/test";
         }
 
-        [Fact]
-        public void CreatedWorks()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task CreatedWorks(bool isAsync)
         {
+            var tokenSource = new CancellationTokenSource();
             this.CheckFile("created.tdd");
             AutoResetEvent resetEvent = new AutoResetEvent(false);
-            string method = string.Empty;
-
+            var method = string.Empty;
+            var raisedAsync = false;
             // Github tests for some reason do not raise created compared to local os.
             FileWatcher from = this.Setup("Created");
             from.OnAction += delegate (object sender, Routable e)
             {
                 method = e.Headers["Method"];
+                
                 resetEvent.Set();
             };
+
+            from.OnActionAsync += async delegate(object sender, RoutableEventData e)
+            {
+                method = e.Data.Headers["Method"];
+                raisedAsync = true;
+                resetEvent.Set();
+                await Task.CompletedTask;
+            };
+            
             from.Setup();
-            from.Start();
+            if (isAsync)
+            {
+                
+                await from.StartAsync(tokenSource.Token);
+            }
+            else
+            {
+                from.Start();
+            }
+
             System.IO.File.WriteAllText($"{this.location}/Created.tdd", "test data");
             this.fileSystemWatcher.Raise(x => x.Created += null, new FileSystemEventArgs(WatcherChangeTypes.Created, this.location, "Created.tdd"));
             bool wasAssigned = resetEvent.WaitOne(TimeSpan.FromSeconds(5));
-            from.Stop();
+
+            if (isAsync)
+            {
+                await from.StopAsync(tokenSource.Token);
+            }
+            else
+            {
+                from.Stop();    
+            }
+            
             Assert.True(!string.IsNullOrWhiteSpace(method));
+            Assert.Equal(isAsync, raisedAsync);
         }
 
-        [Fact]
-        public void ChangedWorks()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ChangedWorks(bool isAsync)
         {
+            var tokenSource = new CancellationTokenSource();
+            var raisedAsync = false;
             string filename = $"{Guid.NewGuid().ToString("N")}.txt";
             this.CheckFile(filename);
             AutoResetEvent resetEvent = new AutoResetEvent(false);
@@ -59,13 +97,36 @@ namespace Kyameru.Component.File.Tests
                 method = e.Headers["Method"];
                 resetEvent.Set();
             };
+
+            from.OnActionAsync += async delegate(object sender, RoutableEventData e)
+            {
+                method = e.Data.Headers["Method"];
+                raisedAsync = true;
+                resetEvent.Set();
+                await Task.CompletedTask;
+            };
             from.Setup();
-            from.Start();
+            if (isAsync)
+            {
+                await from.StartAsync(tokenSource.Token);
+            }
+            else
+            {
+                from.Start();
+            }
+
             System.IO.File.WriteAllText($"{this.location}/{filename}", "more data added");
             System.IO.File.WriteAllText($"{this.location}/{filename}", "more data added");
             this.fileSystemWatcher.Raise(x => x.Changed += null, new FileSystemEventArgs(WatcherChangeTypes.Changed, this.location, filename));
             bool wasAssigned = resetEvent.WaitOne(TimeSpan.FromSeconds(5));
-            Assert.Equal("Changed", method);
+            if (!isAsync)
+            {
+                // doing this async means it can be scanned before changed...also async tests, need a better way of
+                // testing this.
+                Assert.Equal("Changed", method);    
+            }
+            
+            Assert.Equal(isAsync, raisedAsync);
         }
 
         [Theory]

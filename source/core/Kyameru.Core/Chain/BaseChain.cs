@@ -1,4 +1,6 @@
-﻿using Kyameru.Core.Contracts;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Extensions;
 using Microsoft.Extensions.Logging;
@@ -44,12 +46,36 @@ namespace Kyameru.Core.Chain
         {
             if (!item.ExitRoute)
             {
+
                 this.Next?.Handle(item);
             }
             else
             {
                 this.Logger.KyameruWarning(this.identity, string.Format(Resources.WARNING_ROUTE_EXIT, item.ExitReason));
             }
+        }
+
+        /// <summary>
+        /// Pass the processing onto the next component.
+        /// </summary>
+        /// <param name="item">Message to process.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        public virtual async Task HandleAsync(Routable item, CancellationToken cancellationToken)
+        {
+            if (!item.ExitRoute)
+            {
+                // Really?
+                if (this.Next != null)
+                {
+                    await this.Next?.HandleAsync(item, cancellationToken);
+                }
+
+            }
+            else
+            {
+                this.Logger.KyameruWarning(this.identity, string.Format(Resources.WARNING_ROUTE_EXIT, item.ExitReason));
+            }
+
         }
 
         /// <summary>

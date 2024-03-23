@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Component.File.Utilities;
+using Kyameru.Core;
 using Kyameru.Core.Entities;
 
 using Microsoft.Extensions.Logging;
@@ -45,6 +48,11 @@ namespace Kyameru.Component.File
         private IFileSystemWatcher fsw;
 
         /// <summary>
+        /// Value indicating whether the route starts as async.
+        /// </summary>
+        private bool runAsync = false;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="FileWatcher"/> class.
         /// </summary>
         /// <param name="headers">Incoming Headers.</param>
@@ -63,6 +71,8 @@ namespace Kyameru.Component.File
         /// Event raised when file picked up.
         /// </summary>
         public event EventHandler<Routable> OnAction;
+
+        public event AsyncEventHandler<RoutableEventData> OnActionAsync;
 
         /// <summary>
         /// Event raised when needing to log.
@@ -103,6 +113,19 @@ namespace Kyameru.Component.File
         public void Stop()
         {
             this.fsw.Dispose();
+        }
+
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            runAsync = true;
+            Start();
+            await Task.CompletedTask;
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            Stop();
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -244,7 +267,24 @@ namespace Kyameru.Component.File
                     headers.Add("Method", method);
                     headers.Add("DataType", "Byte");
                     Routable dataItem = new Routable(headers, System.IO.File.ReadAllBytes(sourceFile));
-                    this.OnAction?.Invoke(this, dataItem);
+                    if (runAsync)
+                    {
+                        var token = new CancellationTokenSource();
+                        // fire forget and move on
+                        _ = Task.Factory.StartNew(async () =>
+                        {
+                            var routableEventData = new RoutableEventData(dataItem,
+                                token.Token);
+                            if (this.OnActionAsync != null)
+                            {
+                                await this.OnActionAsync?.Invoke(this, routableEventData);    
+                            }
+                        }, token.Token);
+                    }
+                    else
+                    {
+                        this.OnAction?.Invoke(this, dataItem);
+                    }
                 }
             }
             catch (Exception ex)

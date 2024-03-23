@@ -5,12 +5,8 @@ namespace Kyameru.Core.Contracts
     /// <summary>
     /// End processing component.
     /// </summary>
-    public interface IToComponent : IComponent
+    public interface IToComponent : IProcessComponent
     {
-        /// <summary>
-        /// Process the incoming request.
-        /// </summary>
-        /// <param name="item">Message to be processed.</param>
-        void Process(Routable item);
+
     }
 }

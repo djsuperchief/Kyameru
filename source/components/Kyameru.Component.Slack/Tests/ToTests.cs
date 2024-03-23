@@ -23,6 +23,15 @@ namespace Kyameru.Component.Slack.Tests
         }
 
         [Fact]
+        public async Task CanSendMessageFromBodyAsync()
+        {
+            SlackTo slackTo = this.GetComponent("Body", this.SetupOkHandler());
+            Routable routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
+            await slackTo.ProcessAsync(routable, default);
+            Assert.Null(routable.Error);
+        }
+
+        [Fact]
         public void SendMessageInError()
         {
             SlackTo slackTo = this.GetComponent("Body", this.SetupErrorHandler());

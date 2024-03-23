@@ -40,6 +40,12 @@ namespace Kyameru.Core
         private IAtomicComponent atomicComponent;
 
         /// <summary>
+        /// Value indicating whether exceptions should be raised from the route.
+        /// False indicates framework should "swallow" the exception but still log it.
+        /// </summary>
+        private bool raiseExceptions;
+
+        /// <summary>
         /// Route Id.
         /// </summary>
         private string identity;
@@ -59,6 +65,7 @@ namespace Kyameru.Core
             this.toUris.Add(to);
             this.components = components;
             this.fromUri = fromUri;
+            this.raiseExceptions = false;
         }
 
         /// <summary>
@@ -138,10 +145,34 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Indicates that the framework will bubble a route exception up to consumer.
+        /// </summary>
+        /// <returns></returns>
+        public Builder RaiseExceptions()
+        {
+            this.raiseExceptions = true;
+            return this;
+        }
+
+        /// <summary>
         /// Builds the final chain into dependency injection.
         /// </summary>
         /// <param name="services">Service collection.</param>
         public void Build(IServiceCollection services)
+        {
+            Build(services, false);
+        }
+
+        /// <summary>
+        /// Builds the final chain into dependency injection.
+        /// </summary>
+        /// <param name="services">Service collection.</param>
+        public void BuildAsync(IServiceCollection services)
+        {
+            Build(services, true);
+        }
+
+        private void Build(IServiceCollection services, bool isAsync)
         {
             this.RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
@@ -160,7 +191,7 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                return new Chain.From(from, next, logger, this.identity);
+                return new Chain.From(from, next, logger, this.identity, this.IsAtomic, isAsync, raiseExceptions);
             });
         }
 
@@ -170,7 +201,7 @@ namespace Kyameru.Core
         private void RunComponentDiRegistration(IServiceCollection services)
         {
             this.RegisterFromServices(services, this.fromUri.ComponentName);
-            for(int i = 0; i < this.toUris.Count; i++)
+            for (int i = 0; i < this.toUris.Count; i++)
             {
                 this.RegisterToServices(services, this.toUris[i].ComponentName);
             }

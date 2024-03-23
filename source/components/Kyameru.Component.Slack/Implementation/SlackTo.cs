@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Kyameru.Component.Slack
 {
@@ -93,6 +95,32 @@ namespace Kyameru.Component.Slack
                     if (!response.IsSuccessStatusCode)
                     {
                         item.SetInError(this.RaiseError("SendSlackMessage", "Error communicating with slack."));
+                    }
+                }
+            }
+        }
+
+        public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
+        {
+            Payload slackPayload = new Payload()
+            {
+                text = this.GetMessageSource(routable),
+                channel = this.GetHeader("Channel"),
+                username = this.GetHeader("Username")
+            };
+
+            if (routable.Error == null)
+            {
+                var payloadJson = JsonSerializer.Serialize(slackPayload);
+                string uri = $"{SLACKURI}{this.headers["Target"]}";
+                var dataContent = new StringContent(payloadJson, Encoding.UTF8, "application/json");
+                using (HttpClient client = this.GetHttpClient())
+                {
+                    OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Sending slack message"));
+                    var response = await client.PostAsync(uri, dataContent, cancellationToken);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        routable.SetInError(this.RaiseError("SendSlackMessage", "Error communicating with slack."));
                     }
                 }
             }
