@@ -40,6 +40,7 @@ jobs:
           echo "CURRENT TAG: ${VERSION_PATCH}"
           VERSION_PATCH="${VERSION_PATCH//-rc}"
           VERSION_PATCH="${VERSION_PATCH//$SEMVER}"
+          VERSION_PATCH="${VERSION_PATCH//-beta}"
           if [ -z "$VERSION_PATCH" ]; then
             VERSION_PATCH=0
           else
