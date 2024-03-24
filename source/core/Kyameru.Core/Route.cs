@@ -1,4 +1,5 @@
 ﻿using Kyameru.Core;
+using Kyameru.Core.Entities;
 
 namespace Kyameru
 {
@@ -22,6 +23,25 @@ namespace Kyameru
         public static RouteBuilder From(string componentUri)
         {
             return new RouteBuilder(componentUri);
+        }
+
+        public static void FromJson(string jsonLocation)
+        {
+            
+        }
+
+        public static void FromXml(string xmlLocation)
+        {
+            
+        }
+
+        private static void FromConfig(RouteConfig config)
+        {
+            var builder = new RouteBuilder(config.From.ToString());
+            foreach (var processor in config.Process)
+            {
+                builder.Process(processor.ToString())
+            }
         }
     }
 }
