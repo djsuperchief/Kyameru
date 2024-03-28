@@ -69,6 +69,30 @@ namespace Kyameru.Tests.ActivationTests
             Assert.Equal(expected, actual);
         }
 
+        [Fact]
+        public async Task CanActivateProcessingByDomain()
+        {
+            IServiceCollection serviceCollection = this.GetServiceDescriptors();
+            Routable routable = null;
+            this.processComponent.Reset();
+            this.processComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            {
+                routable = x;
+            });
+
+            Kyameru.Route.From("injectiontest:///mememe")
+                .Process("Mocks.MyComponent")
+                .Process(processComponent.Object)
+                .To("injectiontest:///somewhere")
+                .Build(serviceCollection);
+            IServiceProvider provider = serviceCollection.BuildServiceProvider();
+            IHostedService service = provider.GetService<IHostedService>();
+            await service.StartAsync(CancellationToken.None);
+            await service.StopAsync(CancellationToken.None);
+            
+            Assert.Equal("Yes", routable.Headers["ComponentRan"]);
+        }
+
         private IServiceCollection GetServiceDescriptors()
         {
             IServiceCollection serviceCollection = new ServiceCollection();

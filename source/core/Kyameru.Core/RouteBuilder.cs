@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Kyameru.Core.Contracts;
+using System.Reflection;
 using Kyameru.Core.Entities;
 
 namespace Kyameru.Core
@@ -18,7 +18,12 @@ namespace Kyameru.Core
         /// <summary>
         /// List of intermediary components.
         /// </summary>
-        private readonly List<Entities.Processable> components = new List<Entities.Processable>();
+        private readonly List<Processable> components = new List<Processable>();
+
+        /// <summary>
+        /// Host assembly namespace.
+        /// </summary>
+        private readonly Assembly hostAssembly;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RouteBuilder"/> class.
@@ -26,13 +31,24 @@ namespace Kyameru.Core
         /// <param name="componentUri">Valid Kyameru URI.</param>
         public RouteBuilder(string componentUri)
         {
-            this.fromUri = new RouteAttributes(componentUri);
+            fromUri = new RouteAttributes(componentUri);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RouteBuilder"/> class.
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI</param>
+        /// <param name="hostAssembly">Assembly name</param>
+        internal RouteBuilder(string componentUri, Assembly hostAssembly)
+        {
+            fromUri = new RouteAttributes(componentUri);
+            this.hostAssembly = hostAssembly;
         }
 
         /// <summary>
         /// Gets the processing component count.
         /// </summary>
-        public int ComponentCount => this.components.Count;
+        public int ComponentCount => components.Count;
 
         /// <summary>
         /// Adds a processing component.
@@ -41,7 +57,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public RouteBuilder Process(IProcessComponent processComponent)
         {
-            this.components.Add(Entities.Processable.Create(processComponent));
+            components.Add(Processable.Create(processComponent));
 
             return this;
         }
@@ -53,7 +69,19 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public RouteBuilder Process<T>() where T : IProcessComponent
         {
-            this.components.Add(Entities.Processable.Create<T>());
+            components.Add(Processable.Create<T>());
+
+            return this;
+        }
+
+        /// <summary>
+        /// Create a new process component.
+        /// </summary>
+        /// <param name="typeName">Component to add (namespace and not including app domain).</param>
+        /// <returns><returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns></returns>
+        public RouteBuilder Process(string typeName)
+        {
+            components.Add(Processable.Create(typeName));
 
             return this;
         }
@@ -66,7 +94,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public RouteBuilder AddHeader(string key, string value)
         {
-            this.components.Add(Entities.Processable.Create(new BaseComponents.AddHeader(key, value)));
+            components.Add(Processable.Create(new BaseComponents.AddHeader(key, value)));
             return this;
         }
 
@@ -78,7 +106,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public RouteBuilder AddHeader(string key, Func<string> callback)
         {
-            this.components.Add(Entities.Processable.Create(new BaseComponents.AddHeader(key, callback)));
+            components.Add(Processable.Create(new BaseComponents.AddHeader(key, callback)));
             return this;
         }
 
@@ -90,7 +118,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public RouteBuilder AddHeader(string key, Func<Routable, string> callback)
         {
-            this.components.Add(Entities.Processable.Create(new BaseComponents.AddHeader(key, callback)));
+            components.Add(Processable.Create(new BaseComponents.AddHeader(key, callback)));
             return this;
         }
 
@@ -101,11 +129,12 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder To(string componentUri)
         {
-            RouteAttributes route = new Entities.RouteAttributes(componentUri);
+            var route = new RouteAttributes(componentUri);
             return new Builder(
-                this.components,
+                components,
                 route,
-                this.fromUri);
+                fromUri,
+                hostAssembly);
         }
     }
 }

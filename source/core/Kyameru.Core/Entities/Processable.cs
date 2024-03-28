@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
+using System.Threading;
+using Kyameru.Core.Exceptions;
 
 namespace Kyameru.Core.Entities
 {
@@ -22,7 +25,12 @@ namespace Kyameru.Core.Entities
             /// <summary>
             /// Concrete implementation.
             /// </summary>
-            Concrete
+            Concrete,
+            
+            /// <summary>
+            /// Reflection creation
+            /// </summary>
+            Reflection
         };
 
         /// <summary>
@@ -45,6 +53,12 @@ namespace Kyameru.Core.Entities
             this.ComponentType = type;
         }
 
+        protected Processable(string type)
+        {
+            Invocation = InvocationType.Reflection;
+            ComponentTypeName = type;
+        }
+
         /// <summary>
         /// Gets the invocation type.
         /// </summary>
@@ -59,6 +73,11 @@ namespace Kyameru.Core.Entities
         /// Gets the component.
         /// </summary>
         public IProcessComponent Component { get; private set; }
+
+        /// <summary>
+        /// Gets the component type name if creation is reflection.
+        /// </summary>
+        public string ComponentTypeName { get; private set; }
 
         /// <summary>
         /// Creates an instance of the <see cref="Processable"/> class.
@@ -81,20 +100,45 @@ namespace Kyameru.Core.Entities
         }
 
         /// <summary>
+        /// Creates an instance of the <see cref="Processable"/> class.
+        /// </summary>
+        /// <param name="component">Component name and namespace (not including app domain).</param>
+        /// <returns>Returns an instance of the <see cref="Processable"/> class.</returns>
+        public static Processable Create(string component)
+        {
+            return new Processable(component);
+        }
+
+        /// <summary>
         /// Gets the component from either local store or service provider.
         /// </summary>
         /// <param name="provider">DI Service Provider.</param>
+        /// <param name="hostAssembly">Host assembly namespace.</param>
         /// <returns>Returns an instance of the <see cref="IProcessComponent"/> class.</returns>
-        public IProcessComponent GetComponent(IServiceProvider provider)
+        public IProcessComponent GetComponent(IServiceProvider provider, Assembly hostAssembly)
         {
-            if (this.Invocation == InvocationType.Concrete)
+            switch (this.Invocation)
             {
-                return this.Component;
+                case InvocationType.Concrete:
+                    return this.Component;
+                    break;
+                case InvocationType.DI:
+                    return (IProcessComponent)provider.GetService(this.ComponentType);
+                    break;
+                case InvocationType.Reflection:
+                    return GetReflectedComponent(ComponentTypeName, hostAssembly);
+                    break;
             }
-            else
-            {
-                return (IProcessComponent)provider.GetService(this.ComponentType);
-            }
+
+            throw new ComponentException(Resources.ERROR_SETUP_COMPONENT_INVOCATION);
+        }
+
+        private IProcessComponent GetReflectedComponent(string componentTypeName, Assembly hostAssembly)
+        {
+            var componentName = string.Concat(hostAssembly.FullName.Split(',')[0], ".", componentTypeName);
+            Type componentType = hostAssembly.GetType(componentName);
+            
+            return Activator.CreateInstance(componentType) as IProcessComponent;
         }
     }
 }

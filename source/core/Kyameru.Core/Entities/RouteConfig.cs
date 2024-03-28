@@ -1,3 +1,6 @@
+using System.IO;
+using System.Text.Json;
+
 namespace Kyameru.Core.Entities
 {
     /// <summary>
@@ -6,8 +9,14 @@ namespace Kyameru.Core.Entities
     public class RouteConfig
     {
         public RouteConfigComponent From { get; set; }
-        public RouteConfigComponent[] Process { get; set; }
+        public string[] Process { get; set; }
         public RouteConfigComponent[] To { get; set; }
         public RouteConfigOptions Options { get; set; }
+
+        public static RouteConfig Load(string fileLocation)
+        {
+            var file = File.ReadAllText(fileLocation);
+            return JsonSerializer.Deserialize<RouteConfig>(file);
+        }
     }
 }

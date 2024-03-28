@@ -1,5 +1,7 @@
-﻿using Kyameru.Core;
+﻿using System.Reflection;
+using Kyameru.Core;
 using Kyameru.Core.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Kyameru
 {
@@ -24,24 +26,46 @@ namespace Kyameru
         {
             return new RouteBuilder(componentUri);
         }
-
-        public static void FromJson(string jsonLocation)
+        
+        /// <summary>
+        /// Runs a Kyameru build from a config file.
+        /// </summary>
+        /// <param name="config">Deserialized config file.</param>
+        /// <param name="services">Service collection.</param>
+        public static void FromConfig(RouteConfig config, IServiceCollection services)
         {
+            var final = ConfigBuilder(config, Assembly.GetCallingAssembly());
+            if (config.Options is {BuildAsync: true})
+            {
+                final.BuildAsync(services);
+                return;
+            }
             
+            final.Build(services);
         }
 
-        public static void FromXml(string xmlLocation)
+        private static Builder ConfigBuilder(RouteConfig config, Assembly callingAssembly)
         {
-            
-        }
-
-        private static void FromConfig(RouteConfig config)
-        {
-            var builder = new RouteBuilder(config.From.ToString());
+            var builder = new RouteBuilder(config.From.ToString(), callingAssembly);
             foreach (var processor in config.Process)
             {
-                builder.Process(processor.ToString())
+                builder.Process(processor.ToString());
             }
+
+            var final = builder.To(config.To[0].ToString());
+            if (config.To.Length > 1)
+            {
+                for (var i = 1; i < config.To.Length; i++)
+                {
+                    final.To(config.To[i].ToString());
+                }
+            }
+
+            if (config.Options is { RaiseExceptions: true })
+            {
+                final.RaiseExceptions();
+            }
+            return final;
         }
     }
 }

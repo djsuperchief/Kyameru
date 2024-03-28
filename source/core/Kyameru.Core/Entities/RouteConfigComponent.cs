@@ -10,22 +10,29 @@ namespace Kyameru.Core.Entities
         public string Path { get; set; }
         public Dictionary<string, string> Headers { get; set; }
 
+        public string Uri { get; set; }
+
         public override string ToString()
         {
-            var builder = new StringBuilder();
-            builder.Append($"{Component.ToLower()}///");
-            builder.Append($"{Path}?");
-            var lastHeader = Headers.Last();
-            foreach (var header in Headers.Keys)
+            if (string.IsNullOrWhiteSpace(Uri))
             {
-                builder.Append($"{header}={Headers[header]}");
-                if (lastHeader.Key != header)
+                var builder = new StringBuilder();
+                builder.Append($"{Component.ToLower()}///");
+                builder.Append($"{Path}?");
+                var lastHeader = Headers.Last();
+                foreach (var header in Headers.Keys)
                 {
-                    builder.Append("&");
+                    builder.Append($"{header}={Headers[header]}");
+                    if (lastHeader.Key != header)
+                    {
+                        builder.Append("&");
+                    }
                 }
+
+                Uri = builder.ToString();
             }
 
-            return builder.ToString();
+            return Uri;
         }
     }
 }
