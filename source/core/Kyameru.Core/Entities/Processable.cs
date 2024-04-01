@@ -50,6 +50,10 @@ namespace Kyameru.Core.Entities
             ComponentType = type;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Processable"/> class.
+        /// </summary>
+        /// <param name="type">Type of the component loaded via reflection.</param>
         protected Processable(string type)
         {
             Invocation = InvocationType.Reflection;
@@ -118,13 +122,10 @@ namespace Kyameru.Core.Entities
             {
                 case InvocationType.Concrete:
                     return Component;
-                    break;
                 case InvocationType.DI:
                     return (IProcessComponent)provider.GetService(ComponentType);
-                    break;
                 case InvocationType.Reflection:
                     return GetReflectedComponent(ComponentTypeName, hostAssembly);
-                    break;
             }
 
             throw new ComponentException(Resources.ERROR_SETUP_COMPONENT_INVOCATION);
