@@ -44,7 +44,7 @@ namespace Kyameru.Core.BaseComponents
         {
             this.header = header;
             this.value = value;
-            this.callbackOption = SetValueHeader;
+            callbackOption = SetValueHeader;
         }
 
         /// <summary>
@@ -55,8 +55,8 @@ namespace Kyameru.Core.BaseComponents
         public AddHeader(string header, Func<string> callbackOne)
         {
             this.header = header;
-            this.callback = callbackOne;
-            this.callbackOption = SetCallbackHeader;
+            callback = callbackOne;
+            callbackOption = SetCallbackHeader;
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Kyameru.Core.BaseComponents
         {
             this.header = header;
             this.callbackTwo = callbackTwo;
-            this.callbackOption = SetReturnableCallbackHeader;
+            callbackOption = SetReturnableCallbackHeader;
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Kyameru.Core.BaseComponents
         /// <param name="routable">Routable message.</param>
         public void Process(Routable routable)
         {
-            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Debug, Resources.DEBUG_HEADER_DETERMINE));
+            OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Debug, Resources.DEBUG_HEADER_DETERMINE));
             callbackOption(routable);
         }
 
@@ -114,20 +114,20 @@ namespace Kyameru.Core.BaseComponents
 
         private void SetValueHeader(Routable routable)
         {
-            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Debug, Resources.DEBUG_HEADER_RUNNING));
-            routable.SetHeader(this.header, this.value);
+            OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Debug, Resources.DEBUG_HEADER_RUNNING));
+            routable.SetHeader(header, value);
         }
 
         private void SetCallbackHeader(Routable routable)
         {
             try
             {
-                routable.SetHeader(this.header, this.callback());
+                routable.SetHeader(header, callback());
             }
             catch (Exception ex)
             {
-                routable.SetInError(this.SetError("Callback", Resources.ERROR_HEADER_CALLBACK));
-                this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Error, Resources.ERROR_HEADER_CALLBACK, ex));
+                routable.SetInError(SetError("Callback", Resources.ERROR_HEADER_CALLBACK));
+                OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Error, Resources.ERROR_HEADER_CALLBACK, ex));
             }
         }
 
@@ -135,12 +135,12 @@ namespace Kyameru.Core.BaseComponents
         {
             try
             {
-                routable.SetHeader(this.header, this.callbackTwo(routable));
+                routable.SetHeader(header, callbackTwo(routable));
             }
             catch (Exception ex)
             {
-                routable.SetInError(this.SetError("Callback", Resources.ERROR_HEADER_CALLBACK));
-                this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Error, Resources.ERROR_HEADER_CALLBACK, ex));
+                routable.SetInError(SetError("Callback", Resources.ERROR_HEADER_CALLBACK));
+                OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Error, Resources.ERROR_HEADER_CALLBACK, ex));
             }
         }
     }

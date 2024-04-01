@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Primitives;
 
 namespace Kyameru.Core.Contracts
 {

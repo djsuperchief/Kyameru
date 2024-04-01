@@ -27,7 +27,7 @@ namespace Kyameru.Core.Chain
         public To(ILogger logger, IToComponent toComponent, string identity) : base(logger, identity)
         {
             this.toComponent = toComponent;
-            this.toComponent.OnLog += this.OnLog;
+            this.toComponent.OnLog += OnLog;
         }
 
         /// <summary>
@@ -40,11 +40,11 @@ namespace Kyameru.Core.Chain
             {
                 try
                 {
-                    this.toComponent.Process(item);
+                    toComponent.Process(item);
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    Logger.KyameruException(identity, ex.Message, ex);
                     item.SetInError(new Entities.Error("To Component", "Handle", ex.Message));
                 }
             }
@@ -63,11 +63,11 @@ namespace Kyameru.Core.Chain
             {
                 try
                 {
-                    await this.toComponent.ProcessAsync(item, cancellationToken);
+                    await toComponent.ProcessAsync(item, cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    Logger.KyameruException(identity, ex.Message, ex);
                     item.SetInError(new Entities.Error("To Component", "Handle", ex.Message));
                 }
             }

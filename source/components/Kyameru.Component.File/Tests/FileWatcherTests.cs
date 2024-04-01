@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Component.File.Utilities;
 using Kyameru.Core;
+using Kyameru.Core.Sys;
 using Xunit;
 
 namespace Kyameru.Component.File.Tests

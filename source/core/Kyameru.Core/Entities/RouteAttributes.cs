@@ -18,8 +18,8 @@ namespace Kyameru.Core.Entities
             try
             {
                 UriBuilder uriBuilder = new UriBuilder(componentUri);
-                this.ComponentName = uriBuilder.Scheme.ToFirstCaseUpper();
-                this.Headers = this.ParseQuery($"Target={uriBuilder.Path}{this.GetQuery(uriBuilder)}");
+                ComponentName = uriBuilder.Scheme.ToFirstCaseUpper();
+                Headers = ParseQuery($"Target={uriBuilder.Path}{GetQuery(uriBuilder)}");
             }
             catch (Exception ex)
             {

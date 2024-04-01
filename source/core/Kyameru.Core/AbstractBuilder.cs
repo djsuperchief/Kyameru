@@ -26,7 +26,7 @@ namespace Kyameru.Core
             IToComponent response = null;
             try
             {
-                response = this.GetOasis(to).CreateToComponent(headers, serviceProvider);
+                response = GetOasis(to).CreateToComponent(headers, serviceProvider);
             }
             catch (Exception ex)
             {
@@ -49,7 +49,7 @@ namespace Kyameru.Core
             IFromComponent response = null;
             try
             {
-                response = this.GetOasis(from).CreateFromComponent(headers, isAtomic, serviceProvider);
+                response = GetOasis(from).CreateFromComponent(headers, isAtomic, serviceProvider);
             }
             catch (Exception ex)
             {
@@ -70,7 +70,7 @@ namespace Kyameru.Core
             IAtomicComponent response = null;
             try
             {
-                response = this.GetOasis(from).CreateAtomicComponent(headers);
+                response = GetOasis(from).CreateAtomicComponent(headers);
             }
             catch (Exception ex)
             {
@@ -89,7 +89,7 @@ namespace Kyameru.Core
         {
             try
             {
-                this.GetOasis(component).RegisterTo(serviceCollection);
+                GetOasis(component).RegisterTo(serviceCollection);
             }
             catch (Exception ex)
             {
@@ -106,7 +106,7 @@ namespace Kyameru.Core
         {
             try
             {
-                this.GetOasis(component).RegisterFrom(serviceCollection);
+                GetOasis(component).RegisterFrom(serviceCollection);
             }
             catch (Exception ex)
             {

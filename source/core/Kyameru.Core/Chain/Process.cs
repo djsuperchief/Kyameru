@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Extensions;
 using Microsoft.Extensions.Logging;
@@ -26,8 +25,8 @@ namespace Kyameru.Core.Chain
         /// <param name="identity">Identity of route.</param>
         public Process(ILogger logger, IProcessComponent processComponent, string identity) : base(logger, identity)
         {
-            this.component = processComponent;
-            this.component.OnLog += this.OnLog;
+            component = processComponent;
+            component.OnLog += OnLog;
         }
 
         /// <summary>
@@ -40,11 +39,11 @@ namespace Kyameru.Core.Chain
             {
                 try
                 {
-                    this.component.Process(item);
+                    component.Process(item);
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    Logger.KyameruException(identity, ex.Message, ex);
                     item.SetInError(new Entities.Error("Processing component", "Handle", ex.Message));
                 }
             }
@@ -58,11 +57,11 @@ namespace Kyameru.Core.Chain
             {
                 try
                 {
-                    await this.component.ProcessAsync(routable, cancellationToken);
+                    await component.ProcessAsync(routable, cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    Logger.KyameruException(identity, ex.Message, ex);
                     routable.SetInError(new Entities.Error("Processing component", "Handle", ex.Message));
                 }
             }

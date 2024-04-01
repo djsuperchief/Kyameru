@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core;
+using Kyameru.Core.Sys;
 using Xunit;
 
 namespace Kyameru.Component.Ftp.Tests.Routes

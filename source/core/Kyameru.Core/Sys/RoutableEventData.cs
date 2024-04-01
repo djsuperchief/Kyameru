@@ -1,8 +1,7 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using Kyameru.Core.Entities;
 
-namespace Kyameru.Core
+namespace Kyameru.Core.Sys
 {
     /// <summary>
     /// Event data for async events

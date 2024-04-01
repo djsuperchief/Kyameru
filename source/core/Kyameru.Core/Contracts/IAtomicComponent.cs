@@ -1,7 +1,4 @@
-﻿using System;
-using Kyameru.Core.Entities;
-
-namespace Kyameru.Core.Contracts
+﻿namespace Kyameru.Core.Contracts
 {
     /// <summary>
     /// Atomic component executed after the final to.

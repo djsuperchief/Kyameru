@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core.Entities;
-using Microsoft.Extensions.Primitives;
+using Kyameru.Core.Sys;
 
 namespace Kyameru.Core.Contracts
 {

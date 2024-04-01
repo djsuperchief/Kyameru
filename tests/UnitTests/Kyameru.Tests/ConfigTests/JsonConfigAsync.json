@@ -1,0 +1,16 @@
+{
+  "From": {
+    "Uri": "injectiontest:///mememe"
+  },
+  "Process": [
+    "Mocks.MyComponent"
+  ],
+  "To": [
+    {
+      "Uri": "injectiontest:///mememe"
+    }
+  ],
+  "Options": {
+    "BuildAsync": true
+  }
+}

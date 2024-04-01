@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Sys;
 
 namespace Kyameru.Component.Injectiontest
 {
