@@ -31,7 +31,7 @@ namespace Kyameru.Core.Chain
         public Error(ILogger logger, IErrorComponent errorComponent, string identity) : base(logger, identity)
         {
             this.errorComponent = errorComponent;
-            this.errorComponent.OnLog += this.OnLog;
+            this.errorComponent.OnLog += OnLog;
         }
 
         /// <summary>
@@ -44,11 +44,11 @@ namespace Kyameru.Core.Chain
             {
                 try
                 {
-                    this.errorComponent.Process(item);
+                    errorComponent.Process(item);
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    Logger.KyameruException(identity, ex.Message, ex);
                     item.SetInError(new Entities.Error("Error Component", "Handle", ex.Message));
                 }
             }
@@ -60,11 +60,11 @@ namespace Kyameru.Core.Chain
             {
                 try
                 {
-                    await this.errorComponent.ProcessAsync(item, cancellationToken);
+                    await errorComponent.ProcessAsync(item, cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    Logger.KyameruException(identity, ex.Message, ex);
                     item.SetInError(new Entities.Error("Error Component", "Handle", ex.Message));
                 }
             }

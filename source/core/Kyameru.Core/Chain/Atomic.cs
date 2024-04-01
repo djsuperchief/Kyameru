@@ -24,11 +24,11 @@ namespace Kyameru.Core.Chain
             {
                 try
                 {
-                    this.atomicComponent.Process(item);
+                    atomicComponent.Process(item);
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    Logger.KyameruException(identity, ex.Message, ex);
                     item.SetInError(new Entities.Error("Atomic Component", "Handle", ex.Message));
                 }
             }
@@ -42,11 +42,11 @@ namespace Kyameru.Core.Chain
             {
                 try
                 {
-                    await this.atomicComponent.ProcessAsync(item, cancellationToken);
+                    await atomicComponent.ProcessAsync(item, cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    Logger.KyameruException(identity, ex.Message, ex);
                     item.SetInError(new Entities.Error("Atomic Component", "Handle", ex.Message));
                 }
             }

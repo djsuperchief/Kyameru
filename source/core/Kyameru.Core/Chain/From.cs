@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Extensions;
+using Kyameru.Core.Sys;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -55,12 +56,12 @@ namespace Kyameru.Core.Chain
         {
             this.fromComponent = fromComponent;
             this.fromComponent.Setup();
-            this.fromComponent.OnAction += this.FromComponent_OnAction;
+            this.fromComponent.OnAction += FromComponent_OnAction;
             this.next = next;
             this.logger = logger;
-            this.fromComponent.OnLog += this.FromComponent_OnLog;
-            this.identity = id;
-            this.IsAtomicRoute = isAtomicRoute;
+            this.fromComponent.OnLog += FromComponent_OnLog;
+            identity = id;
+            IsAtomicRoute = isAtomicRoute;
             this.isAsync = isAsync;
             fromComponent.OnActionAsync += FromComponent_OnActionAsync;
             this.raiseExceptions = raiseExceptions;
@@ -81,12 +82,12 @@ namespace Kyameru.Core.Chain
             }
             else
             {
-                this.fromComponent.Stop();
+                fromComponent.Stop();
             }
 
-            this.fromComponent.OnAction -= this.FromComponent_OnAction;
-            this.fromComponent.OnLog -= FromComponent_OnLog;
-            this.fromComponent.OnActionAsync -= FromComponent_OnActionAsync;
+            fromComponent.OnAction -= FromComponent_OnAction;
+            fromComponent.OnLog -= FromComponent_OnLog;
+            fromComponent.OnActionAsync -= FromComponent_OnActionAsync;
             await base.StopAsync(cancellationToken);
         }
 
@@ -105,14 +106,14 @@ namespace Kyameru.Core.Chain
                 }
                 else
                 {
-                    this.fromComponent.Start();
+                    fromComponent.Start();
                 }
 
             }
             catch (Exception ex)
             {
-                this.FromComponent_OnLog(this, new Log(LogLevel.Error, ex.Message, ex));
-                if (this.raiseExceptions)
+                FromComponent_OnLog(this, new Log(LogLevel.Error, ex.Message, ex));
+                if (raiseExceptions)
                 {
                     throw;
                 }
@@ -131,11 +132,11 @@ namespace Kyameru.Core.Chain
         {
             if (e.Error == null)
             {
-                this.logger.KyameruLog(this.identity, e.Message, e.LogLevel);
+                logger.KyameruLog(identity, e.Message, e.LogLevel);
             }
             else
             {
-                this.logger.KyameruException(this.identity, e.Message, e.Error);
+                logger.KyameruException(identity, e.Message, e.Error);
             }
         }
 
@@ -144,9 +145,9 @@ namespace Kyameru.Core.Chain
         /// </summary>
         /// <param name="sender">Class sending the event.</param>
         /// <param name="e">Message to send.</param>
-        private void FromComponent_OnAction(object sender, Entities.Routable e)
+        private void FromComponent_OnAction(object sender, Routable e)
         {
-            this.next?.Handle(e);
+            next?.Handle(e);
         }
 
         private async Task FromComponent_OnActionAsync(object sender, RoutableEventData e)

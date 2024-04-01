@@ -19,9 +19,9 @@ namespace Kyameru.Core.Entities
             string message,
             Exception error = null)
         {
-            this.LogLevel = logLevel;
-            this.Message = message;
-            this.Error = error;
+            LogLevel = logLevel;
+            Message = message;
+            Error = error;
         }
 
         /// <summary>

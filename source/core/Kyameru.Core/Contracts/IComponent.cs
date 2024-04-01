@@ -11,6 +11,6 @@ namespace Kyameru.Core.Contracts
         /// <summary>
         /// Event raised when a component logs.
         /// </summary>
-        event EventHandler<Entities.Log> OnLog;
+        event EventHandler<Log> OnLog;
     }
 }

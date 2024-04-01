@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Tests.Mocks
 {
@@ -14,6 +15,7 @@ namespace Kyameru.Tests.Mocks
         public void Process(Routable routable)
         {
             this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Setting header"));
+            this.OnLog?.Invoke(this, new Log(LogLevel.Information, "MyComponent has processed"));
             routable.SetHeader("ComponentRan", "Yes");
         }
 
@@ -21,8 +23,12 @@ namespace Kyameru.Tests.Mocks
         {
             if (!cancellationToken.IsCancellationRequested)
             {
-                Process(routable);
+                this.OnLog?.Invoke(this, new Log(LogLevel.Information, "MyComponent has processed Async"));
+                this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Setting header"));
+                routable.SetHeader("ComponentRan", "Yes");
             }
+            
+            
 
             await Task.CompletedTask;
         }

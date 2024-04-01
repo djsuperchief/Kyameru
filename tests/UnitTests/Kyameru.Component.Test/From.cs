@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Kyameru.Core.Sys;
 
 namespace Kyameru.Component.Test
 {

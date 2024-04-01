@@ -1,4 +1,8 @@
-﻿using Kyameru.Core;
+﻿using System.Reflection;
+using Kyameru.Core;
+using Kyameru.Core.Entities;
+using Microsoft.Extensions.DependencyInjection;
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace Kyameru
 {
@@ -22,6 +26,47 @@ namespace Kyameru
         public static RouteBuilder From(string componentUri)
         {
             return new RouteBuilder(componentUri);
+        }
+        
+        /// <summary>
+        /// Runs a Kyameru build from a config file.
+        /// </summary>
+        /// <param name="config">Deserialized config file.</param>
+        /// <param name="services">Service collection.</param>
+        public static void FromConfig(RouteConfig config, IServiceCollection services)
+        {
+            var final = ConfigBuilder(config, Assembly.GetCallingAssembly());
+            if (config.Options is {BuildAsync: true})
+            {
+                final.BuildAsync(services);
+                return;
+            }
+            
+            final.Build(services);
+        }
+
+        private static Builder ConfigBuilder(RouteConfig config, Assembly callingAssembly)
+        {
+            var builder = new RouteBuilder(config.From.ToString(), callingAssembly);
+            foreach (var processor in config.Process)
+            {
+                builder.Process(processor);
+            }
+
+            var final = builder.To(config.To[0].ToString());
+            if (config.To.Length > 1)
+            {
+                for (var i = 1; i < config.To.Length; i++)
+                {
+                    final.To(config.To[i].ToString());
+                }
+            }
+
+            if (config.Options is { RaiseExceptions: true })
+            {
+                final.RaiseExceptions();
+            }
+            return final;
         }
     }
 }
