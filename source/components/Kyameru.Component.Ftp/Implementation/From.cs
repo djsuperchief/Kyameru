@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Kyameru.Core;
+using Kyameru.Core.Sys;
 using Timer = System.Timers.Timer;
 
 namespace Kyameru.Component.Ftp
