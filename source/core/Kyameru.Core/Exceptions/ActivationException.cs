@@ -20,7 +20,7 @@ namespace Kyameru.Core.Exceptions
         /// <param name="component">Component responsible for error.</param>
         public ActivationException(string message, Exception innerException, string component) : base(message, innerException)
         {
-            this.Component = component;
+            Component = component;
         }
     }
 }

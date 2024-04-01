@@ -2,6 +2,7 @@
 using Kyameru.Core;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace Kyameru
 {
@@ -49,7 +50,7 @@ namespace Kyameru
             var builder = new RouteBuilder(config.From.ToString(), callingAssembly);
             foreach (var processor in config.Process)
             {
-                builder.Process(processor.ToString());
+                builder.Process(processor);
             }
 
             var final = builder.To(config.To[0].ToString());

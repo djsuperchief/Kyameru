@@ -100,7 +100,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder To(string componentUri)
         {
-            RouteAttributes route = new RouteAttributes(componentUri);
+            var route = new RouteAttributes(componentUri);
             toUris.Add(route);
 
             return this;
@@ -125,7 +125,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="Builder"/> class</returns>
         public Builder Atomic(string componentUri)
         {
-            RouteAttributes route = new RouteAttributes(componentUri);
+            var route = new RouteAttributes(componentUri);
             atomicComponent = CreateAtomic(
                 route.ComponentName,
                 route.Headers);
@@ -135,11 +135,11 @@ namespace Kyameru.Core
         /// <summary>
         /// Creates a new Error component chain.
         /// </summary>
-        /// <param name="errorComponent">Error component.</param>
+        /// <param name="component">Error component.</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder Error(IErrorComponent errorComponent)
+        public Builder Error(IErrorComponent component)
         {
-            this.errorComponent = errorComponent;
+            errorComponent = component;
             return this;
         }
 
@@ -197,11 +197,11 @@ namespace Kyameru.Core
             RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
             {
-                IFromComponent from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
+                var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
-                IChain<Routable> toChain = SetupToChain(0, logger, x);
+                var toChain = SetupToChain(0, logger, x);
                 if (components != null && components.Count > 0)
                 {
                     next = SetupChain(0, logger, toChain, x);
@@ -221,9 +221,9 @@ namespace Kyameru.Core
         private void RunComponentDiRegistration(IServiceCollection services)
         {
             RegisterFromServices(services, fromUri.ComponentName);
-            for (int i = 0; i < toUris.Count; i++)
+            foreach (var to in toUris)
             {
-                RegisterToServices(services, toUris[i].ComponentName);
+                RegisterToServices(services, to.ComponentName);
             }
         }
 
@@ -237,8 +237,8 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupChain(int i, ILogger logger, IChain<Routable> toComponents, IServiceProvider serviceProvider)
         {
-            Process chain = new Process(logger, components[i].GetComponent(serviceProvider, hostAssmebly), GetIdentity());
-            logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, components[i].ToString()));
+            var chain = new Process(logger, components[i].GetComponent(serviceProvider, hostAssmebly), GetIdentity());
+            logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, components[i]));
             if (i < components.Count - 1)
             {
                 chain.SetNext(SetupChain(++i, logger, toComponents, serviceProvider));
@@ -260,7 +260,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupToChain(int i, ILogger logger, IServiceProvider serviceProvider)
         {
-            To toChain = new To(logger, GetToComponent(i, serviceProvider), GetIdentity());
+            var toChain = new To(logger, GetToComponent(i, serviceProvider), GetIdentity());
             logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, toChain?.ToString()));
             if (i < toUris.Count - 1)
             {

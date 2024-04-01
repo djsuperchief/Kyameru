@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace Kyameru.Core.Entities
+﻿namespace Kyameru.Core.Entities
 {
     /// <summary>
     /// Error entity.
@@ -15,9 +13,9 @@ namespace Kyameru.Core.Entities
         /// <param name="message">Error message.</param>
         public Error(string component, string action, string message)
         {
-            this.Component = component;
-            this.CurrentAction = action;
-            this.Message = message;
+            Component = component;
+            CurrentAction = action;
+            Message = message;
         }
 
         /// <summary>

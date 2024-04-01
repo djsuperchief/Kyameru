@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using System.Threading;
 using Kyameru.Core.Exceptions;
 
 namespace Kyameru.Core.Entities
@@ -39,8 +36,8 @@ namespace Kyameru.Core.Entities
         /// <param name="target">Target component.</param>
         protected Processable(IProcessComponent target)
         {
-            this.Invocation = InvocationType.Concrete;
-            this.Component = target;
+            Invocation = InvocationType.Concrete;
+            Component = target;
         }
 
         /// <summary>
@@ -49,8 +46,8 @@ namespace Kyameru.Core.Entities
         /// <param name="type">Type to pull from DI.</param>
         protected Processable(Type type)
         {
-            this.Invocation = InvocationType.DI;
-            this.ComponentType = type;
+            Invocation = InvocationType.DI;
+            ComponentType = type;
         }
 
         protected Processable(string type)
@@ -117,13 +114,13 @@ namespace Kyameru.Core.Entities
         /// <returns>Returns an instance of the <see cref="IProcessComponent"/> class.</returns>
         public IProcessComponent GetComponent(IServiceProvider provider, Assembly hostAssembly)
         {
-            switch (this.Invocation)
+            switch (Invocation)
             {
                 case InvocationType.Concrete:
-                    return this.Component;
+                    return Component;
                     break;
                 case InvocationType.DI:
-                    return (IProcessComponent)provider.GetService(this.ComponentType);
+                    return (IProcessComponent)provider.GetService(ComponentType);
                     break;
                 case InvocationType.Reflection:
                     return GetReflectedComponent(ComponentTypeName, hostAssembly);

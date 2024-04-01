@@ -1,7 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace Kyameru.Core
+namespace Kyameru.Core.Sys
 {
     /// <summary>
     /// Async event handler.

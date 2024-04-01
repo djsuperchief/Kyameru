@@ -1,8 +1,6 @@
 ﻿using Kyameru.Core.Extensions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Kyameru.Core.Entities
 {
@@ -27,9 +25,9 @@ namespace Kyameru.Core.Entities
         /// <param name="headers">Headers to create.</param>
         public Headers(Dictionary<string, string> headers)
         {
-            this.headerStorage = headers.GetMutableValues();
-            this.headerStorage.AddRange(headers.GetImmutableValues());
-            this.immutable = headers.Keys.Where(x => x.Substring(0, 1) == "&").Select(x => x[1..]).ToList();
+            headerStorage = headers.GetMutableValues();
+            headerStorage.AddRange(headers.GetImmutableValues());
+            immutable = headers.Keys.Where(x => x.Substring(0, 1) == "&").Select(x => x[1..]).ToList();
         }
 
         /// <summary>
@@ -41,7 +39,7 @@ namespace Kyameru.Core.Entities
         {
             get
             {
-                return this.headerStorage[key];
+                return headerStorage[key];
             }
         }
 
@@ -50,7 +48,7 @@ namespace Kyameru.Core.Entities
         /// </summary>
         /// <param name="key">Key to find.</param>
         /// <returns>Returns a boolean indicating whether the key exists.</returns>
-        public bool ContainsKey(string key) => this.headerStorage.ContainsKey(key);
+        public bool ContainsKey(string key) => headerStorage.ContainsKey(key);
 
         /// <summary>
         /// Sets a header.
@@ -59,20 +57,20 @@ namespace Kyameru.Core.Entities
         /// <param name="value">Header Value.</param>
         public void SetHeader(string key, string value)
         {
-            bool isImmutable = this.IsImmutable(key, out key);
+            bool isImmutable = IsImmutable(key, out key);
 
-            if (this.headerStorage.ContainsKey(key) && this.immutable.Contains(key))
+            if (headerStorage.ContainsKey(key) && immutable.Contains(key))
             {
                 throw new Exceptions.CoreException(Resources.ERROR_HEADER_IMMUTABLE);
             }
 
-            if (this.headerStorage.ContainsKey(key))
+            if (headerStorage.ContainsKey(key))
             {
-                this.headerStorage[key] = value;
+                headerStorage[key] = value;
             }
             else
             {
-                this.headerStorage.Add(key, value);
+                headerStorage.Add(key, value);
             }
         }
 
@@ -83,11 +81,11 @@ namespace Kyameru.Core.Entities
             {
                 response = true;
                 key = key[1..];
-                if (this.immutable.Count(x => x == key) > 0)
+                if (immutable.Count(x => x == key) > 0)
                 {
                     new Exceptions.RouteDataException(string.Format(Resources.ERROR_HEADER_IMMUTABLE_ADDED, key));
                 }
-                this.immutable.Add(key);
+                immutable.Add(key);
             }
 
             editedKey = key;
