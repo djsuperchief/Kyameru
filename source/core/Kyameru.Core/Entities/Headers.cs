@@ -74,6 +74,13 @@ namespace Kyameru.Core.Entities
             }
         }
 
+        public string TryGetValue(string key)
+        {
+            var response = string.Empty;
+            headerStorage.TryGetValue(key, out response);
+            return response;
+        }
+
         private bool IsImmutable(string key, out string editedKey)
         {
             bool response = false;

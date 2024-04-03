@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="LocalStack.Client" Version="1.4.1" />
+    <PackageReference Include="LocalStack.Client.Extensions" Version="1.2.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
@@ -15,6 +17,15 @@
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.File\Implementation\Kyameru.Component.File.csproj" />
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Ftp\Implementation\Kyameru.Component.Ftp.csproj" />
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Slack\Implementation\Kyameru.Component.Slack.csproj" />
+    <ProjectReference Include="..\..\..\source\components\Kyameru.Component.S3\Implementation\Kyameru.Component.S3.csproj" />
+
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

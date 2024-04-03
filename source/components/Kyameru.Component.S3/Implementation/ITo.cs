@@ -1,6 +1,6 @@
 ﻿using Kyameru.Core.Contracts;
 
-namespace Kyameru.Components.S3;
+namespace Kyameru.Component.S3;
 
 /// <summary>
 /// Kyameru S3 To Interface

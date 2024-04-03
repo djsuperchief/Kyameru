@@ -2,7 +2,7 @@
 using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Kyameru.Components.S3;
+namespace Kyameru.Component.S3;
 
 public class Inflator : IOasis
 {
@@ -18,7 +18,9 @@ public class Inflator : IOasis
 
     public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
-        return serviceProvider.GetRequiredService<ITo>();
+        var component = serviceProvider.GetRequiredService<ITo>();
+        component.SetHeaders(headers);
+        return component;
     }
 
     public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
