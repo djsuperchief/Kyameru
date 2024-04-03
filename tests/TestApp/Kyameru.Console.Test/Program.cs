@@ -1,4 +1,8 @@
-﻿using LocalStack.Client.Extensions;
+﻿using Amazon;
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.Runtime;
+using Amazon.S3;
+using LocalStack.Client.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,6 +28,36 @@ namespace Kyameru.Console.Test
                 services.AddLogging();
                 services.AddLocalStack(Configuration);
                 services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
+                services.AddAwsService<IAmazonS3>();
+                // // services.AddAwsService<IAmazonS3>(new AWSOptions
+                // // {
+                // //     DefaultClientConfig =
+                // //     {
+                // //         ServiceURL = "http://localhost:4566",
+                // //         UseHttp = true
+                // //     },
+                // //     Region = RegionEndpoint.EUWest2,
+                // //     Credentials = new BasicAWSCredentials("nope", "nope")
+                // // });
+
+                // services.AddTransient<IAmazonS3>(x =>
+                // {
+                //     var creds = new BasicAWSCredentials("ignore", "ignore");
+                //     var config = new AmazonS3Config()
+                //     {
+                //         ServiceURL = $"http://localhost:4566",
+                //         RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName("eu-west-2"),
+                //         UseHttp = true,
+                //         AuthenticationRegion = "eu-west-2"
+                //     };
+
+                //     config.ServiceURL = $"http://localhost:4566";
+
+                //     return new AmazonS3Client(creds, config);
+
+                // });
+                #region "other test routes
+
                 /*Kyameru.Route.From("file:///c:/Temp?Notifications=Created&SubDirectories=true&Filter=*.*")
                 .Process(new ProcessingComp())
                 //.To($"slack:///{slackAddress}?MessageSource=Body&Channel=general&Username=Kyameru")
@@ -39,9 +73,12 @@ namespace Kyameru.Console.Test
                     .Process(new ProcessingComp())
                     .To($"slack:///{slackAddress}?MessageSource=Body&Channel=general&Username=Kyameru")
                     .BuildAsync(services);*/
+
+                #endregion
+
                 Kyameru.Route.From("file:///home/giles/workspace/tmp?Notifications=Created&SubDirectories=true&Filter=*.*")
                     .Process(new ProcessingComp())
-                    .To("s3://kyameru-component-s3?Path=/test&FileName=banana.txt")
+                    .To("s3://kyameru-component-s3/test&FileName=banana.txt")
                     .BuildAsync(services);
 
 

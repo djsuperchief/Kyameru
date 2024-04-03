@@ -53,8 +53,8 @@ public class S3To : ITo
 
     public void SetHeaders(Dictionary<string, string> headers)
     {
-        targetBucket = headers["Target"];
-        if (headers.TryGetValue("Path", out var pathHeader))
+        targetBucket = headers["Host"];
+        if (headers.TryGetValue("Target", out var pathHeader))
         {
             targetPath = pathHeader;
         }
@@ -72,6 +72,11 @@ public class S3To : ITo
 
     private async Task UploadStringFile(Routable item, CancellationToken cancellationToken)
     {
+        if (!targetPath.EndsWith("/"))
+        {
+            targetPath += "/";
+        }
+
         var request = new PutObjectRequest
         {
             BucketName = targetBucket,
@@ -89,7 +94,7 @@ public class S3To : ITo
 
     private void ValidateHeaders(Dictionary<string, string> headers)
     {
-        if (string.IsNullOrWhiteSpace(headers["Target"]))
+        if (string.IsNullOrWhiteSpace(headers["Host"]))
         {
             throw new Exceptions.MissingHeaderException(string.Format(Resources.ERROR_MISSINGHEADER, "Target"));
         }
