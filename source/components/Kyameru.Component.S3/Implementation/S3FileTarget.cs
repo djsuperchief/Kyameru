@@ -37,7 +37,8 @@ public class S3FileTarget
             FileName = item.Headers.TryGetValue("S3FileName") ?? targetFile,
             ContentType = item.Headers.TryGetValue("S3ContentType"),
             Bucket = bucketName,
-            StorageClass = new S3StorageClass(item.Headers.TryGetValue("S3StorageClass", "STANDARD"))
+            StorageClass = new S3StorageClass(item.Headers.TryGetValue("S3StorageClass", "STANDARD")),
+            Encrypt = bool.Parse(item.Headers.TryGetValue("S3Encrypt", "false"))
         };
 
         if (response.Path.EndsWith("/"))
@@ -46,24 +47,18 @@ public class S3FileTarget
         }
 
         response.UploadType = Enum.Parse<OperationType>(item.Headers["DataType"]);
-        // TODO: Set body of file target (method)
-
         return response;
     }
 
     public PutObjectRequest ToPutObjectRequestString()
     {
-        return new PutObjectRequest()
+        var response = new PutObjectRequest()
         {
             BucketName = Bucket,
-            Key = $"{Path}{FileName}",
-            ContentBody = BodyString,
-            ContentType = ContentType ?? "text/plain"
+            Key = $"{Path}{FileName}"
         };
-    }
 
-    private static void SetResponseBody(S3FileTarget response)
-    {
 
+        return response;
     }
 }
