@@ -1,6 +1,7 @@
 ﻿using System.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Kyameru.Component.S3.Exceptions;
 using Kyameru.Core.Entities;
 
 namespace Kyameru.Component.S3;
@@ -63,32 +64,22 @@ public class S3To : ITo
         {
             targetFileName = fileName;
         }
+
+        ValidateHeaders(headers);
     }
 
     private async Task UploadByteArray(Routable item, CancellationToken cancellationToken)
     {
-
+        // TODO: Stream byte array to S3
     }
 
     private async Task UploadStringFile(Routable item, CancellationToken cancellationToken)
     {
-        if (!targetPath.EndsWith("/"))
-        {
-            targetPath += "/";
-        }
-
-        var request = new PutObjectRequest
-        {
-            BucketName = targetBucket,
-            Key = $"{targetPath}{targetFileName}",
-            ContentBody = item.Body.ToString(),
-            ContentType = targetContentType ?? "text/plain"
-        };
-        var response = await s3client.PutObjectAsync(request, cancellationToken);
+        var s3Content = S3FileTarget.FromRoutable(item, targetPath, targetFileName, targetBucket);
+        var response = await s3client.PutObjectAsync(s3Content.ToPutObjectRequestString(), cancellationToken);
         if (!string.IsNullOrWhiteSpace(response.VersionId))
         {
-            // TODO: Proper exception.
-            throw new NullReferenceException("Upload failed");
+            throw new UploadFailedException("Upload failed");
         }
     }
 
@@ -96,7 +87,7 @@ public class S3To : ITo
     {
         if (string.IsNullOrWhiteSpace(headers["Host"]))
         {
-            throw new Exceptions.MissingHeaderException(string.Format(Resources.ERROR_MISSINGHEADER, "Target"));
+            throw new Exceptions.MissingHeaderException(string.Format(Resources.ERROR_MISSINGHEADER, "Host"));
         }
     }
 
