@@ -22,6 +22,10 @@ public class S3FileTarget
 
     public OperationType UploadType { get; private set; }
 
+    public object MessageBody { get; private set; }
+
+    public string FilePath { get; private set; }
+
     public enum OperationType
     {
         String,
@@ -38,7 +42,9 @@ public class S3FileTarget
             ContentType = item.Headers.TryGetValue("S3ContentType"),
             Bucket = bucketName,
             StorageClass = new S3StorageClass(item.Headers.TryGetValue("S3StorageClass", "STANDARD")),
-            Encrypt = bool.Parse(item.Headers.TryGetValue("S3Encrypt", "false"))
+            Encrypt = bool.Parse(item.Headers.TryGetValue("S3Encrypt", "false")),
+            MessageBody = item.Body,
+            FilePath = item.Headers.TryGetValue("FullSource", string.Empty)
         };
 
         if (response.Path.EndsWith("/"))
@@ -46,18 +52,27 @@ public class S3FileTarget
             response.Path += "/";
         }
 
-        response.UploadType = Enum.Parse<OperationType>(item.Headers["DataType"]);
+        response.UploadType = Enum.Parse<OperationType>(item.Headers["S3DataType"]);
         return response;
     }
 
-    public PutObjectRequest ToPutObjectRequestString()
+    public PutObjectRequest ToPutObjectRequest()
     {
         var response = new PutObjectRequest()
         {
             BucketName = Bucket,
-            Key = $"{Path}{FileName}"
+            Key = $"{Path}{FileName}",
         };
 
+        if (UploadType == OperationType.String)
+        {
+            response.ContentBody = MessageBody.ToString();
+        }
+
+        if (UploadType == OperationType.File)
+        {
+            response.FilePath = FilePath;
+        }
 
         return response;
     }

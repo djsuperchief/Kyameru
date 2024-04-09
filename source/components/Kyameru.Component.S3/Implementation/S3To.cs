@@ -14,12 +14,21 @@ public class S3To : ITo
     private string targetFileName;
     private string targetContentType;
 
+    private readonly Dictionary<S3FileTarget.OperationType, Func<S3FileTarget, CancellationToken, Task>> targetActions;
+
     public event EventHandler<Log> OnLog;
 
     public S3To(IAmazonS3 client)
     {
         // TODO: Inject S3 config so we can override endpoint etc.
         s3client = client;
+        targetActions = new Dictionary<S3FileTarget.OperationType, Func<S3FileTarget, CancellationToken, Task>>()
+        {
+            { S3FileTarget.OperationType.String, UploadFile },
+            { S3FileTarget.OperationType.Byte, UploadByteArray },
+            { S3FileTarget.OperationType.File, UploadFile }
+
+        };
     }
 
     public void Process(Routable routable)
@@ -33,10 +42,8 @@ public class S3To : ITo
         {
             ValidateS3Targets(routable);
             ValidateDataType(routable);
-            if (routable.Headers["DataType"] == "String")
-            {
-                await UploadStringFile(routable, cancellationToken);
-            }
+            var s3TargetFile = S3FileTarget.FromRoutable(routable, targetPath, targetFileName, targetBucket);
+            await targetActions[s3TargetFile.UploadType](s3TargetFile, cancellationToken);
         }
         catch (AmazonS3Exception e)
         {
@@ -68,15 +75,21 @@ public class S3To : ITo
         ValidateHeaders(headers);
     }
 
-    private async Task UploadByteArray(Routable item, CancellationToken cancellationToken)
+    private async Task UploadByteArray(S3FileTarget item, CancellationToken cancellationToken)
     {
-        // TODO: Stream byte array to S3
+        //var s3Content = S3FileTarget.FromRoutable(item, targetPath, targetFileName, targetBucket);
+        // using (request.InputStream = new MemoryStream())
+        // {
+        //     do
+        //     {
+        //         var bytesRead = s3Content
+        //     }
+        // }
     }
 
-    private async Task UploadStringFile(Routable item, CancellationToken cancellationToken)
+    private async Task UploadFile(S3FileTarget item, CancellationToken cancellationToken)
     {
-        var s3Content = S3FileTarget.FromRoutable(item, targetPath, targetFileName, targetBucket);
-        var response = await s3client.PutObjectAsync(s3Content.ToPutObjectRequestString(), cancellationToken);
+        var response = await s3client.PutObjectAsync(item.ToPutObjectRequest(), cancellationToken);
         if (!string.IsNullOrWhiteSpace(response.VersionId))
         {
             throw new UploadFailedException("Upload failed");
