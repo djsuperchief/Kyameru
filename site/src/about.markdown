@@ -4,16 +4,15 @@ title: About
 permalink: /about/
 ---
 
+# About The Project
 
+Kyameru is &copy; 2020-2024 by [Giles Papworth](https://github.com/djsuperchief)
 
-Kyameru is a business processing engine based off Apache Camel. The general idea is that you have a "bucket" of ready made components that you can use in a processing chain for any incoming data. You have a FROM component that starts the chain of events. Processing components that typically you build to process the data and then TO components to send the data to something.
+## License
+Just the Docs is distributed by an MIT license.
 
+## Contributing
+When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change. Read more about becoming a contributor in our GitHub repo.
+
+## Language
 The project is open source, built in .NET and open to contributions.
-
-```mermaid
-flowchart TD;
-    FROM-->PROCESSING-1;
-    PROCESSING-1-->PROCESSING-2;
-    PROCESSING-2-->TO-1;
-    PROCESSING-2-->TO-2;
-```
