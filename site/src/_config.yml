@@ -22,7 +22,7 @@ title: Kyameru Documentation
 email: your-email@example.com
 description: >- # this means to ignore newlines until "baseurl:"
   Kyameru documentation
-baseurl: "Kyameru" # the subpath of your site, e.g. /blog
+baseurl: "/Kyameru" # the subpath of your site, e.g. /blog
 url: "https://djsuperchief.github.io/" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  djsuperchief
 
