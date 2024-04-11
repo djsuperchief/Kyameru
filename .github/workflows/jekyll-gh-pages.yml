@@ -54,7 +54,8 @@ jobs:
       #     destination: ./site/pub
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
-        working-directory: '${{ github.workspace }}/site/src'
+        with:
+          path: '${{ github.workspace }}/site/src'
 
   # Deployment job
   deploy:
