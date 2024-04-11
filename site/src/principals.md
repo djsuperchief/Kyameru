@@ -33,7 +33,7 @@ Kyameru provides a `Build` or `BuildAsync` build method. This is to help support
 
 ## URI Syntax
 
-As specified before, the components are instantiated using the URI format.
+As specified before, the components are instantiated using the URI format. The query part of the URI is always used for headers but the host and path may sometimes be used as a single entity known as `target`.
 
 ```
 component://host/path?header=value

@@ -27,4 +27,4 @@ Kyameru is a processing engine built with heavy inspiration from Apache Camel. T
 
 ## Get Started
 
-Currently, the project is not being distributed through NuGet. When the project reaches a full beta stage (with a number of MVP components), it will be pushed to NuGet and ready to be used. Until then, hold tight.
+Currently, the project is not being distributed through NuGet. When the project reaches a full beta stage (with a number of MVP components), it will be pushed to NuGet and ready to be used. Until then, hold tight. Releases, however, are still being published and can continue to be used until Nuget packages are released.
