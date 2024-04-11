@@ -39,6 +39,7 @@ jobs:
         id: pages
         uses: actions/configure-pages@v5
       - name: Bundle install
+        working-directory: '${{ github.workspace }}/site/src'
         run: bundle install
       - name: Build with Jekyll
         working-directory: '${{ github.workspace }}/site/src'
