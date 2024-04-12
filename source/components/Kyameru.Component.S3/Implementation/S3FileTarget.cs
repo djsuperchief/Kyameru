@@ -53,6 +53,7 @@ public class S3FileTarget
         }
 
         response.UploadType = Enum.Parse<OperationType>(item.Headers["S3DataType"]);
+        response.MessageBody = item.Body;
         return response;
     }
 

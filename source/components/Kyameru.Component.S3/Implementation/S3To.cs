@@ -77,14 +77,19 @@ public class S3To : ITo
 
     private async Task UploadByteArray(S3FileTarget item, CancellationToken cancellationToken)
     {
-        //var s3Content = S3FileTarget.FromRoutable(item, targetPath, targetFileName, targetBucket);
-        // using (request.InputStream = new MemoryStream())
-        // {
-        //     do
-        //     {
-        //         var bytesRead = s3Content
-        //     }
-        // }
+        var request = item.ToPutObjectRequest();
+        PutObjectResponse response;
+        using(var memoryStream = new MemoryStream(item.MessageBody as byte[]))
+        {
+            
+            request.InputStream = memoryStream;
+            response = await s3client.PutObjectAsync(request, cancellationToken);
+        }
+
+        if (!string.IsNullOrWhiteSpace(response.VersionId))
+        {
+            throw new UploadFailedException("Upload failed");
+        }
     }
 
     private async Task UploadFile(S3FileTarget item, CancellationToken cancellationToken)
