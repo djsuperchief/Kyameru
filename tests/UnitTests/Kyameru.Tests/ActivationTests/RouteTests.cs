@@ -1,4 +1,5 @@
 ﻿using Kyameru.Core.Contracts;
+using Kyameru.Core.Entities;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -50,6 +51,16 @@ namespace Kyameru.Tests.ActivationTests
         {
             Core.RouteBuilder route = this.CreateRoute();
             route.Process(this.processingComponent.Object);
+            Assert.True(route.ComponentCount == 1);
+        }
+
+        [Fact]
+        public void CanAddProcessComponentByDelegate()
+        {
+            var route = this.CreateRoute();
+            route.Process((Routable item) => {
+                item.SetHeader("Test", "Test");
+            });
             Assert.True(route.ComponentCount == 1);
         }
 

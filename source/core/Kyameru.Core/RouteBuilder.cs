@@ -87,6 +87,18 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Create a new process component.
+        /// </summary>
+        /// <param name="processAction">Action delegate for processing.</param>
+        /// <returns><returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns></returns>
+        public RouteBuilder Process(Action<Routable> processAction)
+        {
+            components.Add(Processable.Create(processAction));
+
+            return this;
+        }
+
+        /// <summary>
         /// Adds a header
         /// </summary>
         /// <param name="key">Header key.</param>
