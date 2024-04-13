@@ -27,7 +27,12 @@ namespace Kyameru.Core.Entities
             /// <summary>
             /// Reflection creation
             /// </summary>
-            Reflection
+            Reflection,
+
+            /// <summary>
+            /// Action delegate execution
+            /// </summary>
+            ActionDelegate
         };
 
         /// <summary>
@@ -58,6 +63,17 @@ namespace Kyameru.Core.Entities
         {
             Invocation = InvocationType.Reflection;
             ComponentTypeName = type;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Processable"/> class.
+        /// </summary>
+        /// <param name="action">Delegate to execute.</param>
+
+        protected Processable(Action<Routable> action)
+        {
+            Invocation = InvocationType.ActionDelegate;
+            Component = new ProcessableDelegate(action);
         }
 
         /// <summary>
@@ -111,6 +127,17 @@ namespace Kyameru.Core.Entities
         }
 
         /// <summary>
+        /// Creates an instance of the <see cref="Processable"/> class.
+        /// </summary>
+        /// <param name="action">Delegate to execute</param>
+        /// <returns>Returns an instance of the <see cref="Processable"/> class.</returns>
+
+        public static Processable Create(Action<Routable> action)
+        {
+            return new Processable(action);
+        }
+
+        /// <summary>
         /// Gets the component from either local store or service provider.
         /// </summary>
         /// <param name="provider">DI Service Provider.</param>
@@ -121,6 +148,7 @@ namespace Kyameru.Core.Entities
             switch (Invocation)
             {
                 case InvocationType.Concrete:
+                case InvocationType.ActionDelegate:
                     return Component;
                 case InvocationType.DI:
                     return (IProcessComponent)provider.GetService(ComponentType);
