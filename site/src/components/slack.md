@@ -6,10 +6,10 @@ parent: Components
 
 # Overview
 
-The slack component sends a message to a configured slack webhook.
+The Slack component sends a message to a configured Slack webhook.
 
 {: .note}
-> Webhooks in slack are still supported but this may be removed in the future. It is also not the advised way to send messages into slack but this component is being provided as a legac support avenue.
+> Webhooks in Slack are still supported but this may be removed in the future. It is also not the advised way to send messages into Slack but this component is being provided as a legacy support avenue.
 
 ## Routes
 
@@ -24,8 +24,8 @@ TO
 
 |Header | Description | Optional | Default|
 |:------ |: ----------- |: -------- |: -------|
-|Target | Webhook in slack | NO|
-|MessageSource | Indicates whether the message for slack should be pulled from the body of the message OR a header. | YES | Header |
+|Target | Webhook in Slack | NO|
+|MessageSource | Indicates whether the message for Slack should be pulled from the body of the message OR a header. | YES | Header |
 |Channel | Specifies the channel to push the message to overriding the webhook setting | YES | EMPTY|
 |Username | Specifies the user to appear as when pushing the message overriding the webhook | YES | EMPTY|
 
@@ -35,7 +35,7 @@ Message headers can also be used as part of the component.
 
 |Header | Description | Optional|
 |:------ |: ----------- |: --------|
-|SlackMessage | If this header is specified (in conjuction with setup header) this will be the message sent to slack | YES|
+|SlackMessage | If this header is specified (in conjuction with setup header) this will be the message sent to Slack | YES|
 
 
 ### Example 1: Standard Setup
@@ -61,4 +61,4 @@ routable.SetHeader("SlackMessage", "Hello World");
 routable.SetBody<string>("Hello World");
 ```
 
-Note that the slack target does not include the prefix of 'https://hooks.slack.com/services/'
+Note that the Slack target does not include the prefix of 'https://hooks.slack.com/services/'
