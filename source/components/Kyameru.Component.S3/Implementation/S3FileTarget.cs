@@ -37,9 +37,9 @@ public class S3FileTarget
     {
         var response = new S3FileTarget
         {
-            Path = item.Headers.TryGetValue("S3Path") ?? targetPath,
-            FileName = item.Headers.TryGetValue("S3FileName") ?? targetFile,
-            ContentType = item.Headers.TryGetValue("S3ContentType"),
+            Path = item.Headers.TryGetValue("S3Path", targetPath),
+            FileName = item.Headers.TryGetValue("S3FileName", targetFile),
+            ContentType = item.Headers.TryGetValue("S3ContentType", "text/plain"),
             Bucket = bucketName,
             StorageClass = new S3StorageClass(item.Headers.TryGetValue("S3StorageClass", "STANDARD")),
             Encrypt = bool.Parse(item.Headers.TryGetValue("S3Encrypt", "false")),
@@ -47,7 +47,7 @@ public class S3FileTarget
             FilePath = item.Headers.TryGetValue("FullSource", string.Empty)
         };
 
-        if (response.Path.EndsWith("/"))
+        if (!response.Path.EndsWith("/"))
         {
             response.Path += "/";
         }

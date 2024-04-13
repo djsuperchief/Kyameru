@@ -83,8 +83,12 @@ namespace Kyameru.Core.Entities
 
         public string TryGetValue(string key, string defaultValue)
         {
-            var response = defaultValue;
+            var response = string.Empty;
             headerStorage.TryGetValue(key, out response);
+            if(string.IsNullOrWhiteSpace(response)) {
+                response = defaultValue;
+            }
+
             return response;
         }
 

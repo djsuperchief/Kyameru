@@ -128,9 +128,10 @@ public class S3To : ITo
 
     private void ValidateDataType(Routable item)
     {
-        var dataType = item.Headers["DataType"];
+        var dataType = item.Headers["S3DataType"];
         if (dataType != "String"
-        && dataType != "Byte")
+        && dataType != "Byte"
+        && dataType != "File")
         {
             throw new Exceptions.InvalidDataTypeException(Resources.ERROR_INVALIDDATATYPE);
         }
