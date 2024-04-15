@@ -12,8 +12,6 @@ public class S3FileTarget
 
     public string ContentType { get; private set; }
 
-    public string BodyString { get; private set; }
-
     public string Bucket { get; private set; }
 
     public bool Encrypt { get; private set; }
@@ -33,15 +31,19 @@ public class S3FileTarget
         Byte
     }
 
+    
+
     public static S3FileTarget FromRoutable(Routable item, string targetPath, string targetFile, string bucketName)
     {
+        var storageClass = item.Headers.TryGetValue("S3StorageClass", "STANDARD").ToUpper();
+        ValidateStorageTypes(storageClass);
         var response = new S3FileTarget
         {
             Path = item.Headers.TryGetValue("S3Path", targetPath),
             FileName = item.Headers.TryGetValue("S3FileName", targetFile),
             ContentType = item.Headers.TryGetValue("S3ContentType", "text/plain"),
             Bucket = bucketName,
-            StorageClass = new S3StorageClass(item.Headers.TryGetValue("S3StorageClass", "STANDARD")),
+            StorageClass = new S3StorageClass(storageClass),
             Encrypt = bool.Parse(item.Headers.TryGetValue("S3Encrypt", "false")),
             MessageBody = item.Body,
             FilePath = item.Headers.TryGetValue("FullSource", string.Empty)
@@ -57,12 +59,36 @@ public class S3FileTarget
         return response;
     }
 
+    private static void ValidateStorageTypes(string storageClass)
+    {
+        var validStorageTypes = new []
+        {
+            "STANDARD",
+            "DEEP_ARCHIVE",
+            "GLACIER",
+            "GLACIER_IR",
+            "INTELLIGENT_TIERING",
+            "ONEZONE_IA",
+            "OUTPOSTS",
+            "REDUCED_REDUNDANCY",
+            "STANDARD_IA",
+            "SNOW",
+            "EXPRESS_ONEZONE"
+        };
+
+        if (!validStorageTypes.Contains(storageClass))
+        {
+            throw new Exceptions.S3PropertyException(string.Format(Resources.ERROR_INVALIDSTORAGECLASS, storageClass));
+        }
+    }
+
     public PutObjectRequest ToPutObjectRequest()
     {
         var response = new PutObjectRequest()
         {
             BucketName = Bucket,
             Key = $"{Path}{FileName}",
+            StorageClass = StorageClass
         };
 
         if (UploadType == OperationType.String)
@@ -76,5 +102,26 @@ public class S3FileTarget
         }
 
         return response;
+    }
+
+    public override bool Equals(object obj)
+    {
+        var comparison = obj as S3FileTarget;
+        var properties = comparison?.GetType().GetProperties().Select(x => x.Name);
+        if (properties != null)
+        {
+            foreach (var property in properties)
+            {
+                var incoming = typeof(S3FileTarget).GetProperty(property).GetValue(comparison, null);
+                var current = typeof(S3FileTarget).GetProperty(property).GetValue(this, null);
+
+                if (incoming != current)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

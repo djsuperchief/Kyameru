@@ -3,6 +3,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Kyameru.Component.S3.Exceptions;
 using Kyameru.Core.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Component.S3;
 
@@ -33,7 +34,8 @@ public class S3To : ITo
 
     public void Process(Routable routable)
     {
-        throw new NotImplementedException();
+        var tokenSource = new CancellationTokenSource();
+        Task.Factory.StartNew(() => ProcessAsync(routable, tokenSource.Token), tokenSource.Token);
     }
 
     public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
@@ -77,6 +79,7 @@ public class S3To : ITo
 
     private async Task UploadByteArray(S3FileTarget item, CancellationToken cancellationToken)
     {
+        Log(LogLevel.Information, "Uploading byte array to bucket");
         var request = item.ToPutObjectRequest();
         PutObjectResponse response;
         using(var memoryStream = new MemoryStream(item.MessageBody as byte[]))
@@ -94,6 +97,7 @@ public class S3To : ITo
 
     private async Task UploadFile(S3FileTarget item, CancellationToken cancellationToken)
     {
+        Log(LogLevel.Information, "Uploading string to bucket");
         var response = await s3client.PutObjectAsync(item.ToPutObjectRequest(), cancellationToken);
         if (!string.IsNullOrWhiteSpace(response.VersionId))
         {
@@ -111,6 +115,7 @@ public class S3To : ITo
 
     private void ValidateS3Targets(Routable item)
     {
+        Log(LogLevel.Information, "Validating S3 Targets");
         targetPath ??= item.Headers.TryGetValue("S3Path");
         targetFileName ??= item.Headers.TryGetValue("S3FileName");
         targetContentType ??= item.Headers.TryGetValue("S3ContentType");
@@ -128,6 +133,7 @@ public class S3To : ITo
 
     private void ValidateDataType(Routable item)
     {
+        Log(LogLevel.Information, "Validating Data Type");
         var dataType = item.Headers["S3DataType"];
         if (dataType != "String"
         && dataType != "Byte"
@@ -135,5 +141,10 @@ public class S3To : ITo
         {
             throw new Exceptions.InvalidDataTypeException(Resources.ERROR_INVALIDDATATYPE);
         }
+    }
+    
+    private void Log(LogLevel logLevel, string message, Exception exception = null)
+    {
+        this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
     }
 }

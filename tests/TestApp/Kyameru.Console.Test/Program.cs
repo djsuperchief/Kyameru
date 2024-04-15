@@ -1,7 +1,4 @@
-﻿using Amazon;
-using Amazon.Extensions.NETCore.Setup;
-using Amazon.Runtime;
-using Amazon.S3;
+﻿using Amazon.S3;
 using Kyameru.Core.Entities;
 using LocalStack.Client.Extensions;
 using Microsoft.Extensions.Configuration;
@@ -9,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,9 +17,19 @@ namespace Kyameru.Console.Test
     {
         static async Task Main(string[] args)
         {
-            string slackAddress = Environment.GetEnvironmentVariable("SlackAddress");
+            var slackAddress = Environment.GetEnvironmentVariable("SlackAddress");
+            string fileLocation;
             await new HostBuilder().ConfigureServices((hostContext, services) =>
             {
+                if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    fileLocation = Environment.GetEnvironmentVariable("FileAddressWin");       
+                }
+                else
+                {
+                    fileLocation = Environment.GetEnvironmentVariable("FileAddressLinux");
+                }
+                
                 IConfiguration Configuration = new ConfigurationBuilder()
                     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                     .AddEnvironmentVariables()
@@ -32,12 +40,12 @@ namespace Kyameru.Console.Test
                 services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
                 services.AddAwsService<IAmazonS3>();
 
-                Kyameru.Route.From("file:///home/giles/workspace/tmp?Notifications=Created&SubDirectories=true&Filter=*.*")
+                Kyameru.Route.From($"file://{fileLocation}?Notifications=Created&SubDirectories=true&Filter=*.*")
                     .Process(new ProcessingComp())
                     .Process((Routable x) => {
                         var byteString = Encoding.UTF8.GetBytes("Hello World");
 
-                        x.SetHeader("S3FileName", "ByteTest.txt");
+                        x.SetHeader("S3FileName", x.Headers["SourceFile"]);
                         x.SetHeader("S3DataType", "Byte");
                         x.SetBody<byte[]>(byteString);
                     })
