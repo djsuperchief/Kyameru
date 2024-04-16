@@ -55,6 +55,10 @@ public class S3FileTarget
         }
 
         response.UploadType = Enum.Parse<OperationType>(item.Headers["S3DataType"]);
+        if(response.UploadType == OperationType.File && string.IsNullOrWhiteSpace(response.FilePath)) {
+            throw new Exceptions.MissingHeaderException(string.Format(Resources.ERROR_MISSINGHEADER, "FullSource"));
+        }
+
         response.MessageBody = item.Body;
         return response;
     }
@@ -88,7 +92,8 @@ public class S3FileTarget
         {
             BucketName = Bucket,
             Key = $"{Path}{FileName}",
-            StorageClass = StorageClass
+            StorageClass = StorageClass,
+            ContentType = ContentType
         };
 
         if (UploadType == OperationType.String)
