@@ -6,23 +6,23 @@ namespace Kyameru.Component.S3;
 
 public class S3FileTarget
 {
-    public string Path { get; private set; }
+    public string? Path { get; private set; }
 
-    public string FileName { get; private set; }
+    public string? FileName { get; private set; }
 
-    public string ContentType { get; private set; }
+    public string? ContentType { get; private set; }
 
-    public string Bucket { get; private set; }
+    public string? Bucket { get; private set; }
 
     public bool Encrypt { get; private set; }
 
-    public S3StorageClass StorageClass { get; private set; }
+    public S3StorageClass? StorageClass { get; private set; }
 
     public OperationType UploadType { get; private set; }
 
-    public object MessageBody { get; private set; }
+    public object? MessageBody { get; private set; }
 
-    public string FilePath { get; private set; }
+    public string? FilePath { get; private set; }
 
     public enum OperationType
     {
@@ -31,7 +31,7 @@ public class S3FileTarget
         Byte
     }
 
-    
+
 
     public static S3FileTarget FromRoutable(Routable item, string targetPath, string targetFile, string bucketName)
     {
@@ -55,7 +55,8 @@ public class S3FileTarget
         }
 
         response.UploadType = Enum.Parse<OperationType>(item.Headers["S3DataType"]);
-        if(response.UploadType == OperationType.File && string.IsNullOrWhiteSpace(response.FilePath)) {
+        if (response.UploadType == OperationType.File && string.IsNullOrWhiteSpace(response.FilePath))
+        {
             throw new Exceptions.MissingHeaderException(string.Format(Resources.ERROR_MISSINGHEADER, "FullSource"));
         }
 
@@ -65,7 +66,7 @@ public class S3FileTarget
 
     private static void ValidateStorageTypes(string storageClass)
     {
-        var validStorageTypes = new []
+        var validStorageTypes = new[]
         {
             "STANDARD",
             "DEEP_ARCHIVE",
@@ -98,7 +99,7 @@ public class S3FileTarget
 
         if (UploadType == OperationType.String)
         {
-            response.ContentBody = MessageBody.ToString();
+            response.ContentBody = MessageBody?.ToString();
         }
 
         if (UploadType == OperationType.File)
