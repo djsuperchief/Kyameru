@@ -63,6 +63,7 @@ public class S3To : ITo
 
     public void SetHeaders(Dictionary<string, string> headers)
     {
+        ValidateHeaders(headers);
         targetBucket = headers["Host"];
         if (headers.TryGetValue("Target", out var pathHeader))
         {
@@ -73,8 +74,6 @@ public class S3To : ITo
         {
             targetFileName = fileName;
         }
-
-        ValidateHeaders(headers);
     }
 
     private async Task UploadByteArray(S3FileTarget item, CancellationToken cancellationToken)
@@ -89,7 +88,7 @@ public class S3To : ITo
             response = await s3client.PutObjectAsync(request, cancellationToken);
         }
 
-        if (!string.IsNullOrWhiteSpace(response.VersionId))
+        if (string.IsNullOrWhiteSpace(response.VersionId))
         {
             throw new UploadFailedException("Upload failed");
         }
@@ -99,7 +98,7 @@ public class S3To : ITo
     {
         Log(LogLevel.Information, "Uploading string to bucket");
         var response = await s3client.PutObjectAsync(item.ToPutObjectRequest(), cancellationToken);
-        if (!string.IsNullOrWhiteSpace(response.VersionId))
+        if (string.IsNullOrWhiteSpace(response.VersionId))
         {
             throw new UploadFailedException("Upload failed");
         }
@@ -107,7 +106,7 @@ public class S3To : ITo
 
     private void ValidateHeaders(Dictionary<string, string> headers)
     {
-        if (string.IsNullOrWhiteSpace(headers["Host"]))
+        if (!headers.ContainsKey("Host") || string.IsNullOrWhiteSpace(headers["Host"]))
         {
             throw new Exceptions.MissingHeaderException(string.Format(Resources.ERROR_MISSINGHEADER, "Host"));
         }
