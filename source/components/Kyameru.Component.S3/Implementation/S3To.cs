@@ -82,9 +82,9 @@ public class S3To : ITo
         Log(LogLevel.Information, "Uploading byte array to bucket");
         var request = item.ToPutObjectRequest();
         PutObjectResponse response;
-        using(var memoryStream = new MemoryStream(item.MessageBody as byte[]))
+        using (var memoryStream = new MemoryStream(item.MessageBody as byte[]))
         {
-            
+
             request.InputStream = memoryStream;
             response = await s3client.PutObjectAsync(request, cancellationToken);
         }
@@ -142,7 +142,7 @@ public class S3To : ITo
             throw new Exceptions.InvalidDataTypeException(Resources.ERROR_INVALIDDATATYPE);
         }
     }
-    
+
     private void Log(LogLevel logLevel, string message, Exception exception = null)
     {
         this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));

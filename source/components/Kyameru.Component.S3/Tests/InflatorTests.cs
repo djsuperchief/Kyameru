@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Amazon.S3;
+using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 
 
 namespace Kyameru.Component.S3.Tests;
@@ -38,5 +40,24 @@ public class InflatorTests
         var inflator = new Inflator();
         inflator.RegisterTo(serviceCollection);
         Assert.True(serviceCollection.Contains(typeof(ITo), typeof(S3To)));
+    }
+
+    [Fact]
+    public void CreateToComponentSucceeds()
+    {
+        var serviceCollection = new ServiceCollection();
+        var mockS3 = Substitute.For<IAmazonS3>();
+        serviceCollection.AddTransient<IAmazonS3>((IServiceProvider sp) =>
+        {
+            return mockS3;
+        });
+        var headers = new Dictionary<string, string>() {
+            { "Host", "Test" }
+        };
+        var inflator = new Inflator();
+        inflator.RegisterTo(serviceCollection);
+        var provider = serviceCollection.BuildServiceProvider();
+        var component = inflator.CreateToComponent(headers, provider);
+        Assert.NotNull(component);
     }
 }
