@@ -21,20 +21,24 @@ namespace Kyameru.Console.Test
             string fileLocation;
             await new HostBuilder().ConfigureServices((hostContext, services) =>
             {
-                if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    fileLocation = Environment.GetEnvironmentVariable("FileAddressWin");       
-                }
-                else
-                {
-                    fileLocation = Environment.GetEnvironmentVariable("FileAddressLinux");
-                }
-                
+
+
                 IConfiguration Configuration = new ConfigurationBuilder()
                     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                     .AddEnvironmentVariables()
                     .AddCommandLine(args)
                     .Build();
+
+
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    fileLocation = Configuration["FileAddressWin"];
+                }
+                else
+                {
+                    fileLocation = Configuration["FileAddressLinux"];
+                }
                 services.AddLogging();
                 services.AddLocalStack(Configuration);
                 services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
@@ -42,7 +46,8 @@ namespace Kyameru.Console.Test
 
                 Kyameru.Route.From($"file://{fileLocation}?Notifications=Created&SubDirectories=true&Filter=*.*")
                     .Process(new ProcessingComp())
-                    .Process((Routable x) => {
+                    .Process((Routable x) =>
+                    {
                         var byteString = Encoding.UTF8.GetBytes("Hello World");
 
                         x.SetHeader("S3FileName", x.Headers["SourceFile"]);

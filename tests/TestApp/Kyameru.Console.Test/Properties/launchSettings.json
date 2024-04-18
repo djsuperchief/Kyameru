@@ -4,7 +4,7 @@
       "commandName": "Project",
       "environmentVariables": {
         "FileAddressWin": "/c:/Temp",
-        "FilesAddressLinux": "/home/giles/workspace/tmp"
+        "FileAddressLinux": "/home/giles/workspace/tmp"
       }
     }
   }

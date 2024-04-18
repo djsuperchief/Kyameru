@@ -15,7 +15,7 @@ public class S3To : ITo
     private string targetFileName;
     private string targetContentType;
 
-    private readonly Dictionary<S3FileTarget.OperationType, Func<S3FileTarget, CancellationToken, Task>> targetActions;
+    private readonly Dictionary<S3FileTarget.OperationType, Func<S3FileTarget, CancellationToken, Task<string>>> targetActions;
 
     public event EventHandler<Log> OnLog;
 
@@ -23,7 +23,7 @@ public class S3To : ITo
     {
         // TODO: Inject S3 config so we can override endpoint etc.
         s3client = client;
-        targetActions = new Dictionary<S3FileTarget.OperationType, Func<S3FileTarget, CancellationToken, Task>>()
+        targetActions = new Dictionary<S3FileTarget.OperationType, Func<S3FileTarget, CancellationToken, Task<string>>>()
         {
             { S3FileTarget.OperationType.String, UploadFile },
             { S3FileTarget.OperationType.Byte, UploadByteArray },
@@ -45,19 +45,22 @@ public class S3To : ITo
             ValidateS3Targets(routable);
             ValidateDataType(routable);
             var s3TargetFile = S3FileTarget.FromRoutable(routable, targetPath, targetFileName, targetBucket);
-            await targetActions[s3TargetFile.UploadType](s3TargetFile, cancellationToken);
+            var response = await targetActions[s3TargetFile.UploadType](s3TargetFile, cancellationToken);
+            routable.SetHeader("&S3ETag", response);
         }
         catch (AmazonS3Exception e)
         {
-            Console.WriteLine(
-                    "Error encountered ***. Message:'{0}' when writing an object"
-                    , e.Message);
+            Log(
+                LogLevel.Error,
+                string.Format("Error encountered ***. Message:'{0}' when writing an object", e.Message),
+                e);
         }
         catch (Exception e)
         {
-            Console.WriteLine(
-                "Unknown encountered on server. Message:'{0}' when writing an object"
-                , e.Message);
+            Log(
+                LogLevel.Error,
+                string.Format("Unknown encountered on server. Message:'{0}' when writing an object", e.Message),
+                e);
         }
     }
 
@@ -76,7 +79,7 @@ public class S3To : ITo
         }
     }
 
-    private async Task UploadByteArray(S3FileTarget item, CancellationToken cancellationToken)
+    private async Task<string> UploadByteArray(S3FileTarget item, CancellationToken cancellationToken)
     {
         Log(LogLevel.Information, "Uploading byte array to bucket");
         var request = item.ToPutObjectRequest();
@@ -88,20 +91,24 @@ public class S3To : ITo
             response = await s3client.PutObjectAsync(request, cancellationToken);
         }
 
-        if (string.IsNullOrWhiteSpace(response.VersionId))
+        if (string.IsNullOrWhiteSpace(response.ETag))
         {
             throw new UploadFailedException("Upload failed");
         }
+
+        return response.ETag;
     }
 
-    private async Task UploadFile(S3FileTarget item, CancellationToken cancellationToken)
+    private async Task<string> UploadFile(S3FileTarget item, CancellationToken cancellationToken)
     {
         Log(LogLevel.Information, "Uploading string to bucket");
         var response = await s3client.PutObjectAsync(item.ToPutObjectRequest(), cancellationToken);
-        if (string.IsNullOrWhiteSpace(response.VersionId))
+        if (string.IsNullOrWhiteSpace(response.ETag))
         {
             throw new UploadFailedException("Upload failed");
         }
+
+        return response.ETag;
     }
 
     private void ValidateHeaders(Dictionary<string, string> headers)
