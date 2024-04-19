@@ -47,6 +47,7 @@ public class S3To : ITo
             var s3TargetFile = S3FileTarget.FromRoutable(routable, targetPath, targetFileName, targetBucket);
             var response = await targetActions[s3TargetFile.UploadType](s3TargetFile, cancellationToken);
             routable.SetHeader("&S3ETag", response);
+            Log(LogLevel.Information, $"File uploaded with ETag {response}");
         }
         catch (AmazonS3Exception e)
         {
