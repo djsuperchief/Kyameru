@@ -42,10 +42,10 @@ jobs:
       - name: Scan for security risks
         shell: pwsh
         run: |
-          $results = dotnet list ${{ GITHUB_WORKSPACE }}/KyameruFull.sln package --vulnerable --include-transitive
+          $results = dotnet list $GITHUB_WORKSPACE/KyameruFull.sln package --vulnerable --include-transitive
           if($results -like '*High*' || $results -like '*Critical*') {
             Write-Host 'Packages vulnerable'
-            dotnet list ${{ GITHUB_WORKSPACE }}KyameruFull.sln package --vulnerable --include-transitive
+            dotnet list $GITHUB_WORKSPACE/KyameruFull.sln package --vulnerable --include-transitive
             exit 1
           }
 
