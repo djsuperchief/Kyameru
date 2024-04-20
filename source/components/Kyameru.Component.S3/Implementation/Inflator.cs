@@ -32,7 +32,7 @@ public class Inflator : IOasis
     public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
     {
         // Only add S3 if it hasn't been added by the host
-        serviceCollection.TryAddTransient<IAmazonS3>();
+        serviceCollection.TryAddAWSService<IAmazonS3>();
         serviceCollection.AddTransient<ITo, S3To>();
         return serviceCollection;
     }
