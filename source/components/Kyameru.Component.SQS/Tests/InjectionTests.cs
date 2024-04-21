@@ -38,9 +38,26 @@ public class InjectionTests
         var sqsClient = Substitute.For<IAmazonSQS>();
         serviceCollection.AddTransient<IAmazonSQS>(x => Substitute.For<IAmazonSQS>());
         var inflator = new Inflator();
+        var headers = new Dictionary<string, string>()
+        {
+            { "Host", "MyQueueArn" }
+        };
         inflator.RegisterTo(serviceCollection);
         var provider = serviceCollection.BuildServiceProvider();
-        var component = inflator.CreateToComponent(new Dictionary<string, string>(), provider);
+        var component = inflator.CreateToComponent(headers, provider);
+        Assert.NotNull(component);
+    }
+    
+    [Fact]
+    public void CanCreateFromComponent()
+    {
+        var serviceCollection = new ServiceCollection();
+        var sqsClient = Substitute.For<IAmazonSQS>();
+        serviceCollection.AddTransient<IAmazonSQS>(x => Substitute.For<IAmazonSQS>());
+        var inflator = new Inflator();
+        inflator.RegisterTo(serviceCollection);
+        var provider = serviceCollection.BuildServiceProvider();
+        var component = inflator.CreateFromComponent(new Dictionary<string, string>(), false, provider);
         Assert.NotNull(component);
     }
 }
