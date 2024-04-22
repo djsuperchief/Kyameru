@@ -19,10 +19,11 @@ public class SqsTo : ITo
     {
         sqsClient = awsSqsClient;
     }
-    
+
     public void Process(Routable routable)
     {
-        throw new NotImplementedException();
+        var tokenSource = new CancellationTokenSource();
+        Task.Factory.StartNew(() => ProcessAsync(routable, tokenSource.Token), tokenSource.Token);
     }
 
     public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
@@ -48,13 +49,16 @@ public class SqsTo : ITo
         {
             if (!headers.ContainsKey(header) || string.IsNullOrWhiteSpace(headers[header]))
             {
-                throw new Exceptions.MissingHeaderException(string.Format(Resources.MISSING_HEADER_EXCEPTION, "Host"));    
+                throw new Exceptions.MissingHeaderException(string.Format(Resources.MISSING_HEADER_EXCEPTION, "Host"));
             }
         }
     }
-    
+
     private void Log(LogLevel logLevel, string message, Exception exception = null)
     {
-        this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
+        if (this.OnLog != null)
+        {
+            this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
+        }
     }
 }
