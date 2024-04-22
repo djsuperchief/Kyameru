@@ -6,7 +6,7 @@ using Amazon.SQS;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.Logging;
 
-namespace Kyameru.Component.SQS;
+namespace Kyameru.Component.Sqs;
 
 public class SqsTo : ITo
 {
@@ -23,7 +23,8 @@ public class SqsTo : ITo
     public void Process(Routable routable)
     {
         var tokenSource = new CancellationTokenSource();
-        Task.Factory.StartNew(() => ProcessAsync(routable, tokenSource.Token), tokenSource.Token);
+        var task = Task.Factory.StartNew(() => ProcessAsync(routable, tokenSource.Token), tokenSource.Token);
+        task.Wait(tokenSource.Token);
     }
 
     public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
@@ -35,6 +36,8 @@ public class SqsTo : ITo
         {
             Log(LogLevel.Error, string.Format(Resources.MESSAGE_SENDING_EXCEPTION, headers["Host"], response.HttpStatusCode));
         }
+        
+        routable.SetHeader("&SQSMessageId", response.MessageId);
     }
 
     public void SetHeaders(Dictionary<string, string> incomingHeaders)

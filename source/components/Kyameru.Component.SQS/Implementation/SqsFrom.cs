@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Sys;
 
-namespace Kyameru.Component.SQS;
+namespace Kyameru.Component.Sqs;
 
 public class SqsFrom : IFrom
 {

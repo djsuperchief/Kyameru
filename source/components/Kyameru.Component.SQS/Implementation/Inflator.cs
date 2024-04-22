@@ -5,7 +5,7 @@ using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Kyameru.Component.SQS;
+namespace Kyameru.Component.Sqs;
 
 public class Inflator : IOasis
 {

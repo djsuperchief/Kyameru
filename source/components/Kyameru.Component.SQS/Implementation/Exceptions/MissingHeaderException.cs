@@ -1,5 +1,5 @@
 using System;
 
-namespace Kyameru.Component.SQS.Exceptions;
+namespace Kyameru.Component.Sqs.Exceptions;
 
 public class MissingHeaderException(string message) : Exception(message);

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Kyameru.Core.Entities;
 
-namespace Kyameru.Component.SQS;
+namespace Kyameru.Component.Sqs;
 
 public class SqsMessage
 {

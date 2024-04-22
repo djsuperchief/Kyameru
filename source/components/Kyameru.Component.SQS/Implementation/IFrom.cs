@@ -1,6 +1,6 @@
 using Kyameru.Core.Contracts;
 
-namespace Kyameru.Component.SQS;
+namespace Kyameru.Component.Sqs;
 
 public interface IFrom : IFromComponent
 {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Kyameru.Component.SQS;
+namespace Kyameru.Component.Sqs;
 
 public interface ITo : Kyameru.Core.Contracts.IToComponent
 {

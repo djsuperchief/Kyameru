@@ -7,6 +7,8 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+        <AssemblyName>Kyameru.Component.Sqs.Tests</AssemblyName>
+        <RootNamespace>Kyameru.Component.Sqs.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,6 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Fakes\Kyameru.Component.Faker\Kyameru.Component.Faker.csproj" />
       <ProjectReference Include="..\Implementation\Kyameru.Component.SQS.csproj" />
     </ItemGroup>
 

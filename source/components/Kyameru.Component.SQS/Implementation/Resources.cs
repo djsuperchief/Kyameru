@@ -1,4 +1,4 @@
-namespace Kyameru.Component.SQS;
+namespace Kyameru.Component.Sqs;
 
 public class Resources
 {

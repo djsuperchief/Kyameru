@@ -3,7 +3,7 @@ using Amazon.SQS.Model;
 using Kyameru.Core.Entities;
 using NSubstitute;
 
-namespace Kyameru.Component.SQS.Tests;
+namespace Kyameru.Component.Sqs.Tests;
 
 public class ToTests
 {

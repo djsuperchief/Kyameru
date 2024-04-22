@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Kyameru.Component.SQS.Tests;
+namespace Kyameru.Component.Sqs.Tests;
 
 public static class Extensions
 {
