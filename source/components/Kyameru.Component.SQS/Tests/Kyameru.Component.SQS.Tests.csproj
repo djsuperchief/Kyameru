@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Fakes\Kyameru.Component.Faker\Kyameru.Component.Faker.csproj" />
+      <ProjectReference Include="..\..\Shared\Kyameru.Component.Faker\Kyameru.Component.Faker.csproj" />
       <ProjectReference Include="..\Implementation\Kyameru.Component.SQS.csproj" />
     </ItemGroup>
 

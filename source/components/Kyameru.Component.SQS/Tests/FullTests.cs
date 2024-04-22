@@ -38,6 +38,33 @@ public class FullTests
         await Task.CompletedTask;
     }
     
+    [Fact]
+    public async Task ChainedToAsyncSyncWorksAsExpected()
+    {
+        var serviceCollection = GetServiceDescriptors();
+        var routable = new Routable(new Dictionary<string, string>(), "Test");
+        var extractor = Substitute.For<IExtractor>();
+        extractor.When(x => x.SetRoutable(Arg.Any<Routable>())).Do(x =>
+        {
+            routable = x[0] as Routable;
+        });
+        serviceCollection.AddTransient<IExtractor>(x => extractor);
+        Kyameru.Route.From("faker://who/cares")
+            .To("sqs://queue")
+            .To("faker://who/cares")
+            .Id("FakerSyncTest")
+            .BuildAsync(serviceCollection);
+        
+        IServiceProvider provider = serviceCollection.BuildServiceProvider();
+        IHostedService service = provider.GetService<IHostedService>();
+        await service.StartAsync(CancellationToken.None);
+        await service.StopAsync(CancellationToken.None);
+
+        Assert.Equal("Faker Test", routable.Headers["SQSMessageId"]);
+
+        await Task.CompletedTask;
+    }
+    
     private IServiceCollection GetServiceDescriptors()
     {
         var sqsClient = Substitute.For<IAmazonSQS>();
