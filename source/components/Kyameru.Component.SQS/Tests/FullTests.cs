@@ -27,7 +27,7 @@ public class FullTests
             .To("faker://who/cares")
             .Id("FakerSyncTest")
             .Build(serviceCollection);
-        
+
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
         await service.StartAsync(CancellationToken.None);
@@ -37,7 +37,7 @@ public class FullTests
 
         await Task.CompletedTask;
     }
-    
+
     [Fact]
     public async Task ChainedToAsyncSyncWorksAsExpected()
     {
@@ -54,7 +54,7 @@ public class FullTests
             .To("faker://who/cares")
             .Id("FakerSyncTest")
             .BuildAsync(serviceCollection);
-        
+
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
         await service.StartAsync(CancellationToken.None);
@@ -64,11 +64,11 @@ public class FullTests
 
         await Task.CompletedTask;
     }
-    
+
     private IServiceCollection GetServiceDescriptors()
     {
         var sqsClient = Substitute.For<IAmazonSQS>();
-        sqsClient.SendMessageAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(x =>
+        sqsClient.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
             var response = new SendMessageResponse();
             response.MessageId = "Faker Test";

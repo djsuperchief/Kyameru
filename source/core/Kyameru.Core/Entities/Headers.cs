@@ -1,4 +1,6 @@
 ﻿using Kyameru.Core.Extensions;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,7 +9,7 @@ namespace Kyameru.Core.Entities
     /// <summary>
     /// Headers collection.
     /// </summary>
-    public class Headers
+    public class Headers : IEnumerable<KeyValuePair<string, string>>
     {
         /// <summary>
         /// Header dictionary.
@@ -51,6 +53,17 @@ namespace Kyameru.Core.Entities
         public bool ContainsKey(string key) => headerStorage.ContainsKey(key);
 
         /// <summary>
+        /// Gets the count of items in the header storage.
+        /// </summary>
+        public int Count => headerStorage.Count;
+
+        public bool IsSynchronized => throw new NotImplementedException();
+
+        public object SyncRoot => throw new NotImplementedException();
+
+        public bool IsReadOnly => throw new NotImplementedException();
+
+        /// <summary>
         /// Sets a header.
         /// </summary>
         /// <param name="key">Header key (prepended by &amp; indicates immutable).</param>
@@ -85,11 +98,22 @@ namespace Kyameru.Core.Entities
         {
             var response = string.Empty;
             headerStorage.TryGetValue(key, out response);
-            if(string.IsNullOrWhiteSpace(response)) {
+            if (string.IsNullOrWhiteSpace(response))
+            {
                 response = defaultValue;
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Gets the internal header storage as a dictionary.
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, string> GetDictionary()
+        {
+            // Need to make this a clone or jst make this an enumerable.
+            return headerStorage;
         }
 
         private bool IsImmutable(string key, out string editedKey)
@@ -108,6 +132,16 @@ namespace Kyameru.Core.Entities
 
             editedKey = key;
             return response;
+        }
+
+        public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+        {
+            return headerStorage.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

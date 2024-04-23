@@ -30,13 +30,13 @@ public class SqsTo : ITo
     public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
     {
         var message = new SqsMessage(headers, routable);
-        Log(LogLevel.Information, string.Format(Resources.INFORMATION_SEND, headers["Host"]));
-        var response = await sqsClient.SendMessageAsync(message.Queue, message.Body, cancellationToken);
+        Log(LogLevel.Information, string.Format(Resources.INFORMATION_SEND, message.Queue));
+        var response = await sqsClient.SendMessageAsync(message.ToSendMessageRequest(), cancellationToken);
         if (string.IsNullOrWhiteSpace(response.MessageId))
         {
-            Log(LogLevel.Error, string.Format(Resources.MESSAGE_SENDING_EXCEPTION, headers["Host"], response.HttpStatusCode));
+            Log(LogLevel.Error, string.Format(Resources.MESSAGE_SENDING_EXCEPTION, message.Queue, response.HttpStatusCode));
         }
-        
+
         routable.SetHeader("&SQSMessageId", response.MessageId);
     }
 

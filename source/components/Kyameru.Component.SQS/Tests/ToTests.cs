@@ -19,10 +19,11 @@ public class ToTests
         var bodySame = false;
         var queueSame = false;
 
-        client.SendMessageAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(x =>
+        client.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
-            bodySame = x[1] as string == expectedMessage;
-            queueSame = x[0] as string == queue;
+            var message = x[0] as SendMessageRequest;
+            bodySame = message!.MessageBody == expectedMessage;
+            queueSame = message.QueueUrl == queue;
             return new SendMessageResponse();
         });
 
@@ -43,9 +44,9 @@ public class ToTests
         routable.SetHeader("SQSQueue", queue);
         var receivedQueue = string.Empty;
 
-        client.SendMessageAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(x =>
+        client.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
-            receivedQueue = x[0] as string;
+            receivedQueue = (x[0] as SendMessageRequest)!.QueueUrl;
             return new SendMessageResponse();
         });
 
@@ -66,10 +67,11 @@ public class ToTests
         var bodySame = false;
         var queueSame = false;
 
-        client.SendMessageAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(x =>
+        client.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
-            bodySame = x[1] as string == expectedMessage;
-            queueSame = x[0] as string == queue;
+            var message = x[0] as SendMessageRequest;
+            bodySame = message!.MessageBody == expectedMessage;
+            queueSame = message.QueueUrl == queue;
             resetEvent.Set();
             return new SendMessageResponse();
         });
@@ -78,5 +80,36 @@ public class ToTests
         resetEvent.WaitOne(5000);
         Assert.True(bodySame);
         Assert.True(queueSame);
+    }
+
+    [Fact]
+    public async Task HeadersFromRoutableInMessageHeader()
+    {
+        var receivedHeaders = new Dictionary<string, string>();
+        var headers = new Dictionary<string, string>()
+        {
+            { "RandomHeader", "RandomValue" },
+            { "SQSQueue", "Queue" }
+        };
+        var routable = new Routable(headers, "Data");
+        var client = Substitute.For<IAmazonSQS>();
+        client.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        {
+            var request = x[0] as SendMessageRequest;
+            receivedHeaders = request.MessageAttributes.ToDictionary(x => x.Key, x => x.Value.StringValue);
+            var response = new SendMessageResponse();
+            response.MessageId = Guid.NewGuid().ToString("N");
+            return response;
+        });
+
+        var to = new SqsTo(client);
+        to.SetHeaders(new Dictionary<string, string>()
+        {
+            { "Host", "my-queue" }
+        });
+        await to.ProcessAsync(routable, default);
+        // SQSQueue and message id will not be there.
+        Assert.Equal(receivedHeaders.Count, routable.Headers.Count - 2);
+        Assert.All(receivedHeaders, x => Assert.Equal(x.Value, routable.Headers[x.Key]));
     }
 }
