@@ -38,6 +38,7 @@ public class SqsTo : ITo
         }
 
         routable.SetHeader("&SQSMessageId", response.MessageId);
+        Log(LogLevel.Information, string.Format(Resources.INFORMATION_SENT, response.MessageId));
     }
 
     public void SetHeaders(Dictionary<string, string> incomingHeaders)

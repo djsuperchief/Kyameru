@@ -1,4 +1,5 @@
 ﻿using Amazon.S3;
+using Amazon.SQS;
 using Kyameru.Core.Entities;
 using LocalStack.Client.Extensions;
 using Microsoft.Extensions.Configuration;
@@ -43,18 +44,16 @@ namespace Kyameru.Console.Test
                 services.AddLocalStack(Configuration);
                 services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
                 services.AddAwsService<IAmazonS3>();
+                services.AddAwsService<IAmazonSQS>();
 
                 Kyameru.Route.From($"file://{fileLocation}?Notifications=Created&SubDirectories=true&Filter=*.*")
                     .Process(new ProcessingComp())
                     .Process((Routable x) =>
                     {
-                        var byteString = Encoding.UTF8.GetBytes("Hello World");
-
-                        x.SetHeader("S3FileName", x.Headers["SourceFile"]);
-                        x.SetHeader("S3DataType", "Byte");
-                        x.SetBody<byte[]>(byteString);
+                        x.SetHeader("S3DataType", "String");
                     })
                     .To("s3://kyameru-component-s3/test&FileName=banana.txt")
+                    .To("sqs://kyameru-to")
                     .Id("AWS-S3-Test")
                     .BuildAsync(services);
 
