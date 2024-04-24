@@ -23,7 +23,7 @@ public class InjectionTests
         inflator.RegisterTo(serviceCollection);
         Assert.True(serviceCollection.Contains(typeof(ITo), typeof(SqsTo)));
     }
-    
+
     [Fact]
     public void CreateAtomicThrowsNotImplemented()
     {
@@ -47,15 +47,15 @@ public class InjectionTests
         var component = inflator.CreateToComponent(headers, provider);
         Assert.NotNull(component);
     }
-    
-    [Fact (Skip = "Not implemented yet")]
+
+    [Fact]
     public void CanCreateFromComponent()
     {
         var serviceCollection = new ServiceCollection();
         var sqsClient = Substitute.For<IAmazonSQS>();
         serviceCollection.AddTransient<IAmazonSQS>(x => Substitute.For<IAmazonSQS>());
         var inflator = new Inflator();
-        inflator.RegisterTo(serviceCollection);
+        inflator.RegisterFrom(serviceCollection);
         var provider = serviceCollection.BuildServiceProvider();
         var component = inflator.CreateFromComponent(new Dictionary<string, string>(), false, provider);
         Assert.NotNull(component);

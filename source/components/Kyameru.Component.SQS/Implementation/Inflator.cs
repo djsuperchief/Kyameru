@@ -11,7 +11,9 @@ public class Inflator : IOasis
 {
     public IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
     {
-        throw new NotImplementedException();
+        var from = serviceProvider.GetRequiredService<IFrom>();
+        from.SetHeaders(headers);
+        return from;
     }
 
     public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
