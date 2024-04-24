@@ -64,27 +64,38 @@ public class FromTests
         sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).Returns(x =>
         {
             endOfMessages = messagesSent.Count == 0;
-            var randomMessage = messagesSent.First();
-            messagesSent.RemoveAt(0);
-            var response = Task.FromResult(new ReceiveMessageResponse()
+            if (!endOfMessages)
             {
-                Messages = new List<Message>() {
+                var randomMessage = messagesSent.First();
+                var response = Task.FromResult(new ReceiveMessageResponse()
+                {
+                    Messages = new List<Message>()
                     {
-                        new Message() {
-                        MessageId ="Test",
-                        Body = randomMessage
-                    }}
-                }
-            });
+                        new()
+                        {
+                            MessageId = "Test",
+                            Body = randomMessage,
+                            ReceiptHandle = randomMessage
+                        }
+                    }
+                });
+                return response;
+            }
 
-            return response;
+            return Task.FromResult(new ReceiveMessageResponse());
+        });
+
+        sqsClient.DeleteMessageAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(x =>
+        {
+            messagesSent.RemoveAt(messagesSent.IndexOf(x[1] as string));
+            return Task.FromResult(new DeleteMessageResponse());
         });
 
         var from = new SqsFrom(sqsClient);
         from.SetHeaders(new Dictionary<string, string>()
         {
             { "Host", "queue"},
-            { "PollTime", "3" }
+            { "PollTime", "2" }
         });
         from.Setup();
         from.OnActionAsync += async (object sender, RoutableEventData eventData) =>
@@ -108,7 +119,6 @@ public class FromTests
         var resetEvent = new AutoResetEvent(false);
         var sqsClient = Substitute.For<IAmazonSQS>();
         var messagesSent = new List<string>();
-        var receivedMessages = new List<string>();
         var endOfMessages = false;
         for (var i = 0; i < 5; i++)
         {
@@ -118,27 +128,39 @@ public class FromTests
         sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).Returns(x =>
         {
             endOfMessages = messagesSent.Count == 0;
-            var randomMessage = messagesSent.First();
-            messagesSent.RemoveAt(0);
-            var response = Task.FromResult(new ReceiveMessageResponse()
+            if (!endOfMessages)
             {
-                Messages = new List<Message>() {
-                    {
-                        new Message() {
-                        MessageId ="Test",
-                        Body = randomMessage
-                    }}
-                }
-            });
 
-            return response;
+                var randomMessage = messagesSent.First();
+                var response = Task.FromResult(new ReceiveMessageResponse()
+                {
+                    Messages = new List<Message>()
+                    {
+                        new()
+                        {
+                            MessageId = "Test",
+                            Body = randomMessage,
+                            ReceiptHandle = randomMessage
+                        }
+                    }
+                });
+                return response;
+            }
+
+            return Task.FromResult(new ReceiveMessageResponse());
+        });
+
+        sqsClient.DeleteMessageAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(x =>
+        {
+            messagesSent.RemoveAt(messagesSent.IndexOf(x[1] as string));
+            return Task.FromResult(new DeleteMessageResponse());
         });
 
         var from = new SqsFrom(sqsClient);
         from.SetHeaders(new Dictionary<string, string>()
         {
             { "Host", "queue"},
-            { "PollTime", "3" }
+            { "PollTime", "2" }
         });
         from.Setup();
         from.OnActionAsync += async (object sender, RoutableEventData eventData) =>
