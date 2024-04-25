@@ -46,16 +46,21 @@ namespace Kyameru.Console.Test
                 services.AddAwsService<IAmazonS3>();
                 services.AddAwsService<IAmazonSQS>();
 
-                Kyameru.Route.From($"file://{fileLocation}?Notifications=Created&SubDirectories=true&Filter=*.*")
-                    .Process(new ProcessingComp())
-                    .Process((Routable x) =>
-                    {
-                        x.SetHeader("S3DataType", "String");
-                    })
-                    .To("s3://kyameru-component-s3/test&FileName=banana.txt")
-                    .To("sqs://kyameru-to")
-                    .Id("AWS-S3-Test")
-                    .BuildAsync(services);
+                // Kyameru.Route.From($"file://{fileLocation}?Notifications=Created&SubDirectories=true&Filter=*.*")
+                //     .Process(new ProcessingComp())
+                //     .Process((Routable x) =>
+                //     {
+                //         x.SetHeader("S3DataType", "String");
+                //     })
+                //     .To("s3://kyameru-component-s3/test&FileName=banana.txt")
+                //     .To("sqs://kyameru-to")
+                //     .Id("AWS-S3-Test")
+                //     .BuildAsync(services);
+
+                Kyameru.Route.From("sqs://localhost:4566/000000000000/kyameru-from?PollTime=10")
+                .To("sqs://kyameru-to")
+                .Id("sqs-full-test")
+                .BuildAsync(services);
 
 
             }).ConfigureLogging((hostContext, services) =>

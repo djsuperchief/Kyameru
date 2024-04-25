@@ -9,4 +9,8 @@ public class Resources
     public const string INFORMATION_SENT = "SQS Message sent, message id: {0}";
     public const string INFORMATION_SCANSTART = "Starting SQS queue scanning on queue {0}.";
     public const string INFORMATION_MESSAGE_RECEIVED = "Received message from SQS.";
+
+    public const string INFORMATION_SCANNING = "Scanning for messages...";
+
+    public const string INFORMATION_PROCESSING_RECEIVED = "Processing SQS message with id: {0}";
 }

@@ -267,4 +267,33 @@ public class FromTests
         await from.StopAsync(default);
         Assert.False(from.IsPolling);
     }
+
+    [Theory]
+    [InlineData("https", "false")]
+    [InlineData("http", "true")]
+    public async Task CanSendByUrl(string protocol, string doHttp)
+    {
+        var expectedQueue = $"{protocol}://localhost:4566/000000000000/kyameru-to";
+        // Test to make sure a queue url can be used.
+        var attributes = new RouteAttributes($"sqs://localhost:4566/000000000000/kyameru-to?PollTime=2&http={doHttp}");
+        var headers = attributes.Headers;
+        var sqsClient = Substitute.For<IAmazonSQS>();
+        var resetEvent = new AutoResetEvent(false);
+        var receivedQueue = string.Empty;
+        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).Returns(x =>
+        {
+            receivedQueue = (x[0] as ReceiveMessageRequest)!.QueueUrl;
+            resetEvent.Set();
+            return new ReceiveMessageResponse();
+        });
+
+        var from = new SqsFrom(sqsClient);
+        from.SetHeaders(headers);
+        from.Setup();
+        await from.StartAsync(default);
+        resetEvent.WaitOne();
+        await from.StopAsync(default);
+        Assert.Equal(expectedQueue, receivedQueue);
+
+    }
 }

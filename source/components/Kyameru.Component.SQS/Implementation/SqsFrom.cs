@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -26,14 +27,20 @@ public class SqsFrom(IAmazonSQS client) : IFrom
     private Dictionary<string, string> headers = new();
 
     private System.Timers.Timer poller = new();
+
+    private string queue;
     private int pollTime;
 
     public void Setup()
     {
         VerifyHeaders();
+        SetQueueLocation();
         poller.Elapsed += Poller_Elapsed;
+        poller.Interval = pollTime;
         poller.AutoReset = true;
     }
+
+
 
     private async void Poller_Elapsed(object sender, ElapsedEventArgs e)
     {
@@ -53,7 +60,7 @@ public class SqsFrom(IAmazonSQS client) : IFrom
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        Log(LogLevel.Information, string.Format(Resources.INFORMATION_SCANSTART, headers["Host"]));
+        Log(LogLevel.Information, string.Format(Resources.INFORMATION_SCANSTART, queue));
         poller.Start();
         await Task.CompletedTask;
 
@@ -88,9 +95,11 @@ public class SqsFrom(IAmazonSQS client) : IFrom
 
     private async Task Process(CancellationToken cancellationToken)
     {
+        Log(LogLevel.Information, Resources.INFORMATION_SCANNING);
         var message = await GetSqsMessage(cancellationToken);
         if (message.Messages.Count > 0)
         {
+            Log(LogLevel.Information, Resources.INFORMATION_MESSAGE_RECEIVED);
             if (await ProcessMessage(message.Messages[0], cancellationToken))
             {
                 await DeleteMessage(message.Messages[0], cancellationToken);
@@ -100,11 +109,12 @@ public class SqsFrom(IAmazonSQS client) : IFrom
 
     private async Task DeleteMessage(Message message, CancellationToken cancellationToken)
     {
-        await sqsClient.DeleteMessageAsync(headers["Host"], message.ReceiptHandle, cancellationToken);
+        await sqsClient.DeleteMessageAsync(queue, message.ReceiptHandle, cancellationToken);
     }
 
     private async Task<bool> ProcessMessage(Message message, CancellationToken cancellationToken)
     {
+        Log(LogLevel.Information, string.Format(Resources.INFORMATION_PROCESSING_RECEIVED, message.MessageId));
         var attributes = message.MessageAttributes.Where(x => x.Value.DataType == "String" || x.Value.DataType == null);
         var routable = new Routable(attributes.ToDictionary(x => x.Key, x => x.Value.StringValue), message.Body);
         if (OnActionAsync != null)
@@ -127,9 +137,38 @@ public class SqsFrom(IAmazonSQS client) : IFrom
     {
         return await sqsClient.ReceiveMessageAsync(new ReceiveMessageRequest
         {
-            QueueUrl = headers["Host"],
+            QueueUrl = queue,
             MaxNumberOfMessages = 1,
             WaitTimeSeconds = 2
         }, cancellationToken);
+    }
+
+    private void SetQueueLocation()
+    {
+        if (headers.ContainsKey("Port") ||
+            (headers.ContainsKey("Target") && headers["Target"] != "/"))
+        {
+            if (!headers.TryGetValue("http", out var protocol))
+            {
+                protocol = "https";
+            }
+            else
+            {
+                protocol = bool.Parse(protocol) ? "http" : "https";
+            }
+            // this is a Queue URL
+            var builder = new StringBuilder($"{protocol}://");
+            builder.Append(headers["Host"]);
+            if (headers.ContainsKey("Port"))
+            {
+                builder.Append($":{headers["Port"]}");
+            }
+            builder.Append(headers["Target"]);
+            queue = builder.ToString();
+        }
+        else
+        {
+            queue = headers["Host"];
+        }
     }
 }
