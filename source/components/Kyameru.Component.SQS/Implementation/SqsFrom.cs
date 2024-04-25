@@ -19,10 +19,9 @@ public class SqsFrom(IAmazonSQS client) : IFrom
     public event EventHandler<Routable>? OnAction;
     public event AsyncEventHandler<RoutableEventData>? OnActionAsync;
 
-    private readonly IAmazonSQS sqsClient = client;
+    public bool IsPolling => poller.Enabled;
 
-    // Value controlling the scanning for messages.
-    private bool scan = false;
+    private readonly IAmazonSQS sqsClient = client;
 
     private Dictionary<string, string> headers;
 
@@ -55,14 +54,12 @@ public class SqsFrom(IAmazonSQS client) : IFrom
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        scan = true;
         Log(LogLevel.Information, string.Format(Resources.INFORMATION_SCANSTART, headers["Host"]));
         poller.Start();
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        scan = false;
         poller.Stop();
         poller.Elapsed -= Poller_Elapsed;
 
@@ -107,7 +104,8 @@ public class SqsFrom(IAmazonSQS client) : IFrom
 
     private async Task<bool> ProcessMessage(Message message, CancellationToken cancellationToken)
     {
-        var routable = new Routable(message.Attributes, message.Body);
+        var attributes = message.MessageAttributes.Where(x => x.Value.DataType == "String" || x.Value.DataType == null);
+        var routable = new Routable(attributes.ToDictionary(x => x.Key, x => x.Value.StringValue), message.Body);
         if (OnActionAsync != null)
         {
             await OnActionAsync.Invoke(this, new RoutableEventData(routable, cancellationToken));
