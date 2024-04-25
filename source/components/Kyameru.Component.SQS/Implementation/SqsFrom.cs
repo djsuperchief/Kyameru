@@ -23,15 +23,14 @@ public class SqsFrom(IAmazonSQS client) : IFrom
 
     private readonly IAmazonSQS sqsClient = client;
 
-    private Dictionary<string, string> headers;
+    private Dictionary<string, string> headers = new();
 
-    private System.Timers.Timer poller;
+    private System.Timers.Timer poller = new();
     private int pollTime;
 
     public void Setup()
     {
         VerifyHeaders();
-        poller = new System.Timers.Timer(pollTime);
         poller.Elapsed += Poller_Elapsed;
         poller.AutoReset = true;
     }
@@ -56,6 +55,8 @@ public class SqsFrom(IAmazonSQS client) : IFrom
     {
         Log(LogLevel.Information, string.Format(Resources.INFORMATION_SCANSTART, headers["Host"]));
         poller.Start();
+        await Task.CompletedTask;
+
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)

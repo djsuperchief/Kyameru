@@ -109,25 +109,4 @@ public class S3FileTarget
 
         return response;
     }
-
-    public override bool Equals(object obj)
-    {
-        var comparison = obj as S3FileTarget;
-        var properties = comparison?.GetType().GetProperties().Select(x => x.Name);
-        if (properties != null)
-        {
-            foreach (var property in properties)
-            {
-                var incoming = typeof(S3FileTarget).GetProperty(property).GetValue(comparison, null);
-                var current = typeof(S3FileTarget).GetProperty(property).GetValue(this, null);
-
-                if (incoming != current)
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
 }

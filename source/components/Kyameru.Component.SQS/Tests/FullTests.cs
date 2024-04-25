@@ -29,8 +29,8 @@ public class FullTests
             .Build(serviceCollection);
 
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
-        IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
+        IHostedService? service = provider.GetService<IHostedService>();
+        await service!.StartAsync(CancellationToken.None);
         await service.StopAsync(CancellationToken.None);
 
         Assert.Equal("Faker Test", routable.Headers["SQSMessageId"]);
@@ -56,8 +56,8 @@ public class FullTests
             .BuildAsync(serviceCollection);
 
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
-        IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
+        IHostedService? service = provider.GetService<IHostedService>();
+        await service!.StartAsync(CancellationToken.None);
         await service.StopAsync(CancellationToken.None);
 
         Assert.Equal("Faker Test", routable.Headers["SQSMessageId"]);
@@ -85,8 +85,8 @@ public class FullTests
             .Id("FakerSyncTest")
             .BuildAsync(serviceCollection);
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
-        IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
+        IHostedService? service = provider.GetService<IHostedService>();
+        await service!.StartAsync(CancellationToken.None);
         syncEvent.WaitOne(5000);
         await service.StopAsync(CancellationToken.None);
 
@@ -142,7 +142,11 @@ public class FullTests
 
         sqsClient.DeleteMessageAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
-            messages.RemoveAt(messages.IndexOf(x[1] as string));
+            var message = x[1];
+            if (message != null)
+            {
+                messages.RemoveAt(messages.IndexOf(message.ToString()!));
+            }
             return Task.FromResult(new DeleteMessageResponse());
         });
 

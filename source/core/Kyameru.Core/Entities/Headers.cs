@@ -57,12 +57,6 @@ namespace Kyameru.Core.Entities
         /// </summary>
         public int Count => headerStorage.Count;
 
-        public bool IsSynchronized => throw new NotImplementedException();
-
-        public object SyncRoot => throw new NotImplementedException();
-
-        public bool IsReadOnly => throw new NotImplementedException();
-
         /// <summary>
         /// Sets a header.
         /// </summary>
@@ -87,6 +81,11 @@ namespace Kyameru.Core.Entities
             }
         }
 
+        /// <summary>
+        /// Attempts to get the value of a header.
+        /// </summary>
+        /// <param name="key">Header key.</param>
+        /// <returns>Returns either the header value or an empty string.</returns>
         public string TryGetValue(string key)
         {
             var response = string.Empty;
@@ -94,6 +93,12 @@ namespace Kyameru.Core.Entities
             return response;
         }
 
+        /// <summary>
+        /// Attempts to get the value of a header specifying a default value to return.
+        /// </summary>
+        /// <param name="key">Header key.</param>
+        /// <param name="defaultValue">Default Value.</param>
+        /// <returns>Returns either the header value or specified default value.</returns>
         public string TryGetValue(string key, string defaultValue)
         {
             var response = string.Empty;
@@ -134,6 +139,10 @@ namespace Kyameru.Core.Entities
             return response;
         }
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the System.Collections.Generic.Dictionary.
+        /// </summary>
+        /// <returns>A System.Collections.Generic.Dictionary.Enumerator structure for the System.Collections.Generic.Dictionary.</returns>
         public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
         {
             return headerStorage.GetEnumerator();

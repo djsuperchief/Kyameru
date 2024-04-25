@@ -11,7 +11,7 @@ namespace Kyameru.Component.Sqs;
 public class SqsTo : ITo
 {
     private readonly IAmazonSQS sqsClient;
-    private Dictionary<string, string> headers;
+    private Dictionary<string, string> headers = new();
     private readonly string[] requiredHeaders = new[] { "Host" };
     public event EventHandler<Log>? OnLog;
 
@@ -30,15 +30,23 @@ public class SqsTo : ITo
     public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
     {
         var message = new SqsMessage(headers, routable);
-        Log(LogLevel.Information, string.Format(Resources.INFORMATION_SEND, message.Queue));
-        var response = await sqsClient.SendMessageAsync(message.ToSendMessageRequest(), cancellationToken);
-        if (string.IsNullOrWhiteSpace(response.MessageId))
+        try
         {
-            Log(LogLevel.Error, string.Format(Resources.MESSAGE_SENDING_EXCEPTION, message.Queue, response.HttpStatusCode));
-        }
+            Log(LogLevel.Information, string.Format(Resources.INFORMATION_SEND, message.Queue));
+            var response = await sqsClient.SendMessageAsync(message.ToSendMessageRequest(), cancellationToken);
+            if (string.IsNullOrWhiteSpace(response.MessageId))
+            {
+                Log(LogLevel.Error, string.Format(Resources.MESSAGE_SENDING_EXCEPTION, message.Queue, response.HttpStatusCode));
+            }
 
-        routable.SetHeader("&SQSMessageId", response.MessageId);
-        Log(LogLevel.Information, string.Format(Resources.INFORMATION_SENT, response.MessageId));
+            routable.SetHeader("&SQSMessageId", response.MessageId);
+            Log(LogLevel.Information, string.Format(Resources.INFORMATION_SENT, response.MessageId));
+        }
+        catch (Exception ex)
+        {
+            Log(LogLevel.Error, string.Format(Resources.MESSAGE_SENDING_EXCEPTION, message.Queue, ex.Message), ex);
+            throw;
+        }
     }
 
     public void SetHeaders(Dictionary<string, string> incomingHeaders)
@@ -58,7 +66,7 @@ public class SqsTo : ITo
         }
     }
 
-    private void Log(LogLevel logLevel, string message, Exception exception = null)
+    private void Log(LogLevel logLevel, string message, Exception? exception = null)
     {
         if (this.OnLog != null)
         {

@@ -96,7 +96,7 @@ public class ToTests
         client.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
             var request = x[0] as SendMessageRequest;
-            receivedHeaders = request.MessageAttributes.ToDictionary(x => x.Key, x => x.Value.StringValue);
+            receivedHeaders = request?.MessageAttributes.ToDictionary(x => x.Key, x => x.Value.StringValue);
             var response = new SendMessageResponse();
             response.MessageId = Guid.NewGuid().ToString("N");
             return response;

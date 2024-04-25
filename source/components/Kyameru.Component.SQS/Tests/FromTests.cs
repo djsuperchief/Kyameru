@@ -42,11 +42,13 @@ public class FromTests
         {
             message = eventData.Data.Body as string;
             resetEvent.Set();
+            await Task.CompletedTask;
         };
         await from.StartAsync(default);
         resetEvent.WaitOne(5000, true);
         await from.StopAsync(default);
         Assert.Equal(randomMessage, message);
+
     }
 
     [Fact]
@@ -88,7 +90,12 @@ public class FromTests
 
         sqsClient.DeleteMessageAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
-            messagesSent.RemoveAt(messagesSent.IndexOf(x[1] as string));
+            var message = x[1];
+            if (message != null)
+            {
+                messagesSent.RemoveAt(messagesSent.IndexOf(message.ToString()!));
+            }
+
             return Task.FromResult(new DeleteMessageResponse());
         });
 
@@ -101,11 +108,17 @@ public class FromTests
         from.Setup();
         from.OnActionAsync += async (object sender, RoutableEventData eventData) =>
         {
-            receivedMessages.Add(eventData.Data.Body as string);
+            var message = eventData.Data.Body;
+            if (message != null)
+            {
+                receivedMessages.Add(message.ToString()!);
+            }
+
             if (endOfMessages)
             {
                 resetEvent.Set();
             }
+            await Task.CompletedTask;
         };
         await from.StartAsync(default);
         resetEvent.WaitOne(15000, true);
@@ -153,7 +166,11 @@ public class FromTests
 
         sqsClient.DeleteMessageAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
-            messagesSent.RemoveAt(messagesSent.IndexOf(x[1] as string));
+            var message = x[1];
+            if (message != null)
+            {
+                messagesSent.RemoveAt(messagesSent.IndexOf(message.ToString()!));
+            }
             return Task.FromResult(new DeleteMessageResponse());
         });
 
@@ -170,6 +187,8 @@ public class FromTests
             {
                 resetEvent.Set();
             }
+
+            await Task.CompletedTask;
         };
         await from.StartAsync(default);
         resetEvent.WaitOne(20000, true);
