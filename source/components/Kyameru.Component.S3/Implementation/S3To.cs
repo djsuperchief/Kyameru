@@ -10,10 +10,10 @@ namespace Kyameru.Component.S3;
 public class S3To : ITo
 {
     private IAmazonS3 s3client;
-    private string targetBucket = "";
-    private string targetPath = "";
-    private string targetFileName = "";
-    private string targetContentType = "";
+    private string targetBucket;
+    private string targetPath;
+    private string targetFileName;
+    private string targetContentType;
 
     private readonly Dictionary<S3FileTarget.OperationType, Func<S3FileTarget, CancellationToken, Task<string>>> targetActions;
 

@@ -6,6 +6,7 @@
         <LangVersion>12</LangVersion>
         <AssemblyName>Kyameru.Component.Sqs</AssemblyName>
         <RootNamespace>Kyameru.Component.Sqs</RootNamespace>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
