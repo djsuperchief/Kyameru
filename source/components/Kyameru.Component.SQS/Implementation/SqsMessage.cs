@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Amazon.SQS.Model;
 using Kyameru.Core.Entities;
 
@@ -7,8 +9,7 @@ namespace Kyameru.Component.Sqs;
 
 public class SqsMessage
 {
-    private readonly Headers message;
-    private readonly Dictionary<string, string> component;
+
 
     public SqsMessage(Dictionary<string, string> componentHeaders, Routable routable)
     {
@@ -17,16 +18,22 @@ public class SqsMessage
         Body = (routable.Body as string)!;
     }
 
-    public string Queue => message.TryGetValue("SQSQueue", component["Host"]);
+    public string Queue { get; private set; }
 
     public string Body { get; private set; }
 
+    private readonly Headers message;
+    private readonly Dictionary<string, string> component;
+
+    private const string queueHeader = "SQSQueue";
+
     public SendMessageRequest ToSendMessageRequest()
     {
+        SetQueueLocation();
         var response = new SendMessageRequest(Queue, Body);
         foreach (var header in message)
         {
-            if (header.Key != "SQSQueue")
+            if (header.Key != queueHeader)
             {
                 response.MessageAttributes.Add(header.Key, new MessageAttributeValue()
                 {
@@ -37,5 +44,63 @@ public class SqsMessage
         }
 
         return response;
+    }
+
+    private void SetQueueLocation()
+    {
+        var intermediate = message.TryGetValue("SQSQueue", string.Empty);
+        if (!string.IsNullOrWhiteSpace(intermediate))
+        {
+            GetMessageQueueLocation(intermediate);
+            return;
+        }
+
+        if (component.ContainsKey("Port") ||
+            (component.ContainsKey("Target") && component["Target"] != "/"))
+        {
+            if (!component.TryGetValue("http", out var protocol))
+            {
+                protocol = "https";
+            }
+            else
+            {
+                protocol = bool.Parse(protocol) ? "http" : "https";
+            }
+            // this is a Queue URL
+            var builder = new StringBuilder($"{protocol}://");
+            builder.Append(component["Host"]);
+            if (component.ContainsKey("Port"))
+            {
+                builder.Append($":{component["Port"]}");
+            }
+            builder.Append(component["Target"]);
+            Queue = builder.ToString();
+        }
+        else
+        {
+            Queue = component["Host"];
+        }
+    }
+
+    private void GetMessageQueueLocation(string intermediate)
+    {
+        // if the queue contains a whole queue url (including http(s)) then just take it as given.
+        if ((intermediate.Contains(":") || intermediate.Contains("/")) && !intermediate.Contains("http"))
+        {
+            if (!component.TryGetValue("http", out var protocol))
+            {
+                protocol = "https";
+            }
+            else
+            {
+                protocol = bool.Parse(protocol) ? "http" : "https";
+            }
+
+            Queue = $"{protocol}://{intermediate}";
+        }
+        else
+        {
+            Queue = intermediate;
+        }
     }
 }
