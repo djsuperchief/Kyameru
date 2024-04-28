@@ -23,7 +23,7 @@ jobs:
         #run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=TestCoverage/
         run: dotnet test KyameruFull.sln --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat="lcov%2cjson" /p:CoverletOutput=${GITHUB_WORKSPACE}/build/TestCoverage/ /p:MergeWith="${GITHUB_WORKSPACE}/build/TestCoverage/coverage.json"
       # For some reason, s3 tests don't get collected?
-      - name: Test
+      - name: TestS3
         #run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=TestCoverage/
         run: dotnet test --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat="lcov%2cjson" /p:CoverletOutput=${GITHUB_WORKSPACE}/build/TestCoverage/ /p:MergeWith="${GITHUB_WORKSPACE}/build/TestCoverage/coverage.json"
         working-directory: ${GITHUB_WORKSPACE}/source/components/Kyameru.Component.S3/Tests
