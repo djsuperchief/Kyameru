@@ -25,7 +25,7 @@ jobs:
       # For some reason, s3 tests don't get collected?
       - name: Test
         #run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=TestCoverage/
-        run: dotnet test KyameruFull.sln --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat="lcov%2cjson" /p:CoverletOutput=${GITHUB_WORKSPACE}/build/TestCoverage/ /p:MergeWith="${GITHUB_WORKSPACE}/build/TestCoverage/coverage.json"
+        run: dotnet test --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat="lcov%2cjson" /p:CoverletOutput=${GITHUB_WORKSPACE}/build/TestCoverage/ /p:MergeWith="${GITHUB_WORKSPACE}/build/TestCoverage/coverage.json"
         working-directory: ${GITHUB_WORKSPACE}/source/components/Kyameru.Component.S3/Tests
       - name: Coveralls
         uses: coverallsapp/github-action@master
