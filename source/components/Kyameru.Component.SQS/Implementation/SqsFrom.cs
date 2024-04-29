@@ -62,7 +62,7 @@ public class SqsFrom(IAmazonSQS client) : IFrom
     {
         Log(LogLevel.Information, string.Format(Resources.INFORMATION_SCANSTART, queue));
         poller.Start();
-        await Task.CompletedTask;
+        await Process(cancellationToken); // Perform an initial scan.
 
     }
 
