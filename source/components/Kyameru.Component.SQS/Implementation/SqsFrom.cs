@@ -86,7 +86,7 @@ public class SqsFrom(IAmazonSQS client) : IFrom
             throw new Exceptions.MissingHeaderException(string.Format(Resources.MISSING_HEADER_EXCEPTION, "Host"));
         }
 
-        pollTime = 1000;
+        pollTime = 10000;
         if (headers.ContainsKey("PollTime"))
         {
             pollTime = int.Parse(headers["PollTime"]) * 1000;
