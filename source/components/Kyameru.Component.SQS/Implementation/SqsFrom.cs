@@ -97,13 +97,22 @@ public class SqsFrom(IAmazonSQS client) : IFrom
     {
         Log(LogLevel.Information, Resources.INFORMATION_SCANNING);
         var message = await GetSqsMessage(cancellationToken);
-        if (message?.Messages.Count > 0)
+        try
         {
-            Log(LogLevel.Information, Resources.INFORMATION_MESSAGE_RECEIVED);
-            if (await ProcessMessage(message.Messages[0], cancellationToken))
+
+            if (message?.Messages.Count > 0)
             {
-                await DeleteMessage(message.Messages[0], cancellationToken);
+                Log(LogLevel.Information, Resources.INFORMATION_MESSAGE_RECEIVED);
+                if (await ProcessMessage(message.Messages[0], cancellationToken))
+                {
+                    await DeleteMessage(message.Messages[0], cancellationToken);
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            Log(LogLevel.Error, string.Format(Resources.SQS_QUEUE_SCAN_EXCEPTION, headers["Host"], ex.Message), ex);
+            throw;
         }
     }
 
