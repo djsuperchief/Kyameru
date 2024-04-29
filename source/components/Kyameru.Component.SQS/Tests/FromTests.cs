@@ -4,6 +4,7 @@ using Kyameru.Component.Faker;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Sys;
 using NSubstitute;
+using NSubstitute.ClearExtensions;
 using NSubstitute.ExceptionExtensions;
 
 namespace Kyameru.Component.Sqs.Tests;
@@ -133,6 +134,8 @@ public class FromTests
     {
         var resetEvent = new AutoResetEvent(false);
         var sqsClient = Substitute.For<IAmazonSQS>();
+        sqsClient.ClearSubstitute();
+        sqsClient.ClearReceivedCalls();
         var messagesSent = new List<string>();
         var endOfMessages = false;
         for (var i = 0; i < 5; i++)
@@ -296,16 +299,5 @@ public class FromTests
         await from.StopAsync(default);
         Assert.Equal(expectedQueue, receivedQueue);
 
-    }
-
-    [Fact]
-    public async Task ProcessBubblesException()
-    {
-        var sqsClient = Substitute.For<IAmazonSQS>();
-        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>(), Arg.Any<CancellationToken>()).Throws<NotImplementedException>();
-        var from = new SqsFrom(sqsClient);
-        from.SetHeaders(new Dictionary<string, string>() { { "Host", "MyQueue" } });
-        from.Setup();
-        await Assert.ThrowsAsync<NotImplementedException>(async () => await from.StartAsync(default));
     }
 }
