@@ -58,16 +58,8 @@ public class SqsMessage
         if (component.ContainsKey("Port") ||
             (component.ContainsKey("Target") && component["Target"] != "/"))
         {
-            if (!component.TryGetValue("http", out var protocol))
-            {
-                protocol = "https";
-            }
-            else
-            {
-                protocol = bool.Parse(protocol) ? "http" : "https";
-            }
             // this is a Queue URL
-            var builder = new StringBuilder($"{protocol}://");
+            var builder = new StringBuilder($"{GetProtocol()}://");
             builder.Append(component["Host"]);
             if (component.ContainsKey("Port"))
             {
@@ -87,20 +79,25 @@ public class SqsMessage
         // if the queue contains a whole queue url (including http(s)) then just take it as given.
         if ((intermediate.Contains(":") || intermediate.Contains("/")) && !intermediate.Contains("http"))
         {
-            if (!component.TryGetValue("http", out var protocol))
-            {
-                protocol = "https";
-            }
-            else
-            {
-                protocol = bool.Parse(protocol) ? "http" : "https";
-            }
-
-            Queue = $"{protocol}://{intermediate}";
+            Queue = $"{GetProtocol()}://{intermediate}";
         }
         else
         {
             Queue = intermediate;
         }
+    }
+
+    private string GetProtocol()
+    {
+        if (!component.TryGetValue("http", out var protocol))
+        {
+            protocol = "https";
+        }
+        else
+        {
+            protocol = bool.Parse(protocol) ? "http" : "https";
+        }
+
+        return protocol;
     }
 }
