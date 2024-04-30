@@ -21,16 +21,11 @@ namespace Kyameru.Component.Test
             this.Headers = headers;
         }
 
-        public void Process(Routable item)
-        {
-            DoProcessing(item, "TO");
-        }
-
         public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
         {
             if (!cancellationToken.IsCancellationRequested)
             {
-                DoProcessing(routable, "TOASYNC");
+                DoProcessing(routable, "TO");
             }
 
             await Task.CompletedTask;

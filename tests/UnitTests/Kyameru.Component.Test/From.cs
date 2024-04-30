@@ -30,23 +30,10 @@ namespace Kyameru.Component.Test
             this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Setup"));
         }
 
-        public void Start()
-        {
-            Routable routable = new Routable(this.headers, "TestData");
-            GlobalCalls.AddCall(routable.Headers["TestName"], "FROM");
-            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "FROM"));
-            this.OnAction?.Invoke(this, routable);
-        }
-
-        public void Stop()
-        {
-            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Stop"));
-        }
-
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             Routable routable = new Routable(this.headers, "TestData");
-            GlobalCalls.AddCall(routable.Headers["F"], "FROMASYNC");
+            GlobalCalls.AddCall(routable.Headers["TestName"], "FROM");
             this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "FROM"));
             await this.OnActionAsync?.Invoke(this, new RoutableEventData(routable, cancellationToken));
         }

@@ -21,7 +21,7 @@ namespace Kyameru.Tests.ActivationTests
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
             Routable routable = null;
             this.processComponent.Reset();
-            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
+            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
             {
                 routable = x;
             });
@@ -37,7 +37,7 @@ namespace Kyameru.Tests.ActivationTests
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
 
-            Assert.Equal("Injected Test Complete", routable?.Body);
+            Assert.Equal("Async Injected Test Complete", routable?.Body);
         }
 
         [Theory]
@@ -75,7 +75,7 @@ namespace Kyameru.Tests.ActivationTests
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
             Routable routable = null;
             this.processComponent.Reset();
-            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
+            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
             {
                 routable = x;
             });

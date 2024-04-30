@@ -54,7 +54,7 @@ namespace Kyameru.Facts.ActivationFacts
             AutoResetEvent autoResetEvent = new AutoResetEvent(false);
             Routable routable = null;
             this.diProcessor.Reset();
-            this.diProcessor.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
+            this.diProcessor.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
             {
                 routable = x;
             });
@@ -103,7 +103,7 @@ namespace Kyameru.Facts.ActivationFacts
         {
             int calls = 0;
             this.processComponent.Reset();
-            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
+            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
             {
                 calls++;
             });
