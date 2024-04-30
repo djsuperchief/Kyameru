@@ -117,14 +117,9 @@ public class S3To : ITo
     private void ValidateS3Targets(Routable item)
     {
         Log(LogLevel.Information, "Validating S3 Targets");
-        targetPath = string.IsNullOrWhiteSpace(targetPath) ? item.Headers.TryGetValue("S3Path") : string.Empty;
-        targetFileName = string.IsNullOrWhiteSpace(targetFileName) ? item.Headers.TryGetValue("S3FileName") : string.Empty;
-        targetContentType = string.IsNullOrWhiteSpace(targetContentType) ? item.Headers.TryGetValue("S3ContentType") : string.Empty;
-
-        if (string.IsNullOrWhiteSpace(targetPath))
-        {
-            throw new Exceptions.MissingHeaderException(string.Format(Resources.ERROR_MISSINGHEADER, "S3Path"));
-        }
+        targetPath = string.IsNullOrWhiteSpace(targetPath) ? item.Headers.TryGetValue("S3Path") : targetPath;
+        targetFileName = string.IsNullOrWhiteSpace(targetFileName) ? item.Headers.TryGetValue("S3FileName") : targetFileName;
+        targetContentType = string.IsNullOrWhiteSpace(targetContentType) ? item.Headers.TryGetValue("S3ContentType") : targetContentType;
 
         if (string.IsNullOrWhiteSpace(targetFileName))
         {

@@ -88,6 +88,37 @@ public class ToTests
         Assert.Equal("Byte", routable.Headers["S3ETag"]);
     }
 
+    [Fact]
+    public async Task CanProcessFromHeadersOnly()
+    {
+        var expected = "MyBucket";
+        var s3Client = Substitute.For<IAmazonS3>();
+        var received = string.Empty;
+        s3Client.PutObjectAsync(Arg.Any<PutObjectRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        {
+            var request = (PutObjectRequest)x[0];
+            var response = new PutObjectResponse()
+            {
+                ETag = request.BucketName
+            };
+
+            return response;
+        });
+        
+        var to = new S3To(s3Client);
+        var headers = new Dictionary<string, string>()
+        {
+            { "Host", expected }
+        };
+        var routable = new Routable(new Dictionary<string, string>()
+        {
+            { "S3ContentType", "text/plain" }
+        }, "Test data");
+        to.SetHeaders(headers);
+        await to.ProcessAsync(routable, default);
+        Assert.Equal(expected, received);
+    }
+
     private Routable GetBaseRoutable()
     {
         var headers = new Dictionary<string, string>()
@@ -122,7 +153,6 @@ public class ToTests
             {
                 response.ETag = "Byte";
             }
-
 
             return response;
         });
