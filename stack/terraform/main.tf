@@ -31,10 +31,15 @@ provider "aws" {
 
   endpoints {
     s3             = "http://localstack-main:4566"
+    sqs            = "http://localstack-main:4566"
   }
 }
 
 # Components
 module "component_to" {
     source = "./components/s3"
+}
+
+module "component_sqs" {
+  source = "./components/sqs"
 }

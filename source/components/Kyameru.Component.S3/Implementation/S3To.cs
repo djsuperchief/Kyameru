@@ -10,14 +10,14 @@ namespace Kyameru.Component.S3;
 public class S3To : ITo
 {
     private IAmazonS3 s3client;
-    private string targetBucket;
-    private string targetPath;
-    private string targetFileName;
-    private string targetContentType;
+    private string targetBucket = "";
+    private string targetPath = "";
+    private string targetFileName = "";
+    private string targetContentType = "";
 
     private readonly Dictionary<S3FileTarget.OperationType, Func<S3FileTarget, CancellationToken, Task<string>>> targetActions;
 
-    public event EventHandler<Log> OnLog;
+    public event EventHandler<Log>? OnLog;
 
     public S3To(IAmazonS3 client)
     {
@@ -35,7 +35,8 @@ public class S3To : ITo
     public void Process(Routable routable)
     {
         var tokenSource = new CancellationTokenSource();
-        Task.Factory.StartNew(() => ProcessAsync(routable, tokenSource.Token), tokenSource.Token);
+        var task = Task.Factory.StartNew(() => ProcessAsync(routable, tokenSource.Token), tokenSource.Token);
+        task.Wait(tokenSource.Token);
     }
 
     public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
@@ -53,14 +54,14 @@ public class S3To : ITo
         {
             Log(
                 LogLevel.Error,
-                string.Format("Error encountered ***. Message:'{0}' when writing an object", e.Message),
+                $"Error encountered ***. Message:'{e.Message}' when writing an object",
                 e);
         }
         catch (Exception e)
         {
             Log(
                 LogLevel.Error,
-                string.Format("Unknown encountered on server. Message:'{0}' when writing an object", e.Message),
+                $"Unknown encountered on server. Message:'{e.Message}' when writing an object",
                 e);
         }
     }
@@ -85,7 +86,7 @@ public class S3To : ITo
         Log(LogLevel.Information, "Uploading byte array to bucket");
         var request = item.ToPutObjectRequest();
         PutObjectResponse response;
-        using (var memoryStream = new MemoryStream(item.MessageBody as byte[]))
+        using (var memoryStream = new MemoryStream(item.MessageBody as byte[] ?? Array.Empty<byte>()))
         {
 
             request.InputStream = memoryStream;
@@ -123,9 +124,9 @@ public class S3To : ITo
     private void ValidateS3Targets(Routable item)
     {
         Log(LogLevel.Information, "Validating S3 Targets");
-        targetPath ??= item.Headers.TryGetValue("S3Path");
-        targetFileName ??= item.Headers.TryGetValue("S3FileName");
-        targetContentType ??= item.Headers.TryGetValue("S3ContentType");
+        targetPath = string.IsNullOrWhiteSpace(targetPath) ? item.Headers.TryGetValue("S3Path") : string.Empty;
+        targetFileName = string.IsNullOrWhiteSpace(targetFileName) ? item.Headers.TryGetValue("S3FileName") : string.Empty;
+        targetContentType = string.IsNullOrWhiteSpace(targetContentType) ? item.Headers.TryGetValue("S3ContentType") : string.Empty;
 
         if (string.IsNullOrWhiteSpace(targetPath))
         {
@@ -150,7 +151,7 @@ public class S3To : ITo
         }
     }
 
-    private void Log(LogLevel logLevel, string message, Exception exception = null)
+    private void Log(LogLevel logLevel, string message, Exception? exception = null)
     {
         this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
     }

@@ -93,7 +93,7 @@ namespace Kyameru.Core
             }
             catch (Exception ex)
             {
-                throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, "RegisterToServices");
+                throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, component);
             }
         }
 
@@ -110,7 +110,7 @@ namespace Kyameru.Core
             }
             catch (Exception ex)
             {
-                throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, "RegisterFromServices");
+                throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, component);
             }
         }
 
