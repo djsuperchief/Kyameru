@@ -32,13 +32,6 @@ public class S3To : ITo
         };
     }
 
-    public void Process(Routable routable)
-    {
-        var tokenSource = new CancellationTokenSource();
-        var task = Task.Factory.StartNew(() => ProcessAsync(routable, tokenSource.Token), tokenSource.Token);
-        task.Wait(tokenSource.Token);
-    }
-
     public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
     {
         try

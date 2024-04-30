@@ -54,7 +54,7 @@ namespace Kyameru.Facts.ActivationFacts
             AutoResetEvent autoResetEvent = new AutoResetEvent(false);
             Routable routable = null;
             this.diProcessor.Reset();
-            this.diProcessor.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            this.diProcessor.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
             {
                 routable = x;
             });
@@ -103,7 +103,7 @@ namespace Kyameru.Facts.ActivationFacts
         {
             int calls = 0;
             this.processComponent.Reset();
-            this.processComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
             {
                 calls++;
             });
@@ -130,11 +130,11 @@ namespace Kyameru.Facts.ActivationFacts
         {
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
 
-            this.processComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback(() =>
+            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback(() =>
             {
                 Kyameru.Component.Test.GlobalCalls.AddCall(test, "COMPONENT");
             });
-            this.errorComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback(() =>
+            this.errorComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback(() =>
             {
                 Kyameru.Component.Test.GlobalCalls.AddCall(test, "ERROR");
             });

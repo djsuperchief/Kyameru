@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Kyameru.Component.Ftp
 {
@@ -62,11 +64,21 @@ namespace Kyameru.Component.Ftp
         /// </summary>
         internal void Poll()
         {
-            List<string> files = this.GetDirectoryContents();
+            List<string> files = new List<string>();
+            var getContents = Task<List<string>>.Run(async () =>
+            {
+                return await this.GetDirectoryContents(default);
+
+            });
+            files = getContents.Result;
             if (files?.Count > 0)
             {
-                DownloadFiles(files);
-                DeleteFiles(files);
+                var task = Task.Run(async () =>
+                {
+                    await DownloadFiles(files, default);
+                    await DeleteFiles(files, default);
+                });
+                task.Wait();
             }
         }
 
@@ -74,9 +86,9 @@ namespace Kyameru.Component.Ftp
         /// Uploads a file to the endpoint.
         /// </summary>
         /// <param name="fileSource">Full source of the file.</param>
-        internal void UploadFile(string fileSource)
+        internal async Task UploadFile(string fileSource, CancellationToken cancellationToken)
         {
-            this.UploadFile(System.IO.File.ReadAllBytes(fileSource), System.IO.Path.GetFileName(fileSource));
+            await this.UploadFile(System.IO.File.ReadAllBytes(fileSource), System.IO.Path.GetFileName(fileSource), cancellationToken);
         }
 
         /// <summary>
@@ -84,12 +96,12 @@ namespace Kyameru.Component.Ftp
         /// </summary>
         /// <param name="file">Byte array of the file.</param>
         /// <param name="name">Name of the file.</param>
-        internal void UploadFile(byte[] file, string name)
+        internal async Task UploadFile(byte[] file, string name, CancellationToken cancellationToken)
         {
             try
             {
                 this.RaiseLog(string.Format(Resources.INFO_UPLOADING, name));
-                this.webRequestUtility.UploadFile(file, this.settings, name);
+                await this.webRequestUtility.UploadFile(file, this.settings, name, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -102,7 +114,7 @@ namespace Kyameru.Component.Ftp
         /// Deletes files from the endpoint.
         /// </summary>
         /// <param name="files">List of files.</param>
-        private void DeleteFiles(List<string> files)
+        private async Task DeleteFiles(List<string> files, CancellationToken cancellationToken)
         {
             if (this.settings.Delete)
             {
@@ -112,7 +124,7 @@ namespace Kyameru.Component.Ftp
                     try
                     {
                         this.RaiseLog(string.Format(Resources.INFO_DELETINGFILE, files[i]));
-                        this.webRequestUtility.DeleteFile(settings, files[i], closeConnection);
+                        await this.webRequestUtility.DeleteFile(settings, files[i], closeConnection, cancellationToken);
                     }
                     catch (Exception ex)
                     {
@@ -126,7 +138,7 @@ namespace Kyameru.Component.Ftp
         /// Downloads files from the endpoint.
         /// </summary>
         /// <param name="files"></param>
-        private void DownloadFiles(List<string> files)
+        private async Task DownloadFiles(List<string> files, CancellationToken cancellationToken)
         {
             for (int i = 0; i < files.Count; i++)
             {
@@ -137,7 +149,7 @@ namespace Kyameru.Component.Ftp
                     {
                         Directory.CreateDirectory(TMPDIR);
                     }
-                    byte[] file = this.webRequestUtility.DownloadFile(files[i], this.settings);
+                    byte[] file = await this.webRequestUtility.DownloadFile(files[i], this.settings, cancellationToken);
                     this.CreateAndRoute(transfer, file);
                 }
                 catch (Exception ex)
@@ -172,12 +184,12 @@ namespace Kyameru.Component.Ftp
         /// Gets the directory list of the endpoint.
         /// </summary>
         /// <returns>Returns a list of files and folders.</returns>
-        private List<string> GetDirectoryContents()
+        private async Task<List<string>> GetDirectoryContents(CancellationToken cancellationToken)
         {
             List<string> response = null;
             try
             {
-                response = this.webRequestUtility.GetDirectoryContents(this.settings);
+                response = await this.webRequestUtility.GetDirectoryContents(this.settings, cancellationToken);
             }
             catch (Exception ex)
             {

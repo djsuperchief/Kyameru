@@ -39,7 +39,6 @@ namespace Kyameru.Core.Chain
         /// value indicating whether the route will be atomic.
         /// </summary>
         private readonly bool IsAtomicRoute;
-        private readonly bool isAsync;
         private readonly bool raiseExceptions;
 
         /// <summary>
@@ -50,19 +49,16 @@ namespace Kyameru.Core.Chain
         /// <param name="logger">Logger class.</param>
         /// <param name="id">Identity of the route.</param>
         /// <param name="isAtomicRoute">Value indicating whether the route is atomic.</param>
-        /// <param name="isAsync">Value indicating that the route should be executed async</param>
         /// <param name="raiseExceptions">Value indicating that the route should throw route exceptions up</param>
-        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger, string id, bool isAtomicRoute, bool isAsync, bool raiseExceptions)
+        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger, string id, bool isAtomicRoute, bool raiseExceptions)
         {
             this.fromComponent = fromComponent;
             this.fromComponent.Setup();
-            this.fromComponent.OnAction += FromComponent_OnAction;
             this.next = next;
             this.logger = logger;
             this.fromComponent.OnLog += FromComponent_OnLog;
             identity = id;
             IsAtomicRoute = isAtomicRoute;
-            this.isAsync = isAsync;
             fromComponent.OnActionAsync += FromComponent_OnActionAsync;
             this.raiseExceptions = raiseExceptions;
         }
@@ -76,16 +72,7 @@ namespace Kyameru.Core.Chain
         /// <returns>Returns a task.</returns>
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-            if (isAsync)
-            {
-                await fromComponent.StopAsync(cancellationToken);
-            }
-            else
-            {
-                fromComponent.Stop();
-            }
-
-            fromComponent.OnAction -= FromComponent_OnAction;
+            await fromComponent.StopAsync(cancellationToken);
             fromComponent.OnLog -= FromComponent_OnLog;
             fromComponent.OnActionAsync -= FromComponent_OnActionAsync;
             await base.StopAsync(cancellationToken);
@@ -100,15 +87,7 @@ namespace Kyameru.Core.Chain
         {
             try
             {
-                if (isAsync)
-                {
-                    await fromComponent.StartAsync(stoppingToken);
-                }
-                else
-                {
-                    fromComponent.Start();
-                }
-
+                await fromComponent.StartAsync(stoppingToken);
             }
             catch (Exception ex)
             {
@@ -119,8 +98,6 @@ namespace Kyameru.Core.Chain
                 }
 
             }
-
-            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -138,16 +115,6 @@ namespace Kyameru.Core.Chain
             {
                 logger.KyameruException(identity, e.Message, e.Error);
             }
-        }
-
-        /// <summary>
-        /// Event raised when the from component starts processing.
-        /// </summary>
-        /// <param name="sender">Class sending the event.</param>
-        /// <param name="e">Message to send.</param>
-        private void FromComponent_OnAction(object sender, Routable e)
-        {
-            next?.Handle(e);
         }
 
         private async Task FromComponent_OnActionAsync(object sender, RoutableEventData e)

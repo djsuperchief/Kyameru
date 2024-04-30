@@ -27,7 +27,7 @@ namespace Kyameru
         {
             return new RouteBuilder(componentUri);
         }
-        
+
         /// <summary>
         /// Runs a Kyameru build from a config file.
         /// </summary>
@@ -36,12 +36,6 @@ namespace Kyameru
         public static void FromConfig(RouteConfig config, IServiceCollection services)
         {
             var final = ConfigBuilder(config, Assembly.GetCallingAssembly());
-            if (config.Options is {BuildAsync: true})
-            {
-                final.BuildAsync(services);
-                return;
-            }
-            
             final.Build(services);
         }
 

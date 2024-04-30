@@ -20,12 +20,6 @@ namespace Kyameru.Core.Contracts
         /// Triggers the next component in the chain.
         /// </summary>
         /// <param name="item">Processing Component.</param>
-        void Handle(T item);
-
-        /// <summary>
-        /// Triggers the next component in the chain.
-        /// </summary>
-        /// <param name="item">Processing Component.</param>
         /// <param name="cancellationToken">Cancellation Token</param>
         Task HandleAsync(T item, CancellationToken cancellationToken);
     }

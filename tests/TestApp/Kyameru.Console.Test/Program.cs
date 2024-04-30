@@ -60,7 +60,7 @@ namespace Kyameru.Console.Test
                 Kyameru.Route.From("sqs://localhost:4566/000000000000/kyameru-from?PollTime=10")
                 .To("sqs://kyameru-to")
                 .Id("sqs-full-test")
-                .BuildAsync(services);
+                .Build(services);
 
 
             }).ConfigureLogging((hostContext, services) =>

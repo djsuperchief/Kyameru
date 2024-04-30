@@ -21,7 +21,7 @@ namespace Kyameru.Tests.ActivationTests
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
             Routable routable = null;
             this.processComponent.Reset();
-            this.processComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
             {
                 routable = x;
             });
@@ -75,7 +75,7 @@ namespace Kyameru.Tests.ActivationTests
             IServiceCollection serviceCollection = this.GetServiceDescriptors();
             Routable routable = null;
             this.processComponent.Reset();
-            this.processComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
             {
                 routable = x;
             });
@@ -89,7 +89,7 @@ namespace Kyameru.Tests.ActivationTests
             IHostedService service = provider.GetService<IHostedService>();
             await service.StartAsync(CancellationToken.None);
             await service.StopAsync(CancellationToken.None);
-            
+
             Assert.Equal("Yes", routable.Headers["ComponentRan"]);
         }
 

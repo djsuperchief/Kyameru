@@ -172,27 +172,13 @@ namespace Kyameru.Core
         {
             if (hostAssmebly == null && ContainsReflectionComponents())
             {
-                hostAssmebly = Assembly.GetCallingAssembly();    
+                hostAssmebly = Assembly.GetCallingAssembly();
             }
-            
-            Build(services, false);
+
+            BuildKyameru(services);
         }
 
-        /// <summary>
-        /// Builds the final chain into dependency injection.
-        /// </summary>
-        /// <param name="services">Service collection.</param>
-        public void BuildAsync(IServiceCollection services)
-        {
-            if (hostAssmebly == null && ContainsReflectionComponents())
-            {
-                hostAssmebly = Assembly.GetCallingAssembly();    
-            }
-            
-            Build(services, true);
-        }
-
-        private void Build(IServiceCollection services, bool isAsync)
+        private void BuildKyameru(IServiceCollection services)
         {
             RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
@@ -211,7 +197,7 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                return new From(from, next, logger, identity, IsAtomic, isAsync, raiseExceptions);
+                return new From(from, next, logger, identity, IsAtomic, raiseExceptions);
             });
         }
 

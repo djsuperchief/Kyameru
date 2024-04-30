@@ -26,7 +26,7 @@ namespace Kyameru.Tests.ActivationTests
             Routable routable = null;
 
             this.errorComponent.Reset();
-            this.errorComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            this.errorComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
             {
                 routable = x;
             });
@@ -56,12 +56,12 @@ namespace Kyameru.Tests.ActivationTests
             Routable routable = null;
 
             this.errorComponent.Reset();
-            this.errorComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            this.errorComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
             {
                 routable = x;
             });
             this.processComponent.Reset();
-            this.processComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
             {
                 throw new Kyameru.Core.Exceptions.ProcessException("Manual Error");
             });
@@ -79,7 +79,7 @@ namespace Kyameru.Tests.ActivationTests
             Routable routable = null;
 
             this.errorComponent.Reset();
-            this.errorComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            this.errorComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
             {
                 routable = x;
             });
@@ -98,7 +98,7 @@ namespace Kyameru.Tests.ActivationTests
             Routable routable = null;
 
             this.errorComponent.Reset();
-            this.errorComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            this.errorComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
             {
                 routable = x;
             });
@@ -116,7 +116,7 @@ namespace Kyameru.Tests.ActivationTests
         {
             Routable routable = null;
             this.errorComponent.Reset();
-            this.errorComponent.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            this.errorComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
             {
                 routable = x;
                 throw new ProcessException("Manual Error", new IndexOutOfRangeException("Random index"));

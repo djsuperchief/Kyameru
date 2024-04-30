@@ -53,39 +53,24 @@ namespace Kyameru.Component.Ftp
             this.ftpClient.OnError += FtpClient_OnError;
         }
 
-
-
         /// <summary>
         /// Logging event.
         /// </summary>
         public event EventHandler<Log> OnLog;
 
-        /// <summary>
-        /// Process Message.
-        /// </summary>
-        /// <param name="item">Message to process.</param>
-        public void Process(Routable item)
-        {
-            try
-            {
-                this.ftpClient.UploadFile(this.GetSource(item), item.Headers["SourceFile"]);
-                this.ArchiveFile(item);
-            }
-            catch (Exception ex)
-            {
-                item.SetInError(this.GetError("Upload", string.Format(Resources.ERROR_UPLOADING, item.Headers["FileName"])));
-                this.RaiseLog(string.Format(Resources.ERROR_UPLOADING, item.Headers["FileName"]), LogLevel.Error, ex);
-            }
-        }
 
         public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
         {
-            if (!cancellationToken.IsCancellationRequested)
+            try
             {
-                Process(routable);
+                await this.ftpClient.UploadFile(this.GetSource(routable), routable.Headers["SourceFile"], cancellationToken);
+                this.ArchiveFile(routable);
             }
-
-            await Task.CompletedTask;
+            catch (Exception ex)
+            {
+                routable.SetInError(this.GetError("Upload", string.Format(Resources.ERROR_UPLOADING, routable.Headers["FileName"])));
+                this.RaiseLog(string.Format(Resources.ERROR_UPLOADING, routable.Headers["FileName"]), LogLevel.Error, ex);
+            }
         }
 
         /// <summary>

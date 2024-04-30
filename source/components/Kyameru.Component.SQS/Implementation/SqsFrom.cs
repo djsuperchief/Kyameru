@@ -40,22 +40,9 @@ public class SqsFrom(IAmazonSQS client) : IFrom
         poller.AutoReset = true;
     }
 
-
-
     private async void Poller_Elapsed(object sender, ElapsedEventArgs e)
     {
         await Process(default);
-    }
-
-    public void Start()
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Stop()
-    {
-        // Again, sync code will be being deleted.
-        throw new NotImplementedException();
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)

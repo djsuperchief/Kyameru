@@ -85,6 +85,6 @@ public class AsyncTests
         Kyameru.Route.From("injectiontest:///mememe")
             .Process(this.processComponent.Object)
             .To("injectiontest:///somewhere")
-            .BuildAsync(serviceCollection);
+            .Build(serviceCollection);
     }
 }

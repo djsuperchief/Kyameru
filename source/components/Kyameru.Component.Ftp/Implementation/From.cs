@@ -26,9 +26,7 @@ namespace Kyameru.Component.Ftp
         private readonly FtpSettings ftpSettings;
         private readonly IWebRequestUtility webRequestUtility;
         private FtpClient ftp;
-
         private Timer poller;
-        private bool isAsync = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="From"/> class.
@@ -41,11 +39,6 @@ namespace Kyameru.Component.Ftp
         }
 
         public bool PollerIsActive => poller.Enabled;
-
-        /// <summary>
-        /// Event raised on action
-        /// </summary>
-        public event EventHandler<Routable> OnAction;
 
         public event AsyncEventHandler<RoutableEventData> OnActionAsync;
 
@@ -106,39 +99,13 @@ namespace Kyameru.Component.Ftp
         /// <param name="e">Message to route.</param>
         private void Ftp_OnDownloadFile(object sender, Routable e)
         {
-            if (isAsync)
-            {
-                OnActionAsync?.Invoke(this,new RoutableEventData(e, new CancellationToken()));
-            }
-            else
-            {
-                OnAction?.Invoke(this, e);    
-            }
-            
-        }
-
-        /// <summary>
-        /// Starts the component.
-        /// </summary>
-        public void Start()
-        {
-            ftp.Poll();
-            poller.Start();
-        }
-
-        /// <summary>
-        /// Stops the component.
-        /// </summary>
-        public void Stop()
-        {
-            poller.Stop();
+            OnActionAsync?.Invoke(this, new RoutableEventData(e, new CancellationToken()));
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             if (!cancellationToken.IsCancellationRequested)
             {
-                isAsync = true;
                 ftp.Poll();
                 poller.Start();
             }
@@ -156,6 +123,5 @@ namespace Kyameru.Component.Ftp
         {
             OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, e));
         }
-
     }
 }

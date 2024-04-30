@@ -70,36 +70,6 @@ namespace Kyameru.Component.Slack
             return response;
         }
 
-        /// <summary>
-        /// Processes the message.
-        /// </summary>
-        /// <param name="item">Message to process.</param>
-        public void Process(Routable item)
-        {
-            Payload slackPayload = new Payload()
-            {
-                text = this.GetMessageSource(item),
-                channel = this.GetHeader("Channel"),
-                username = this.GetHeader("Username")
-            };
-
-            if (item.Error == null)
-            {
-                var payloadJson = JsonSerializer.Serialize(slackPayload);
-                string uri = $"{SLACKURI}{this.headers["Target"]}";
-                var dataContent = new StringContent(payloadJson, Encoding.UTF8, "application/json");
-                using (HttpClient client = this.GetHttpClient())
-                {
-                    this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Sending slack message"));
-                    var response = client.PostAsync(uri, dataContent).Result;
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        item.SetInError(this.RaiseError("SendSlackMessage", "Error communicating with slack."));
-                    }
-                }
-            }
-        }
-
         public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
         {
             Payload slackPayload = new Payload()
@@ -185,7 +155,7 @@ namespace Kyameru.Component.Slack
         private string GetHeader(string header)
         {
             string response = string.Empty;
-            if(this.headers.ContainsKey(header))
+            if (this.headers.ContainsKey(header))
             {
                 response = this.headers[header];
             }

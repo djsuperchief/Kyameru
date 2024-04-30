@@ -34,26 +34,6 @@ namespace Kyameru.Core.Chain
             this.errorComponent.OnLog += OnLog;
         }
 
-        /// <summary>
-        /// Passes processing to the next in the chain.
-        /// </summary>
-        /// <param name="item">Message to process.</param>
-        public override void Handle(Routable item)
-        {
-            if (item.InError)
-            {
-                try
-                {
-                    errorComponent.Process(item);
-                }
-                catch (Exception ex)
-                {
-                    Logger.KyameruException(identity, ex.Message, ex);
-                    item.SetInError(new Entities.Error("Error Component", "Handle", ex.Message));
-                }
-            }
-        }
-
         public override async Task HandleAsync(Routable item, CancellationToken cancellationToken)
         {
             if (item.InError)
