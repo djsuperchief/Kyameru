@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Kyameru.Component.File.Tests
 {
@@ -30,11 +31,11 @@ namespace Kyameru.Component.File.Tests
         private void Init()
         {
             this.fileUtils.Reset();
-            this.fileUtils.Setup(x => x.CopyFile(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Throws(new NotImplementedException());
-            this.fileUtils.Setup(x => x.CreateDirectory(It.IsAny<string>())).Throws(new NotImplementedException());
-            this.fileUtils.Setup(x => x.Delete(It.IsAny<string>())).Throws(new NotImplementedException());
-            this.fileUtils.Setup(x => x.Move(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Throws(new NotImplementedException());
-            this.fileUtils.Setup(x => x.WriteAllBytes(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<bool>())).Throws(new NotImplementedException());
+            this.fileUtils.Setup(x => x.CopyFileAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).Throws(new NotImplementedException());
+            this.fileUtils.Setup(x => x.CreateDirectoryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).Throws(new NotImplementedException());
+            this.fileUtils.Setup(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).Throws(new NotImplementedException());
+            this.fileUtils.Setup(x => x.MoveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).Throws(new NotImplementedException());
+            this.fileUtils.Setup(x => x.WriteAllBytesAsync(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).Throws(new NotImplementedException());
         }
 
         private Routable GetRoutable()
