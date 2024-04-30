@@ -58,7 +58,6 @@ namespace Kyameru.Component.File.Tests
         public async Task ChangedWorks()
         {
             var tokenSource = new CancellationTokenSource();
-            var raisedAsync = false;
             string filename = $"{Guid.NewGuid().ToString("N")}.txt";
             this.CheckFile(filename);
             AutoResetEvent resetEvent = new AutoResetEvent(false);
@@ -70,7 +69,6 @@ namespace Kyameru.Component.File.Tests
             from.OnActionAsync += async delegate (object sender, RoutableEventData e)
             {
                 method = e.Data.Headers["Method"];
-                raisedAsync = true;
                 resetEvent.Set();
                 await Task.CompletedTask;
             };

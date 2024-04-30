@@ -36,6 +36,11 @@ namespace Kyameru.Component.File.Utilities
         {
             if (!cancellationToken.IsCancellationRequested)
             {
+                if (overwrite)
+                {
+                    this.OverwriteDestination(destination);
+                }
+
                 System.IO.File.Move(source, destination);
             }
 
