@@ -55,7 +55,7 @@ public class ToTests
     }
 
     [Fact]
-    public void SendMessageSyncIsAsExpected()
+    public async Task SendMessageSyncIsAsExpected()
     {
         var resetEvent = new AutoResetEvent(false);
         var client = Substitute.For<IAmazonSQS>();
@@ -76,7 +76,7 @@ public class ToTests
             return new SendMessageResponse();
         });
 
-        to.Process(routable);
+        await to.ProcessAsync(routable, default);
         resetEvent.WaitOne(5000);
         Assert.True(bodySame);
         Assert.True(queueSame);

@@ -14,6 +14,10 @@ namespace Kyameru.Console.Test
         public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
         {
             routable.SetBody<string>("Kyameru testing....async...sorry #notsorry");
+            if (this.OnLog != null)
+            {
+                this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Test"));
+            }
             await Task.CompletedTask;
         }
     }

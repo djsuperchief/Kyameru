@@ -129,17 +129,6 @@ namespace Kyameru.Component.File
             }
         }
 
-        /// <summary>
-        /// Ensures destination folder exists.
-        /// </summary>
-        private void EnsureDestinationExists()
-        {
-            if (!Directory.Exists(headers["Target"]))
-            {
-                fileUtils.CreateDirectory(headers["Target"]);
-            }
-        }
-
         private async Task EnsureDestinationExistsAsync(CancellationToken cancellationToken)
         {
             if (!Directory.Exists(headers["Target"]))

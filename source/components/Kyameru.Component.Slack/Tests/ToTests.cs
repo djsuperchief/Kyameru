@@ -14,15 +14,6 @@ namespace Kyameru.Component.Slack.Tests
     public class ToTests
     {
         [Fact]
-        public void CanSendMessageFromBody()
-        {
-            SlackTo slackTo = this.GetComponent("Body", this.SetupOkHandler());
-            Routable routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
-            slackTo.Process(routable);
-            Assert.Null(routable.Error);
-        }
-
-        [Fact]
         public async Task CanSendMessageFromBodyAsync()
         {
             SlackTo slackTo = this.GetComponent("Body", this.SetupOkHandler());
@@ -32,16 +23,16 @@ namespace Kyameru.Component.Slack.Tests
         }
 
         [Fact]
-        public void SendMessageInError()
+        public async Task SendMessageInError()
         {
             SlackTo slackTo = this.GetComponent("Body", this.SetupErrorHandler());
             Routable routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
-            slackTo.Process(routable);
+            await slackTo.ProcessAsync(routable, default);
             Assert.NotNull(routable.Error);
         }
 
         [Fact]
-        public void CanSendMessageFromHeader()
+        public async Task CanSendMessageFromHeader()
         {
             Dictionary<string, string> headers = new Dictionary<string, string>()
             {
@@ -49,12 +40,12 @@ namespace Kyameru.Component.Slack.Tests
             };
             SlackTo slackTo = this.GetComponent("Header", this.SetupOkHandler());
             Routable routable = new Routable(headers, "This is a slack message");
-            slackTo.Process(routable);
+            await slackTo.ProcessAsync(routable, default);
             Assert.Null(routable.Error);
         }
 
         [Fact]
-        public void LoggingIsTriggered()
+        public async Task LoggingIsTriggered()
         {
             bool callbackMade = false;
             SlackTo slackTo = this.GetComponent("Body", this.SetupOkHandler());
@@ -63,18 +54,18 @@ namespace Kyameru.Component.Slack.Tests
             {
                 callbackMade = true;
             };
-            slackTo.Process(routable);
+            await slackTo.ProcessAsync(routable, default);
             Assert.True(callbackMade);
 
         }
 
 
         [Fact]
-        public void BlankHeaderErrors()
+        public async Task BlankHeaderErrors()
         {
             SlackTo slackTo = this.GetComponent("Header", this.SetupOkHandler());
             Routable routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
-            slackTo.Process(routable);
+            await slackTo.ProcessAsync(routable, default);
             Assert.NotNull(routable.Error);
         }
 

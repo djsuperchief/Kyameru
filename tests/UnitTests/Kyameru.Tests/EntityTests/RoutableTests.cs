@@ -65,7 +65,7 @@ namespace Kyameru.Tests.EntityTests
         {
             string testName = $"ProcessExitWorks_{call}";
             this.component.Reset();
-            this.component.Setup(x => x.Process(It.IsAny<Routable>())).Callback((Routable x) =>
+            this.component.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x) =>
             {
                 x.SetHeader("SetExit", "true");
                 if (setupComponent)

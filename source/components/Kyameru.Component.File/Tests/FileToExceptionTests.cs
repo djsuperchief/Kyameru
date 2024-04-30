@@ -5,6 +5,7 @@ using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Kyameru.Component.File.Tests
 {
@@ -17,12 +18,12 @@ namespace Kyameru.Component.File.Tests
         [InlineData("Copy")]
         [InlineData("Delete")]
         [InlineData("Write")]
-        public void ActionSetsError(string action)
+        public async Task ActionSetsError(string action)
         {
             this.Init();
             FileTo fileTo = this.GetFileTo(action);
             Routable message = this.GetRoutable();
-            fileTo.Process(message);
+            await fileTo.ProcessAsync(message, default);
             Assert.NotNull(message.Error);
         }
 
