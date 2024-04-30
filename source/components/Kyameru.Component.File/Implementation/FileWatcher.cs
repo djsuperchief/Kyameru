@@ -258,8 +258,7 @@ namespace Kyameru.Component.File
                     Routable dataItem = new Routable(headers, System.IO.File.ReadAllBytes(sourceFile));
 
                     var token = new CancellationTokenSource();
-                    // fire forget and move on, it is fine, this is what it is meant to do.
-                    _ = Task.Factory.StartNew(async () =>
+                    var task = Task.Run(async () =>
                     {
                         var routableEventData = new RoutableEventData(dataItem,
                             token.Token);
@@ -267,8 +266,8 @@ namespace Kyameru.Component.File
                         {
                             await this.OnActionAsync?.Invoke(this, routableEventData);
                         }
-                    }, token.Token);
-
+                    });
+                    task.Wait();
                 }
             }
             catch (Exception ex)
