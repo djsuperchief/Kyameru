@@ -101,18 +101,19 @@ public class ToTests
             {
                 ETag = request.BucketName
             };
-
+            received = request.BucketName;
             return response;
         });
-        
+
         var to = new S3To(s3Client);
         var headers = new Dictionary<string, string>()
         {
-            { "Host", expected }
+            { "Host", expected },
+            { "FileName", "MyFile.txt" }
         };
         var routable = new Routable(new Dictionary<string, string>()
         {
-            { "S3ContentType", "text/plain" }
+            { "S3DataType", "String" }
         }, "Test data");
         to.SetHeaders(headers);
         await to.ProcessAsync(routable, default);

@@ -50,6 +50,14 @@ public class S3To : ITo
                 $"Error encountered ***. Message:'{e.Message}' when writing an object",
                 e);
         }
+        catch (Exceptions.MissingHeaderException mhe)
+        {
+            Log(
+                LogLevel.Error,
+                $"Error occurred validating message:'{mhe.Message}'",
+                mhe);
+            routable.SetInError(new Error("S3", "TO", mhe.Message));
+        }
         catch (Exception e)
         {
             Log(
