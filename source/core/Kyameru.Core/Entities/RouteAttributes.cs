@@ -17,9 +17,17 @@ namespace Kyameru.Core.Entities
         {
             try
             {
-                UriBuilder uriBuilder = new UriBuilder(componentUri);
-                ComponentName = uriBuilder.Scheme.ToFirstCaseUpper();
-                Headers = ParseQuery($"Target={uriBuilder.Path}{GetQuery(uriBuilder)}");
+                if (IsUriArn(componentUri))
+                {
+                    ParseArn(componentUri);
+                }
+                else
+                {
+                    UriBuilder uriBuilder = new UriBuilder(componentUri);
+                    ComponentName = uriBuilder.Scheme.ToFirstCaseUpper();
+                    Headers = ParseQuery($"Target={uriBuilder.Path}{GetQuery(uriBuilder)}");
+                }
+
             }
             catch (Exception ex)
             {
@@ -98,6 +106,16 @@ namespace Kyameru.Core.Entities
             }
 
             return response;
+        }
+
+        private bool IsUriArn(string componentUri) => componentUri.Split("://")[1].StartsWith("arn");
+
+        private void ParseArn(string componentUri)
+        {
+            var items = componentUri.Split("://");
+            ComponentName = items[0].ToFirstCaseUpper();
+            Headers = ParseQuery(items[1].Substring(items[1].IndexOf('?') + 1));
+            Headers.Add("ARN", items[1].Split('?')[0]);
         }
     }
 }
