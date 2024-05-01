@@ -73,9 +73,6 @@ namespace Kyameru.Component.File
             toActions.Add("Write", WriteFileAsync);
         }
 
-
-
-
         /// <summary>
         /// Abstraction for logging event.
         /// </summary>
@@ -94,7 +91,7 @@ namespace Kyameru.Component.File
             try
             {
                 await EnsureDestinationExistsAsync(cancellationToken);
-                if (item.Headers["DataType"] == "String")
+                if (item.Headers.TryGetValue("DataType", "String") == "String")
                 {
                     await fileUtils.WriteAllTextAsync(GetDestination(item.Headers["SourceFile"]),
                         (string)item.Body, overwrite, cancellationToken);
