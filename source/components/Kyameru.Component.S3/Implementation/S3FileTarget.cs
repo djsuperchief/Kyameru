@@ -49,6 +49,7 @@ public class S3FileTarget
             FilePath = item.Headers.TryGetValue("FullSource", string.Empty)
         };
 
+        response.Path ??= string.Empty;
         if (!response.Path.EndsWith("/"))
         {
             response.Path += "/";

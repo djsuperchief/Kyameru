@@ -27,11 +27,11 @@ public class ProcessComponentTests
                 await Task.CompletedTask;
             });
 
-        
+
         Kyameru.Route.From("injectiontest:///mememe")
             .Process(processComponent.Object)
             .To("injectiontest:///somewhere")
-            .BuildAsync(serviceCollection);
+            .Build(serviceCollection);
 
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
@@ -60,7 +60,7 @@ public class ProcessComponentTests
         Kyameru.Route.From("injectiontest:///mememe")
             .Process<IProcessComponent>()
             .To("injectiontest:///somewhere")
-            .BuildAsync(serviceCollection);
+            .Build(serviceCollection);
 
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
@@ -77,13 +77,14 @@ public class ProcessComponentTests
     {
         IServiceCollection serviceCollection = this.GetServiceDescriptors();
         Routable routable = null;
-        
+
         Kyameru.Route.From("injectiontest:///mememe")
-            .Process((Routable x) => {
+            .Process((Routable x) =>
+            {
                 routable = x;
             })
             .To("injectiontest:///somewhere")
-            .BuildAsync(serviceCollection);
+            .Build(serviceCollection);
 
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();

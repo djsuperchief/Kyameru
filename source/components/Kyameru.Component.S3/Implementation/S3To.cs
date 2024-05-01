@@ -32,13 +32,6 @@ public class S3To : ITo
         };
     }
 
-    public void Process(Routable routable)
-    {
-        var tokenSource = new CancellationTokenSource();
-        var task = Task.Factory.StartNew(() => ProcessAsync(routable, tokenSource.Token), tokenSource.Token);
-        task.Wait(tokenSource.Token);
-    }
-
     public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
     {
         try
@@ -56,6 +49,14 @@ public class S3To : ITo
                 LogLevel.Error,
                 $"Error encountered ***. Message:'{e.Message}' when writing an object",
                 e);
+        }
+        catch (Exceptions.MissingHeaderException mhe)
+        {
+            Log(
+                LogLevel.Error,
+                $"Error occurred validating message:'{mhe.Message}'",
+                mhe);
+            routable.SetInError(new Error("S3", "TO", mhe.Message));
         }
         catch (Exception e)
         {
@@ -124,14 +125,9 @@ public class S3To : ITo
     private void ValidateS3Targets(Routable item)
     {
         Log(LogLevel.Information, "Validating S3 Targets");
-        targetPath = string.IsNullOrWhiteSpace(targetPath) ? item.Headers.TryGetValue("S3Path") : string.Empty;
-        targetFileName = string.IsNullOrWhiteSpace(targetFileName) ? item.Headers.TryGetValue("S3FileName") : string.Empty;
-        targetContentType = string.IsNullOrWhiteSpace(targetContentType) ? item.Headers.TryGetValue("S3ContentType") : string.Empty;
-
-        if (string.IsNullOrWhiteSpace(targetPath))
-        {
-            throw new Exceptions.MissingHeaderException(string.Format(Resources.ERROR_MISSINGHEADER, "S3Path"));
-        }
+        targetPath = string.IsNullOrWhiteSpace(targetPath) ? item.Headers.TryGetValue("S3Path") : targetPath;
+        targetFileName = string.IsNullOrWhiteSpace(targetFileName) ? item.Headers.TryGetValue("S3FileName") : targetFileName;
+        targetContentType = string.IsNullOrWhiteSpace(targetContentType) ? item.Headers.TryGetValue("S3ContentType") : targetContentType;
 
         if (string.IsNullOrWhiteSpace(targetFileName))
         {

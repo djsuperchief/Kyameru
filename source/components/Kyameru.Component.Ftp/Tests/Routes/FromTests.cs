@@ -15,11 +15,9 @@ namespace Kyameru.Component.Ftp.Tests.Routes
     public class FromTests
     {
         [Theory]
-        [InlineData(true, false)]
-        [InlineData(false, false)]
-        [InlineData(true, true)]
-        [InlineData(false, true)]
-        public async Task FromDownloadsAndDeletes(bool deletes, bool isAsync)
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task FromDownloadsAndDeletes(bool deletes)
         {
             var tokenSource = new CancellationTokenSource();
             Mock<IWebRequestUtility> webRequestFactory = this.GetWebRequest();
@@ -30,16 +28,10 @@ namespace Kyameru.Component.Ftp.Tests.Routes
                 times = Times.Once();
             }
 
-            webRequestFactory.Setup(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>())).Verifiable();
+            webRequestFactory.Setup(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>(), It.IsAny<CancellationToken>())).Verifiable();
             From from = new From(this.GetRoute(deletes).Headers, webRequestFactory.Object);
-
             Routable routable = null;
-            from.OnAction += delegate (object sender, Routable e)
-            {
-                routable = e;
-                autoReset.Set();
-            };
-            
+
             from.OnActionAsync += delegate (object sender, RoutableEventData e)
             {
                 routable = e.Data;
@@ -48,32 +40,18 @@ namespace Kyameru.Component.Ftp.Tests.Routes
                 return Task.CompletedTask;
             };
             from.Setup();
-            if (isAsync)
-            {
-                await from.StartAsync(tokenSource.Token);
-            }
-            else
-            {
-                from.Start();
-            }
-            
+            await from.StartAsync(tokenSource.Token);
 
             autoReset.WaitOne(60000);
 
             Assert.Equal("Hello ftp", Encoding.UTF8.GetString((byte[])routable.Body));
-            webRequestFactory.Verify(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>()), times);
-            if (isAsync)
-            {
-                await from.StopAsync(tokenSource.Token);
-                Assert.Equal("ASYNC", routable.Headers["Method"]);
-            }
-            else
-            {
-                from.Stop();    
-            }
-            
+            webRequestFactory.Verify(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>(), It.IsAny<CancellationToken>()), times);
+
+            await from.StopAsync(tokenSource.Token);
+            Assert.Equal("ASYNC", routable.Headers["Method"]);
+
             Assert.False(from.PollerIsActive);
-            
+
         }
 
         [Fact]
@@ -95,8 +73,8 @@ namespace Kyameru.Component.Ftp.Tests.Routes
         public Mock<IWebRequestUtility> GetWebRequest()
         {
             Mock<IWebRequestUtility> response = new Mock<IWebRequestUtility>();
-            response.Setup(x => x.DownloadFile("Test.txt", It.IsAny<FtpSettings>())).Returns(Encoding.UTF8.GetBytes("Hello ftp"));
-            response.Setup(x => x.GetDirectoryContents(It.IsAny<FtpSettings>())).Returns(new List<string>() { "Test.txt" });
+            response.Setup(x => x.DownloadFile("Test.txt", It.IsAny<FtpSettings>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(Encoding.UTF8.GetBytes("Hello ftp")));
+            response.Setup(x => x.GetDirectoryContents(It.IsAny<FtpSettings>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(new List<string>() { "Test.txt" }));
             return response;
         }
 

@@ -13,10 +13,9 @@ namespace Kyameru.Tests.ConfigTests;
 public class LoadedConfigTests
 {
     private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
-    
+
     [Theory]
-    [InlineData("JsonConfigAsync.json", "MyComponent has processed Async")]
-    [InlineData("JsonConfig.json", "MyComponent has processed")]
+    [InlineData("JsonConfig.json", "MyComponent has processed Async")]
     public async Task CanLoadJsonConfigWithUrisAsync(string config, string expectedMessage)
     {
         var hasLogged = false;
@@ -50,7 +49,7 @@ public class LoadedConfigTests
         var serviceDescriptors = GetServiceDescriptors();
         var routeConfig = RouteConfig.Load($"ConfigTests/{config}");
         Route.FromConfig(routeConfig, serviceDescriptors);
-        
+
         IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
         await service.StartAsync(CancellationToken.None);
@@ -67,5 +66,5 @@ public class LoadedConfigTests
 
         return serviceCollection;
     }
-    
+
 }

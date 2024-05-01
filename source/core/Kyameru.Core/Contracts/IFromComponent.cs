@@ -12,11 +12,6 @@ namespace Kyameru.Core.Contracts
     public interface IFromComponent : IComponent
     {
         /// <summary>
-        /// Event raised to trigger processing chain.
-        /// </summary>
-        event EventHandler<Routable> OnAction;
-
-        /// <summary>
         /// Event raised to trigger processing the chain async.
         /// </summary>
         event AsyncEventHandler<RoutableEventData> OnActionAsync;
@@ -25,16 +20,6 @@ namespace Kyameru.Core.Contracts
         /// Setup the component.
         /// </summary>
         void Setup();
-
-        /// <summary>
-        /// Start the core background process.
-        /// </summary>
-        void Start();
-
-        /// <summary>
-        /// Stop the component.
-        /// </summary>
-        void Stop();
 
         /// <summary>
         /// Starts the kyameru process.

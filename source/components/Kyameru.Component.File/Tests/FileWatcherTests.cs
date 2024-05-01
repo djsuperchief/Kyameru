@@ -24,10 +24,8 @@ namespace Kyameru.Component.File.Tests
             this.location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/test";
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task CreatedWorks(bool isAsync)
+        [Fact]
+        public async Task CreatedWorks()
         {
             var tokenSource = new CancellationTokenSource();
             this.CheckFile("created.tdd");
@@ -36,56 +34,30 @@ namespace Kyameru.Component.File.Tests
             var raisedAsync = false;
             // Github tests for some reason do not raise created compared to local os.
             FileWatcher from = this.Setup("Created");
-            from.OnAction += delegate (object sender, Routable e)
-            {
-                method = e.Headers["Method"];
-                
-                resetEvent.Set();
-            };
 
-            from.OnActionAsync += async delegate(object sender, RoutableEventData e)
+            from.OnActionAsync += async delegate (object sender, RoutableEventData e)
             {
                 method = e.Data.Headers["Method"];
                 raisedAsync = true;
                 resetEvent.Set();
                 await Task.CompletedTask;
             };
-            
-            from.Setup();
-            if (isAsync)
-            {
-                
-                await from.StartAsync(tokenSource.Token);
-            }
-            else
-            {
-                from.Start();
-            }
 
+            from.Setup();
+            await from.StartAsync(tokenSource.Token);
             System.IO.File.WriteAllText($"{this.location}/Created.tdd", "test data");
             this.fileSystemWatcher.Raise(x => x.Created += null, new FileSystemEventArgs(WatcherChangeTypes.Created, this.location, "Created.tdd"));
             bool wasAssigned = resetEvent.WaitOne(TimeSpan.FromSeconds(5));
 
-            if (isAsync)
-            {
-                await from.StopAsync(tokenSource.Token);
-            }
-            else
-            {
-                from.Stop();    
-            }
-            
+            await from.StopAsync(tokenSource.Token);
+
             Assert.True(!string.IsNullOrWhiteSpace(method));
-            Assert.Equal(isAsync, raisedAsync);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task ChangedWorks(bool isAsync)
+        [Fact]
+        public async Task ChangedWorks()
         {
             var tokenSource = new CancellationTokenSource();
-            var raisedAsync = false;
             string filename = $"{Guid.NewGuid().ToString("N")}.txt";
             this.CheckFile(filename);
             AutoResetEvent resetEvent = new AutoResetEvent(false);
@@ -93,47 +65,31 @@ namespace Kyameru.Component.File.Tests
             string method = string.Empty;
 
             FileWatcher from = this.Setup("Changed");
-            from.OnAction += delegate (object sender, Routable e)
-            {
-                method = e.Headers["Method"];
-                resetEvent.Set();
-            };
 
-            from.OnActionAsync += async delegate(object sender, RoutableEventData e)
+            from.OnActionAsync += async delegate (object sender, RoutableEventData e)
             {
                 method = e.Data.Headers["Method"];
-                raisedAsync = true;
                 resetEvent.Set();
                 await Task.CompletedTask;
             };
             from.Setup();
-            if (isAsync)
-            {
-                await from.StartAsync(tokenSource.Token);
-            }
-            else
-            {
-                from.Start();
-            }
+
+            await from.StartAsync(tokenSource.Token);
 
             System.IO.File.WriteAllText($"{this.location}/{filename}", "more data added");
             System.IO.File.WriteAllText($"{this.location}/{filename}", "more data added");
             this.fileSystemWatcher.Raise(x => x.Changed += null, new FileSystemEventArgs(WatcherChangeTypes.Changed, this.location, filename));
             bool wasAssigned = resetEvent.WaitOne(TimeSpan.FromSeconds(5));
-            if (!isAsync)
-            {
-                // doing this async means it can be scanned before changed...also async tests, need a better way of
-                // testing this.
-                Assert.Equal("Changed", method);    
-            }
-            
-            Assert.Equal(isAsync, raisedAsync);
+
+            // doing this async means it can be scanned before changed...also async tests, need a better way of
+            // testing this.
+            Assert.Equal("Changed", method);
         }
 
         [Theory]
         [InlineData("true", 21)]
         [InlineData("false", 1)]
-        public void ScannerWorks(string subDirectories, int expected)
+        public async Task ScannerWorks(string subDirectories, int expected)
         {
             string contents = "test data";
             string scanDir = this.location + "scan";
@@ -155,15 +111,18 @@ namespace Kyameru.Component.File.Tests
             System.IO.File.WriteAllText($"{scanDir}/testfile_root.txt", contents);
 
             FileWatcher from = this.Setup("Changed", true, scanDir, "", "", subDirectories);
-            from.OnAction += delegate (object sender, Routable e)
+            from.OnActionAsync += async (object sender, RoutableEventData e) =>
             {
-                if (e.Headers["Method"] == "Scanned")
+                if (e.Data.Headers["Method"] == "Scanned")
                 {
                     count++;
                 }
+
+                await Task.CompletedTask;
+
             };
             from.Setup();
-            from.Start();
+            await from.StartAsync(default);
             resetEvent.WaitOne(TimeSpan.FromSeconds(5));
             Assert.Equal(expected, count);
         }
@@ -171,7 +130,7 @@ namespace Kyameru.Component.File.Tests
         [Theory]
         [InlineData("in|inner", "")]
         [InlineData("", ".stuff|stuffing")]
-        public void IgnoreWorks(string directories, string strings)
+        public async Task IgnoreWorks(string directories, string strings)
         {
             string contents = "test data";
             string scanDir = "in";
@@ -192,15 +151,17 @@ namespace Kyameru.Component.File.Tests
             System.IO.File.WriteAllText(Path.Combine(scanDir, fileName), contents);
 
             FileWatcher from = this.Setup("Changed", true, scanDir, directories, strings);
-            from.OnAction += delegate (object sender, Routable e)
+            from.OnActionAsync += async (object sender, RoutableEventData e) =>
             {
-                if (e.Headers["Method"] == "Scanned")
+                if (e.Data.Headers["Method"] == "Scanned")
                 {
                     count++;
                 }
+
+                await Task.CompletedTask;
             };
             from.Setup();
-            from.Start();
+            await from.StartAsync(default);
             resetEvent.WaitOne(TimeSpan.FromSeconds(5));
             Assert.Equal(0, count);
         }

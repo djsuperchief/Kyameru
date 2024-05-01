@@ -42,23 +42,6 @@ namespace Kyameru.Core.Chain
         /// Pass the processing onto the next component.
         /// </summary>
         /// <param name="item">Message to process.</param>
-        public virtual void Handle(Routable item)
-        {
-            if (!item.ExitRoute)
-            {
-
-                Next?.Handle(item);
-            }
-            else
-            {
-                Logger.KyameruWarning(identity, string.Format(Resources.WARNING_ROUTE_EXIT, item.ExitReason));
-            }
-        }
-
-        /// <summary>
-        /// Pass the processing onto the next component.
-        /// </summary>
-        /// <param name="item">Message to process.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         public virtual async Task HandleAsync(Routable item, CancellationToken cancellationToken)
         {

@@ -12,16 +12,6 @@ namespace Kyameru.Component.File.Utilities
 {
     internal class FileUtils : IFileUtils
     {
-        public void WriteAllBytes(string path, byte[] file, bool overwrite = false)
-        {
-            if (overwrite)
-            {
-                this.OverwriteDestination(path);
-            }
-
-            System.IO.File.WriteAllBytes(path, file);
-        }
-        
         public async Task WriteAllBytesAsync(string path, byte[] file, bool overwrite, CancellationToken cancellationToken)
         {
             if (overwrite)
@@ -32,19 +22,9 @@ namespace Kyameru.Component.File.Utilities
             await System.IO.File.WriteAllBytesAsync(path, file, cancellationToken);
         }
 
-        public void WriteAllText(string path, string file, bool overwrite)
-        {
-            if(overwrite)
-            {
-                this.OverwriteDestination(path);
-            }
-
-            System.IO.File.WriteAllText(path, file);
-        }
-        
         public async Task WriteAllTextAsync(string path, string file, bool overwrite, CancellationToken cancellationToken)
         {
-            if(overwrite)
+            if (overwrite)
             {
                 this.OverwriteDestination(path);
             }
@@ -52,24 +32,25 @@ namespace Kyameru.Component.File.Utilities
             await System.IO.File.WriteAllTextAsync(path, file, cancellationToken);
         }
 
-        public void Move(string source, string destination, bool overwrite = false)
+        public async Task MoveAsync(string source, string destination, bool overwrite, CancellationToken cancellationToken)
         {
-            if(overwrite)
+            if (!cancellationToken.IsCancellationRequested)
             {
-                this.OverwriteDestination(destination);
+                if (overwrite)
+                {
+                    this.OverwriteDestination(destination);
+                }
+
+                System.IO.File.Move(source, destination);
             }
 
-            System.IO.File.Move(source, destination);
+
+            await Task.CompletedTask;
         }
 
-        public Task MoveAsync(string source, string destination, bool overwrite, CancellationToken cancellationToken)
+        public async Task CopyFileAsync(string source, string destination, bool overwrite, CancellationToken cancellationToken)
         {
-            return Task.Factory.StartNew(() => System.IO.File.Move(source, destination), cancellationToken);
-        }
-
-        public Task CopyFileAsync(string source, string destination, bool overwrite, CancellationToken cancellationToken)
-        {
-            return Task.Factory.StartNew(() =>
+            if (!cancellationToken.IsCancellationRequested)
             {
                 if (overwrite)
                 {
@@ -77,35 +58,34 @@ namespace Kyameru.Component.File.Utilities
                 }
 
                 System.IO.File.Copy(source, destination);
-            }, cancellationToken);
-        }
-
-        public void CreateDirectory(string directory) => System.IO.Directory.CreateDirectory(directory);
-        public Task CreateDirectoryAsync(string directory, CancellationToken cancellationToken)
-        {
-            return Task.Factory.StartNew(() => System.IO.Directory.CreateDirectory(directory), cancellationToken);
-        }
-
-        public void CopyFile(string source, string destination, bool overwrite = false)
-        {
-            if(overwrite)
-            {
-                this.OverwriteDestination(destination);
             }
 
-            System.IO.File.Copy(source, destination);
+            await Task.CompletedTask;
         }
 
-        public void Delete(string file) => System.IO.File.Delete(file);
-
-        public Task DeleteAsync(string file, CancellationToken cancellationToken)
+        public async Task CreateDirectoryAsync(string directory, CancellationToken cancellationToken)
         {
-            return Task.Factory.StartNew(() => System.IO.File.Delete(file), cancellationToken);
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            await Task.CompletedTask;
+        }
+
+        public async Task DeleteAsync(string file, CancellationToken cancellationToken)
+        {
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                System.IO.File.Delete(file);
+            }
+
+            await Task.CompletedTask;
         }
 
         private void OverwriteDestination(string file)
         {
-            if(System.IO.File.Exists(file))
+            if (System.IO.File.Exists(file))
             {
                 System.IO.File.Delete(file);
             }

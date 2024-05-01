@@ -34,28 +34,6 @@ namespace Kyameru.Core.Chain
         /// Passes processing onto the next component.
         /// </summary>
         /// <param name="item">Message to process.</param>
-        public override void Handle(Routable item)
-        {
-            if (!item.InError)
-            {
-                try
-                {
-                    toComponent.Process(item);
-                }
-                catch (Exception ex)
-                {
-                    Logger.KyameruException(identity, ex.Message, ex);
-                    item.SetInError(new Entities.Error("To Component", "Handle", ex.Message));
-                }
-            }
-
-            base.Handle(item);
-        }
-
-        /// <summary>
-        /// Passes processing onto the next component.
-        /// </summary>
-        /// <param name="item">Message to process.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         public override async Task HandleAsync(Routable item, CancellationToken cancellationToken)
         {

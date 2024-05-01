@@ -9,8 +9,5 @@
     {
       "Uri": "injectiontest:///mememe"
     }
-  ],
-  "Options": {
-    "BuildAsync": true
-  }
+  ]
 }

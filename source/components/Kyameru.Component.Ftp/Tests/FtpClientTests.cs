@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Kyameru.Component.Ftp.Tests
@@ -16,10 +17,10 @@ namespace Kyameru.Component.Ftp.Tests
         private readonly Mock<IWebRequestUtility> webRequestUtility = new Mock<IWebRequestUtility>();
 
         [Fact]
-        public void UploadThrowsError()
+        public async Task UploadThrowsError()
         {
             this.webRequestUtility.Reset();
-            this.webRequestUtility.Setup(x => x.UploadFile(It.IsAny<byte[]>(), It.IsAny<FtpSettings>(), It.IsAny<string>())).Throws(new OutOfMemoryException());
+            this.webRequestUtility.Setup(x => x.UploadFile(It.IsAny<byte[]>(), It.IsAny<FtpSettings>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Throws(new OutOfMemoryException());
             this.CreateTestFile();
             FtpClient client = new FtpClient(this.GetFtpSettings(), this.webRequestUtility.Object);
             bool errorThrown = false;
@@ -28,17 +29,17 @@ namespace Kyameru.Component.Ftp.Tests
                 errorThrown = true;
             };
 
-            Assert.Throws<OutOfMemoryException>(() => client.UploadFile("bloop.txt"));
+            await Assert.ThrowsAsync<OutOfMemoryException>(() => client.UploadFile("bloop.txt", default));
             Assert.True(errorThrown);
 
         }
 
         [Fact]
-        public void GetDirectoryContentsErrors()
+        public async Task GetDirectoryContentsErrors()
         {
             AutoResetEvent resetEvent = new AutoResetEvent(false);
             this.webRequestUtility.Reset();
-            this.webRequestUtility.Setup(x => x.GetDirectoryContents(It.IsAny<FtpSettings>())).Throws(new OutOfMemoryException());
+            this.webRequestUtility.Setup(x => x.GetDirectoryContents(It.IsAny<FtpSettings>(), It.IsAny<CancellationToken>())).Throws(new OutOfMemoryException());
             RouteAttributes route = new RouteAttributes($"ftp://test:banana@127.0.0.1/out&Delete=true&PollTime=1");
             From from = new From(route.Headers, webRequestUtility.Object);
             bool errorThrown = false;
@@ -52,19 +53,23 @@ namespace Kyameru.Component.Ftp.Tests
             };
 
             from.Setup();
-            from.Start();
+            await from.StartAsync(default);
             bool wasAssigned = resetEvent.WaitOne(TimeSpan.FromSeconds(5));
             Assert.True(errorThrown);
 
         }
 
         [Fact]
-        public void DownloadFileErrors()
+        public async Task DownloadFileErrors()
         {
             AutoResetEvent resetEvent = new AutoResetEvent(false);
             this.webRequestUtility.Reset();
-            this.webRequestUtility.Setup(x => x.GetDirectoryContents(It.IsAny<FtpSettings>())).Returns(new List<string>() { "file.txt" });
-            this.webRequestUtility.Setup(x => x.DownloadFile(It.IsAny<string>(), It.IsAny<FtpSettings>())).Throws(new OutOfMemoryException());
+            this.webRequestUtility.Setup(x => x.GetDirectoryContents(It.IsAny<FtpSettings>(), It.IsAny<CancellationToken>())).Returns((FtpSettings f, CancellationToken c) =>
+            {
+                return Task.FromResult(new List<string>() { "file.txt" });
+
+            });
+            this.webRequestUtility.Setup(x => x.DownloadFile(It.IsAny<string>(), It.IsAny<FtpSettings>(), It.IsAny<CancellationToken>())).Throws(new OutOfMemoryException());
             RouteAttributes route = new RouteAttributes($"ftp://test:banana@127.0.0.1/out&Delete=true&PollTime=1");
             From from = new From(route.Headers, webRequestUtility.Object);
             bool errorThrown = false;
@@ -78,19 +83,22 @@ namespace Kyameru.Component.Ftp.Tests
             };
 
             from.Setup();
-            from.Start();
+            await from.StartAsync(default);
             bool wasAssigned = resetEvent.WaitOne(TimeSpan.FromSeconds(5));
             Assert.True(errorThrown);
 
         }
 
         [Fact]
-        public void DeleteFileErrors()
+        public async Task DeleteFileErrors()
         {
             AutoResetEvent resetEvent = new AutoResetEvent(false);
             this.webRequestUtility.Reset();
-            this.webRequestUtility.Setup(x => x.GetDirectoryContents(It.IsAny<FtpSettings>())).Returns(new List<string>() { "file.txt" });
-            this.webRequestUtility.Setup(x => x.DeleteFile(It.IsAny<FtpSettings>(), It.IsAny<string>(), It.IsAny<bool>())).Throws(new OutOfMemoryException());
+            this.webRequestUtility.Setup(x => x.GetDirectoryContents(It.IsAny<FtpSettings>(), It.IsAny<CancellationToken>())).Returns((FtpSettings f, CancellationToken c) =>
+            {
+                return Task.FromResult(new List<string>() { "file.txt" });
+            });
+            this.webRequestUtility.Setup(x => x.DeleteFile(It.IsAny<FtpSettings>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).Throws(new OutOfMemoryException());
             RouteAttributes route = new RouteAttributes($"ftp://test:banana@127.0.0.1/out&Delete=true&PollTime=1");
             From from = new From(route.Headers, webRequestUtility.Object);
             bool errorThrown = false;
@@ -104,7 +112,7 @@ namespace Kyameru.Component.Ftp.Tests
             };
 
             from.Setup();
-            from.Start();
+            await from.StartAsync(default);
             bool wasAssigned = resetEvent.WaitOne(TimeSpan.FromSeconds(5));
             Assert.True(errorThrown);
 

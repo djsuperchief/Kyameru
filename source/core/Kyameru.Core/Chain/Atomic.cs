@@ -18,24 +18,6 @@ namespace Kyameru.Core.Chain
             this.atomicComponent.OnLog += OnLog;
         }
 
-        public override void Handle(Routable item)
-        {
-            if (!item.InError)
-            {
-                try
-                {
-                    atomicComponent.Process(item);
-                }
-                catch (Exception ex)
-                {
-                    Logger.KyameruException(identity, ex.Message, ex);
-                    item.SetInError(new Entities.Error("Atomic Component", "Handle", ex.Message));
-                }
-            }
-
-            base.Handle(item);
-        }
-
         public override async Task HandleAsync(Routable item, CancellationToken cancellationToken)
         {
             if (!item.InError)

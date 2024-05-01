@@ -12,13 +12,6 @@ namespace Kyameru.Tests.Mocks
     {
         public event EventHandler<Log> OnLog;
 
-        public void Process(Routable routable)
-        {
-            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Setting header"));
-            this.OnLog?.Invoke(this, new Log(LogLevel.Information, "MyComponent has processed"));
-            routable.SetHeader("ComponentRan", "Yes");
-        }
-
         public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
         {
             if (!cancellationToken.IsCancellationRequested)
@@ -27,8 +20,8 @@ namespace Kyameru.Tests.Mocks
                 this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Setting header"));
                 routable.SetHeader("ComponentRan", "Yes");
             }
-            
-            
+
+
 
             await Task.CompletedTask;
         }
