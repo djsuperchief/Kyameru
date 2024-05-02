@@ -29,7 +29,7 @@ Although most parts of the routable message are designed to be mutable, each com
 
 ## Async
 
-Kyameru provides a `Build` or `BuildAsync` build method. This is to help support applications and components that do not need to be processed async. The `IHostedService` does run async however and this cannot be changed.
+Kyameru runs asynchronously (as it is hosted in an `IHostedService`) so all operations (including process components) run as such.
 
 ## URI Syntax
 

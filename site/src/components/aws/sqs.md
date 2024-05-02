@@ -61,7 +61,7 @@ The same rules apply as the from route,.
 
 ##### Example - Queue Name
 ```
-To("s3://myqueue")
+To("sqs://myqueue")
 ```
 
 ##### Example - Queue URL

@@ -11,7 +11,7 @@ nav_order: 1
 {: .text-center }
 ![kyameru logo](/assets/img/logo.png)
 
-{: .warning }
+{: .note }
 > Welcome to the Kyameru documentation home. This is still relatively new and will constantly be being updated. For now, please visit the main GitHub repository: [Kyameru Source](https://github.com/djsuperchief/Kyameru)
 
 ## Status
