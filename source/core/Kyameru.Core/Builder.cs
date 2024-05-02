@@ -107,6 +107,21 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Creates a new To component chain.
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI.</param>
+        /// <param name="concretePostProcessing">A component to run any post processing.
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder To(string componentUri, IProcessComponent concretePostProcessing)
+        {
+            var postProcessComponent = Processable.Create(concretePostProcessing);
+            var route = new RouteAttributes(componentUri, postProcessComponent);
+            toUris.Add(route);
+
+            return this;
+        }
+
+        /// <summary>
         /// Creates an atomic component using the original From URI.
         /// </summary>
         /// <returns>Returns an instance of the <see cref="Builder"/> class</returns>
