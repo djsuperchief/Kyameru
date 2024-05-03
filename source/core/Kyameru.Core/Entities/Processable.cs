@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Reflection;
+using System.Threading.Tasks;
 using Kyameru.Core.Exceptions;
 
 namespace Kyameru.Core.Entities
@@ -23,7 +25,7 @@ namespace Kyameru.Core.Entities
             /// Concrete implementation.
             /// </summary>
             Concrete,
-            
+
             /// <summary>
             /// Reflection creation
             /// </summary>
@@ -32,7 +34,8 @@ namespace Kyameru.Core.Entities
             /// <summary>
             /// Action delegate execution
             /// </summary>
-            ActionDelegate
+            ActionDelegate,
+            FuncDelegate
         };
 
         /// <summary>
@@ -73,6 +76,16 @@ namespace Kyameru.Core.Entities
         protected Processable(Action<Routable> action)
         {
             Invocation = InvocationType.ActionDelegate;
+            Component = new ProcessableDelegate(action);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Processable"/> class.
+        /// </summary>
+        /// <param name="action">Delegate to execute.</param>
+        protected Processable(Func<Routable, Task> action)
+        {
+            Invocation = InvocationType.FuncDelegate;
             Component = new ProcessableDelegate(action);
         }
 
@@ -138,6 +151,17 @@ namespace Kyameru.Core.Entities
         }
 
         /// <summary>
+        /// Creates an instance of the <see cref="Processable"/> class.
+        /// </summary>
+        /// <param name="action">Delegate to execute</param>
+        /// <returns>Returns an instance of the <see cref="Processable"/> class.</returns>
+
+        public static Processable Create(Func<Routable, Task> action)
+        {
+            return new Processable(action);
+        }
+
+        /// <summary>
         /// Gets the component from either local store or service provider.
         /// </summary>
         /// <param name="provider">DI Service Provider.</param>
@@ -149,6 +173,7 @@ namespace Kyameru.Core.Entities
             {
                 case InvocationType.Concrete:
                 case InvocationType.ActionDelegate:
+                case InvocationType.FuncDelegate:
                     return Component;
                 case InvocationType.DI:
                     return (IProcessComponent)provider.GetService(ComponentType);
@@ -163,7 +188,7 @@ namespace Kyameru.Core.Entities
         {
             var componentName = string.Concat(hostAssembly.FullName.Split(',')[0], ".", componentTypeName);
             Type componentType = hostAssembly.GetType(componentName);
-            
+
             return Activator.CreateInstance(componentType) as IProcessComponent;
         }
     }

@@ -96,6 +96,29 @@ public class ProcessComponentTests
         await Task.CompletedTask;
     }
 
+    [Fact]
+    public async Task ProcessComponentByFunc()
+    {
+        var serviceCollection = this.GetServiceDescriptors();
+        Routable routable = null;
+        Kyameru.Route.From("injectiontest:///mememem")
+        .Process(async (Routable x) =>
+        {
+            routable = x;
+            await Task.CompletedTask;
+        })
+        .To("injectiontest:///somewhere")
+        .Build(serviceCollection);
+        IServiceProvider provider = serviceCollection.BuildServiceProvider();
+        IHostedService service = provider.GetService<IHostedService>();
+        await service.StartAsync(CancellationToken.None);
+        await service.StopAsync(CancellationToken.None);
+
+        Assert.Equal("Async Injected Test Complete", routable?.Body);
+
+        await Task.CompletedTask;
+    }
+
     private IServiceCollection GetServiceDescriptors()
     {
         IServiceCollection serviceCollection = new ServiceCollection();

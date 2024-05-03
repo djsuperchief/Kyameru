@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Kyameru.Core.Chain;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
@@ -107,19 +108,58 @@ namespace Kyameru.Core
         }
 
         /// <summary>
-        /// Creates a new To component chain.
+        /// Adds a to component with post processing.
         /// </summary>
         /// <param name="componentUri">Valid Kyameru URI.</param>
-        /// <param name="concretePostProcessing">A component to run any post processing.
+        /// <param name="concretePostProcessing">A component to run any post processing.</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder To(string componentUri, IProcessComponent concretePostProcessing)
         {
             var postProcessComponent = Processable.Create(concretePostProcessing);
-            var route = new RouteAttributes(componentUri, postProcessComponent);
-            toUris.Add(route);
-
+            AddToPostProcessing(componentUri, postProcessComponent);
             return this;
         }
+
+        /// <summary>
+        /// Adds a to component with post processing by DI
+        /// </summary>
+        /// <typeparam name="T">Type of post processing component</typeparam>
+        /// <param name="componentUri">Valid Kyameru URI</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder To<T>(string componentUri) where T : IProcessComponent
+        {
+            var postProcessComponent = Processable.Create<T>();
+            AddToPostProcessing(componentUri, postProcessComponent);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a to component with post processing by action
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI</param>
+        /// <param name="action">Action to perform post processing.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder To(string componentUri, Action<Routable> action)
+        {
+            var postProcessComponent = Processable.Create(action);
+            AddToPostProcessing(componentUri, postProcessComponent);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a to component with post processing by action
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI</param>
+        /// <param name="postProcessing">Action to perform post processing.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder To(string componentUri, Func<Routable, Task> postProcessing)
+        {
+            var postProcessComponent = Processable.Create(postProcessing);
+            AddToPostProcessing(componentUri, postProcessComponent);
+            return this;
+        }
+
+
 
         /// <summary>
         /// Creates an atomic component using the original From URI.
@@ -331,6 +371,12 @@ namespace Kyameru.Core
         private bool ContainsReflectionComponents()
         {
             return components.Count(x => x.Invocation == Processable.InvocationType.Reflection) > 0;
+        }
+
+        private void AddToPostProcessing(string componentUri, Processable postProcessComponent)
+        {
+            var route = new RouteAttributes(componentUri, postProcessComponent);
+            toUris.Add(route);
         }
     }
 }

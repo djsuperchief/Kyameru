@@ -10,17 +10,30 @@ namespace Kyameru.Core.Entities
         public event EventHandler<Log> OnLog;
 
         private Action<Routable> processAction;
+        private readonly Func<Routable, Task> processFunc;
 
         public ProcessableDelegate(Action<Routable> processor)
         {
             processAction = processor;
+        }
+
+        public ProcessableDelegate(Func<Routable, Task> processor)
+        {
+            processFunc = processor;
         }
         public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
         {
             if (!cancellationToken.IsCancellationRequested)
             {
                 OnLog?.Invoke(this, new Entities.Log(Microsoft.Extensions.Logging.LogLevel.Information, "Running process delegate"));
-                processAction.Invoke(routable);
+                if (processAction != null)
+                {
+                    processAction.Invoke(routable);
+                }
+                else
+                {
+                    await processFunc.Invoke(routable);
+                }
             }
 
             await Task.CompletedTask;
