@@ -210,6 +210,18 @@ namespace Kyameru.Core
             return GetBuilder(componentUri, postProcessComponent);
         }
 
+        /// <summary>
+        /// Adds a to component with post processing by action
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI</param>
+        /// <param name="componentName">Name of the component to find by reflection (host assembly).</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder To(string componentUri, string componentName)
+        {
+            var postProcessComponent = Processable.Create(componentName);
+            return GetBuilder(componentUri, postProcessComponent);
+        }
+
         private Builder GetBuilder(string componentUri, Processable postProcessComponent)
         {
             var route = new RouteAttributes(componentUri, postProcessComponent);

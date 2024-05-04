@@ -35,6 +35,10 @@ namespace Kyameru.Core.Entities
             /// Action delegate execution
             /// </summary>
             ActionDelegate,
+            
+            /// <summary>
+            /// Async function delegate
+            /// </summary>
             FuncDelegate
         };
 
