@@ -51,7 +51,15 @@ Now there are other options for headers, for instance you can use the function d
 
 #### Add A Processing Component
 
-Processing components are components you build as part of your applications domain. They add any custom logic or processing you need to the routable message before it goes through the to the TO components. You can create processing components any way you like but for the purpose of this, we'll just use the action delegate.
+Processing components are components you build as part of your applications domain. They add any custom logic or processing you need to the routable message before it goes through the to the TO components. You can create processing components in many ways:
+
+- Concrete implementation
+- Dependency Injection
+- Reflection (should only really use with config)
+- Action
+- Async Function
+
+But for the purpose of this, we'll just use the action delegate.
 
 ```
 Kyameru.Route.From("sqs://myqueue")
@@ -62,5 +70,59 @@ Kyameru.Route.From("sqs://myqueue")
 ```
 You can do what you like with the routable message and process it how you wish.
 
+### To Route
+
+The To route works in the same way as the from. You specify what component you want to route to (with any additional setup headers) and that's it!
+The To route does have some additional parts to it.
+
+#### Multiple To Routes
+
+You can continue to chain To components together so if you wanted to say put a file in an S3 bucket, sFTP and then archive it, you would chain these three To components together.
+
+#### To Post Processing
+
+Every To component has the ability to add post processing to it. This post processing is a `processing component` that you create (the same as an ordinary Processing Component) and it is executed immediately after the To component has finished.
+
+```
+.To("component://setup", new MyComponent())
+.To<IMyComponent>("component://setup")
+.To("component://setup", "MyNamespace.Component")
+.To("Component://setup", (Routable x) => {})
+.To("Component://setup", async (Routable x) => {})
+```
+
+### Id
+
+Every route can be assigned an Id specified by you or it will be assigned at random. To specify an Id, use the Id function.
+
+```
+.Id("my-route")
+```
+
+This may help identify errors if you use several routes that are all the same.
+
+### Error Route
+
+You can create an error processing component `IErrorComponent` that execute if the route encounters any errors. This gives you an opportunity to do any final processing on a message in the event the route encounters any errors.
+
+### Full Example
+
+```
+Kyameru.Route.From("sqs://myqueue")
+.AddHeader("Test", "Test")
+.Process((Routable x) => {
+    x.SetHeader("MoreThings", "Test");
+})
+.Id("my-route")
+.To("s3://mybucket/path)
+.Build(services);
+```
+
+## Summary
+
+And thats it! When your host application starts, the hosted service will start your from route and you can leave Kyameru to it.
+To see all the currently available components, go to the [Components](components) section.
+
+## Source
 
 [Show Me The Source](https://github.com/djsuperchief/Kyameru){: .btn .btn-purple }
