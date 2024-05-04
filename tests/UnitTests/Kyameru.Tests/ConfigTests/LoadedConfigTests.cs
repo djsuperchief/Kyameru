@@ -16,6 +16,7 @@ public class LoadedConfigTests
 
     [Theory]
     [InlineData("JsonConfig.json", "MyComponent has processed Async")]
+    [InlineData("JsonConfigPostProcessing.json", "MyPostComponent has processed Async")]
     public async Task CanLoadJsonConfigWithUrisAsync(string config, string expectedMessage)
     {
         var hasLogged = false;

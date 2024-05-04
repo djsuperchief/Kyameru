@@ -47,12 +47,29 @@ namespace Kyameru
                 builder.Process(processor);
             }
 
-            var final = builder.To(config.To[0].ToString());
+            // This is not great (understatement). Need to refactor this.
+            Builder final = null;
+            if (!string.IsNullOrWhiteSpace(config.To[0].PostProcess))
+            {
+                final = builder.To(config.To[0].ToString(), config.To[0].PostProcess);
+            }
+            else
+            {
+                final = builder.To(config.To[0].ToString());
+            }
+
             if (config.To.Length > 1)
             {
                 for (var i = 1; i < config.To.Length; i++)
                 {
-                    final.To(config.To[i].ToString());
+                    if (!string.IsNullOrWhiteSpace(config.To[i].PostProcess))
+                    {
+                        final.To(config.To[i].ToString(), config.To[i].PostProcess);
+                    }
+                    else
+                    {
+                        final.To(config.To[i].ToString());
+                    }
                 }
             }
 
@@ -62,5 +79,7 @@ namespace Kyameru
             }
             return final;
         }
+        
+        
     }
 }

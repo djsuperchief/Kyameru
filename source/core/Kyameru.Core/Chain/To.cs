@@ -46,6 +46,7 @@ namespace Kyameru.Core.Chain
             this(logger, toComponent, identity)
         {
             processComponent = postProcessComponent;
+            this.processComponent.OnLog += OnLog;
         }
 
         /// <summary>
