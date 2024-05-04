@@ -23,9 +23,22 @@ Processing components that you create can also be injected through DI as well as
 
 It goes without saying that the order that components are registered in is the order they will be executed in. Once registered, this order cannot be changed. This order is guaranteed.
 
-## Immutable Headers
+## "Routable" message
+### Overview
+
+Data is passed through to each component by way of a "Routable" message. This message has a body and headers that can be modified during its lifetime.
+
+### Headers
+
+A routable message contains headers that get added by either your own processing or as part of a component. Some headers are editable and others will be immutable. For instance, the `File From` component will add an immutable header for where it picked the file up from. Once it has been added, it cannot be modified or removed.
+
+### Immutable Headers
 
 Although most parts of the routable message are designed to be mutable, each component may specify that some headers created by it will be immutable. This is to protect certain aspects of the original message through the framework. For example, the file component specifies the `FullSource` header as immutable to protect the originating source file.
+
+### Body
+
+The body of the routable message can be anything. It is advised to stick to byte array or a string but essentially, so long as a component can "read" the body, it can be anything.
 
 ## Async
 

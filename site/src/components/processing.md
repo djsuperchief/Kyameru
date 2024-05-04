@@ -16,12 +16,13 @@ The order in which you add your processing components is the order in which they
 
 # Execution Type
 
-There are four ways in which to add a processing component:
+There are five ways in which to add a processing component:
 
 - Concrete type
 - Dependency Injection
 - Type Name (reflection)
 - Action delegate
+- Async function delegate
 
 ## General Rules
 
@@ -65,5 +66,17 @@ To add an action delegate:
 Route.From()
 .Process((Routable x) => {
     // do some processing
+})
+```
+
+## Async Function Delegate
+
+To add an Async function delegate:
+
+```
+Route.From()
+.Process(async (Routable x) => {
+    // do some processing
+    await Task.CompletedTask();
 })
 ```

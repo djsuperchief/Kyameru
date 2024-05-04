@@ -13,6 +13,11 @@ namespace Kyameru.Core.Entities
         /// Gets or sets the component type.
         /// </summary>
         public string Component { get; set; }
+
+        /// <summary>
+        /// Gets of sets the post-processing component.
+        /// </summary>
+        public string PostProcess { get; set; }
         
         /// <summary>
         /// Gets or sets the path for the component.

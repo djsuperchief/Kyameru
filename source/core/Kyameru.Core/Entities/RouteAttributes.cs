@@ -10,6 +10,16 @@ namespace Kyameru.Core.Entities
     public class RouteAttributes
     {
         /// <summary>
+        /// Gets the post-processing component.
+        /// </summary>
+        public Processable PostProcessingComponent { get; private set; }
+
+        /// <summary>
+        /// gets a value indicating whether the To component has any post-processing applied.
+        /// </summary>
+        public bool HasPostprocessing => PostProcessingComponent != null;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RouteAttributes"/> class.
         /// </summary>
         /// <param name="componentUri">Valid Kyameru URI.</param>
@@ -33,6 +43,16 @@ namespace Kyameru.Core.Entities
             {
                 throw new Exceptions.RouteUriException(Resources.ERROR_ROUTE_URI, ex);
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RouteAttributes"/> class.
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI</param>
+        /// <param name="postProcessingComponent">Post processing component.</param>
+        public RouteAttributes(string componentUri, Processable postProcessingComponent) : this(componentUri)
+        {
+            PostProcessingComponent = postProcessingComponent;
         }
 
         /// <summary>

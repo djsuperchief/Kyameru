@@ -36,7 +36,11 @@ namespace Kyameru.Component.Injectiontest
             if (!cancellationToken.IsCancellationRequested)
             {
                 GlobalCalls.Calls.Add("TOASYNC");
-                routable.SetHeader("&TO", "ASYNC");
+                if (!routable.Headers.ContainsKey("TO"))
+                {
+                    routable.SetHeader("&TO", "ASYNC");    
+                }
+                
                 routable.SetBody<string>("Async Injected Test Complete");
                 this.OnLog?.Invoke(this, new Log(LogLevel.Information, "TO"));
             }

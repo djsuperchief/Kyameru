@@ -19,6 +19,11 @@ namespace Kyameru.Core.Chain
         private readonly IToComponent toComponent;
 
         /// <summary>
+        /// Post processing component.
+        /// </summary>
+        private readonly IProcessComponent processComponent;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="To"/> class.
         /// </summary>
         /// <param name="logger">Logger class.</param>
@@ -28,6 +33,20 @@ namespace Kyameru.Core.Chain
         {
             this.toComponent = toComponent;
             this.toComponent.OnLog += OnLog;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="To"/> class.
+        /// </summary>
+        /// <param name="logger">Logger class.</param>
+        /// <param name="toComponent">To component.</param>
+        /// <param name="postProcessComponent">Post processing component.</param>
+        /// <param name="identity">Identity of route.</param>
+        public To(ILogger logger, IToComponent toComponent, IProcessComponent postProcessComponent, string identity) :
+            this(logger, toComponent, identity)
+        {
+            processComponent = postProcessComponent;
+            this.processComponent.OnLog += OnLog;
         }
 
         /// <summary>
@@ -42,6 +61,10 @@ namespace Kyameru.Core.Chain
                 try
                 {
                     await toComponent.ProcessAsync(item, cancellationToken);
+                    if (processComponent != null)
+                    {
+                        await processComponent.ProcessAsync(item, cancellationToken);
+                    }
                 }
                 catch (Exception ex)
                 {

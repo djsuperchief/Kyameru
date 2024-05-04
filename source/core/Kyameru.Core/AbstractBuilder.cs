@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using Kyameru.Core.Entities;
 
 namespace Kyameru.Core
 {
@@ -17,16 +18,15 @@ namespace Kyameru.Core
         /// <summary>
         /// Creates the to component.
         /// </summary>
-        /// <param name="to">Valid component name.</param>
-        /// <param name="headers">Dictionary of headers</param>
+        /// <param name="to">To component.</param>
         /// <param name="serviceProvider">DI Service provider.</param>
         /// <returns>Returns an instance of the <see cref="IToComponent"/> interface.</returns>
-        protected IToComponent CreateTo(string to, Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        protected IToComponent CreateTo(RouteAttributes to, IServiceProvider serviceProvider)
         {
             IToComponent response = null;
             try
             {
-                response = GetOasis(to).CreateToComponent(headers, serviceProvider);
+                response = GetOasis(to.ComponentName).CreateToComponent(to.Headers, serviceProvider);
             }
             catch (Exception ex)
             {
