@@ -120,6 +120,43 @@ public class ToTests
         Assert.Equal(expected, received);
     }
 
+    [Fact]
+    public async Task ProcessedItemHasExpectedHeadersResponse()
+    {
+        var bucket = "MyBucket";
+        var s3Client = Substitute.For<IAmazonS3>();
+        var versionId = Guid.NewGuid().ToString();
+        s3Client.PutObjectAsync(Arg.Any<PutObjectRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        {
+            var request = (PutObjectRequest)x[0];
+            var response = new PutObjectResponse()
+            {
+                ETag = request.BucketName,
+                VersionId = versionId
+            };
+
+            return response;
+        });
+
+        var to = new S3To(s3Client);
+        var headers = new Dictionary<string, string>()
+        {
+            { "Host", bucket },
+            { "FileName", "MyFile.txt" }
+        };
+        var routable = new Routable(new Dictionary<string, string>()
+        {
+            { "S3DataType", "String" }
+        }, "Test data");
+        to.SetHeaders(headers);
+        await to.ProcessAsync(routable, default);
+
+        Assert.Equal("MyBucket", routable.Headers["S3ETag"]);
+        Assert.Equal("MyBucket", routable.Headers["S3Bucket"]);
+        Assert.Equal(versionId, routable.Headers["S3VersionId"]);
+        Assert.Equal("MyFile.txt", routable.Headers["S3Key"]);
+    }
+
     private Routable GetBaseRoutable()
     {
         var headers = new Dictionary<string, string>()
@@ -142,7 +179,8 @@ public class ToTests
             var request = (PutObjectRequest)x[0];
             var response = new PutObjectResponse()
             {
-                ETag = "String"
+                ETag = "String",
+
             };
 
             if (!string.IsNullOrWhiteSpace(request.FilePath))

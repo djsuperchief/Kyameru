@@ -15,7 +15,7 @@ public class S3To : ITo
     private string targetFileName = "";
     private string targetContentType = "";
 
-    private readonly Dictionary<S3FileTarget.OperationType, Func<S3FileTarget, CancellationToken, Task<string>>> targetActions;
+    private readonly Dictionary<S3FileTarget.OperationType, Func<S3FileTarget, CancellationToken, Task<PutObjectResponse>>> targetActions;
 
     public event EventHandler<Log>? OnLog;
 
@@ -23,7 +23,7 @@ public class S3To : ITo
     {
         // TODO: Inject S3 config so we can override endpoint etc.
         s3client = client;
-        targetActions = new Dictionary<S3FileTarget.OperationType, Func<S3FileTarget, CancellationToken, Task<string>>>()
+        targetActions = new Dictionary<S3FileTarget.OperationType, Func<S3FileTarget, CancellationToken, Task<PutObjectResponse>>>()
         {
             { S3FileTarget.OperationType.String, UploadFile },
             { S3FileTarget.OperationType.Byte, UploadByteArray },
@@ -40,7 +40,10 @@ public class S3To : ITo
             ValidateDataType(routable);
             var s3TargetFile = S3FileTarget.FromRoutable(routable, targetPath, targetFileName, targetBucket);
             var response = await targetActions[s3TargetFile.UploadType](s3TargetFile, cancellationToken);
-            routable.SetHeader("&S3ETag", response);
+            routable.SetHeader("&S3VersionId", response.VersionId);
+            routable.SetHeader("&S3ETag", response.ETag);
+            routable.SetHeader("&S3Key", s3TargetFile.Key);
+            routable.SetHeader("S3Bucket", s3TargetFile.Bucket);
             Log(LogLevel.Information, $"File uploaded with ETag {response}");
         }
         catch (AmazonS3Exception e)
@@ -82,7 +85,7 @@ public class S3To : ITo
         }
     }
 
-    private async Task<string> UploadByteArray(S3FileTarget item, CancellationToken cancellationToken)
+    private async Task<PutObjectResponse> UploadByteArray(S3FileTarget item, CancellationToken cancellationToken)
     {
         Log(LogLevel.Information, "Uploading byte array to bucket");
         var request = item.ToPutObjectRequest();
@@ -99,10 +102,10 @@ public class S3To : ITo
             throw new UploadFailedException("Upload failed");
         }
 
-        return response.ETag;
+        return response;
     }
 
-    private async Task<string> UploadFile(S3FileTarget item, CancellationToken cancellationToken)
+    private async Task<PutObjectResponse> UploadFile(S3FileTarget item, CancellationToken cancellationToken)
     {
         Log(LogLevel.Information, "Uploading string to bucket");
         var response = await s3client.PutObjectAsync(item.ToPutObjectRequest(), cancellationToken);
@@ -111,7 +114,7 @@ public class S3To : ITo
             throw new UploadFailedException("Upload failed");
         }
 
-        return response.ETag;
+        return response;
     }
 
     private void ValidateHeaders(Dictionary<string, string> headers)
