@@ -24,6 +24,8 @@ public class S3FileTarget
 
     public string? FilePath { get; private set; }
 
+    public string Key => string.IsNullOrWhiteSpace(Path) || Path == "/" ? FileName : $"{Path}{FileName}";
+
     public enum OperationType
     {
         String,

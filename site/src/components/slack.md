@@ -37,6 +37,12 @@ Message headers can also be used as part of the component.
 |:------ |: ----------- |: --------|
 |SlackMessage | If this header is specified (in conjuction with setup header) this will be the message sent to Slack | YES|
 
+## Outbound Messages
+
+### TO
+
+No changes are made to the message.
+
 
 ### Example 1: Standard Setup
 

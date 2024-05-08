@@ -17,7 +17,7 @@ namespace Kyameru.Component.Sqs;
 public class SqsFrom(IAmazonSQS client) : IFrom
 {
     public event EventHandler<Log>? OnLog;
-    public event EventHandler<Routable>? OnAction;
+
     public event AsyncEventHandler<RoutableEventData>? OnActionAsync;
 
     public bool IsPolling => poller.Enabled;

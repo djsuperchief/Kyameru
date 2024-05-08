@@ -33,7 +33,7 @@ public class SqsMessage
         var response = new SendMessageRequest(Queue, Body);
         foreach (var header in message)
         {
-            if (header.Key != queueHeader)
+            if (header.Key != queueHeader && !string.IsNullOrWhiteSpace(header.Value))
             {
                 response.MessageAttributes.Add(header.Key, new MessageAttributeValue()
                 {

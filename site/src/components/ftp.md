@@ -58,3 +58,28 @@ The To route is (as expected) the route that sends a file or body data packet to
 ```
 Kyameru.Route.From([from route]).To(ftp://test@127.0.0.1/upload&Archive=../archive&Source=Body)
 ```
+
+## Outbound Messages
+### FROM
+
+The routable message outbound from the component is as follows:
+
+#### Body
+
+The body of the message is the byte array of the downloaded file.
+
+#### Headers
+
+|Header | Description | Immutable |
+|:------ |: ----------- |: -------- |
+| SourceDirectory | Directory of downloaded file | No |
+| SourceFile | File name of downloaded file | No |
+| FullSource | Full path of downloaded file | No |
+| DateCreated | Date and time of download | No |
+| ReadOnly | Boolean indicating whether file is read only | No |
+| DataType | Data type of message body (is always Byte[]) | Yes (Set by body type) |
+| FtpSource | Originating URI of file | No |
+
+### TO
+
+No changes are made to the message.

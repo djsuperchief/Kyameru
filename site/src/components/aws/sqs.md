@@ -77,6 +77,33 @@ The large majority of options for the S3 object upload are set through message h
 |:------ |: ----------- |: --------|: ----------- |
 | SQSQueue | SQS Queue to send to | YES | Uses queue from setup |
 
+## Outbound Messages
+### FROM
+
+The routable message outbound from the component is as follows:
+
+#### Body
+
+SQS Message Body
+
+#### Headers
+
+`SQSMessageId` is the only header added and all message attributes are also added as headers.
+
+### TO
+
+The routable message outbound from the component is as follows:
+
+#### Body
+
+No modifications made from inbound message.
+
+#### Headers
+
+|Header | Description | Immutable |
+|:------ |: ----------- |: -------- |
+| SQSMessageId | Id of message sent | Yes |
+
 
 ### Message Notes
 #### Queue - TO Only

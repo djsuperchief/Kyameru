@@ -52,9 +52,11 @@ namespace Kyameru.Console.Test
                     {
                         x.SetHeader("S3DataType", "String");
                     })
-                    .To("s3://kyameru-component-s3/test&FileName=banana.txt")
+                    .To("s3://kyameru-component-s3/test&FileName=banana.txt", (Routable x) =>
+                    {
+                        x.SetBody<string>($"File uploaded to S3 bucket '{x.Headers["S3Bucket"]}' with key: {x.Headers["S3Key"]}");
+                    })
                     .To("sqs://kyameru-to")
-                    .To("slack:///-------?Channel=general&MessageSource=body")
                     .Id("AWS-S3-Test")
                     .Build(services);
 
