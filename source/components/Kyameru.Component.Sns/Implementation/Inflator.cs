@@ -1,4 +1,5 @@
-﻿using Kyameru.Core.Contracts;
+﻿using Amazon.SimpleNotificationService;
+using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kyameru.Component.Sns;
@@ -17,7 +18,10 @@ public class Inflator : IOasis
 
     public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
-        throw new NotImplementedException();
+        var component = serviceProvider.GetRequiredService<ITo>();
+        component.SetHeaders(headers);
+
+        return component;
     }
 
     public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
@@ -27,6 +31,9 @@ public class Inflator : IOasis
 
     public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
     {
-        throw new NotImplementedException();
+        serviceCollection.AddAWSService<IAmazonSimpleNotificationService>();
+        serviceCollection.AddTransient<ITo, SnsTo>();
+
+        return serviceCollection;
     }
 }
