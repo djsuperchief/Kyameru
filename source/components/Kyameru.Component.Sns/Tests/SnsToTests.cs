@@ -94,10 +94,41 @@ public class SnsToTests
     }
 
     [Theory]
-    [InlineData("groupdId", "dedupeId")]
+    [InlineData("groupId", "dedupeId")]
     [InlineData("", "")]
-    public async Task DeDuplicationAndGroupIdPublishAsExpected(string groupdId, string deduplicationId)
+    public async Task DeDuplicationAndGroupIdPublishAsExpected(string groupId, string deduplicationId)
     {
+        var snsClient = Substitute.For<IAmazonSimpleNotificationService>();
+        var receivedDeDupeId = string.Empty;
+        var receivedGroupId = string.Empty;
+        snsClient.PublishAsync(Arg.Any<PublishRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        {
+            var request = x[0] as PublishRequest;
+            receivedDeDupeId = request.MessageDeduplicationId;
+            receivedGroupId = request.MessageGroupId;
+            return new PublishResponse()
+            {
+                MessageId = request.Message,
+                SequenceNumber = "1",
+                HttpStatusCode = System.Net.HttpStatusCode.OK
+            };
+        });
 
+        var to = new SnsTo(snsClient);
+        var expected = Guid.NewGuid().ToString("N");
+        to.SetHeaders(new Dictionary<string, string>()
+        {
+            { "ARN", "dummyarn" }
+        });
+        var routable = new Routable(new Dictionary<string, string>()
+        {
+            { "TestHeader", expected },
+            { "SNSGroupId", groupId},
+            { "SNSDeduplicationId", deduplicationId }
+        }, "test");
+        await to.ProcessAsync(routable, default);
+
+        Assert.Equal(groupId, receivedGroupId);
+        Assert.Equal(deduplicationId, receivedDeDupeId);
     }
 }

@@ -15,27 +15,36 @@ public class SnsTo(IAmazonSimpleNotificationService client) : ITo
 
     public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
     {
-        var message = SnsMessage.FromRoutable(routable, snsHeaders);
-        var request = new PublishRequest
+        try
         {
-            TopicArn = message.Arn,
-            Message = message.Message
-        };
-
-        if (message.Attributes.Count > 0)
-        {
-            request.MessageAttributes = message.Attributes.ToDictionary(x => x.Key, x => new MessageAttributeValue
+            var message = SnsMessage.FromRoutable(routable, snsHeaders);
+            var request = new PublishRequest
             {
-                DataType = "String",
-                StringValue = x.Value
-            });
-        }
+                TopicArn = message.Arn,
+                Message = message.Message,
+                MessageDeduplicationId = routable.Headers.TryGetValue("SNSDeduplicationId", string.Empty),
+                MessageGroupId = routable.Headers.TryGetValue("SNSGroupId", string.Empty)
+            };
 
-        var response = await client.PublishAsync(request, cancellationToken);
-        if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            if (message.Attributes.Count > 0)
+            {
+                request.MessageAttributes = message.Attributes.ToDictionary(x => x.Key, x => new MessageAttributeValue
+                {
+                    DataType = "String",
+                    StringValue = x.Value
+                });
+            }
+
+            var response = await client.PublishAsync(request, cancellationToken);
+            if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            {
+                routable.SetHeader("SNSMessageId", response.MessageId);
+                routable.SetHeader("SNSSequenceNumber", response.SequenceNumber);
+            }
+        }
+        catch (Exception ex)
         {
-            routable.SetHeader("SNSMessageId", response.MessageId);
-            routable.SetHeader("SNSSequenceNumber", response.SequenceNumber);
+            routable.SetInError(new Error("SNS", "To", ex.Message));
         }
     }
 
