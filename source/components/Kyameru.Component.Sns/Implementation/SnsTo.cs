@@ -19,9 +19,18 @@ public class SnsTo(IAmazonSimpleNotificationService client) : ITo
         var request = new PublishRequest
         {
             TopicArn = message.Arn,
-            Message = message.Message,
-
+            Message = message.Message
         };
+
+        if (message.Attributes.Count > 0)
+        {
+            request.MessageAttributes = message.Attributes.ToDictionary(x => x.Key, x => new MessageAttributeValue
+            {
+                DataType = "String",
+                StringValue = x.Value
+            });
+        }
+
         var response = await client.PublishAsync(request, cancellationToken);
         if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
         {
