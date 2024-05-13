@@ -40,8 +40,8 @@ public class SnsTo(IAmazonSimpleNotificationService client) : ITo
             var response = await client.PublishAsync(request, cancellationToken);
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
-                routable.SetHeader("SNSMessageId", response.MessageId);
-                routable.SetHeader("SNSSequenceNumber", response.SequenceNumber);
+                routable.SetHeader("&SNSMessageId", response.MessageId);
+                routable.SetHeader("&SNSSequenceNumber", response.SequenceNumber);
             }
             else
             {
