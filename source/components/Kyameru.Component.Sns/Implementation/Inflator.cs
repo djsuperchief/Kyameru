@@ -31,7 +31,7 @@ public class Inflator : IOasis
 
     public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
     {
-        serviceCollection.AddAWSService<IAmazonSimpleNotificationService>();
+        serviceCollection.TryAddAWSService<IAmazonSimpleNotificationService>();
         serviceCollection.AddTransient<ITo, SnsTo>();
 
         return serviceCollection;

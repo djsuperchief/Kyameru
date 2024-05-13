@@ -1,6 +1,8 @@
 ﻿using System.Linq;
+using Amazon.SimpleNotificationService;
 using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 
 namespace Kyameru.Component.Sns.Tests;
 
@@ -54,6 +56,10 @@ public class InjectionTests
     private ServiceProvider RegisterTo(Inflator inflator)
     {
         var serviceCollection = new ServiceCollection();
+        serviceCollection.AddTransient<IAmazonSimpleNotificationService>(x =>
+        {
+            return Substitute.For<IAmazonSimpleNotificationService>();
+        });
         inflator.RegisterTo(serviceCollection);
         return serviceCollection.BuildServiceProvider();
     }

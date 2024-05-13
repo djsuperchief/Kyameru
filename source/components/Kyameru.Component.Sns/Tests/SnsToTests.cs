@@ -2,6 +2,7 @@
 using Amazon.SimpleNotificationService.Model;
 using Kyameru.Core.Entities;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace Kyameru.Component.Sns.Tests;
 
@@ -130,5 +131,46 @@ public class SnsToTests
 
         Assert.Equal(groupId, receivedGroupId);
         Assert.Equal(deduplicationId, receivedDeDupeId);
+    }
+
+    [Fact]
+    public async Task HttpResponseSetsInError()
+    {
+        var snsClient = Substitute.For<IAmazonSimpleNotificationService>();
+        snsClient.PublishAsync(Arg.Any<PublishRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        {
+            var request = x[0] as PublishRequest;
+            return new PublishResponse()
+            {
+                MessageId = request.Message,
+                SequenceNumber = "1",
+                HttpStatusCode = System.Net.HttpStatusCode.InternalServerError
+            };
+        });
+
+        var to = new SnsTo(snsClient);
+        to.SetHeaders(new Dictionary<string, string>()
+        {
+            { "ARN", "dummyarn" }
+        });
+        var routable = new Routable(new Dictionary<string, string>(), "test");
+        await to.ProcessAsync(routable, default);
+        Assert.NotNull(routable.Error);
+    }
+
+    [Fact]
+    public async Task GenericErrorSetsInError()
+    {
+        var snsClient = Substitute.For<IAmazonSimpleNotificationService>();
+        snsClient.PublishAsync(Arg.Any<PublishRequest>(), Arg.Any<CancellationToken>()).ThrowsAsync<ArgumentException>();
+
+        var to = new SnsTo(snsClient);
+        to.SetHeaders(new Dictionary<string, string>()
+        {
+            { "ARN", "dummyarn" }
+        });
+        var routable = new Routable(new Dictionary<string, string>(), "test");
+        await to.ProcessAsync(routable, default);
+        Assert.NotNull(routable.Error);
     }
 }

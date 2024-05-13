@@ -2,6 +2,7 @@
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using Kyameru.Core.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Component.Sns;
 
@@ -17,6 +18,7 @@ public class SnsTo(IAmazonSimpleNotificationService client) : ITo
     {
         try
         {
+            Log(LogLevel.Information, Resources.INFO_PROCESSING);
             var message = SnsMessage.FromRoutable(routable, snsHeaders);
             var request = new PublishRequest
             {
@@ -34,20 +36,26 @@ public class SnsTo(IAmazonSimpleNotificationService client) : ITo
                     StringValue = x.Value
                 });
             }
-
+            Log(LogLevel.Information, Resources.INFO_SENDING);
             var response = await client.PublishAsync(request, cancellationToken);
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
                 routable.SetHeader("SNSMessageId", response.MessageId);
                 routable.SetHeader("SNSSequenceNumber", response.SequenceNumber);
             }
+            else
+            {
+                var errorMessage = string.Format(Resources.ERROR_HTTP_RESPONSE, response.HttpStatusCode);
+                Log(LogLevel.Information, errorMessage);
+                routable.SetInError(new Error("SNS", "To", errorMessage));
+            }
         }
         catch (Exception ex)
         {
             routable.SetInError(new Error("SNS", "To", ex.Message));
+            Log(LogLevel.Error, string.Format(Resources.ERROR_SENDING, ex.Message), ex);
         }
     }
-
     public void SetHeaders(Dictionary<string, string> headers)
     {
         var missing = requiredHeaders.Where(x => headers.Keys.All(y => y != x));
@@ -57,5 +65,13 @@ public class SnsTo(IAmazonSimpleNotificationService client) : ITo
         }
 
         snsHeaders = headers;
+    }
+
+    private void Log(LogLevel logLevel, string message, Exception? exception = null)
+    {
+        if (this.OnLog != null)
+        {
+            this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
+        }
     }
 }
