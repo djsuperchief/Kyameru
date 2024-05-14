@@ -8,4 +8,6 @@ internal class Resources
 
     public const string INFO_PROCESSING = "Processing message for SNS Send...";
     public const string INFO_SENDING = "Sending SNS message...";
+
+    public const string INFO_SENT = "SNS message sent with Id '{0}'";
 }

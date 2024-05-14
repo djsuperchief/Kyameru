@@ -42,6 +42,7 @@ public class SnsTo(IAmazonSimpleNotificationService client) : ITo
             {
                 routable.SetHeader("&SNSMessageId", response.MessageId);
                 routable.SetHeader("&SNSSequenceNumber", response.SequenceNumber);
+                Log(LogLevel.Information, string.Format(Resources.INFO_SENT, response.MessageId));
             }
             else
             {
