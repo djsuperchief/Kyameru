@@ -134,7 +134,12 @@ namespace Kyameru.Core.Entities
         {
             var items = componentUri.Split("://");
             ComponentName = items[0].ToFirstCaseUpper();
-            Headers = ParseQuery(items[1].Substring(items[1].IndexOf('?') + 1));
+            Headers = new Dictionary<string, string>();
+            if (items[1].IndexOf('?') > -1)
+            {
+                Headers = ParseQuery(items[1].Substring(items[1].IndexOf('?') + 1));
+            }
+
             Headers.Add("ARN", items[1].Split('?')[0]);
         }
     }

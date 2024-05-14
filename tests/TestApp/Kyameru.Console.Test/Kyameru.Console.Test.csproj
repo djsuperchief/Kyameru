@@ -19,6 +19,7 @@
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Slack\Implementation\Kyameru.Component.Slack.csproj" />
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.S3\Implementation\Kyameru.Component.S3.csproj" />
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.SQS\Implementation\Kyameru.Component.SQS.csproj" />
+    <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Sns\Implementation\Kyameru.Component.Sns.csproj" />
 
 
   </ItemGroup>

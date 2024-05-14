@@ -28,7 +28,10 @@ namespace Kyameru.Component.Ftp.Tests.Routes
                 times = Times.Once();
             }
 
-            webRequestFactory.Setup(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>(), It.IsAny<CancellationToken>())).Verifiable();
+            webRequestFactory.Setup(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>(), It.IsAny<CancellationToken>())).Returns(async (FtpSettings x, string y, bool z, CancellationToken c) =>
+            {
+                await Task.CompletedTask;
+            });
             From from = new From(this.GetRoute(deletes).Headers, webRequestFactory.Object);
             Routable routable = null;
 
@@ -42,7 +45,11 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             from.Setup();
             await from.StartAsync(tokenSource.Token);
 
-            autoReset.WaitOne(60000);
+            // possible the crash is being caused by 
+            if (routable == null)
+            {
+                autoReset.WaitOne(10000);
+            }
 
             Assert.Equal("Hello ftp", Encoding.UTF8.GetString((byte[])routable.Body));
             webRequestFactory.Verify(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>(), It.IsAny<CancellationToken>()), times);

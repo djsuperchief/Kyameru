@@ -1,4 +1,5 @@
 ﻿using Amazon.S3;
+using Amazon.SimpleNotificationService;
 using Amazon.SQS;
 using Kyameru.Core.Entities;
 using LocalStack.Client.Extensions;
@@ -43,27 +44,8 @@ namespace Kyameru.Console.Test
                 services.AddLogging();
                 services.AddLocalStack(Configuration);
                 services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
-                services.AddAwsService<IAmazonS3>();
-                services.AddAwsService<IAmazonSQS>();
+                SetupSnsTest(services);
 
-                Kyameru.Route.From($"file://{fileLocation}?Notifications=Created&SubDirectories=true&Filter=*.*")
-                    .Process(new ProcessingComp())
-                    .Process((Routable x) =>
-                    {
-                        x.SetHeader("S3DataType", "String");
-                    })
-                    .To("s3://kyameru-component-s3/test&FileName=banana.txt", (Routable x) =>
-                    {
-                        x.SetBody<string>($"File uploaded to S3 bucket '{x.Headers["S3Bucket"]}' with key: {x.Headers["S3Key"]}");
-                    })
-                    .To("sqs://kyameru-to")
-                    .Id("AWS-S3-Test")
-                    .Build(services);
-
-                // Kyameru.Route.From("sqs://localhost:4566/000000000000/kyameru-from?PollTime=10")
-                // .To("sqs://kyameru-to")
-                // .Id("sqs-full-test")
-                // .Build(services);
 
 
             }).ConfigureLogging((hostContext, services) =>
@@ -72,6 +54,35 @@ namespace Kyameru.Console.Test
             }).RunConsoleAsync();
 
 
+        }
+
+        static void SetupS3Route(IServiceCollection services, string fileLocation)
+        {
+            services.AddAwsService<IAmazonS3>();
+            services.AddAwsService<IAmazonSQS>();
+            Kyameru.Route.From($"file://{fileLocation}?Notifications=Created&SubDirectories=true&Filter=*.*")
+                .Process(new ProcessingComp())
+                .Process((Routable x) =>
+                {
+                    x.SetHeader("S3DataType", "String");
+                })
+                .To("s3://kyameru-component-s3/test&FileName=banana.txt", (Routable x) =>
+                {
+                    x.SetBody<string>($"File uploaded to S3 bucket '{x.Headers["S3Bucket"]}' with key: {x.Headers["S3Key"]}");
+                })
+                .To("sqs://kyameru-to")
+                .Id("AWS-S3-Test")
+                .Build(services);
+        }
+
+        static void SetupSnsTest(IServiceCollection services)
+        {
+            services.AddAwsService<IAmazonSQS>();
+            services.AddAwsService<IAmazonSimpleNotificationService>();
+            Kyameru.Route.From("sqs://kyameru-from")
+            .To("sns://arn:aws:sns:eu-west-2:000000000000:kyameru_to")
+            .Id("SNS_TEST")
+            .Build(services);
         }
     }
 }

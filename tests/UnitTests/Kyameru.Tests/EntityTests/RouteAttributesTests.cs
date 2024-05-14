@@ -45,4 +45,14 @@ public class RouteAttributesTests
             Assert.Equal(expected[x.Key], x.Value);
         });
     }
+
+    [Fact]
+    public void ArnWithNoHeadersParses()
+    {
+        var expected = "arn:partition:service:region:account-id:resource-id";
+        var uri = $"test://{expected}";
+        var routeAttribute = new RouteAttributes(uri);
+        Assert.Single(routeAttribute.Headers);
+        Assert.Equal(expected, routeAttribute.Headers["ARN"]);
+    }
 }
