@@ -2,7 +2,7 @@ name: kyameru-pr
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, release]
 
 #GITHUB_WORKSPACE
 
@@ -14,14 +14,19 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-            dotnet-version: 7.0.x
+            dotnet-version: 8.0.x
       - name: Install dependencies
-        run: dotnet restore build/KyameruFull.sln
+        run: dotnet restore KyameruFull.sln
       - name: Build
-        run: dotnet build build/KyameruFull.sln --configuration Release --no-restore
+        run: dotnet build KyameruFull.sln --configuration Release --no-restore
       - name: Test
         #run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=TestCoverage/
-        run: dotnet test build/KyameruFull.sln --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat="lcov%2cjson" /p:CoverletOutput=${GITHUB_WORKSPACE}/build/TestCoverage/ /p:MergeWith="${GITHUB_WORKSPACE}/build/TestCoverage/coverage.json"
+        run: dotnet test KyameruFull.sln --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat="lcov%2cjson" /p:CoverletOutput=${GITHUB_WORKSPACE}/build/TestCoverage/ /p:MergeWith="${GITHUB_WORKSPACE}/build/TestCoverage/coverage.json" --blame-hang-timeout 2m
+      # For some reason, s3 tests don't get collected?
+      #- name: TestS3
+        #run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=TestCoverage/
+      #  run: dotnet test --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat="lcov%2cjson" /p:CoverletOutput=${GITHUB_WORKSPACE}/build/TestCoverage/ /p:MergeWith="${GITHUB_WORKSPACE}/build/TestCoverage/coverage.json"
+      #  working-directory: source/components/Kyameru.Component.S3/Tests
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
@@ -35,18 +40,17 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-            dotnet-version: 7.0.x
+            dotnet-version: 8.0.x
       
       - name: Restore Solution
-        run: dotnet restore build/KyameruFull.sln
+        run: dotnet restore KyameruFull.sln
       - name: Scan for security risks
         shell: pwsh
         run: |
-          cd build
-          $results = dotnet list KyameruFull.sln package --vulnerable --include-transitive
+          $results = dotnet list ${{ github.workspace }}/KyameruFull.sln package --vulnerable --include-transitive
           if($results -like '*High*' || $results -like '*Critical*') {
             Write-Host 'Packages vulnerable'
-            dotnet list KyameruFull.sln package --vulnerable --include-transitive
+            dotnet list ${{ github.workspace }}/KyameruFull.sln package --vulnerable --include-transitive
             exit 1
           }
 

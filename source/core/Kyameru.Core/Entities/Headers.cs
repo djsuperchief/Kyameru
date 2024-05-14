@@ -1,15 +1,15 @@
 ﻿using Kyameru.Core.Extensions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Kyameru.Core.Entities
 {
     /// <summary>
     /// Headers collection.
     /// </summary>
-    public class Headers
+    public class Headers : IEnumerable<KeyValuePair<string, string>>
     {
         /// <summary>
         /// Header dictionary.
@@ -27,9 +27,9 @@ namespace Kyameru.Core.Entities
         /// <param name="headers">Headers to create.</param>
         public Headers(Dictionary<string, string> headers)
         {
-            this.headerStorage = headers.GetMutableValues();
-            this.headerStorage.AddRange(headers.GetImmutableValues());
-            this.immutable = headers.Keys.Where(x => x.Substring(0, 1) == "&").Select(x => x[1..]).ToList();
+            headerStorage = headers.GetMutableValues();
+            headerStorage.AddRange(headers.GetImmutableValues());
+            immutable = headers.Keys.Where(x => x.Substring(0, 1) == "&").Select(x => x[1..]).ToList();
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Kyameru.Core.Entities
         {
             get
             {
-                return this.headerStorage[key];
+                return headerStorage[key];
             }
         }
 
@@ -50,7 +50,12 @@ namespace Kyameru.Core.Entities
         /// </summary>
         /// <param name="key">Key to find.</param>
         /// <returns>Returns a boolean indicating whether the key exists.</returns>
-        public bool ContainsKey(string key) => this.headerStorage.ContainsKey(key);
+        public bool ContainsKey(string key) => headerStorage.ContainsKey(key);
+
+        /// <summary>
+        /// Gets the count of items in the header storage.
+        /// </summary>
+        public int Count => headerStorage.Count;
 
         /// <summary>
         /// Sets a header.
@@ -59,26 +64,61 @@ namespace Kyameru.Core.Entities
         /// <param name="value">Header Value.</param>
         public void SetHeader(string key, string value)
         {
-            bool isImmutable = this.IsImmutable(key, out key);
+            bool isImmutable = IsImmutable(key, out key);
 
-            if (this.headerStorage.ContainsKey(key) && this.immutable.Contains(key))
+            if (headerStorage.ContainsKey(key) && immutable.Contains(key))
             {
                 throw new Exceptions.CoreException(Resources.ERROR_HEADER_IMMUTABLE);
             }
 
-            if (this.headerStorage.ContainsKey(key))
+            if (headerStorage.ContainsKey(key))
             {
-                this.headerStorage[key] = value;
+                headerStorage[key] = value;
             }
             else
             {
-                this.headerStorage.Add(key, value);
+                headerStorage.Add(key, value);
+            }
+        }
+
+        /// <summary>
+        /// Attempts to get the value of a header.
+        /// </summary>
+        /// <param name="key">Header key.</param>
+        /// <returns>Returns either the header value or an empty string.</returns>
+        public string TryGetValue(string key)
+        {
+            var response = string.Empty;
+            headerStorage.TryGetValue(key, out response);
+            return response;
+        }
+
+        /// <summary>
+        /// Attempts to get the value of a header specifying a default value to return.
+        /// </summary>
+        /// <param name="key">Header key.</param>
+        /// <param name="defaultValue">Default Value.</param>
+        /// <returns>Returns either the header value or specified default value.</returns>
+        public string TryGetValue(string key, string defaultValue)
+        {
+            var response = string.Empty;
+            headerStorage.TryGetValue(key, out response);
+            if (string.IsNullOrWhiteSpace(response))
+            {
+                response = defaultValue;
             }
 
-            if (isImmutable)
-            {
-                this.immutable.Add(key);
-            }
+            return response;
+        }
+
+        /// <summary>
+        /// Gets the internal header storage as a dictionary.
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, string> GetDictionary()
+        {
+            // Need to make this a clone or jst make this an enumerable.
+            return headerStorage;
         }
 
         private bool IsImmutable(string key, out string editedKey)
@@ -88,11 +128,29 @@ namespace Kyameru.Core.Entities
             {
                 response = true;
                 key = key[1..];
-                this.immutable.Add(key);
+                if (immutable.Count(x => x == key) > 0)
+                {
+                    new Exceptions.RouteDataException(string.Format(Resources.ERROR_HEADER_IMMUTABLE_ADDED, key));
+                }
+                immutable.Add(key);
             }
 
             editedKey = key;
             return response;
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the System.Collections.Generic.Dictionary.
+        /// </summary>
+        /// <returns>A System.Collections.Generic.Dictionary.Enumerator structure for the System.Collections.Generic.Dictionary.</returns>
+        public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+        {
+            return headerStorage.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

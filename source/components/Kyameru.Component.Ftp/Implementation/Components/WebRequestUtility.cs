@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Kyameru.Component.Ftp.Components
 {
@@ -38,11 +40,14 @@ namespace Kyameru.Component.Ftp.Components
         /// <param name="settings">Ftp Settings.</param>
         /// <param name="fileName">Name of file to updload.</param>
         /// <param name="closeConnection">Value indicating whether the connection sould be closed.</param>
-        public void DeleteFile(FtpSettings settings, string fileName, bool closeConnection = true)
+        public async Task DeleteFile(FtpSettings settings, string fileName, bool closeConnection = true, CancellationToken cancellationToken = default)
         {
             this.RaiseLog($"Deleting file {fileName}");
             FtpWebRequest request = this.GetFtpWebRequest($"{settings.Path.StripEndingSlash()}/{fileName}", FtpOperation.Delete, settings, closeConnection);
-            request.GetResponse();
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                await request.GetResponseAsync();
+            }
         }
 
         /// <summary>
@@ -51,16 +56,19 @@ namespace Kyameru.Component.Ftp.Components
         /// <param name="fileName">Filename of the file to download.</param>
         /// <param name="settings">Ftp settings.</param>
         /// <returns>Returns a byte array of the file.</returns>
-        public byte[] DownloadFile(string fileName, FtpSettings settings)
+        public async Task<byte[]> DownloadFile(string fileName, FtpSettings settings, CancellationToken cancellationToken)
         {
             byte[] file = null;
             this.RaiseLog($"Downloading file {fileName}");
             FtpWebRequest request = this.GetFtpWebRequest($"{settings.Path.StripEndingSlash()}/{fileName}", FtpOperation.Download, settings);
-            using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
-            using (MemoryStream responseStream = new MemoryStream())
+            if (!cancellationToken.IsCancellationRequested)
             {
-                response.GetResponseStream().CopyTo(responseStream);
-                file = responseStream.ToArray();
+                using (FtpWebResponse response = (FtpWebResponse)await request.GetResponseAsync())
+                using (MemoryStream responseStream = new MemoryStream())
+                {
+                    response.GetResponseStream().CopyTo(responseStream);
+                    file = responseStream.ToArray();
+                }
             }
 
             return file;
@@ -71,22 +79,25 @@ namespace Kyameru.Component.Ftp.Components
         /// </summary>
         /// <param name="settings">Ftp Settinfs.</param>
         /// <returns>Returns a list of files and directories.</returns>
-        public List<string> GetDirectoryContents(FtpSettings settings)
+        public async Task<List<string>> GetDirectoryContents(FtpSettings settings, CancellationToken cancellationToken)
         {
             this.RaiseLog("Getting FTP directory contents...");
             List<string> response = new List<string>();
             FtpWebRequest ftp = this.GetFtpWebRequest(settings.Path, FtpOperation.List, settings, false);
-            using (FtpWebResponse ftpResponse = (FtpWebResponse)ftp.GetResponse())
-            using (Stream responseStream = ftpResponse.GetResponseStream())
+            if (!cancellationToken.IsCancellationRequested)
             {
-                this.RaiseLog(Resources.INFO_GETTINGDIRECTORY);
-                StreamReader reader = new StreamReader(responseStream);
-                while (!reader.EndOfStream)
+                using (FtpWebResponse ftpResponse = (FtpWebResponse)await ftp.GetResponseAsync())
+                using (Stream responseStream = ftpResponse.GetResponseStream())
                 {
-                    string file = reader.ReadLine();
-                    if (!string.IsNullOrWhiteSpace(Path.GetExtension(file)))
+                    this.RaiseLog(Resources.INFO_GETTINGDIRECTORY);
+                    StreamReader reader = new StreamReader(responseStream);
+                    while (!reader.EndOfStream)
                     {
-                        response.Add(file);
+                        string file = reader.ReadLine();
+                        if (!string.IsNullOrWhiteSpace(Path.GetExtension(file)))
+                        {
+                            response.Add(file);
+                        }
                     }
                 }
             }
@@ -100,21 +111,24 @@ namespace Kyameru.Component.Ftp.Components
         /// <param name="file">File byte array.</param>
         /// <param name="settings">Ftp settings.</param>
         /// <param name="fileName">Name of file to upload.</param>
-        public void UploadFile(byte[] file, FtpSettings settings, string fileName)
+        public async Task UploadFile(byte[] file, FtpSettings settings, string fileName, CancellationToken cancellationToken)
         {
             this.RaiseLog("Uploading file to FTP");
             string path = settings.Path.Substring(settings.Path.Length - 1, 1) == "/" ? settings.Path.Substring(0, settings.Path.Length - 1) : settings.Path;
             FtpWebRequest request = this.GetFtpWebRequest($"{path}/{fileName}", FtpOperation.Upload, settings, true);
             request.ContentLength = file.Length;
-            using (Stream ftpStream = request.GetRequestStream())
+            if (!cancellationToken.IsCancellationRequested)
             {
-                ftpStream.Write(file, 0, file.Length);
+                using (Stream ftpStream = request.GetRequestStream())
+                {
+                    await ftpStream.WriteAsync(file, 0, file.Length, cancellationToken);
+                }
             }
         }
 
         private FtpWebRequest GetFtpWebRequest(string path, FtpOperation method, Settings.FtpSettings settings, bool closeConnection = false)
         {
-            if(path.Substring(0,1) != "/")
+            if (path.Substring(0, 1) != "/")
             {
                 path = $"/{path}";
             }

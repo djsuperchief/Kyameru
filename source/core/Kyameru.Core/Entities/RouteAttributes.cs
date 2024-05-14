@@ -10,6 +10,16 @@ namespace Kyameru.Core.Entities
     public class RouteAttributes
     {
         /// <summary>
+        /// Gets the post-processing component.
+        /// </summary>
+        public Processable PostProcessingComponent { get; private set; }
+
+        /// <summary>
+        /// gets a value indicating whether the To component has any post-processing applied.
+        /// </summary>
+        public bool HasPostprocessing => PostProcessingComponent != null;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RouteAttributes"/> class.
         /// </summary>
         /// <param name="componentUri">Valid Kyameru URI.</param>
@@ -17,14 +27,32 @@ namespace Kyameru.Core.Entities
         {
             try
             {
-                UriBuilder uriBuilder = new UriBuilder(componentUri);
-                this.ComponentName = uriBuilder.Scheme.ToFirstCaseUpper();
-                this.Headers = this.ParseQuery($"Target={uriBuilder.Path}{this.GetQuery(uriBuilder)}");
+                if (IsUriArn(componentUri))
+                {
+                    ParseArn(componentUri);
+                }
+                else
+                {
+                    UriBuilder uriBuilder = new UriBuilder(componentUri);
+                    ComponentName = uriBuilder.Scheme.ToFirstCaseUpper();
+                    Headers = ParseQuery($"Target={uriBuilder.Path}{GetQuery(uriBuilder)}");
+                }
+
             }
             catch (Exception ex)
             {
                 throw new Exceptions.RouteUriException(Resources.ERROR_ROUTE_URI, ex);
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RouteAttributes"/> class.
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI</param>
+        /// <param name="postProcessingComponent">Post processing component.</param>
+        public RouteAttributes(string componentUri, Processable postProcessingComponent) : this(componentUri)
+        {
+            PostProcessingComponent = postProcessingComponent;
         }
 
         /// <summary>
@@ -98,6 +126,21 @@ namespace Kyameru.Core.Entities
             }
 
             return response;
+        }
+
+        private bool IsUriArn(string componentUri) => componentUri.Split("://")[1].StartsWith("arn");
+
+        private void ParseArn(string componentUri)
+        {
+            var items = componentUri.Split("://");
+            ComponentName = items[0].ToFirstCaseUpper();
+            Headers = new Dictionary<string, string>();
+            if (items[1].IndexOf('?') > -1)
+            {
+                Headers = ParseQuery(items[1].Substring(items[1].IndexOf('?') + 1));
+            }
+
+            Headers.Add("ARN", items[1].Split('?')[0]);
         }
     }
 }

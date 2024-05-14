@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Kyameru.Component.Test
@@ -20,13 +21,23 @@ namespace Kyameru.Component.Test
             this.Headers = headers;
         }
 
-        public void Process(Routable item)
+        public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
+        {
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                DoProcessing(routable, "TO");
+            }
+
+            await Task.CompletedTask;
+        }
+
+        private void DoProcessing(Routable item, string call)
         {
             if (this.Headers["Host"] == "kyameru")
             {
                 this.OnLog.Invoke(this, new Log(LogLevel.Warning, "Will not process"));
                 item.SetInError(new Error("To", "Process", "Error"));
-                GlobalCalls.AddCall(item.Headers["TestName"], "TO");
+                GlobalCalls.AddCall(item.Headers["TestName"], call);
                 this.OnLog?.Invoke(this, new Log(LogLevel.Error, "Error", new ArgumentException("Error")));
             }
 
@@ -35,9 +46,9 @@ namespace Kyameru.Component.Test
                 item.SetExitRoute("Exit triggered");
             }
 
-            GlobalCalls.AddCall(item.Headers["TestName"], "TO");
+            GlobalCalls.AddCall(item.Headers["TestName"], call);
 
-            this.OnLog?.Invoke(this, new Log(LogLevel.Information, "TO"));
+            this.OnLog?.Invoke(this, new Log(LogLevel.Information, call));
         }
     }
 }

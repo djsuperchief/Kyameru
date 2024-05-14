@@ -18,9 +18,9 @@ namespace Kyameru.Tests.ActivationTests
         private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
 
         [Theory]
-        [InlineData("RegisterFromServices", "invalid", "test", "test")]
+        [InlineData("Invalidfromcomponent", "invalidFromComponent", "test", "test")]
         [InlineData("Atomic", "test", "invalid", "test")]
-        [InlineData("RegisterToServices", "test", "test", "invalid")]
+        [InlineData("Invalidto", "test", "test", "InvalidTo")]
         public void ComponentInvalid(string expected, string from, string atomic, string to)
         {
             string errorComponent = string.Empty;

@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>12</LangVersion>
+        <AssemblyName>Kyameru.Component.Sqs</AssemblyName>
+        <RootNamespace>Kyameru.Component.Sqs</RootNamespace>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\core\Kyameru.Core\Kyameru.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.300" />
+      <PackageReference Include="AWSSDK.SQS" Version="3.7.300.78" />
+    </ItemGroup>
+
+</Project>

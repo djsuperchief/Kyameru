@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Extensions;
+using Kyameru.Core.Sys;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -38,6 +39,7 @@ namespace Kyameru.Core.Chain
         /// value indicating whether the route will be atomic.
         /// </summary>
         private readonly bool IsAtomicRoute;
+        private readonly bool raiseExceptions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="From"/> class.
@@ -47,17 +49,21 @@ namespace Kyameru.Core.Chain
         /// <param name="logger">Logger class.</param>
         /// <param name="id">Identity of the route.</param>
         /// <param name="isAtomicRoute">Value indicating whether the route is atomic.</param>
-        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger, string id, bool isAtomicRoute = false)
+        /// <param name="raiseExceptions">Value indicating that the route should throw route exceptions up</param>
+        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger, string id, bool isAtomicRoute, bool raiseExceptions)
         {
             this.fromComponent = fromComponent;
             this.fromComponent.Setup();
-            this.fromComponent.OnAction += this.FromComponent_OnAction;
             this.next = next;
             this.logger = logger;
-            this.fromComponent.OnLog += this.FromComponent_OnLog;
-            this.identity = id;
-            this.IsAtomicRoute = isAtomicRoute;
+            this.fromComponent.OnLog += FromComponent_OnLog;
+            identity = id;
+            IsAtomicRoute = isAtomicRoute;
+            fromComponent.OnActionAsync += FromComponent_OnActionAsync;
+            this.raiseExceptions = raiseExceptions;
         }
+
+
 
         /// <summary>
         /// Stops the component.
@@ -66,8 +72,9 @@ namespace Kyameru.Core.Chain
         /// <returns>Returns a task.</returns>
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-            this.fromComponent.Stop();
-            this.fromComponent.OnAction -= this.FromComponent_OnAction;
+            await fromComponent.StopAsync(cancellationToken);
+            fromComponent.OnLog -= FromComponent_OnLog;
+            fromComponent.OnActionAsync -= FromComponent_OnActionAsync;
             await base.StopAsync(cancellationToken);
         }
 
@@ -76,18 +83,21 @@ namespace Kyameru.Core.Chain
         /// </summary>
         /// <param name="stoppingToken">Stopping Token.</param>
         /// <returns>Returns a task.</returns>
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try
             {
-                this.fromComponent.Start();
+                await fromComponent.StartAsync(stoppingToken);
             }
             catch (Exception ex)
             {
-                this.FromComponent_OnLog(this, new Log(LogLevel.Error, ex.Message, ex));
-            }
+                FromComponent_OnLog(this, new Log(LogLevel.Error, ex.Message, ex));
+                if (raiseExceptions)
+                {
+                    throw;
+                }
 
-            return Task.CompletedTask;
+            }
         }
 
         /// <summary>
@@ -99,22 +109,17 @@ namespace Kyameru.Core.Chain
         {
             if (e.Error == null)
             {
-                this.logger.KyameruLog(this.identity, e.Message, e.LogLevel);
+                logger.KyameruLog(identity, e.Message, e.LogLevel);
             }
             else
             {
-                this.logger.KyameruException(this.identity, e.Message, e.Error);
+                logger.KyameruException(identity, e.Message, e.Error);
             }
         }
 
-        /// <summary>
-        /// Event raised when the from component starts processing.
-        /// </summary>
-        /// <param name="sender">Class sending the event.</param>
-        /// <param name="e">Message to send.</param>
-        private void FromComponent_OnAction(object sender, Entities.Routable e)
+        private async Task FromComponent_OnActionAsync(object sender, RoutableEventData e)
         {
-            this.next?.Handle(e);
+            await next?.HandleAsync(e.Data, e.CancellationToken);
         }
     }
 }

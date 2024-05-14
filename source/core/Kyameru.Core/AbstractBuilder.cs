@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using Kyameru.Core.Entities;
 
 namespace Kyameru.Core
 {
@@ -17,16 +18,15 @@ namespace Kyameru.Core
         /// <summary>
         /// Creates the to component.
         /// </summary>
-        /// <param name="to">Valid component name.</param>
-        /// <param name="headers">Dictionary of headers</param>
+        /// <param name="to">To component.</param>
         /// <param name="serviceProvider">DI Service provider.</param>
         /// <returns>Returns an instance of the <see cref="IToComponent"/> interface.</returns>
-        protected IToComponent CreateTo(string to, Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        protected IToComponent CreateTo(RouteAttributes to, IServiceProvider serviceProvider)
         {
             IToComponent response = null;
             try
             {
-                response = this.GetOasis(to).CreateToComponent(headers, serviceProvider);
+                response = GetOasis(to.ComponentName).CreateToComponent(to.Headers, serviceProvider);
             }
             catch (Exception ex)
             {
@@ -44,12 +44,12 @@ namespace Kyameru.Core
         /// <param name="serviceProvider">DI Service provider.</param>
         /// <param name="isAtomic">Indicates if the route is atomic.</param>
         /// <returns>Returns an instance of the <see cref="IFromComponent"/> interface.</returns>
-        protected IFromComponent CreateFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic = false)
+        protected IFromComponent CreateFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic)
         {
             IFromComponent response = null;
             try
-            {               
-                response = this.GetOasis(from).CreateFromComponent(headers, isAtomic, serviceProvider);
+            {
+                response = GetOasis(from).CreateFromComponent(headers, isAtomic, serviceProvider);
             }
             catch (Exception ex)
             {
@@ -70,7 +70,7 @@ namespace Kyameru.Core
             IAtomicComponent response = null;
             try
             {
-                response = this.GetOasis(from).CreateAtomicComponent(headers);
+                response = GetOasis(from).CreateAtomicComponent(headers);
             }
             catch (Exception ex)
             {
@@ -89,11 +89,11 @@ namespace Kyameru.Core
         {
             try
             {
-                this.GetOasis(component).RegisterTo(serviceCollection);
+                GetOasis(component).RegisterTo(serviceCollection);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, "RegisterToServices");
+                throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, component);
             }
         }
 
@@ -106,13 +106,13 @@ namespace Kyameru.Core
         {
             try
             {
-                this.GetOasis(component).RegisterFrom(serviceCollection);
+                GetOasis(component).RegisterFrom(serviceCollection);
             }
             catch (Exception ex)
             {
-                throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, "RegisterFromServices");
+                throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, component);
             }
-        } 
+        }
 
         /// <summary>
         /// Gets the IOasis (activator) from the component.

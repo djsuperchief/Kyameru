@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using Kyameru.Core.Chain;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
@@ -17,7 +20,7 @@ namespace Kyameru.Core
         /// <summary>
         /// List of processing components.
         /// </summary>
-        private readonly List<Entities.Processable> components;
+        private readonly List<Processable> components;
 
         /// <summary>
         /// List of to component uris.
@@ -40,9 +43,20 @@ namespace Kyameru.Core
         private IAtomicComponent atomicComponent;
 
         /// <summary>
+        /// Value indicating whether exceptions should be raised from the route.
+        /// False indicates framework should "swallow" the exception but still log it.
+        /// </summary>
+        private bool raiseExceptions;
+
+        /// <summary>
         /// Route Id.
         /// </summary>
         private string identity;
+
+        /// <summary>
+        /// Used for when reflection is needed for host assembly reflection.
+        /// </summary>
+        private Assembly hostAssmebly;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Builder"/> class.
@@ -50,31 +64,35 @@ namespace Kyameru.Core
         /// <param name="components">List of intermediary components.</param>
         /// <param name="to">To component.</param>
         /// <param name="fromUri">From Uri.</param>
+        /// <param name="callingAssembly">Calling assembly namespace</param>
         public Builder(
-            List<Entities.Processable> components,
+            List<Processable> components,
             RouteAttributes to,
-            RouteAttributes fromUri)
+            RouteAttributes fromUri,
+            Assembly callingAssembly = null)
         {
             this.fromUri = fromUri;
-            this.toUris.Add(to);
+            toUris.Add(to);
             this.components = components;
             this.fromUri = fromUri;
+            raiseExceptions = false;
+            hostAssmebly = callingAssembly;
         }
 
         /// <summary>
         /// Gets the To component count.
         /// </summary>
-        public int ToComponentCount => this.toUris.Count;
+        public int ToComponentCount => toUris.Count;
 
         /// <summary>
         /// Gets a value indicating whether the error component will process.
         /// </summary>
-        public bool WillProcessError => this.errorComponent != null;
+        public bool WillProcessError => errorComponent != null;
 
         /// <summary>
         /// Gets a value indicating whether the route is considered to be atomic.
         /// </summary>
-        public bool IsAtomic => this.atomicComponent != null;
+        public bool IsAtomic => atomicComponent != null;
 
         /// <summary>
         /// Creates a new To component chain.
@@ -83,9 +101,74 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder To(string componentUri)
         {
-            RouteAttributes route = new Entities.RouteAttributes(componentUri);
-            this.toUris.Add(route);
+            var route = new RouteAttributes(componentUri);
+            toUris.Add(route);
 
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a to component with post processing.
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI.</param>
+        /// <param name="concretePostProcessing">A component to run any post processing.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder To(string componentUri, IProcessComponent concretePostProcessing)
+        {
+            var postProcessComponent = Processable.Create(concretePostProcessing);
+            AddToPostProcessing(componentUri, postProcessComponent);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a to component with post processing by DI
+        /// </summary>
+        /// <typeparam name="T">Type of post processing component</typeparam>
+        /// <param name="componentUri">Valid Kyameru URI</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder To<T>(string componentUri) where T : IProcessComponent
+        {
+            var postProcessComponent = Processable.Create<T>();
+            AddToPostProcessing(componentUri, postProcessComponent);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a to component with post processing by action
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI</param>
+        /// <param name="action">Action to perform post processing.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder To(string componentUri, Action<Routable> action)
+        {
+            var postProcessComponent = Processable.Create(action);
+            AddToPostProcessing(componentUri, postProcessComponent);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a to component with post processing by action
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI</param>
+        /// <param name="postProcessing">Action to perform post processing.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder To(string componentUri, Func<Routable, Task> postProcessing)
+        {
+            var postProcessComponent = Processable.Create(postProcessing);
+            AddToPostProcessing(componentUri, postProcessComponent);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a to component with post processing by action
+        /// </summary>
+        /// <param name="componentUri">Valid Kyameru URI</param>
+        /// <param name="componentName">Name of the component to find by reflection (host assembly).</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder To(string componentUri, string componentName)
+        {
+            var postProcessComponent = Processable.Create(componentName);
+            AddToPostProcessing(componentUri, postProcessComponent);
             return this;
         }
 
@@ -95,9 +178,9 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="Builder"/> class</returns>
         public Builder Atomic()
         {
-            this.atomicComponent = this.CreateAtomic(
-                this.fromUri.ComponentName,
-                this.fromUri.Headers);
+            atomicComponent = CreateAtomic(
+                fromUri.ComponentName,
+                fromUri.Headers);
             return this;
         }
 
@@ -108,8 +191,8 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="Builder"/> class</returns>
         public Builder Atomic(string componentUri)
         {
-            RouteAttributes route = new RouteAttributes(componentUri);
-            this.atomicComponent = this.CreateAtomic(
+            var route = new RouteAttributes(componentUri);
+            atomicComponent = CreateAtomic(
                 route.ComponentName,
                 route.Headers);
             return this;
@@ -118,11 +201,11 @@ namespace Kyameru.Core
         /// <summary>
         /// Creates a new Error component chain.
         /// </summary>
-        /// <param name="errorComponent">Error component.</param>
+        /// <param name="component">Error component.</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder Error(IErrorComponent errorComponent)
+        public Builder Error(IErrorComponent component)
         {
-            this.errorComponent = errorComponent;
+            errorComponent = component;
             return this;
         }
 
@@ -133,7 +216,17 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder Id(string id)
         {
-            this.identity = id;
+            identity = id;
+            return this;
+        }
+
+        /// <summary>
+        /// Indicates that the framework will bubble a route exception up to consumer.
+        /// </summary>
+        /// <returns></returns>
+        public Builder RaiseExceptions()
+        {
+            raiseExceptions = true;
             return this;
         }
 
@@ -143,15 +236,25 @@ namespace Kyameru.Core
         /// <param name="services">Service collection.</param>
         public void Build(IServiceCollection services)
         {
-            this.RunComponentDiRegistration(services);
+            if (hostAssmebly == null && ContainsReflectionComponents())
+            {
+                hostAssmebly = Assembly.GetCallingAssembly();
+            }
+
+            BuildKyameru(services);
+        }
+
+        private void BuildKyameru(IServiceCollection services)
+        {
+            RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
             {
-                IFromComponent from = this.CreateFrom(this.fromUri.ComponentName, this.fromUri.Headers, x, this.IsAtomic);
+                var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
-                IChain<Routable> toChain = this.SetupToChain(0, logger, x);
-                if (this.components != null && this.components.Count > 0)
+                var toChain = SetupToChain(0, logger, x);
+                if (components != null && components.Count > 0)
                 {
                     next = SetupChain(0, logger, toChain, x);
                 }
@@ -160,7 +263,7 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                return new Chain.From(from, next, logger, this.identity);
+                return new From(from, next, logger, identity, IsAtomic, raiseExceptions);
             });
         }
 
@@ -169,10 +272,10 @@ namespace Kyameru.Core
         /// </summary>
         private void RunComponentDiRegistration(IServiceCollection services)
         {
-            this.RegisterFromServices(services, this.fromUri.ComponentName);
-            for(int i = 0; i < this.toUris.Count; i++)
+            RegisterFromServices(services, fromUri.ComponentName);
+            foreach (var to in toUris)
             {
-                this.RegisterToServices(services, this.toUris[i].ComponentName);
+                RegisterToServices(services, to.ComponentName);
             }
         }
 
@@ -186,11 +289,11 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupChain(int i, ILogger logger, IChain<Routable> toComponents, IServiceProvider serviceProvider)
         {
-            Process chain = new Chain.Process(logger, this.components[i].GetComponent(serviceProvider), this.GetIdentity());
-            logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, this.components[i].ToString()));
-            if (i < this.components.Count - 1)
+            var chain = new Process(logger, components[i].GetComponent(serviceProvider, hostAssmebly), GetIdentity());
+            logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, components[i]));
+            if (i < components.Count - 1)
             {
-                chain.SetNext(this.SetupChain(++i, logger, toComponents, serviceProvider));
+                chain.SetNext(SetupChain(++i, logger, toComponents, serviceProvider));
             }
             else
             {
@@ -209,29 +312,39 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupToChain(int i, ILogger logger, IServiceProvider serviceProvider)
         {
-            To toChain = new To(logger, this.GetToComponent(i, serviceProvider), this.GetIdentity());
-            logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, toChain?.ToString()));
-            if (i < this.toUris.Count - 1)
+            To toChain = null;
+            if (toUris[i].HasPostprocessing)
             {
-                toChain.SetNext(this.SetupToChain(++i, logger, serviceProvider));
+                toChain = new To(logger, GetToComponent(i, serviceProvider), toUris[i].PostProcessingComponent.GetComponent(serviceProvider, hostAssmebly),
+                    GetIdentity());
+            }
+            else
+            {
+                toChain = new To(logger, GetToComponent(i, serviceProvider), GetIdentity());
+            }
+
+            logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, toChain?.ToString()));
+            if (i < toUris.Count - 1)
+            {
+                toChain.SetNext(SetupToChain(++i, logger, serviceProvider));
             }
             else
             {
                 IChain<Routable> atomic = null;
                 IChain<Routable> error = null;
-                if (this.atomicComponent != null)
+                if (atomicComponent != null)
                 {
-                    logger.LogInformation(string.Format(Resources.INFO_SETUP_ATOMIC, this.atomicComponent.ToString()));
-                    atomic = new Atomic(logger, this.atomicComponent, this.GetIdentity());
+                    logger.LogInformation(string.Format(Resources.INFO_SETUP_ATOMIC, atomicComponent.ToString()));
+                    atomic = new Atomic(logger, atomicComponent, GetIdentity());
                 }
 
-                if (this.errorComponent != null)
+                if (errorComponent != null)
                 {
-                    logger.LogInformation(string.Format(Resources.INFO_SETUP_ERR, this.errorComponent.ToString()));
-                    error = new Chain.Error(logger, this.errorComponent, this.GetIdentity());
+                    logger.LogInformation(string.Format(Resources.INFO_SETUP_ERR, errorComponent.ToString()));
+                    error = new Chain.Error(logger, errorComponent, GetIdentity());
                 }
 
-                toChain.SetNext(this.GetFinal(error, atomic));
+                toChain.SetNext(GetFinal(error, atomic));
             }
 
             return toChain;
@@ -239,7 +352,7 @@ namespace Kyameru.Core
 
         private IToComponent GetToComponent(int index, IServiceProvider serviceProvider)
         {
-            return this.CreateTo(this.toUris[index].ComponentName, this.toUris[index].Headers, serviceProvider);
+            return CreateTo(toUris[index], serviceProvider);
         }
 
         /// <summary>
@@ -268,12 +381,24 @@ namespace Kyameru.Core
         /// <returns>Returns either a random identity or specified.</returns>
         private string GetIdentity()
         {
-            if (string.IsNullOrWhiteSpace(this.identity))
+            if (string.IsNullOrWhiteSpace(identity))
             {
-                this.identity = Guid.NewGuid().ToString("N");
+                identity = Guid.NewGuid().ToString("N");
             }
 
-            return this.identity;
+            return identity;
+        }
+
+        private bool ContainsReflectionComponents()
+        {
+            return components.Count(x => x.Invocation == Processable.InvocationType.Reflection) > 0
+                || toUris.Count(x => x.HasPostprocessing) > 0;
+        }
+
+        private void AddToPostProcessing(string componentUri, Processable postProcessComponent)
+        {
+            var route = new RouteAttributes(componentUri, postProcessComponent);
+            toUris.Add(route);
         }
     }
 }

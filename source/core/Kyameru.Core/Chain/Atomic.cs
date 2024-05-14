@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Extensions;
@@ -16,22 +18,21 @@ namespace Kyameru.Core.Chain
             this.atomicComponent.OnLog += OnLog;
         }
 
-        public override void Handle(Routable item)
+        public override async Task HandleAsync(Routable item, CancellationToken cancellationToken)
         {
             if (!item.InError)
             {
                 try
                 {
-                    this.atomicComponent.Process(item);
+                    await atomicComponent.ProcessAsync(item, cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    Logger.KyameruException(identity, ex.Message, ex);
                     item.SetInError(new Entities.Error("Atomic Component", "Handle", ex.Message));
                 }
             }
-
-            base.Handle(item);
+            await base.HandleAsync(item, cancellationToken);
         }
     }
 }

@@ -14,8 +14,8 @@ namespace Kyameru.Core.Entities
         /// <param name="data">Data to add.</param>
         public Routable(Dictionary<string, string> headers, object data)
         {
-            this.Headers = new Headers(headers);
-            this.Body = data;
+            Headers = new Headers(headers);
+            Body = data;
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Kyameru.Core.Entities
         /// <summary>
         /// Gets a value indicating whether the message is in error.
         /// </summary>
-        internal bool InError => this.Error != null;
+        internal bool InError => Error != null;
 
         /// <summary>
         /// Sets the body of the message.
@@ -55,8 +55,8 @@ namespace Kyameru.Core.Entities
         /// <param name="value">Value to set the body.</param>
         public void SetBody<T>(T value)
         {
-            this.Body = value;
-            this.Headers.SetHeader("DataType", typeof(T).Name);
+            Body = value;
+            Headers.SetHeader("DataType", typeof(T).Name);
         }
 
         /// <summary>
@@ -65,14 +65,14 @@ namespace Kyameru.Core.Entities
         /// <param name="error">Error object.</param>
         public void SetInError(Error error)
         {
-            if (this.Error == null)
+            if (Error == null)
             {
-                this.Error = error;
+                Error = error;
             }
             else
             {
-                error.InnerError = this.Error;
-                this.Error = error;
+                error.InnerError = Error;
+                Error = error;
             }
         }
 
@@ -83,7 +83,7 @@ namespace Kyameru.Core.Entities
         /// <param name="value">Header value.</param>
         public void SetHeader(string key, string value)
         {
-            this.Headers.SetHeader(key, value);
+            Headers.SetHeader(key, value);
         }
 
         /// <summary>
@@ -95,8 +95,8 @@ namespace Kyameru.Core.Entities
         /// </remarks>
         public void SetExitRoute(string message)
         {
-            this.ExitRoute = true;
-            this.ExitReason = message;
+            ExitRoute = true;
+            ExitReason = message;
         }
     }
 }

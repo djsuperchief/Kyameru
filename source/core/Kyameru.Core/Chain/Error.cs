@@ -4,6 +4,8 @@ using Kyameru.Core.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("Kyameru.Tests")]
 
@@ -29,27 +31,25 @@ namespace Kyameru.Core.Chain
         public Error(ILogger logger, IErrorComponent errorComponent, string identity) : base(logger, identity)
         {
             this.errorComponent = errorComponent;
-            this.errorComponent.OnLog += this.OnLog;
+            this.errorComponent.OnLog += OnLog;
         }
 
-        /// <summary>
-        /// Passes processing to the next in the chain.
-        /// </summary>
-        /// <param name="item">Message to process.</param>
-        public override void Handle(Routable item)
+        public override async Task HandleAsync(Routable item, CancellationToken cancellationToken)
         {
             if (item.InError)
             {
                 try
                 {
-                    this.errorComponent.Process(item);
+                    await errorComponent.ProcessAsync(item, cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.KyameruException(this.identity, ex.Message, ex);
+                    Logger.KyameruException(identity, ex.Message, ex);
                     item.SetInError(new Entities.Error("Error Component", "Handle", ex.Message));
                 }
             }
+
+            await base.HandleAsync(item, cancellationToken);
         }
     }
 }

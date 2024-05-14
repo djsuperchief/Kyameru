@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Kyameru.Component.Ftp
 {
@@ -51,28 +53,23 @@ namespace Kyameru.Component.Ftp
             this.ftpClient.OnError += FtpClient_OnError;
         }
 
-
-
         /// <summary>
         /// Logging event.
         /// </summary>
         public event EventHandler<Log> OnLog;
 
-        /// <summary>
-        /// Process Message.
-        /// </summary>
-        /// <param name="item">Message to process.</param>
-        public void Process(Routable item)
+
+        public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
         {
             try
             {
-                this.ftpClient.UploadFile(this.GetSource(item), item.Headers["SourceFile"]);
-                this.ArchiveFile(item);
+                await this.ftpClient.UploadFile(this.GetSource(routable), routable.Headers["SourceFile"], cancellationToken);
+                this.ArchiveFile(routable);
             }
             catch (Exception ex)
             {
-                item.SetInError(this.GetError("Upload", string.Format(Resources.ERROR_UPLOADING, item.Headers["FileName"])));
-                this.RaiseLog(string.Format(Resources.ERROR_UPLOADING, item.Headers["FileName"]), LogLevel.Error, ex);
+                routable.SetInError(this.GetError("Upload", string.Format(Resources.ERROR_UPLOADING, routable.Headers["FileName"])));
+                this.RaiseLog(string.Format(Resources.ERROR_UPLOADING, routable.Headers["FileName"]), LogLevel.Error, ex);
             }
         }
 

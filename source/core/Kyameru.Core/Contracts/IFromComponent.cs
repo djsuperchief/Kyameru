@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Sys;
 
 namespace Kyameru.Core.Contracts
 {
@@ -9,9 +12,9 @@ namespace Kyameru.Core.Contracts
     public interface IFromComponent : IComponent
     {
         /// <summary>
-        /// Event raised to trigger processing chain.
+        /// Event raised to trigger processing the chain async.
         /// </summary>
-        event EventHandler<Routable> OnAction;
+        event AsyncEventHandler<RoutableEventData> OnActionAsync;
 
         /// <summary>
         /// Setup the component.
@@ -19,13 +22,17 @@ namespace Kyameru.Core.Contracts
         void Setup();
 
         /// <summary>
-        /// Start the core background process.
+        /// Starts the kyameru process.
         /// </summary>
-        void Start();
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous Start operation.</returns>
+        Task StartAsync(CancellationToken cancellationToken);
 
         /// <summary>
-        /// Stop the component.
+        /// Stops the kyameru process.
         /// </summary>
-        void Stop();
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous Stop operation.</returns>
+        Task StopAsync(CancellationToken cancellationToken);
     }
 }

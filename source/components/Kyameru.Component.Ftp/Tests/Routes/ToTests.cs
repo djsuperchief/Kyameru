@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Kyameru.Component.Ftp.Tests.Routes
@@ -16,7 +18,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void CanUploadFile(bool stringBody)
+        public async Task CanUploadFile(bool stringBody)
         {
             Mock<IWebRequestUtility> webRequestUtility = this.GetWebRequest();
             To to = new To(this.GetRoute().Headers, webRequestUtility.Object);
@@ -31,30 +33,47 @@ namespace Kyameru.Component.Ftp.Tests.Routes
                 routable.SetBody<string>("Hello");
             }
 
-            to.Process(routable);
+            await to.ProcessAsync(routable, default);
             webRequestUtility.VerifyAll();
         }
 
         [Fact]
-        public void CanUploadAndArchive()
+        public async Task CanUploadFileAsync()
+        {
+            var tokenSource = new CancellationTokenSource();
+            Mock<IWebRequestUtility> webRequestUtility = this.GetWebRequest();
+            To to = new To(this.GetRoute().Headers, webRequestUtility.Object);
+            Routable routable = new Routable(new Dictionary<string, string>()
+                {
+                    { "SourceFile", "Test.txt" }
+                },
+                "Hello"u8.ToArray()
+            );
+
+            await to.ProcessAsync(routable, tokenSource.Token);
+            webRequestUtility.VerifyAll();
+        }
+
+        [Fact]
+        public async Task CanUploadAndArchive()
         {
             Mock<IWebRequestUtility> webRequestUtility = this.GetWebRequest();
             To to = new To(this.GetRoute(true, "File").Headers, webRequestUtility.Object);
             Routable routable = this.WriteFile();
-            to.Process(routable);
+            await to.ProcessAsync(routable, default);
             Assert.True(System.IO.File.Exists("MockOut/Archive/test.txt"));
         }
 
         [Theory]
         [InlineData(LogLevel.Information)]
         [InlineData(LogLevel.Error)]
-        public void CorrectLogRecieved(LogLevel logLevel)
+        public async Task CorrectLogReceived(LogLevel logLevel)
         {
-            LogLevel recieved = LogLevel.Debug;
+            LogLevel received = LogLevel.Debug;
             Mock<IWebRequestUtility> webRequestUtility = this.GetWebRequest();
             if (logLevel == LogLevel.Error)
             {
-                webRequestUtility.Setup(x => x.UploadFile(It.IsAny<byte[]>(), It.IsAny<FtpSettings>(), It.IsAny<string>())).Throws(new OutOfMemoryException());
+                webRequestUtility.Setup(x => x.UploadFile(It.IsAny<byte[]>(), It.IsAny<FtpSettings>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Throws(new OutOfMemoryException());
             }
 
             To to = new To(this.GetRoute().Headers, webRequestUtility.Object);
@@ -67,11 +86,11 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             );
             to.OnLog += (sender, e) =>
             {
-                recieved = e.LogLevel;
+                received = e.LogLevel;
             };
 
-            to.Process(routable);
-            Assert.Equal(logLevel, recieved);
+            await to.ProcessAsync(routable, default);
+            Assert.Equal(logLevel, received);
         }
 
         private void To_OnLog(object sender, Log e)
@@ -106,7 +125,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
         private Mock<IWebRequestUtility> GetWebRequest()
         {
             Mock<IWebRequestUtility> response = new Mock<IWebRequestUtility>();
-            response.Setup(x => x.UploadFile(It.IsAny<byte[]>(), It.IsAny<FtpSettings>(), It.IsAny<string>())).Verifiable();
+            response.Setup(x => x.UploadFile(It.IsAny<byte[]>(), It.IsAny<FtpSettings>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Verifiable();
             return response;
         }
 

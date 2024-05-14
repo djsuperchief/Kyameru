@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Kyameru.Component.Slack
 {
@@ -68,31 +70,27 @@ namespace Kyameru.Component.Slack
             return response;
         }
 
-        /// <summary>
-        /// Processes the message.
-        /// </summary>
-        /// <param name="item">Message to process.</param>
-        public void Process(Routable item)
+        public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
         {
             Payload slackPayload = new Payload()
             {
-                text = this.GetMessageSource(item),
+                text = this.GetMessageSource(routable),
                 channel = this.GetHeader("Channel"),
                 username = this.GetHeader("Username")
             };
 
-            if (item.Error == null)
+            if (routable.Error == null)
             {
                 var payloadJson = JsonSerializer.Serialize(slackPayload);
                 string uri = $"{SLACKURI}{this.headers["Target"]}";
                 var dataContent = new StringContent(payloadJson, Encoding.UTF8, "application/json");
                 using (HttpClient client = this.GetHttpClient())
                 {
-                    this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Sending slack message"));
-                    var response = client.PostAsync(uri, dataContent).Result;
+                    OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Sending slack message"));
+                    var response = await client.PostAsync(uri, dataContent, cancellationToken);
                     if (!response.IsSuccessStatusCode)
                     {
-                        item.SetInError(this.RaiseError("SendSlackMessage", "Error communicating with slack."));
+                        routable.SetInError(this.RaiseError("SendSlackMessage", "Error communicating with slack."));
                     }
                 }
             }
@@ -157,7 +155,7 @@ namespace Kyameru.Component.Slack
         private string GetHeader(string header)
         {
             string response = string.Empty;
-            if(this.headers.ContainsKey(header))
+            if (this.headers.ContainsKey(header))
             {
                 response = this.headers[header];
             }

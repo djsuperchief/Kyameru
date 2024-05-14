@@ -15,8 +15,9 @@
         internal const string ERROR_HEADER_IMMUTABLE = "Error in setting header, header already exists. Headers are immutable.";
         internal const string ERROR_HEADER_CALLBACK = "Error executing header callback. See inner exception.";
         internal const string ERROR_REGISTERING_SERVICES = "Error registering services. See inner exception.";
-
         internal const string ERROR_ROUTE_URI = "Error in constructing route from URI, see inner exception.";
+        internal const string ERROR_HEADER_IMMUTABLE_ADDED = "Error adding immutable header {0}, already present.";
+        internal const string ERROR_SETUP_COMPONENT_INVOCATION = "Error activating component. No valid invocation.";
 
         internal const string WARNING_ROUTE_EXIT = "Route indicated for early exit. {0}";
 

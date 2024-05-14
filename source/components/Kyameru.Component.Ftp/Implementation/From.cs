@@ -6,19 +6,26 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
+using Kyameru.Core;
+using Kyameru.Core.Sys;
+using Timer = System.Timers.Timer;
 
 namespace Kyameru.Component.Ftp
 {
     /// <summary>
     /// FTP From Component
     /// </summary>
+    /// <remarks>
+    /// Async not really implemented, needs more work and should really be using sftp.
+    /// </remarks>
     public class From : IFtpFrom
     {
         private readonly FtpSettings ftpSettings;
         private readonly IWebRequestUtility webRequestUtility;
         private FtpClient ftp;
-
         private Timer poller;
 
         /// <summary>
@@ -27,16 +34,13 @@ namespace Kyameru.Component.Ftp
         /// <param name="headers"></param>
         public From(Dictionary<string, string> headers, IWebRequestUtility webRequestUtility)
         {
-            this.ftpSettings = new FtpSettings(headers.ToFromConfig());
+            ftpSettings = new FtpSettings(headers.ToFromConfig());
             this.webRequestUtility = webRequestUtility;
         }
 
-        public bool PollerIsActive => this.poller.Enabled;
+        public bool PollerIsActive => poller.Enabled;
 
-        /// <summary>
-        /// Event raised on action
-        /// </summary>
-        public event EventHandler<Routable> OnAction;
+        public event AsyncEventHandler<RoutableEventData> OnActionAsync;
 
         /// <summary>
         /// Event raised when logging.
@@ -48,14 +52,14 @@ namespace Kyameru.Component.Ftp
         /// </summary>
         public void Setup()
         {
-            this.ftp = new FtpClient(this.ftpSettings, this.webRequestUtility);
-            this.poller = new Timer(this.ftpSettings.PollTime);
-            this.poller.Elapsed += this.Poller_Elapsed;
-            this.poller.AutoReset = true;
-            this.ftp.OnDownloadFile += this.Ftp_OnDownloadFile;
-            this.ftp.OnLog += this.Ftp_OnLog;
-            this.ftp.OnError += this.Ftp_OnError;
-            this.webRequestUtility.OnLog += WebRequestUtility_OnLog;
+            ftp = new FtpClient(ftpSettings, webRequestUtility);
+            poller = new Timer(ftpSettings.PollTime);
+            poller.Elapsed += Poller_Elapsed;
+            poller.AutoReset = true;
+            ftp.OnDownloadFile += Ftp_OnDownloadFile;
+            ftp.OnLog += Ftp_OnLog;
+            ftp.OnError += Ftp_OnError;
+            webRequestUtility.OnLog += WebRequestUtility_OnLog;
         }
 
         /// <summary>
@@ -65,7 +69,7 @@ namespace Kyameru.Component.Ftp
         /// <param name="e">Elapsed arguments.</param>
         private void Poller_Elapsed(object sender, ElapsedEventArgs e)
         {
-            this.ftp.Poll();
+            ftp.Poll();
         }
 
         /// <summary>
@@ -75,7 +79,7 @@ namespace Kyameru.Component.Ftp
         /// <param name="e">Exception being raised.</param>
         private void Ftp_OnError(object sender, Exception e)
         {
-            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Error, Resources.ERROR_FTPPROCESSING, e));
+            OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Error, Resources.ERROR_FTPPROCESSING, e));
         }
 
         /// <summary>
@@ -85,7 +89,7 @@ namespace Kyameru.Component.Ftp
         /// <param name="e">Event message.</param>
         private void Ftp_OnLog(object sender, string e)
         {
-            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, e));
+            OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, e));
         }
 
         /// <summary>
@@ -95,29 +99,29 @@ namespace Kyameru.Component.Ftp
         /// <param name="e">Message to route.</param>
         private void Ftp_OnDownloadFile(object sender, Routable e)
         {
-            this.OnAction?.Invoke(this, e);
+            OnActionAsync?.Invoke(this, new RoutableEventData(e, new CancellationToken()));
         }
 
-        /// <summary>
-        /// Starts the component.
-        /// </summary>
-        public void Start()
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            this.ftp.Poll();
-            this.poller.Start();
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                ftp.Poll();
+                poller.Start();
+            }
+
+            await Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Stops the component.
-        /// </summary>
-        public void Stop()
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
-            this.poller.Stop();
+            poller.Stop();
+            await Task.CompletedTask;
         }
+
         private void WebRequestUtility_OnLog(object sender, string e)
         {
-            this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, e));
+            OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, e));
         }
-
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Kyameru.Component.File.Tests
 {
@@ -25,7 +26,7 @@ namespace Kyameru.Component.File.Tests
         [InlineData("Copy", "String")]
         [InlineData("Write", "String")]
         [InlineData("Write", "Byte")]
-        public void CanDoAction(string action, string bodyType)
+        public async Task CanDoAction(string action, string bodyType)
         {
             string randomFileName = $"{Guid.NewGuid().ToString("N")}.txt";
             FileTo fileTo = this.Setup(action, randomFileName);
@@ -37,26 +38,66 @@ namespace Kyameru.Component.File.Tests
             };
             Core.Entities.Routable routable = new Core.Entities.Routable(routableHeaders, System.Text.Encoding.UTF8.GetBytes("test file"));
             routable.SetBody<Byte[]>(System.Text.Encoding.UTF8.GetBytes("Test"));
-            if(bodyType == "String")
+            if (bodyType == "String")
             {
                 routable.SetBody<string>("Test");
             }
 
-            fileTo.Process(routable);
+            await fileTo.ProcessAsync(routable, default);
+            Assert.True(System.IO.File.Exists($"{this.fileLocation}/target/{randomFileName}"));
+        }
+
+        [Theory]
+        [InlineData("Move", "String")]
+        [InlineData("Copy", "String")]
+        [InlineData("Write", "String")]
+        [InlineData("Write", "Byte")]
+        public async Task CanDoActionAsync(string action, string bodyType)
+        {
+            string randomFileName = $"{Guid.NewGuid().ToString("N")}.txt";
+            FileTo fileTo = this.Setup(action, randomFileName);
+
+            Dictionary<string, string> routableHeaders = new Dictionary<string, string>()
+            {
+                { "FullSource", $"test/{randomFileName}" },
+                { "SourceFile", randomFileName }
+            };
+            Core.Entities.Routable routable = new Core.Entities.Routable(routableHeaders, System.Text.Encoding.UTF8.GetBytes("test file"));
+            routable.SetBody<Byte[]>(System.Text.Encoding.UTF8.GetBytes("Test"));
+            if (bodyType == "String")
+            {
+                routable.SetBody<string>("Test");
+            }
+
+            await fileTo.ProcessAsync(routable, default);
             Assert.True(System.IO.File.Exists($"{this.fileLocation}/target/{randomFileName}"));
         }
 
         [Fact]
-        public void CanDeleteFile()
+        public async Task CanDeleteFile()
         {
-            string randomFileName = $"{Guid.NewGuid().ToString("N")}.txt";
+            string randomFileName = $"{Guid.NewGuid():N}.txt";
             FileTo fileTo = this.Setup("Delete", randomFileName);
             Dictionary<string, string> routableHeaders = new Dictionary<string, string>()
             {
                 { "FullSource", $"test/{randomFileName}" },
                 { "SourceFile", randomFileName }
             };
-            fileTo.Process(new Core.Entities.Routable(routableHeaders, System.Text.Encoding.UTF8.GetBytes("test file")));
+            await fileTo.ProcessAsync(new Core.Entities.Routable(routableHeaders, System.Text.Encoding.UTF8.GetBytes("test file")), default);
+            Assert.False(System.IO.File.Exists($"test/{randomFileName}"));
+        }
+
+        [Fact]
+        public async Task CanDeleteFileAsync()
+        {
+            string randomFileName = $"{Guid.NewGuid():N}.txt";
+            FileTo fileTo = this.Setup("Delete", randomFileName);
+            Dictionary<string, string> routableHeaders = new Dictionary<string, string>()
+            {
+                { "FullSource", $"test/{randomFileName}" },
+                { "SourceFile", randomFileName }
+            };
+            await fileTo.ProcessAsync(new Core.Entities.Routable(routableHeaders, System.Text.Encoding.UTF8.GetBytes("test file")), default);
             Assert.False(System.IO.File.Exists($"test/{randomFileName}"));
         }
 
@@ -73,11 +114,9 @@ namespace Kyameru.Component.File.Tests
                 { "Target", $"{this.fileLocation}/target" },
                 { "Action", action }
             };
-            
+
 
             return (FileTo)new Inflator().CreateToComponent(headers, this.serviceProvider);
-
-            //return new FileTo(headers, new Component.File.Utilities.FileUtils());
         }
     }
 }

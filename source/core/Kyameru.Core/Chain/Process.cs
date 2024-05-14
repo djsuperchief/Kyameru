@@ -1,5 +1,6 @@
 ﻿using System;
-using Kyameru.Core.Contracts;
+using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Extensions;
 using Microsoft.Extensions.Logging;
@@ -24,30 +25,26 @@ namespace Kyameru.Core.Chain
         /// <param name="identity">Identity of route.</param>
         public Process(ILogger logger, IProcessComponent processComponent, string identity) : base(logger, identity)
         {
-            this.component = processComponent;
-            this.component.OnLog += this.OnLog;
+            component = processComponent;
+            component.OnLog += OnLog;
         }
 
-        /// <summary>
-        /// Passes processing onto the next component.
-        /// </summary>
-        /// <param name="item">Message to process.</param>
-        public override void Handle(Routable item)
+        public override async Task HandleAsync(Routable routable, CancellationToken cancellationToken)
         {
-            if (!item.InError)
+            if (!routable.InError)
             {
                 try
                 {
-                    this.component.Process(item);
+                    await component.ProcessAsync(routable, cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.KyameruException(this.identity, ex.Message, ex);
-                    item.SetInError(new Entities.Error("Processing component", "Handle", ex.Message));
+                    Logger.KyameruException(identity, ex.Message, ex);
+                    routable.SetInError(new Entities.Error("Processing component", "Handle", ex.Message));
                 }
             }
 
-            base.Handle(item);
+            await base.HandleAsync(routable, cancellationToken);
         }
     }
 }

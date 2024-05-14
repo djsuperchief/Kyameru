@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Kyameru.Core.Extensions
 {
@@ -9,12 +7,12 @@ namespace Kyameru.Core.Extensions
     {
         public static Dictionary<string, string> GetImmutableValues(this Dictionary<string, string> kvp)
         {
-            return kvp.Where(x => x.Key.Substring(0, 1) == "&").ToDictionary(x => x.Key[1..], x => x.Value);
+            return kvp.Where(x => x.Key[..1] == "&").ToDictionary(x => x.Key[1..], x => x.Value);
         }
 
         public static Dictionary<string, string> GetMutableValues(this Dictionary<string, string> kvp)
         {
-            return kvp.Where(x => x.Key.Substring(0, 1) != "&").ToDictionary(x => x.Key, x => x.Value);
+            return kvp.Where(x => x.Key[..1] != "&").ToDictionary(x => x.Key, x => x.Value);
         }
 
         public static void AddRange(this Dictionary<string, string> kvp, Dictionary<string, string> toAdd)

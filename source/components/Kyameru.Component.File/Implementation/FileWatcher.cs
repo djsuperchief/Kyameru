@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Component.File.Utilities;
+using Kyameru.Core;
 using Kyameru.Core.Entities;
-
+using Kyameru.Core.Sys;
 using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Component.File
@@ -59,10 +62,7 @@ namespace Kyameru.Component.File
             this.stringsToIgnore = this.config["IgnoreStrings"].SplitPiped();
         }
 
-        /// <summary>
-        /// Event raised when file picked up.
-        /// </summary>
-        public event EventHandler<Routable> OnAction;
+        public event AsyncEventHandler<RoutableEventData> OnActionAsync;
 
         /// <summary>
         /// Event raised when needing to log.
@@ -77,17 +77,29 @@ namespace Kyameru.Component.File
             this.VerifyArguments();
         }
 
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            Start();
+            await Task.CompletedTask;
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            Stop();
+            await Task.CompletedTask;
+        }
+
         /// <summary>
         /// Starts the component.
         /// </summary>
-        public void Start()
+        private void Start()
         {
             this.SetupFsw();
             this.ScanFiles();
             this.SetupSubDirectories();
             this.fsw.EnableRaisingEvents = true;
             this.fsw.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
-           | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            | NotifyFilters.FileName | NotifyFilters.DirectoryName;
             foreach (string item in this.config["Notifications"].Split(','))
             {
                 if (this.fswSetup.ContainsKey(item))
@@ -100,7 +112,7 @@ namespace Kyameru.Component.File
         /// <summary>
         /// Stops the component.
         /// </summary>
-        public void Stop()
+        private void Stop()
         {
             this.fsw.Dispose();
         }
@@ -244,7 +256,18 @@ namespace Kyameru.Component.File
                     headers.Add("Method", method);
                     headers.Add("DataType", "Byte");
                     Routable dataItem = new Routable(headers, System.IO.File.ReadAllBytes(sourceFile));
-                    this.OnAction?.Invoke(this, dataItem);
+
+                    var token = new CancellationTokenSource();
+                    var task = Task.Run(async () =>
+                    {
+                        var routableEventData = new RoutableEventData(dataItem,
+                            token.Token);
+                        if (this.OnActionAsync != null)
+                        {
+                            await this.OnActionAsync?.Invoke(this, routableEventData);
+                        }
+                    });
+                    task.Wait();
                 }
             }
             catch (Exception ex)

@@ -2,11 +2,13 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="LocalStack.Client" Version="1.4.1" />
+    <PackageReference Include="LocalStack.Client.Extensions" Version="1.2.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
   </ItemGroup>
@@ -15,6 +17,17 @@
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.File\Implementation\Kyameru.Component.File.csproj" />
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Ftp\Implementation\Kyameru.Component.Ftp.csproj" />
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Slack\Implementation\Kyameru.Component.Slack.csproj" />
+    <ProjectReference Include="..\..\..\source\components\Kyameru.Component.S3\Implementation\Kyameru.Component.S3.csproj" />
+    <ProjectReference Include="..\..\..\source\components\Kyameru.Component.SQS\Implementation\Kyameru.Component.SQS.csproj" />
+    <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Sns\Implementation\Kyameru.Component.Sns.csproj" />
+
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
