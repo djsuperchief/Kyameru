@@ -20,4 +20,8 @@
         <Using Include="Xunit"/>
     </ItemGroup>
 
+    <ItemGroup>
+    <ProjectReference Include="..\Implementation\Kyameru.Component.Ses.csproj" />
+  </ItemGroup>
+
 </Project>
