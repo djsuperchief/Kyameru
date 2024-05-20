@@ -1,4 +1,5 @@
 ﻿using Amazon.S3;
+using Kyameru.Core;
 using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -9,12 +10,12 @@ public class Inflator : IOasis
 {
     public IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers)
     {
-        throw new NotImplementedException();
+        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "S3"));
     }
 
     public IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
     {
-        throw new NotImplementedException();
+        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "S3"));
     }
 
     public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
@@ -26,7 +27,7 @@ public class Inflator : IOasis
 
     public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
     {
-        throw new NotImplementedException();
+        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "S3"));
     }
 
     public IServiceCollection RegisterTo(IServiceCollection serviceCollection)

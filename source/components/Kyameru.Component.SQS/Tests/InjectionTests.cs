@@ -1,4 +1,5 @@
 using Amazon.SQS;
+using Kyameru.Core;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 
@@ -28,7 +29,7 @@ public class InjectionTests
     public void CreateAtomicThrowsNotImplemented()
     {
         var inflator = new Inflator();
-        Assert.Throws<NotImplementedException>(() => inflator.CreateAtomicComponent(new Dictionary<string, string>()));
+        Assert.Throws<RouteNotAvailableException>(() => inflator.CreateAtomicComponent(new Dictionary<string, string>()));
     }
 
     [Fact]
