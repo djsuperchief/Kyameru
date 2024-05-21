@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kyameru.Core
+namespace Kyameru.Core.Exceptions
 {
     /// <summary>
     /// Exception thrown when a Kyameru route is not implemented.
