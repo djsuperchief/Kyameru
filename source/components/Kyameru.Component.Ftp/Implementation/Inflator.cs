@@ -1,4 +1,5 @@
 ﻿using Kyameru.Component.Ftp.Contracts;
+using Kyameru.Core;
 using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -13,7 +14,7 @@ namespace Kyameru.Component.Ftp
     {
         public IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers)
         {
-            throw new NotImplementedException();
+            throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "Ftp"));
         }
 
         public IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)

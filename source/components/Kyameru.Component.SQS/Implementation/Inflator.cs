@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Amazon.SQS;
+using Kyameru.Core;
 using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -25,7 +26,7 @@ public class Inflator : IOasis
 
     public IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers)
     {
-        throw new NotImplementedException();
+        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "SQS"));
     }
 
     public IServiceCollection RegisterTo(IServiceCollection serviceCollection)

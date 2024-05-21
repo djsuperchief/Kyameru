@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Kyameru.Core;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
@@ -31,7 +32,7 @@ namespace Kyameru.Component.Slack.Tests
                 { "Target", "test" }
             };
             Slack.Inflator inflator = new Inflator();
-            Assert.Throws<NotImplementedException>(() => { inflator.CreateFromComponent(headers, false, this.GetServiceProvider()); });
+            Assert.Throws<RouteNotAvailableException>(() => { inflator.CreateFromComponent(headers, false, this.GetServiceProvider()); });
         }
 
         [Fact]
@@ -43,13 +44,13 @@ namespace Kyameru.Component.Slack.Tests
                 { "MessageSource", "Body" }
             };
             Slack.Inflator inflator = new Inflator();
-            Assert.Throws<NotImplementedException>(() => { inflator.CreateAtomicComponent(headers); });
+            Assert.Throws<RouteNotAvailableException>(() => { inflator.CreateAtomicComponent(headers); });
         }
 
         [Fact]
         public void RegisterFromThrows()
         {
-            Assert.Throws<NotImplementedException>(() => this.GetServiceDescriptors(true));
+            Assert.Throws<RouteNotAvailableException>(() => this.GetServiceDescriptors(true));
         }
 
 

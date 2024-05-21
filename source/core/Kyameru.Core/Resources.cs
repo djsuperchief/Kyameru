@@ -1,6 +1,9 @@
 ﻿namespace Kyameru.Core
 {
-    internal static class Resources
+    /// <summary>
+    /// Common string resources for Kyameru.
+    /// </summary>
+    public static class Resources
     {
         internal const string INFO_SETTINGUPROUTE = "Setting up route...";
         internal const string INFO_PROCESSINGCOMPONENT = "Setting up processing component {0}...";
@@ -18,6 +21,11 @@
         internal const string ERROR_ROUTE_URI = "Error in constructing route from URI, see inner exception.";
         internal const string ERROR_HEADER_IMMUTABLE_ADDED = "Error adding immutable header {0}, already present.";
         internal const string ERROR_SETUP_COMPONENT_INVOCATION = "Error activating component. No valid invocation.";
+
+        /// <summary>
+        /// Message for unavailable routes.
+        /// </summary>
+        public const string ERROR_ROUTE_UNAVAILABLE = "Error, Route '{0}' not available in component '{1}";
 
         internal const string WARNING_ROUTE_EXIT = "Route indicated for early exit. {0}";
 
