@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Kyameru.Core;
 using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,7 +18,7 @@ namespace Kyameru.Component.File
         /// <returns>Returns an instance of </returns>
         public IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers)
         {
-            throw new System.NotImplementedException();
+            throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "File"));
         }
 
         /// <summary>

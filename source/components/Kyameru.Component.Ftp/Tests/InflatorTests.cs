@@ -1,4 +1,5 @@
 ﻿using Kyameru.Component.Ftp.Contracts;
+using Kyameru.Core;
 using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -27,7 +28,7 @@ namespace Kyameru.Component.Ftp.Tests
         public void AtomicThrows()
         {
             IServiceProvider serviceProvider = this.GetServiceProvider();
-            Assert.Throws<NotImplementedException>(() => new Ftp.Inflator().CreateAtomicComponent(this.GetHeaders()));
+            Assert.Throws<RouteNotAvailableException>(() => new Ftp.Inflator().CreateAtomicComponent(this.GetHeaders()));
         }
 
         [Fact]

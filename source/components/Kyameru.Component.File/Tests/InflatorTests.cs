@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Kyameru.Core;
 using Xunit;
 
 namespace Kyameru.Component.File.Tests
@@ -47,7 +48,7 @@ namespace Kyameru.Component.File.Tests
         public void AtomicThrows()
         {
             Inflator inflator = new Inflator();
-            Assert.Throws<NotImplementedException>(() => inflator.CreateAtomicComponent(null));
+            Assert.Throws<RouteNotAvailableException>(() => inflator.CreateAtomicComponent(null));
         }
     }
 }

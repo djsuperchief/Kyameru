@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Amazon.SimpleNotificationService;
+using Kyameru.Core;
 using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -13,15 +14,15 @@ public class InjectionTests
     {
         var serviceCollection = new ServiceCollection();
         var inflator = new Inflator();
-        Assert.Throws<NotImplementedException>(() => inflator.RegisterFrom(serviceCollection));
+        Assert.Throws<RouteNotAvailableException>(() => inflator.RegisterFrom(serviceCollection));
     }
 
     [Fact]
-    public void RegisterAtomicThrowsException()
+    public void CreateAtomicThrowsException()
     {
         var serviceCollection = new ServiceCollection();
         var inflator = new Inflator();
-        Assert.Throws<NotImplementedException>(() => inflator.RegisterFrom(serviceCollection));
+        Assert.Throws<RouteNotAvailableException>(() => inflator.CreateAtomicComponent(new Dictionary<string, string>()));
     }
 
     [Fact]
@@ -43,6 +44,16 @@ public class InjectionTests
             { "ARN", "valid:arn" }
         }, provider);
         Assert.NotNull(component);
+    }
+
+    [Fact]
+    public void CreateFromThrowsException()
+    {
+        var inflator = new Inflator();
+        var serviceCollection = new ServiceCollection();
+        var provider = serviceCollection.BuildServiceProvider();
+        Assert.Throws<RouteNotAvailableException>(() => inflator.CreateFromComponent(new Dictionary<string, string>(), false, provider));
+
     }
 
     [Fact]
