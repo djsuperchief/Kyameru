@@ -21,7 +21,9 @@ public class Inflator : IOasis
 
     public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
-        throw new NotImplementedException();
+        var component = serviceProvider.GetRequiredService<ITo>();
+        component.SetHeaders(headers);
+        return component;
     }
 
     public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)

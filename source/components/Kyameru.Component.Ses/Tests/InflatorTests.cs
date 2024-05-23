@@ -1,6 +1,8 @@
 ﻿using System.Linq;
+using Amazon.SimpleEmailV2;
 using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 
 namespace Kyameru.Component.Ses.Tests;
 
@@ -39,5 +41,21 @@ public class InflatorTests
         var inflator = new Inflator();
         inflator.RegisterTo(serviceCollection);
         Assert.True(serviceCollection.Contains(typeof(ITo), typeof(SesTo)));
+    }
+
+    [Fact]
+    public void CreateToComponentSucceeds()
+    {
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddTransient<IAmazonSimpleEmailServiceV2>(x =>
+        {
+            return Substitute.For<IAmazonSimpleEmailServiceV2>();
+        });
+        var inflator = new Inflator();
+        inflator.RegisterTo(serviceCollection);
+        var builder = serviceCollection.BuildServiceProvider();
+
+        var component = inflator.CreateToComponent(new Dictionary<string, string>(), builder);
+        Assert.NotNull(component);
     }
 }
