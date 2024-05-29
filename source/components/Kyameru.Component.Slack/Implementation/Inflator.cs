@@ -1,4 +1,5 @@
-﻿using Kyameru.Core.Contracts;
+﻿using Kyameru.Core;
+using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace Kyameru.Component.Slack
         /// <returns>Throws a not implemented exception</returns>
         public IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers)
         {
-            throw new NotImplementedException();
+            throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "Slack"));
         }
 
         /// <summary>
@@ -28,7 +29,7 @@ namespace Kyameru.Component.Slack
         /// <returns>Returns a new instance of a <see cref="IFromComponent"/> class.</returns>
         public IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
         {
-            throw new NotImplementedException();
+            throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "Slack"));
         }
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace Kyameru.Component.Slack
 
         public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
         {
-            throw new NotImplementedException();
+            throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "Slack"));
         }
 
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)

@@ -1,4 +1,5 @@
 ﻿using Amazon.S3;
+using Kyameru.Core;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 
@@ -12,7 +13,7 @@ public class InflatorTests
     {
         var serviceCollection = new ServiceCollection();
         var inflator = new Inflator();
-        Assert.Throws<NotImplementedException>(() => inflator.RegisterFrom(serviceCollection));
+        Assert.Throws<RouteNotAvailableException>(() => inflator.RegisterFrom(serviceCollection));
     }
 
     [Fact]
@@ -21,7 +22,7 @@ public class InflatorTests
         var serviceCollection = new ServiceCollection();
         var provider = serviceCollection.BuildServiceProvider();
         var inflator = new Inflator();
-        Assert.Throws<NotImplementedException>(() => inflator.CreateFromComponent(new Dictionary<string, string>(), false, provider));
+        Assert.Throws<RouteNotAvailableException>(() => inflator.CreateFromComponent(new Dictionary<string, string>(), false, provider));
     }
 
     [Fact]
@@ -30,7 +31,7 @@ public class InflatorTests
         var serviceCollection = new ServiceCollection();
         var provider = serviceCollection.BuildServiceProvider();
         var inflator = new Inflator();
-        Assert.Throws<NotImplementedException>(() => inflator.CreateAtomicComponent(new Dictionary<string, string>()));
+        Assert.Throws<RouteNotAvailableException>(() => inflator.CreateAtomicComponent(new Dictionary<string, string>()));
     }
 
     [Fact]
