@@ -1,6 +1,7 @@
 ﻿using Amazon.SimpleEmailV2;
 using Amazon.SimpleEmailV2.Internal;
 using Amazon.SimpleEmailV2.Model;
+using Kyameru.Component.Ses.Exceptions;
 using Kyameru.Core.Entities;
 using NSubstitute;
 
@@ -31,6 +32,24 @@ public class SesToTests
         Assert.Equal(messageId.ToString(), messageId.ToString());
         Assert.Equal("from@test.com", routable.Headers["SESTest-From"]);
         Assert.Equal("test@test.com", routable.Headers["SESTest-To"]);
+    }
+
+    [Fact]
+    public async Task IncorrectDataTypeThrowsError()
+    {
+        var messageId = Guid.NewGuid();
+        var to = new SesTo(GetMockedClient(messageId));
+        to.SetHeaders(new Dictionary<string, string>()
+        {
+            { "from", "from@test.com" }
+        });
+        var routable = new Routable(new Dictionary<string, string>()
+        {
+            { "SESTo", "test@test.com" },
+        }, "Any data");
+
+        routable.SetBody<string>("test");
+        await Assert.ThrowsAsync<DataTypeException>(() => to.ProcessAsync(routable, default));
     }
 
     private IAmazonSimpleEmailServiceV2 GetMockedClient(Guid? messageId = null)
