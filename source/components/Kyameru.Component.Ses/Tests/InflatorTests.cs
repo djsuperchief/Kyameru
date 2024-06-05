@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Amazon.SimpleEmailV2;
+using Amazon.SimpleEmail;
 using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -47,9 +47,9 @@ public class InflatorTests
     public void CreateToComponentSucceeds()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddTransient<IAmazonSimpleEmailServiceV2>(x =>
+        serviceCollection.AddTransient<IAmazonSimpleEmailService>(x =>
         {
-            return Substitute.For<IAmazonSimpleEmailServiceV2>();
+            return Substitute.For<IAmazonSimpleEmailService>();
         });
         var inflator = new Inflator();
         inflator.RegisterTo(serviceCollection);

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Amazon.SimpleEmailV2;
+using Amazon.SimpleEmail;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,7 +33,7 @@ public class Inflator : IOasis
 
     public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
     {
-        serviceCollection.TryAddAWSService<IAmazonSimpleEmailServiceV2>();
+        serviceCollection.TryAddAWSService<IAmazonSimpleEmailService>();
         serviceCollection.AddTransient<ITo, SesTo>();
         return serviceCollection;
     }

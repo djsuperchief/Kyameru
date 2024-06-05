@@ -1,4 +1,4 @@
-﻿using Kyameru.Core;
+﻿using Kyameru.Core.Exceptions;
 using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using System;

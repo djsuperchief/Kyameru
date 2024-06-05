@@ -1,5 +1,6 @@
 ﻿using Amazon.S3;
 using Kyameru.Core;
+using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 

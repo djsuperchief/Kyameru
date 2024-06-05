@@ -9,7 +9,7 @@ services:
     environment:
       # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
       #- DEBUG=${DEBUG:-0}
-      - SERVICES=s3, sqs, sts, sns
+      - SERVICES=s3, sqs, sts, sns, ses
       - DEFAULT_REGION=eu-west-2
       - DEBUG=0
       - EXTENSION_AUTO_INSTALL=localstack-extension-mailhog

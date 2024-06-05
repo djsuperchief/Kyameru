@@ -1,6 +1,6 @@
-﻿using Amazon.SimpleEmailV2;
-using Amazon.SimpleEmailV2.Internal;
-using Amazon.SimpleEmailV2.Model;
+﻿using Amazon.SimpleEmail;
+using Amazon.SimpleEmail.Internal;
+using Amazon.SimpleEmail.Model;
 using Kyameru.Component.Ses.Exceptions;
 using Kyameru.Core.Entities;
 using NSubstitute;
@@ -119,22 +119,38 @@ public class SesToTests
         Assert.Equal("test@test.com", routable.Headers["SESTest-To"]);
     }
 
-    private IAmazonSimpleEmailServiceV2 GetMockedClient(Guid? messageId = null)
+    private IAmazonSimpleEmailService GetMockedClient(Guid? messageId = null)
     {
         messageId ??= Guid.NewGuid();
-        var sesClient = Substitute.For<IAmazonSimpleEmailServiceV2>();
-        var response = new SendEmailResponse()
-        {
-            MessageId = messageId.ToString()
-        };
+        var sesClient = Substitute.For<IAmazonSimpleEmailService>();
+
         sesClient.SendEmailAsync(Arg.Any<SendEmailRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
+            var response = new SendEmailResponse()
+            {
+                MessageId = messageId.ToString()
+            };
             var request = x[0] as SendEmailRequest;
             response.HttpStatusCode = System.Net.HttpStatusCode.OK;
             response.ResponseMetadata = new Amazon.Runtime.ResponseMetadata();
             response.ResponseMetadata.Metadata.Add("Test-To", string.Join(",", request.Destination.ToAddresses));
-            response.ResponseMetadata.Metadata.Add("Test-From", string.Join(",", request.FromEmailAddress));
+            response.ResponseMetadata.Metadata.Add("Test-From", string.Join(",", request.Source));
 
+
+            return response;
+        });
+
+        sesClient.SendTemplatedEmailAsync(Arg.Any<SendTemplatedEmailRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        {
+            var response = new SendTemplatedEmailResponse()
+            {
+                MessageId = messageId.ToString()
+            };
+            var request = x[0] as SendTemplatedEmailRequest;
+            response.HttpStatusCode = System.Net.HttpStatusCode.OK;
+            response.ResponseMetadata = new Amazon.Runtime.ResponseMetadata();
+            response.ResponseMetadata.Metadata.Add("Test-To", string.Join(",", request.Destination.ToAddresses));
+            response.ResponseMetadata.Metadata.Add("Test-From", string.Join(",", request.Source));
 
             return response;
         });

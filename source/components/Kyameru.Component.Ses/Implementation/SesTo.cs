@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.Runtime.SharedInterfaces;
-using Amazon.SimpleEmailV2;
-using Amazon.SimpleEmailV2.Model;
+using Amazon.SimpleEmail;
+using Amazon.SimpleEmail.Model;
 using Kyameru.Core.Entities;
 
 namespace Kyameru.Component.Ses;
@@ -13,12 +13,12 @@ namespace Kyameru.Component.Ses;
 public class SesTo : ITo
 {
     private const string CharSet = "UTF-8";
-    private readonly IAmazonSimpleEmailServiceV2 sesClient;
+    private readonly IAmazonSimpleEmailService sesClient;
     private Dictionary<string, string> headers;
 
     public event EventHandler<Log> OnLog;
 
-    public SesTo(IAmazonSimpleEmailServiceV2 ses)
+    public SesTo(IAmazonSimpleEmailService ses)
     {
         sesClient = ses;
     }
@@ -31,33 +31,33 @@ public class SesTo : ITo
     public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
     {
         Validate(routable);
-
-        var request = new SendEmailRequest()
+        if (routable.DataType == "SesMessage")
         {
+            await SendEmail(routable, cancellationToken);
+        }
+        else
+        {
+            await SendTemplate(routable, cancellationToken);
+        }
+    }
+
+    private async Task SendTemplate(Routable routable, CancellationToken cancellationToken)
+    {
+        var message = routable.Body as SesTemplate;
+        var request = new SendTemplatedEmailRequest()
+        {
+            Source = routable.Headers.TryGetValue("SESFrom", headers["from"]),
             Destination = new Destination()
             {
                 ToAddresses = routable.Headers["SESTo"].Split(",").ToList(),
                 BccAddresses = GetAddresses(routable, "SESBcc"),
                 CcAddresses = GetAddresses(routable, "SESCc"),
             },
-            FromEmailAddress = routable.Headers.TryGetValue("SESFrom", headers["from"])
+            Template = message.Template,
+            TemplateData = message.TemplateData
         };
-        if (routable.Headers["DataType"] == "SesMessage")
-        {
-            request.Content = new EmailContent()
-            {
-                Simple = GetEmailMessage(routable)
-            };
-        }
-        else
-        {
-            request.Content = new EmailContent()
-            {
-                Template = GetEmailTemplate(routable)
-            };
-        }
 
-        var response = await sesClient.SendEmailAsync(request, cancellationToken);
+        var response = await sesClient.SendTemplatedEmailAsync(request, cancellationToken);
         if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
         {
             foreach (var key in response.ResponseMetadata?.Metadata?.Keys)
@@ -67,14 +67,28 @@ public class SesTo : ITo
         }
     }
 
-    private Template GetEmailTemplate(Routable routable)
+    private async Task SendEmail(Routable routable, CancellationToken cancellationToken)
     {
-        var bodyData = routable.Body as SesTemplate;
-        return new Template()
+        var request = new SendEmailRequest()
         {
-            TemplateName = bodyData.Template,
-            TemplateData = bodyData.TemplateData
+            Destination = new Destination()
+            {
+                ToAddresses = routable.Headers["SESTo"].Split(",").ToList(),
+                BccAddresses = GetAddresses(routable, "SESBcc"),
+                CcAddresses = GetAddresses(routable, "SESCc"),
+            },
+            Source = routable.Headers.TryGetValue("SESFrom", headers["from"]),
+            Message = GetEmailMessage(routable)
         };
+
+        var response = await sesClient.SendEmailAsync(request, cancellationToken);
+        if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+        {
+            foreach (var key in response.ResponseMetadata?.Metadata?.Keys)
+            {
+                routable.SetHeader($"SES{key}", response.ResponseMetadata.Metadata[key]);
+            }
+        }
     }
 
     private Message GetEmailMessage(Routable routable)
