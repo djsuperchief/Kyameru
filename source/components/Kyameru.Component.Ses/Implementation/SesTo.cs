@@ -31,6 +31,7 @@ public class SesTo : ITo
     public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
     {
         Validate(routable);
+
         var request = new SendEmailRequest()
         {
             Destination = new Destination()
@@ -39,15 +40,24 @@ public class SesTo : ITo
                 BccAddresses = GetAddresses(routable, "SESBcc"),
                 CcAddresses = GetAddresses(routable, "SESCc"),
             },
-            Content = new EmailContent()
-            {
-                Simple = GetEmailMessage(routable)
-            },
             FromEmailAddress = routable.Headers.TryGetValue("SESFrom", headers["from"])
         };
+        if (routable.Headers["DataType"] == "SesMessage")
+        {
+            request.Content = new EmailContent()
+            {
+                Simple = GetEmailMessage(routable)
+            };
+        }
+        else
+        {
+            request.Content = new EmailContent()
+            {
+                Template = GetEmailTemplate(routable)
+            };
+        }
 
         var response = await sesClient.SendEmailAsync(request, cancellationToken);
-
         if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
         {
             foreach (var key in response.ResponseMetadata?.Metadata?.Keys)
@@ -55,6 +65,16 @@ public class SesTo : ITo
                 routable.SetHeader($"SES{key}", response.ResponseMetadata.Metadata[key]);
             }
         }
+    }
+
+    private Template GetEmailTemplate(Routable routable)
+    {
+        var bodyData = routable.Body as SesTemplate;
+        return new Template()
+        {
+            TemplateName = bodyData.Template,
+            TemplateData = bodyData.TemplateData
+        };
     }
 
     private Message GetEmailMessage(Routable routable)
@@ -116,15 +136,26 @@ public class SesTo : ITo
             throw new Exceptions.MissingInformationException(string.Format(Resources.EXCEPTION_MISSINGINFORMATION, "From Address"));
         }
 
-        if (routable.Headers["DataType"] != "SesMessage")
+        if (routable.Headers["DataType"] != "SesMessage" && routable.Headers["DataType"] != "SesTemplate")
         {
             throw new Exceptions.DataTypeException(Resources.EXCEPTION_INCORRECTDATATYPE);
         }
 
-        var message = routable.Body as SesMessage;
-        if (string.IsNullOrWhiteSpace(message.BodyHtml) && string.IsNullOrWhiteSpace(message.BodyText))
+        if (routable.DataType == "SesMessage")
         {
-            throw new Exceptions.MissingInformationException(Resources.EXCEPTION_BODYMISSING);
+            var message = routable.Body as SesMessage;
+            if (string.IsNullOrWhiteSpace(message.BodyHtml) && string.IsNullOrWhiteSpace(message.BodyText))
+            {
+                throw new Exceptions.MissingInformationException(Resources.EXCEPTION_BODYMISSING);
+            }
+        }
+        else
+        {
+            var message = routable.Body as SesTemplate;
+            if (string.IsNullOrWhiteSpace(message.Template) || string.IsNullOrWhiteSpace(message.TemplateData))
+            {
+                throw new Exceptions.MissingInformationException(Resources.EXCEPTION_TEMPLATEMISSINGDATA);
+            }
         }
 
         var to = routable.Headers.TryGetValue("SESTo");

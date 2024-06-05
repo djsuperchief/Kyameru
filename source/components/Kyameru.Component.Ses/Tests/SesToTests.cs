@@ -52,9 +52,75 @@ public class SesToTests
         await Assert.ThrowsAsync<DataTypeException>(() => to.ProcessAsync(routable, default));
     }
 
+    [Fact]
+    public async Task BlankToAddressThrowsError()
+    {
+        var messageId = Guid.NewGuid();
+        var to = new SesTo(GetMockedClient(messageId));
+        to.SetHeaders(new Dictionary<string, string>()
+        {
+            { "from", "from@test.com" }
+        });
+        var routable = new Routable(new Dictionary<string, string>()
+        { }, "Any data");
+        routable.SetBody<SesMessage>(new SesMessage()
+        {
+            BodyHtml = "<h1>Hello</h1>",
+            BodyText = "Text of body",
+            Subject = "Subject line"
+        });
+
+        await Assert.ThrowsAsync<MissingInformationException>(() => to.ProcessAsync(routable, default));
+    }
+
+    [Fact]
+    public async Task BlankDataThrowsError()
+    {
+        var messageId = Guid.NewGuid();
+        var to = new SesTo(GetMockedClient(messageId));
+        to.SetHeaders(new Dictionary<string, string>()
+        {
+            { "from", "from@test.com" }
+        });
+        var routable = new Routable(new Dictionary<string, string>()
+        {
+            { "SESTo", "test@test.com" },
+        }, "Any data");
+        routable.SetBody<SesMessage>(new SesMessage()
+        {
+            Subject = "Subject line"
+        });
+
+        await Assert.ThrowsAsync<MissingInformationException>(() => to.ProcessAsync(routable, default));
+    }
+
+    [Fact]
+    public async Task TemplateSendsOk()
+    {
+        var messageId = Guid.NewGuid();
+        var to = new SesTo(GetMockedClient(messageId));
+        to.SetHeaders(new Dictionary<string, string>()
+        {
+            { "from", "from@test.com" }
+        });
+        var routable = new Routable(new Dictionary<string, string>()
+        {
+            { "SESTo", "test@test.com" },
+        }, "Any data");
+        routable.SetBody<SesTemplate>(new SesTemplate()
+        {
+            Template = "Test",
+            TemplateData = "{\"test\":\"test\"}"
+        });
+
+        await to.ProcessAsync(routable, default);
+        Assert.Equal(messageId.ToString(), messageId.ToString());
+        Assert.Equal("from@test.com", routable.Headers["SESTest-From"]);
+        Assert.Equal("test@test.com", routable.Headers["SESTest-To"]);
+    }
+
     private IAmazonSimpleEmailServiceV2 GetMockedClient(Guid? messageId = null)
     {
-        // Todo: work out best method to get data out of the mocked client.
         messageId ??= Guid.NewGuid();
         var sesClient = Substitute.For<IAmazonSimpleEmailServiceV2>();
         var response = new SendEmailResponse()
