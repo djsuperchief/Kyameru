@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Kyameru.Core;
+using Kyameru.Core.Exceptions;
 using Xunit;
 
 namespace Kyameru.Component.File.Tests

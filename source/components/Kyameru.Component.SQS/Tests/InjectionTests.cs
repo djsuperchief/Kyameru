@@ -1,5 +1,5 @@
 using Amazon.SQS;
-using Kyameru.Core;
+using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 

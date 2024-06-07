@@ -7,6 +7,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Kyameru.Core.Exceptions;
 using Xunit;
 
 namespace Kyameru.Component.Ftp.Tests

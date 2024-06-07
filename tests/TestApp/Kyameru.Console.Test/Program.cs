@@ -1,6 +1,9 @@
 ﻿using Amazon.S3;
+using Amazon.SimpleEmail;
+using Amazon.SimpleEmailV2;
 using Amazon.SimpleNotificationService;
 using Amazon.SQS;
+using Kyameru.Component.Ses;
 using Kyameru.Core.Entities;
 using LocalStack.Client.Extensions;
 using Microsoft.Extensions.Configuration;
@@ -44,7 +47,8 @@ namespace Kyameru.Console.Test
                 services.AddLogging();
                 services.AddLocalStack(Configuration);
                 services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
-                SetupSnsTest(services);
+                //SetupSnsTest(services);
+                SetupSesTest(services);
 
 
 
@@ -82,6 +86,26 @@ namespace Kyameru.Console.Test
             Kyameru.Route.From("sqs://kyameru-from")
             .To("sns://arn:aws:sns:eu-west-2:000000000000:kyameru_to")
             .Id("SNS_TEST")
+            .Build(services);
+        }
+
+        static void SetupSesTest(IServiceCollection services)
+        {
+            services.TryAddAwsService<IAmazonSimpleEmailServiceV2>();
+            services.TryAddAwsService<IAmazonSimpleEmailService>();
+            services.TryAddAwsService<IAmazonSQS>();
+            Kyameru.Route.From("sqs://kyameru-from")
+            .Process((Routable x) =>
+            {
+                x.SetBody<SesMessage>(new SesMessage()
+                {
+                    BodyText = "This is the body",
+                    Subject = "Test"
+                });
+                x.SetHeader("SESTo", "test@test.com");
+            })
+            .To("ses:///?from=kyameru@kyameru.com")
+            .Id("sestest")
             .Build(services);
         }
     }

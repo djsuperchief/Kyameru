@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
+using Kyameru.Core.Exceptions;
 using Xunit;
 
 namespace Kyameru.Component.Slack.Tests

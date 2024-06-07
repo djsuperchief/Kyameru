@@ -33,6 +33,7 @@ provider "aws" {
     s3             = "http://localstack-main:4566"
     sqs            = "http://localstack-main:4566"
     sns            = "http://localstack-main:4566"
+    ses            = "http://localstack-main:4566"
   }
 }
 
@@ -47,4 +48,8 @@ module "component_sqs" {
 
 module "component_sns" {
   source = "./components/sns"
+}
+
+module "component_ses" {
+  source = "./components/ses"
 }

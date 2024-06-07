@@ -1,21 +1,22 @@
-﻿using Amazon.S3;
-using Kyameru.Core.Exceptions;
+﻿using System;
+using System.Collections.Generic;
+using Amazon.SimpleEmail;
 using Kyameru.Core.Contracts;
+using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Kyameru.Component.S3;
+namespace Kyameru.Component.Ses;
 
 public class Inflator : IOasis
 {
     public IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers)
     {
-        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "S3"));
+        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "SES"));
     }
 
     public IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
     {
-        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "S3"));
+        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "SES"));
     }
 
     public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
@@ -27,14 +28,13 @@ public class Inflator : IOasis
 
     public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
     {
-        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "S3"));
+        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "SES"));
     }
 
     public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
     {
-        // Only add S3 if it hasn't been added by the host
-        serviceCollection.TryAddAWSService<IAmazonS3>();
-        serviceCollection.AddTransient<ITo, S3To>();
+        serviceCollection.TryAddAWSService<IAmazonSimpleEmailService>();
+        serviceCollection.AddTransient<ITo, SesTo>();
         return serviceCollection;
     }
 }

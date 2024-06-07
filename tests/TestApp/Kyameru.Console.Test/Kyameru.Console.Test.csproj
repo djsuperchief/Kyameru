@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.300.100" />
+    <PackageReference Include="AWSSDK.SimpleEmailV2" Version="3.7.303.14" />
     <PackageReference Include="LocalStack.Client" Version="1.4.1" />
     <PackageReference Include="LocalStack.Client.Extensions" Version="1.2.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
@@ -20,6 +22,7 @@
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.S3\Implementation\Kyameru.Component.S3.csproj" />
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.SQS\Implementation\Kyameru.Component.SQS.csproj" />
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Sns\Implementation\Kyameru.Component.Sns.csproj" />
+    <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Ses\Implementation\Kyameru.Component.Ses.csproj" />
 
 
   </ItemGroup>
