@@ -48,7 +48,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             // possible the crash is being caused by 
             if (routable == null)
             {
-                autoReset.WaitOne(10000);
+                autoReset.WaitOne(3000);
             }
 
             Assert.Equal("Hello ftp", Encoding.UTF8.GetString((byte[])routable.Body));
