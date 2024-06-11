@@ -30,6 +30,7 @@ TO
 |Header | Description | Optional | Default|
 |:------ |: ----------- |: -------- |: -------|
 |Host | N/A | NO | EMPTY |
+|from | Email address messages to come from | YES | EMPTY |
 
 #### Blank Host
 
@@ -95,3 +96,18 @@ No modifications made from inbound message.
 
 All other response attributes from AWS SES will be appended as headers to the outbound routable prefixed with `SES`.
 
+## Notes
+### Message Body Classes
+
+It was deemed more appropriate to have the component require a specific object for sending messages / templates. Having everything specified in headers would have meant making the URI too lengthy and possibly hard to understand in code. It seemed more reasonable to specify a message body type and then allow the user to create this in a Processing component or as part of another To components post processing.
+
+```example
+.Process((Routable x) => {
+    x.SetBody<SesMessage>(new SesMessage() { .. })
+})
+
+.To(component, (Routable x) => {
+    x.SetBody<SesMessage>(new SesMessage() { .. })
+})
+
+```
