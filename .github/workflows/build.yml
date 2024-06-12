@@ -30,6 +30,7 @@ jobs:
           path-to-lcov: ./build/TestCoverage/coverage.info
       - name: generate_tag
         run: |
+          git fetch origin --tags
           echo "${SEMVER}"
           VERSION_PREFIX=""
           VERSION_MAJOR_MINOR="${SEMVER}"
