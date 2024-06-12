@@ -9,6 +9,7 @@ jobs:
   tag-test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: generate_tag
         run: |
             echo "${SEMVER}"
