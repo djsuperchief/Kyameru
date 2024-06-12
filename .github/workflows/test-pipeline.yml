@@ -1,0 +1,19 @@
+name: Test pipeline steps
+on:
+    workflow_dispatch:
+
+env:
+  SEMVER: ${{ vars.SEMVER }}
+
+jobs:
+  tag-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: generate_tag
+        run: |
+            echo "${SEMVER}"
+            VERSION_PREFIX=""
+            VERSION_MAJOR_MINOR="${SEMVER}"
+            VERSION_PATCH=$(git tag --list "${VERSION_PREFIX}${VERSION_MAJOR_MINOR}*" --sort=-version:refname | head -n 1)
+            echo "CURRENT TAG: ${VERSION_PATCH}"
+            git tag --list "${VERSION_PREFIX}${VERSION_MAJOR_MINOR}*" --sort=-version:refname
