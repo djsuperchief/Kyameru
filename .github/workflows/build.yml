@@ -4,6 +4,9 @@ on:
   push:
     branches: [ main ]
 
+env:
+  SEMVER: ${{ vars.SEMVER }}
+
 jobs:
   dotnet-test:
     runs-on: ubuntu-latest
@@ -24,7 +27,29 @@ jobs:
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: ./build/TestCoverage/coverage.info 
+          path-to-lcov: ./build/TestCoverage/coverage.info
+      - name: generate_tag
+        run: |
+          echo "${SEMVER}"
+          VERSION_PREFIX=""
+          VERSION_MAJOR_MINOR="${SEMVER}"
+          VERSION_PATCH=$(git tag --list "${VERSION_PREFIX}${VERSION_MAJOR_MINOR}*" --sort=-version:refname | head -n 1)
+          echo "CURRENT TAG: ${VERSION_PATCH}"
+          VERSION_PATCH="${VERSION_PATCH//-rc}"
+          VERSION_PATCH="${VERSION_PATCH//$SEMVER}"
+          VERSION_PATCH="${VERSION_PATCH//-beta}"
+          if [ -z "$VERSION_PATCH" ]; then
+            VERSION_PATCH=0
+          else
+            VERSION_PATCH=$((VERSION_PATCH + 1))
+          fi
+          NEW_TAG="${VERSION_PREFIX}${VERSION_MAJOR_MINOR}${VERSION_PATCH}-beta"
+          echo "Generated new tag: $NEW_TAG"
+          #echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git tag $NEW_TAG
+          git push origin tag $NEW_TAG
 
 
   # analyze:
