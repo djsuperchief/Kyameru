@@ -5,15 +5,13 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <!-- Mark the project as being a test project -->
-    <SonarQubeTestProject>false</SonarQubeTestProject>
     <Version>0.0.8</Version>
-    <Copyright>Giles Papworth 2020</Copyright>
+    <Copyright>Giles Papworth 2024</Copyright>
     <Description>Kyameru.Core is the main processing engine for Kyameru Process Component.</Description>
+    <PackageProjectUrl>https://djsuperchief.github.io/Kyameru/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/djsuperchief/Kyameru</RepositoryUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <RepositoryType>Git</RepositoryType>
-    <PackageProjectUrl>https://github.com/djsuperchief/Kyameru</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>B</NeutralLanguage>
     <Authors>Giles Papworth</Authors>

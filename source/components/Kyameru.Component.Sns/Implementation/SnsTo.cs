@@ -6,13 +6,18 @@ using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Component.Sns;
 
-public class SnsTo(IAmazonSimpleNotificationService client) : ITo
+public class SnsTo : ITo
 {
     public event EventHandler<Log> OnLog;
 
     private readonly string[] requiredHeaders = ["ARN"];
-    private readonly IAmazonSimpleNotificationService snsClient = client;
+    private readonly IAmazonSimpleNotificationService snsClient;
     private Dictionary<string, string> snsHeaders;
+
+    public SnsTo(IAmazonSimpleNotificationService client)
+    {
+        snsClient = client;
+    }
 
     public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
     {
@@ -37,7 +42,7 @@ public class SnsTo(IAmazonSimpleNotificationService client) : ITo
                 });
             }
             Log(LogLevel.Information, Resources.INFO_SENDING);
-            var response = await client.PublishAsync(request, cancellationToken);
+            var response = await snsClient.PublishAsync(request, cancellationToken);
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
                 routable.SetHeader("&SNSMessageId", response.MessageId);
