@@ -44,7 +44,7 @@ jobs:
           else
             VERSION_PATCH=$((VERSION_PATCH + 1))
           fi
-          NEW_TAG="${VERSION_PREFIX}${VERSION_MAJOR_MINOR}${VERSION_PATCH}-beta"
+          NEW_TAG="${VERSION_PREFIX}${VERSION_MAJOR_MINOR}${VERSION_PATCH}"
           echo "Generated new tag: $NEW_TAG"
           #echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
           git config user.name "GitHub Actions"
