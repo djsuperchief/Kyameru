@@ -5,18 +5,27 @@ on:
     types: [published]
 
 env:
-  RELEASE_TYPE: ""
   PRE_RELEASE: ${{ github.event.release.prerelease }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Determine Release Time
+      - uses: actions/checkout@v3
+      - name: Determine Release Type
         run: |
           if ${PRE_RELEASE}; then
-            RELEASE_TYPE="beta"
+            echo "RELEASE_TYPE=beta" >> "$GITHUB_ENV"
             echo Doing beta release
           else
-            RELEASE_TYPE = ""
+            RELEASE_TYPE=""
           fi
+      - name: Set Release Version
+        run: |
+          git fetch origin --tags
+          TAG_VERSION=$(git describe --tags --abbrev=0)
+          echo "RELEASE_VERSION=${TAG_VERSION}-${RELEASE_TYPE}" >> "$GITHUB_ENV"
+      
+      - name: Print Release Version
+        run: |
+          echo "Release / Nuget version will be: ${RELEASE_VERSION}"
