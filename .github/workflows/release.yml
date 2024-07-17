@@ -29,3 +29,9 @@ jobs:
       - name: Print Release Version
         run: |
           echo "Release / Nuget version will be: ${RELEASE_VERSION}"
+
+      - name: Pack
+        run: dotnet pack KyameruFull.sln -o ./dist -c Release -p:PackageVersion=$RELEASE_VERSION
+
+      - name: Push
+        run: dotnet nuget push ./dist/*.nupkg --api-key ${{ secrets.KYAMERU_NUGET }} -s https://api.nuget.org/v3/index.json
