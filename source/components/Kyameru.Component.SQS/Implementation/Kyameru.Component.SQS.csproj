@@ -7,6 +7,16 @@
         <AssemblyName>Kyameru.Component.Sqs</AssemblyName>
         <RootNamespace>Kyameru.Component.Sqs</RootNamespace>
         <Nullable>enable</Nullable>
+        <Description>Kyameru SQS component adds the ability to send messages to SQS and to listen into SQS queues.</Description>
+        <Copyright>Giles Papworth 2024</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://djsuperchief.github.io/Kyameru/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/djsuperchief/Kyameru</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <NeutralLanguage>B</NeutralLanguage>
+        <Authors>Giles Papworth</Authors>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,5 +27,9 @@
       <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.300" />
       <PackageReference Include="AWSSDK.SQS" Version="3.7.300.78" />
     </ItemGroup>
+
+    <ItemGroup>
+    <None Include="readme.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 </Project>

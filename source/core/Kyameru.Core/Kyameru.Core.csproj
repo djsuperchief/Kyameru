@@ -5,19 +5,18 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <!-- Mark the project as being a test project -->
-    <SonarQubeTestProject>false</SonarQubeTestProject>
     <Version>0.0.8</Version>
-    <Copyright>Giles Papworth 2020</Copyright>
+    <Copyright>Giles Papworth 2024</Copyright>
     <Description>Kyameru.Core is the main processing engine for Kyameru Process Component.</Description>
+    <PackageProjectUrl>https://djsuperchief.github.io/Kyameru/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/djsuperchief/Kyameru</RepositoryUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <RepositoryType>Git</RepositoryType>
-    <PackageProjectUrl>https://github.com/djsuperchief/Kyameru</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>B</NeutralLanguage>
     <Authors>Giles Papworth</Authors>
-    </PropertyGroup>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+  </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>full</DebugType>
@@ -31,12 +30,15 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
-    <PackageReference Include="System.Text.Json" Version="7.0.2" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources.cs">
       <ExcludeFromSourceAnalysis>True</ExcludeFromSourceAnalysis>
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="readme.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

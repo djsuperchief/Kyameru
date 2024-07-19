@@ -14,6 +14,20 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <Description>Kyameru SNS component adds the ability to send messages to AWS SNS.</Description>
+    <Copyright>Giles Papworth 2024</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://djsuperchief.github.io/Kyameru/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/djsuperchief/Kyameru</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <NeutralLanguage>B</NeutralLanguage>
+    <Authors>Giles Papworth</Authors>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="readme.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 </Project>
