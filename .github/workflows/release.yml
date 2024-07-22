@@ -38,5 +38,5 @@ jobs:
           cd dist
           ls
 
-#      - name: Push
-#        run: dotnet nuget push ./dist/*.nupkg --api-key ${{ secrets.KYAMERU_NUGET }} -s https://api.nuget.org/v3/index.json
+      - name: Push
+        run: dotnet nuget push ./dist/*.nupkg --api-key ${{ secrets.KYAMERU_NUGET }} -s https://api.nuget.org/v3/index.json
