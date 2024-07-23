@@ -12,7 +12,7 @@ nav_order: 1
 ![kyameru logo](/assets/img/logo.png)
 
 {: .note }
-> Welcome to the Kyameru documentation home. This is still relatively new and will constantly be being updated. For now, please visit the main GitHub repository: [Kyameru Source](https://github.com/djsuperchief/Kyameru)
+> Welcome to the Kyameru documentation home. This is still relatively new and will constantly be being updated. The product is still in it's beta phase and is available on NuGet.
 
 ## Status
 [![Build](https://github.com/djsuperchief/Kyameru/actions/workflows/build.yml/badge.svg)](https://github.com/djsuperchief/Kyameru/actions/workflows/build.yml)
@@ -27,4 +27,4 @@ Kyameru is a processing engine built with heavy inspiration from Apache Camel. T
 
 ## Get Started
 
-Currently, the project is not being distributed through NuGet. When the project reaches a full beta stage (with a number of MVP components), it will be pushed to NuGet and ready to be used. Until then, hold tight. Releases, however, are still being published and can continue to be used until Nuget packages are released.
+All components are available from NuGet or you can download the source directly and reference it within your projects. The recommended way is to use NuGet; follow instructions [here](getting_started.md).
