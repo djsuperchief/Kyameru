@@ -7,14 +7,10 @@ nav_order: 4
 
 # Getting started with Kyameru
 
-## Nuget Notes
-Currently, although there is a version on NuGet, it has not been updated for a long time. The current plan is that when both the S3 and SQS components are created, the framework will be pushed to NuGet (as a beta) for general use.
-Once there are enough components (not a full compliment) to make it worth while, the framework will come out of beta as V1.
-
 ## Get Your Components
 
 As each component is reliant on the Kyameru Core library, there is no need to download that separately. Each component has been made as its own distributable so that you only need to get the components you need to use (instead of everything).
-Pick the components you want to use and add them into your project.
+Select the components you want from NuGet (pre-release for the latest development versions) and...that's it.
 
 ## Creating Your First Route
 ### DI
