@@ -51,3 +51,9 @@ The burden of execution falls to the framework and each Route continues to be is
 ## Decision
 
 `Component Cron` is the option that has the most benefit and the least disadvantages. It is certainly worth exploring first before looking at the other options. The key to any of this is that the builder syntax needs to built in a way that if the underlying mechanism changes, uses of it do not need to be rebuilt (I.E no breaking changes).
+
+---
+## Implementation Decisions
+### Separate Cron Component
+
+There has been a bit of back and forth as to whether the From component stays as is but implements an Execute function or whether we specify a new `ICronComponent`. The major draw back of keeping it all within the `IFromComponent` is that there will be extra work involved in declaring that a From component can only be used in conjunction with a schedule as opposed to explicitly implementing the `ICronComponent`. If we specify this then if a package doesn't specify an `ICronComponent` then the route creation fails rather than say "oh hey, this package does have a From component so I will allow it" and then fail on startup. I think it would be better to fail earlier in the creation of the route rather than the execution of it (at startup). The From component can still specify that it implements both `IFromComponent` and `ICronComponent` so there is no limitation there.

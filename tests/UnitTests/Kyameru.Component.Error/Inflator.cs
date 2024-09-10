@@ -32,5 +32,10 @@ namespace Kyameru.Component.Error
         {
             return serviceCollection;
         }
+
+        public ICronComponent CreateCronComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -34,6 +34,14 @@ namespace Kyameru.Core.Contracts
         IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers);
 
         /// <summary>
+        /// Creates a cron component.
+        /// </summary>
+        /// <param name="headers">Dictionary of headers to apply</param>
+        /// <param name="serviceProvider">DI Service provider</param>
+        /// <returns>Returns an instance of the <see cref="ICronComponent"/> interface.</returns>
+        ICronComponent CreateCronComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider);
+
+        /// <summary>
         /// Registers internal to services
         /// </summary>
         /// <param name="serviceCollection">IoC collection</param>

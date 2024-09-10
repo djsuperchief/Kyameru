@@ -58,7 +58,8 @@ namespace Kyameru.Tests.ActivationTests
         public void CanAddProcessComponentByDelegate()
         {
             var route = this.CreateRoute();
-            route.Process((Routable item) => {
+            route.Process((Routable item) =>
+            {
                 item.SetHeader("Test", "Test");
             });
             Assert.True(route.ComponentCount == 1);
@@ -96,6 +97,13 @@ namespace Kyameru.Tests.ActivationTests
         }
 
         [Fact]
+        public void CanSetupCron()
+        {
+            Core.Builder builder = this.CreateCron("*/1 * * * *");
+            Assert.True(builder.Scheduled);
+        }
+
+        [Fact]
         public void RouteBuilderThrowsException()
         {
             Assert.Throws<Core.Exceptions.RouteUriException>(() => { this.CreateRoute(string.Empty); });
@@ -114,6 +122,11 @@ namespace Kyameru.Tests.ActivationTests
         private Core.Builder CreateAtomic(Core.Builder builder, string route = "test://hello")
         {
             return builder.Atomic(route);
+        }
+
+        private Core.Builder CreateCron(string cronExpression, string route = "test://cron")
+        {
+            return Route.From(route).To("test://hello").Schedule(cronExpression);
         }
     }
 }

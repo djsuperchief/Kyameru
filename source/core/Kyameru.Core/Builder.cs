@@ -59,6 +59,11 @@ namespace Kyameru.Core
         private Assembly hostAssmebly;
 
         /// <summary>
+        /// Valid Cron expression.
+        /// </summary>
+        private string cronExpression;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Builder"/> class.
         /// </summary>
         /// <param name="components">List of intermediary components.</param>
@@ -93,6 +98,11 @@ namespace Kyameru.Core
         /// Gets a value indicating whether the route is considered to be atomic.
         /// </summary>
         public bool IsAtomic => atomicComponent != null;
+
+        /// <summary>
+        /// Gets a value indicating whether the route will be scheduled.
+        /// </summary>
+        public bool Scheduled => !string.IsNullOrWhiteSpace(cronExpression);
 
         /// <summary>
         /// Creates a new To component chain.
@@ -221,6 +231,18 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Schedules the route at a specific interval.
+        /// </summary>
+        /// <param name="cron">A valid Cron expression.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder Schedule(string cron)
+        {
+            // TODO: validate cron
+            cronExpression = cron;
+            return this;
+        }
+
+        /// <summary>
         /// Indicates that the framework will bubble a route exception up to consumer.
         /// </summary>
         /// <returns></returns>
@@ -249,7 +271,17 @@ namespace Kyameru.Core
             RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
             {
-                var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
+                IFromComponent from = null;
+                ICronComponent cron = null;
+                if (string.IsNullOrWhiteSpace(cronExpression))
+                {
+                    from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
+                }
+                else
+                {
+                    cron = CreateCron(fromUri.ComponentName, fromUri.Headers, x);
+                }
+
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
@@ -261,6 +293,11 @@ namespace Kyameru.Core
                 else
                 {
                     next = toChain;
+                }
+
+                if (cron != null)
+                {
+                    return new Cron(cron, next, logger, identity, IsAtomic, raiseExceptions);
                 }
 
                 return new From(from, next, logger, identity, IsAtomic, raiseExceptions);

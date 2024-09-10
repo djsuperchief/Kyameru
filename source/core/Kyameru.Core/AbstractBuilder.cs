@@ -60,6 +60,28 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Creates the cron component.
+        /// </summary>
+        /// <param name="component">Valid component name.</param>
+        /// <param name="headers">Dictionary of headers</param>
+        /// <param name="serviceProvider">DI Service provider.</param>
+        /// <returns>Returns an instance of the <see cref="IFromComponent"/> interface.</returns>
+        protected ICronComponent CreateCron(string component, Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        {
+            ICronComponent response = null;
+            try
+            {
+                response = GetOasis(component).CreateCronComponent(headers, serviceProvider);
+            }
+            catch (Exception ex)
+            {
+                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_FROM_CRON, ex, "Cron");
+            }
+
+            return response;
+        }
+
+        /// <summary>
         /// Creates the atomic component.
         /// </summary>
         /// <param name="from">Valid component name.</param>

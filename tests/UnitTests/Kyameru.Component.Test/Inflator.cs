@@ -34,5 +34,15 @@ namespace Kyameru.Component.Test
         {
             return serviceCollection;
         }
+
+        public IServiceCollection Register(IServiceCollection serviceCollection)
+        {
+            return serviceCollection;
+        }
+
+        public ICronComponent CreateCronComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        {
+            return new Cron();
+        }
     }
 }

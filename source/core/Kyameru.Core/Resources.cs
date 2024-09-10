@@ -12,6 +12,8 @@
         internal const string INFO_SETUP_ATOMIC = "Setting up atomic component {0}...";
 
         internal const string ERROR_ACTIVATION_FROM = "Error activating from component.";
+
+        internal const string ERROR_ACTIVATION_FROM_CRON = "Error activating from component on schedule.";
         internal const string ERROR_ACTIVATION_TO = "Error activating to component.";
         internal const string ERROR_ACTIVATING_ATOMIC = "Error activating atomic component";
         internal const string ERROR_FROM_COMPONENT = "Error in starting from component, see inner exception.";
