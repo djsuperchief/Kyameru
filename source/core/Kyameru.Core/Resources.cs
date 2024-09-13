@@ -21,6 +21,7 @@
         internal const string ERROR_ROUTE_URI = "Error in constructing route from URI, see inner exception.";
         internal const string ERROR_HEADER_IMMUTABLE_ADDED = "Error adding immutable header {0}, already present.";
         internal const string ERROR_SETUP_COMPONENT_INVOCATION = "Error activating component. No valid invocation.";
+        internal const string ERROR_CRON_PARSE = "Error parsing schedule, not a valid cron.";
 
         /// <summary>
         /// Message for unavailable routes.

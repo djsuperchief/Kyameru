@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Kyameru.Core.Chain;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -93,6 +94,8 @@ namespace Kyameru.Core
         /// Gets a value indicating whether the route is considered to be atomic.
         /// </summary>
         public bool IsAtomic => atomicComponent != null;
+
+        public bool IsScheduled { get; private set; }
 
         /// <summary>
         /// Creates a new To component chain.
@@ -223,10 +226,28 @@ namespace Kyameru.Core
         /// <summary>
         /// Indicates that the framework will bubble a route exception up to consumer.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder RaiseExceptions()
         {
             raiseExceptions = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Schedules the route to execute at a specific cron.
+        /// </summary>
+        /// <param name="cron">Valid cron.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        public Builder Schedule(string cron)
+        {
+            // validate cron
+            var (cronParseResult, cronResult) = Utils.CronParser.ValidateCron(cron);
+            if (!cronParseResult)
+            {
+                throw new CoreException(Resources.ERROR_CRON_PARSE);
+            }
+
+            IsScheduled = true;
             return this;
         }
 
@@ -400,5 +421,7 @@ namespace Kyameru.Core
             var route = new RouteAttributes(componentUri, postProcessComponent);
             toUris.Add(route);
         }
+
+
     }
 }
