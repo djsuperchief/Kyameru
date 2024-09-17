@@ -10,6 +10,8 @@ sealed class CronParser
     private static readonly Regex allowedRegex = new Regex(@"^((\d+,)+\d+|(\d+(-)\d+)|\d+|\*)$", RegexOptions.Compiled);
     private static readonly string[] allowedMonths = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
+    private static readonly string[] allowedDaysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
     public static (bool, Entities.Cron) ValidateCron(string cron)
     {
         var isValid = CronIsValid(cron.Split(" "));
@@ -27,7 +29,21 @@ sealed class CronParser
             && ValidateHours(cron[1])
             && ValidateDays(cron[2])
             && ValidateMonth(cron[3])
+            && ValidateDayOfWeek(cron[4])
             && cron.Length == 5;
+    }
+
+    private static bool ValidateDayOfWeek(string dayOfWeek)
+    {
+        try
+        {
+            return ValidateRange(0, 6, dayOfWeek, allowedRegex)
+                || ValidateMatchedStrings(allowedDaysOfWeek, dayOfWeek);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private static bool ValidateMonth(string month)
@@ -107,6 +123,8 @@ sealed class CronParser
             {
                 return false;
             }
+
+            return true;
         }
 
         if (expression.Contains(","))
@@ -118,14 +136,16 @@ sealed class CronParser
                     return false;
                 }
             }
+
+            return true;
         }
 
         if (!expression.Contains(",") && !expression.Contains("-"))
         {
-            return expression.Trim().Length == 3 && items.Any(x => x == expression.Trim());
+            return test(expression);
         }
 
-        return true;
+        return false;
     }
 
     private static bool ValidateRange(int min, int max, string expression, Regex regex)

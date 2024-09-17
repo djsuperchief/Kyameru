@@ -62,6 +62,20 @@ public class CronParserTests
         Assert.True(CronParser.ValidateCron(cron).Item1);
     }
 
+    [Theory]
+    [MemberData(nameof(DayOfWeekTestData))]
+    public void DayOfWeekIsValid(string cron, bool isValid)
+    {
+        Assert.Equal(isValid, CronParser.ValidateCron(cron).Item1);
+    }
+
+    [Theory]
+    [MemberData(nameof(DayOfWeekStringTestData))]
+    public void DayOfWeekStringIsValid(string cron, bool isValid)
+    {
+        Assert.Equal(isValid, CronParser.ValidateCron(cron).Item1);
+    }
+
     public static IEnumerable<object[]> MonthOfYearTestData()
     {
         return GenerateRangeTestData(1, 13, "* * * {0} *");
@@ -82,30 +96,48 @@ public class CronParserTests
         return GenerateRangeTestData(0, 60, "{0} * * * *");
     }
 
+    public static IEnumerable<object[]> DayOfWeekTestData()
+    {
+        return GenerateRangeTestData(0, 7, "* * * * {0}");
+    }
+
     public static IEnumerable<object[]> MonthStringTestData()
     {
         string[] months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-        for (var i = 0; i < months.Length; i++)
+
+        return GenerateStringTestData(months, "* * * {0} *");
+    }
+
+    public static IEnumerable<object[]> DayOfWeekStringTestData()
+    {
+        string[] days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+        return GenerateStringTestData(days, "* * * * {0}");
+    }
+
+    public static IEnumerable<object[]> GenerateStringTestData(string[] testItems, string expression)
+    {
+        for (var i = 0; i < testItems.Length; i++)
         {
-            yield return new object[] { $"* * * {months[i]} *", true };
+            yield return new object[] { string.Format(expression, testItems[i]), true };
         }
-        yield return new object[] { $"* * * TES *", false };
-        yield return new object[] { $"* * * TEST *", false };
-        for (var i = 1; i < months.Length; i++)
+
+        yield return new object[] { string.Format(expression, "TES"), false };
+        yield return new object[] { string.Format(expression, "TEST"), false };
+        for (var i = 1; i < testItems.Length; i++)
         {
-            for (var x = 1; x < months.Length; x++)
+            for (var x = 1; x < testItems.Length; x++)
             {
                 bool isValid = x > i;
-                yield return new object[] { string.Format("* * * {0} *", $"{months[i]}-{months[x]}"), isValid };
+                yield return new object[] { string.Format(expression, $"{testItems[i]}-{testItems[x]}"), isValid };
             }
         }
 
-        for (var i = 1; i < months.Length; i++)
+        for (var i = 1; i < testItems.Length; i++)
         {
-            for (var x = 1; x < months.Length; x++)
+            for (var x = 1; x < testItems.Length; x++)
             {
                 bool isValid = true;
-                yield return new object[] { string.Format("* * * {0} *", $"{months[i]},{months[x]}"), isValid };
+                yield return new object[] { string.Format(expression, $"{testItems[i]},{testItems[x]}"), isValid };
             }
         }
     }
@@ -149,10 +181,10 @@ public class CronParserTests
     public static IEnumerable<object[]> CommaTestData()
     {
 
-        for (var position = 0; position < 6; position++)
+        for (var position = 0; position < 5; position++)
         {
             var builder = new StringBuilder();
-            for (var i = 0; i < 6; i++)
+            for (var i = 0; i < 5; i++)
             {
                 if (i == position)
                 {

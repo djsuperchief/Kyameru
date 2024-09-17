@@ -17,7 +17,7 @@ public class ScheduleRouteTests
         var processingComponent = Substitute.For<IComponent>();
         var routeBuilder = Route.From("test://test");
         var builder = routeBuilder.To("test://test");
-        builder.Schedule("cron");
+        builder.Schedule("* * * * *");
         Assert.Equal(1, builder.ToComponentCount);
         Assert.True(builder.IsScheduled);
     }
