@@ -76,6 +76,66 @@ public class CronParserTests
         Assert.Equal(isValid, CronParser.ValidateCron(cron).Item1);
     }
 
+    [Theory]
+    [MemberData(nameof(MinuteStepTestData))]
+    public void MinuteStepIsValid(string cron, bool isValid)
+    {
+        Assert.Equal(isValid, CronParser.ValidateCron(cron).Item1);
+    }
+
+    [Theory]
+    [MemberData(nameof(HourStepTestData))]
+    public void HourStepIsValid(string cron, bool isValid)
+    {
+        Assert.Equal(isValid, CronParser.ValidateCron(cron).Item1);
+    }
+
+    [Theory]
+    [MemberData(nameof(DayOfMonthStepTestData))]
+    public void DayOfMonthStepIsValid(string cron, bool isValid)
+    {
+        Assert.Equal(isValid, CronParser.ValidateCron(cron).Item1);
+    }
+
+    [Theory]
+    [MemberData(nameof(MonthStepTestData))]
+    public void MonthStepIsValid(string cron, bool isValid)
+    {
+        Assert.Equal(isValid, CronParser.ValidateCron(cron).Item1);
+    }
+
+    [Theory]
+    [MemberData(nameof(DayOfWeekStepTestData))]
+    public void DayOfWeekStepIsValid(string cron, bool isValid)
+    {
+        Assert.Equal(isValid, CronParser.ValidateCron(cron).Item1);
+    }
+
+    public static IEnumerable<object[]> MinuteStepTestData()
+    {
+        return GenerateStepData(0, 60, "{0} * * * *");
+    }
+
+    public static IEnumerable<object[]> HourStepTestData()
+    {
+        return GenerateStepData(0, 24, "* {0} * * *");
+    }
+
+    public static IEnumerable<object[]> DayOfMonthStepTestData()
+    {
+        return GenerateStepData(1, 32, "* * {0} * *");
+    }
+
+    public static IEnumerable<object[]> MonthStepTestData()
+    {
+        return GenerateStepData(1, 13, "* * * {0} *");
+    }
+
+    public static IEnumerable<object[]> DayOfWeekStepTestData()
+    {
+        return GenerateStepData(0, 7, "* * * * {0}");
+    }
+
     public static IEnumerable<object[]> MonthOfYearTestData()
     {
         return GenerateRangeTestData(1, 13, "* * * {0} *");
@@ -176,6 +236,37 @@ public class CronParserTests
 
         yield return new object[] { string.Format(expression, $"{min},{max - 1}"), true };
         yield return new object[] { string.Format(expression, $"{min},{max}"), false };
+    }
+
+    public static IEnumerable<object[]> GenerateStepData(int min, int max, string expression)
+    {
+        // Whilst generating every combination is a good thing, it doesn't really add anything.
+        // For this reason, these tests just ensure that rules are adhered to.
+        yield return new object[] { string.Format(expression, $"*/{min}"), false };
+        yield return new object[] { string.Format(expression, $"{min}/{max}"), false };
+
+        yield return new object[] { string.Format(expression, $"{min}/{max - 1}"), true };
+        yield return new object[] { string.Format(expression, $"*/{max - 1}"), true };
+
+        yield return new object[] { string.Format(expression, $"{min + 1}/{max - 1}"), true };
+        yield return new object[] { string.Format(expression, $"{max - 1}/{min + 1}"), true };
+        yield return new object[] { string.Format(expression, $"{max - 1}/{min}"), false };
+        // for (var i = min; i <= max; i++)
+        // {
+        //     var valid = i < max && i > min;
+        //     yield return new object[] { string.Format(expression, $"*/{i}"), valid };
+        // }
+
+        // yield return new object[] { string.Format(expression, $"{min}/*"), false };
+
+        // for (var i = min; i < max; i++)
+        // {
+        //     for (var x = 0; x < max; x++)
+        //     {
+        //         var valid = i < max && x < max && i >= min && x >= min;
+        //         yield return new object[] { string.Format(expression, $"{i}/{x}"), valid };
+        //     }
+        // }
     }
 
     public static IEnumerable<object[]> CommaTestData()

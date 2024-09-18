@@ -1,13 +1,14 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Kyameru.Core.Entities;
 
 namespace Kyameru.Core.Utils;
 
 sealed class CronParser
 {
     // Mine so far: ^(^[0-9]$)|([1-5][0-9])|^\*$
-    private static readonly Regex allowedRegex = new Regex(@"^((\d+,)+\d+|(\d+(-)\d+)|\d+|\*)$", RegexOptions.Compiled);
+    private static readonly Regex allowedRegex = new Regex(@"^((\d+,)+\d+|(\d+(-)\d+)|\d+|\*|(\d+|\*)\/\d+)$", RegexOptions.Compiled);
     private static readonly string[] allowedMonths = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
     private static readonly string[] allowedDaysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -15,12 +16,13 @@ sealed class CronParser
     public static (bool, Entities.Cron) ValidateCron(string cron)
     {
         var isValid = CronIsValid(cron.Split(" "));
+        Cron result = null;
         if (isValid)
         {
-
+            result = Cron.Create(cron);
         }
 
-        return (isValid, null);
+        return (isValid, result);
     }
 
     private static bool CronIsValid(string[] cron)
@@ -37,7 +39,7 @@ sealed class CronParser
     {
         try
         {
-            return ValidateRange(0, 6, dayOfWeek, allowedRegex)
+            return ValidateExpression(0, 6, dayOfWeek, allowedRegex)
                 || ValidateMatchedStrings(allowedDaysOfWeek, dayOfWeek);
         }
         catch
@@ -50,7 +52,7 @@ sealed class CronParser
     {
         try
         {
-            return ValidateRange(1, 12, month, allowedRegex)
+            return ValidateExpression(1, 12, month, allowedRegex)
                 || ValidateMatchedStrings(allowedMonths, month);
         }
         catch
@@ -63,7 +65,7 @@ sealed class CronParser
     {
         try
         {
-            return ValidateRange(1, 31, day, allowedRegex);
+            return ValidateExpression(1, 31, day, allowedRegex);
         }
         catch
         {
@@ -75,7 +77,7 @@ sealed class CronParser
     {
         try
         {
-            return ValidateRange(0, 59, minutes, allowedRegex);
+            return ValidateExpression(0, 59, minutes, allowedRegex);
 
         }
         catch
@@ -88,7 +90,7 @@ sealed class CronParser
     {
         try
         {
-            return ValidateRange(0, 23, hours, allowedRegex);
+            return ValidateExpression(0, 23, hours, allowedRegex);
         }
         catch
         {
@@ -148,7 +150,7 @@ sealed class CronParser
         return false;
     }
 
-    private static bool ValidateRange(int min, int max, string expression, Regex regex)
+    private static bool ValidateExpression(int min, int max, string expression, Regex regex)
     {
 
         if (!regex.IsMatch(expression)) return false;
@@ -173,6 +175,33 @@ sealed class CronParser
             {
                 return false;
             }
+        }
+
+        if (expression.Contains("/"))
+        {
+            int[] numbers = null;
+            if (expression.StartsWith("*"))
+            {
+                numbers = [int.Parse(expression.Replace("*/", ""))];
+            }
+            else
+            {
+                numbers = expression.Split("/").Select(x => int.Parse(x)).ToArray();
+            }
+
+            if (numbers.Any(x => x > max || x < min))
+            {
+                return false;
+            }
+
+            if ((numbers.Length == 1 && numbers[0] <= min)
+                || (numbers.Length == 2 && numbers[1] <= min))
+            {
+                return false;
+            }
+
+
+
         }
 
         if (int.TryParse(expression, out var number))
