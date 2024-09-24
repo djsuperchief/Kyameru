@@ -1,11 +1,15 @@
 using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Kyameru.Core.Extensions;
 
 namespace Kyameru.Core.Entities;
 
 sealed class Cron
 {
+    private readonly Regex NumbersOnly = new Regex(@"^\d+$", RegexOptions.Compiled);
     public DateTime NextExecution { get; private set; }
+    public DateTimeKind DateKindConfig { get; private set; }
 
     private readonly string[] _cron;
 
@@ -14,6 +18,7 @@ sealed class Cron
         // Protected constructor.
         _cron = cron;
         NextExecution = DateTime.UtcNow;
+        DateKindConfig = NextExecution.Kind;
         CalculateNext();
     }
 
@@ -34,5 +39,11 @@ sealed class Cron
         {
             NextExecution = NextExecution.GetNextCronMinute();
         }
+
+        if (NumbersOnly.Match(_cron[0]).Success)
+        {
+            NextExecution = NextExecution.GetNextCronMinute(int.Parse(_cron[0]));
+        }
     }
+
 }

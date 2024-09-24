@@ -8,4 +8,10 @@ public static class DateTimeExtensions
     {
         return new DateTime(input.Year, input.Month, input.Day, input.Hour, input.AddMinutes(1).Minute, 0, 0);
     }
+
+
+    public static DateTime GetCronAtMinute(this DateTime input, int minute = 0)
+    {
+
+    }
 }
