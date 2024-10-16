@@ -102,6 +102,21 @@ public class CronObjectTests
         Assert.Equal(expected, cronObject.NextExecution);
     }
 
+    [Fact]
+    public void MinuteOverHourIsCorrect()
+    {
+        var simulatedTime = Substitute.For<ITimeProvider>();
+        var testDate = new DateTime(2024, 01, 01, 9, 59, 0, DateTimeKind.Utc);
+        simulatedTime.UtcNow.Returns(testDate);
+        simulatedTime.Now.Returns(testDate.ToLocalTime());
+        Core.Utils.TimeProvider.Current = simulatedTime;
+        var cron = "* * * * *";
+        var expected = new DateTime(2024, 01, 01, 10, 0, 0, DateTimeKind.Utc);
+
+        var (isValid, cronObject) = CronParser.ValidateCron(cron);
+        Assert.Equal(expected, cronObject.NextExecution);
+    }
+
     public static IEnumerable<object[]> MinuteThroughMinuteTestData()
     {
         yield return new object[] { 4, 36, new DateTime(2024, 09, 01, 9, 0, 0) };

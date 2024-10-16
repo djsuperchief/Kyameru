@@ -37,10 +37,10 @@ public class Cron
 
     private void CalculateNext()
     {
-        CalculateSecond();
+        CalculateMinute();
     }
 
-    private void CalculateSecond()
+    private void CalculateMinute()
     {
         if (_cron[0] == "*")
         {
