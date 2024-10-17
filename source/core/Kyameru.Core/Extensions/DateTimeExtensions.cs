@@ -21,13 +21,18 @@ public static class DateTimeExtensions
 
     public static DateTime GetCronAtMinute(this DateTime input, int minute = 0)
     {
-        var hour = input.Hour;
-        if (input.Minute >= minute)
+        var nextDate = input;
+        do
         {
-            hour++;
-        }
+            nextDate = nextDate.AddHours(1);
+            if (nextDate.Minute > minute || nextDate.Minute < minute)
+            {
+                nextDate = nextDate.AddMinutes(minute - nextDate.Minute);
+            }
 
-        return new DateTime(input.Year, input.Month, input.Day, hour, minute, 0, 0);
+        } while (TimeProvider.Current.UtcNow >= nextDate);
+
+        return nextDate;
     }
 
     public static DateTime GetCronMinuteBetween(this DateTime input, int first, int second)

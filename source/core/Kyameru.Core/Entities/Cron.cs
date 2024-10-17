@@ -13,6 +13,8 @@ public class Cron
     public DateTime NextExecution { get; private set; }
     public DateTimeKind DateKindConfig { get; private set; }
 
+    private readonly IEnumerable<Func<string[], bool>> _cronCalculators = new List<Func<string[], bool>>();
+
     private readonly string[] _cron;
 
     public Cron(string[] cron)

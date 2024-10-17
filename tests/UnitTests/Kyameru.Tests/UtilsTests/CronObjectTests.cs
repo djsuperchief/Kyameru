@@ -65,17 +65,27 @@ public class CronObjectTests
     }
 
     [Fact]
-    public void GetMinuteAt()
+    public void GetMinuteAtGivenNextHasSkipped()
     {
+        var simulatedTime = Substitute.For<ITimeProvider>();
         var cron = "1 * * * *";
-        var now = DateTime.UtcNow;
-        var current = new DateTime(now.Year, now.Month, now.Day, now.Hour - 1, 1, 0, 0, DateTimeKind.Utc);
-        var expected = new DateTime(current.Year, current.Month, current.Day, now.Hour + 1, 1, 0, 0, DateTimeKind.Utc);
-
+        var testDate = new DateTime(2024, 01, 01, 9, 0, 0, DateTimeKind.Utc);
+        simulatedTime.UtcNow.Returns(testDate);
+        simulatedTime.Now.Returns(testDate.ToLocalTime());
+        Core.Utils.TimeProvider.Current = simulatedTime;
+        var expected = testDate.AddHours(1).AddMinutes(1).UpToMinute();
         var (isValid, cronObject) = CronParser.ValidateCron(cron);
-        Assert.True(isValid);
         Assert.Equal(expected, cronObject.NextExecution);
-        Assert.Equal(DateTimeKind.Utc, cronObject.DateKindConfig);
+
+        // Simulate missed execution.
+        simulatedTime.ClearSubstitute(ClearOptions.All);
+        simulatedTime.UtcNow.Returns(testDate.AddHours(2));
+        simulatedTime.Now.Returns(testDate.AddHours(2).ToLocalTime());
+        Core.Utils.TimeProvider.Current = simulatedTime;
+        expected = expected.AddHours(1).UpToMinute();
+        cronObject.Next();
+
+        Assert.Equal(expected, cronObject.NextExecution);
 
     }
 
