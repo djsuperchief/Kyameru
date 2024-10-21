@@ -18,6 +18,8 @@ public abstract class TimeProvider
         get { return current; }
         set { current = value; }
     }
+
+    public static void Reset() => Current = new DefaultTimeProvider();
 }
 
 internal class DefaultTimeProvider : ITimeProvider

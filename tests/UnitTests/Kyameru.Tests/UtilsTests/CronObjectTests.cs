@@ -17,8 +17,8 @@ public class CronObjectTests
     {
         var cron = "* * * * *";
         var current = DateTime.UtcNow;
-        var expected = new DateTime(current.Year, current.Month, current.Day, current.Hour, current.AddMinutes(1).Minute, 0, 0, DateTimeKind.Utc);
-
+        var expected = current.AddMinutes(1).UpToMinute();
+        Core.Utils.TimeProvider.Reset();
         var (isValid, cronObject) = CronParser.ValidateCron(cron);
         Assert.True(isValid);
         Assert.Equal(expected, cronObject.NextExecution);

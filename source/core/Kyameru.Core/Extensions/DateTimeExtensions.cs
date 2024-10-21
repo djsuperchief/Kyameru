@@ -5,39 +5,14 @@ namespace Kyameru.Core.Extensions;
 
 public static class DateTimeExtensions
 {
-
-
-    public static DateTime GetNextCronMinute(this DateTime input)
+    public static DateTime SetMinute(this DateTime input, int minute = 0)
     {
-        DateTime nextDate = input;
-        do
+        if (input.Minute > minute || input.Minute < minute)
         {
-            nextDate = nextDate.AddMinutes(1).UpToMinute();
-        } while (TimeProvider.Current.UtcNow >= nextDate);
-        // we need to take the current time into account (and date) because the input could be behind and assuming it is right leads to problems.
-        return nextDate;
-    }
+            input = input.AddMinutes(minute - input.Minute);
+        }
 
-
-    public static DateTime GetCronAtMinute(this DateTime input, int minute = 0)
-    {
-        var nextDate = input;
-        do
-        {
-            nextDate = nextDate.AddHours(1);
-            if (nextDate.Minute > minute || nextDate.Minute < minute)
-            {
-                nextDate = nextDate.AddMinutes(minute - nextDate.Minute);
-            }
-
-        } while (TimeProvider.Current.UtcNow >= nextDate);
-
-        return nextDate;
-    }
-
-    public static DateTime GetCronMinuteBetween(this DateTime input, int first, int second)
-    {
-        throw new NotImplementedException();
+        return input;
     }
 
     /// <summary>
