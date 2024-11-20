@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Kyameru.Core.Enums;
+using Kyameru.Core.Extensions;
 
 namespace Kyameru.Core.Utils
 {
@@ -12,17 +13,36 @@ namespace Kyameru.Core.Utils
         private readonly Dictionary<TimeUnit, long> timeUnitTicks = new Dictionary<TimeUnit, long>()
         {
             { TimeUnit.Minute, 600000000 },
-            { TimeUnit.Hour, 36000000000 }
+            { TimeUnit.Hour, 36000000000 },
         };
+
+        private readonly Dictionary<TimeUnit, int> maxTimeUnit = new Dictionary<TimeUnit, int>()
+        {
+            { TimeUnit.Minute, 59 },
+            { TimeUnit.Hour, 23 }
+        };
+
+        private readonly bool isUtc;
+
+        private const int MaxHours = 23;
+        private const int MaxMinutes = 59;
 
         /// <summary>
         /// Gets the next execution date.
         /// </summary>
         public DateTime NextExecution { get; private set; }
 
-        public Scheduler()
+        public Scheduler(bool isUtcTime = true)
         {
-            NextExecution = Core.Utils.TimeProvider.Current.UtcNow;
+            isUtc = isUtcTime;
+            if (isUtc)
+            {
+                NextExecution = Core.Utils.TimeProvider.Current.UtcNow;
+            }
+            else
+            {
+                NextExecution = Core.Utils.TimeProvider.Current.Now;
+            }
         }
 
         internal void Next(TimeUnit unit)
@@ -31,16 +51,41 @@ namespace Kyameru.Core.Utils
             do
             {
                 totalIncrease = totalIncrease.AddTicks(timeUnitTicks[unit]);
-            } while (TimeProvider.Current.UtcNow >= totalIncrease);
+            } while (GetTimeProvider() >= totalIncrease);
 
-            NextExecution = UpToMinute(totalIncrease);
+            NextExecution = NextExecution.UpToMinute();
         }
 
-        private static DateTime UpToMinute(DateTime input)
+        internal void Next(int at, TimeUnit unit)
         {
-            // Standard does not have access to Microseconds and as such any date time will also include it.
-            // For the sake of simplicity, this seems fine.
-            return new DateTime(input.Year, input.Month, input.Day, input.Hour, input.Minute, 0, 0, input.Kind);
+            NextExecution = NextExecution.SetUnit(unit, at);
+            if (at >= 0 && at < maxTimeUnit[unit])
+            {
+                do
+                {
+                    NextExecution = IncreaseWholeUnit(unit, at).UpToMinute();
+                } while (GetTimeProvider() >= NextExecution);
+            }
+        }
+
+        private DateTime GetTimeProvider()
+        {
+            return isUtc ? TimeProvider.Current.UtcNow : TimeProvider.Current.Now;
+        }
+
+        private DateTime IncreaseWholeUnit(TimeUnit unit, int at)
+        {
+            DateTime newDate = NextExecution;
+            if (unit == TimeUnit.Minute)
+            {
+                newDate = GetTimeProvider() >= NextExecution ? NextExecution.AddHours(1) : NextExecution;
+            }
+            else
+            {
+                newDate = GetTimeProvider() >= NextExecution ? NextExecution.AddDays(1) : NextExecution;
+            }
+
+            return newDate.SetUnit(unit, at);
         }
     }
 }

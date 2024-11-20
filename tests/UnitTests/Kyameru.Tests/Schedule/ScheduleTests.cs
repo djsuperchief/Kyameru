@@ -47,4 +47,79 @@ public class ScheduleTests
         scheduler.Next(TimeUnit.Minute);
         Assert.Equal(expected, scheduler.NextExecution);
     }
+
+    [Fact]
+    public void ScheduleEveryHour()
+    {
+        var timeProvider = Substitute.For<ITimeProvider>();
+        var currentTime = new DateTime(2024, 01, 01, 08, 0, 0);
+        timeProvider.UtcNow.Returns(currentTime);
+        timeProvider.Now.Returns(currentTime.ToLocalTime());
+
+        Core.Utils.TimeProvider.Current = timeProvider;
+
+        var scheduler = new Scheduler();
+        scheduler.Next(TimeUnit.Hour);
+        Assert.Equal(9, scheduler.NextExecution.Hour);
+    }
+
+    [Fact]
+    public void MissedHourExecutionIsCorrect()
+    {
+        var simulatedTime = Substitute.For<ITimeProvider>();
+        var testDate = new DateTime(2024, 01, 01, 9, 0, 0, DateTimeKind.Utc);
+        simulatedTime.UtcNow.Returns(testDate);
+        simulatedTime.Now.Returns(testDate.ToLocalTime());
+        Core.Utils.TimeProvider.Current = simulatedTime;
+        var next = testDate.AddHours(1);
+        var expected = new DateTime(next.Year, next.Month, next.Day, next.Hour, next.Minute, 0, 0, DateTimeKind.Utc);
+        var scheduler = new Scheduler();
+        scheduler.Next(TimeUnit.Hour);
+        Assert.Equal(expected, scheduler.NextExecution);
+        // Simulate missing an execution
+        simulatedTime.ClearSubstitute(ClearOptions.All);
+        simulatedTime.UtcNow.Returns(testDate.AddHours(2));
+        simulatedTime.Now.Returns(testDate.AddHours(2).ToLocalTime());
+        Core.Utils.TimeProvider.Current = simulatedTime;
+        expected = expected.AddHours(2);
+        scheduler.Next(TimeUnit.Hour);
+        Assert.Equal(expected, scheduler.NextExecution);
+    }
+
+    [Fact]
+    public void AtMinuteIsCorrect()
+    {
+        var timeProvider = Substitute.For<ITimeProvider>();
+        var currentTime = new DateTime(2024, 01, 01, 08, 0, 0);
+        timeProvider.UtcNow.Returns(currentTime);
+        timeProvider.Now.Returns(currentTime.ToLocalTime());
+
+        Core.Utils.TimeProvider.Current = timeProvider;
+
+        var scheduler = new Scheduler();
+        scheduler.Next(10, TimeUnit.Minute);
+        Assert.Equal(10, scheduler.NextExecution.Minute);
+    }
+
+    [Fact]
+    public void AtMinuteMissedExecutionIsCorrect()
+    {
+        var simulatedTime = Substitute.For<ITimeProvider>();
+        var testDate = new DateTime(2024, 01, 01, 9, 0, 0, DateTimeKind.Utc);
+        simulatedTime.UtcNow.Returns(testDate);
+        simulatedTime.Now.Returns(testDate.ToLocalTime());
+        Core.Utils.TimeProvider.Current = simulatedTime;
+        var expected = new DateTime(testDate.Year, testDate.Month, testDate.Day, testDate.Hour, 22, 0, 0, DateTimeKind.Utc);
+        var scheduler = new Scheduler();
+        scheduler.Next(22, TimeUnit.Minute);
+        Assert.Equal(expected, scheduler.NextExecution);
+        // Simulate missing an execution
+        simulatedTime.ClearSubstitute(ClearOptions.All);
+        simulatedTime.UtcNow.Returns(testDate.AddHours(2));
+        simulatedTime.Now.Returns(testDate.AddHours(2).ToLocalTime());
+        Core.Utils.TimeProvider.Current = simulatedTime;
+        expected = expected.AddHours(2);
+        scheduler.Next(22, TimeUnit.Minute);
+        Assert.Equal(expected, scheduler.NextExecution);
+    }
 }

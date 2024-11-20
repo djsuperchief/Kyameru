@@ -31,5 +31,7 @@
 
         internal const string DEBUG_HEADER_DETERMINE = "Determining which header callback to use.";
         internal const string DEBUG_HEADER_RUNNING = "Running header callback.";
+
+        internal const string ERROR_SCHEDULE_TIME_INVALID = "An invalid unit has been specified for schedule. Minutes 0-59, Hours 0-23";
     }
 }
