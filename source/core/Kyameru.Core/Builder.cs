@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Kyameru.Core.Chain;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -58,6 +59,8 @@ namespace Kyameru.Core
         /// </summary>
         private Assembly hostAssmebly;
 
+        private Schedule schedule;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Builder"/> class.
         /// </summary>
@@ -93,6 +96,11 @@ namespace Kyameru.Core
         /// Gets a value indicating whether the route is considered to be atomic.
         /// </summary>
         public bool IsAtomic => atomicComponent != null;
+
+        /// <summary>
+        /// Gets a value indicating whether the route is on a schedule.
+        /// </summary>
+        public bool IsScheduled => schedule != null;
 
         /// <summary>
         /// Creates a new To component chain.
@@ -227,6 +235,28 @@ namespace Kyameru.Core
         public Builder RaiseExceptions()
         {
             raiseExceptions = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Schedules the route to tigger at every <see cref="TimeUnit"/>.
+        /// </summary>
+        /// <param name="unit">Unit of available time.</param>
+        public Builder ScheduleEvery(TimeUnit unit)
+        {
+            schedule = new Schedule(unit, 0, true);
+            return this;
+        }
+
+        /// <summary>
+        /// Schedules the route to trigger at a specific <see cref="TimeUnit"/>.
+        /// </summary>
+        /// <param name="unit">Time unit</param>
+        /// <param name="value">Value between 0 and max for time unit.</param>
+        /// <returns></returns>
+        public Builder ScheduleAt(TimeUnit unit, int value)
+        {
+            schedule = new Schedule(unit, value, false);
             return this;
         }
 
@@ -400,5 +430,7 @@ namespace Kyameru.Core
             var route = new RouteAttributes(componentUri, postProcessComponent);
             toUris.Add(route);
         }
+
+
     }
 }

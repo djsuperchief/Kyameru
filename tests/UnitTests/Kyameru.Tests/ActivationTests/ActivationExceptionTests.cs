@@ -35,6 +35,13 @@ namespace Kyameru.Tests.ActivationTests
             Assert.Equal(expected, errorComponent);
         }
 
+        // TODO: write schedule component failure.
+        // [Fact]
+        // public void ScheduleComponentThrowsError()
+        // {
+        //     var exception = Record.Exception(this.GetHostedService("error", "error", "error", "error"));
+        // }
+
         private IHostedService GetHostedService(
                 string fromHost,
                 string atomicHost,
