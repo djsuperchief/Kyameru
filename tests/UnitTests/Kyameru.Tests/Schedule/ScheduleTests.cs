@@ -122,4 +122,53 @@ public class ScheduleTests
         scheduler.Next(22, TimeUnit.Minute);
         Assert.Equal(expected, scheduler.NextExecution);
     }
+
+    [Fact]
+    public void AtHourIsCorrect()
+    {
+        var timeProvider = Substitute.For<ITimeProvider>();
+        var currentTime = new DateTime(2024, 01, 01, 08, 0, 0);
+        timeProvider.UtcNow.Returns(currentTime);
+        timeProvider.Now.Returns(currentTime.ToLocalTime());
+
+        Core.Utils.TimeProvider.Current = timeProvider;
+
+        var scheduler = new Scheduler();
+        scheduler.Next(10, TimeUnit.Hour);
+        Assert.Equal(10, scheduler.NextExecution.Hour);
+    }
+
+    [Fact]
+    public void AtHourMissedExecutionIsCorrect()
+    {
+        var simulatedTime = Substitute.For<ITimeProvider>();
+        var testDate = new DateTime(2024, 01, 01, 9, 0, 0, DateTimeKind.Utc);
+        simulatedTime.UtcNow.Returns(testDate);
+        simulatedTime.Now.Returns(testDate.ToLocalTime());
+        Core.Utils.TimeProvider.Current = simulatedTime;
+        var expected = new DateTime(testDate.Year, testDate.Month, testDate.Day, 22, testDate.Minute, 0, 0, DateTimeKind.Utc);
+        var scheduler = new Scheduler();
+        scheduler.Next(22, TimeUnit.Hour);
+        Assert.Equal(expected, scheduler.NextExecution);
+        // Simulate missing an execution
+        simulatedTime.ClearSubstitute(ClearOptions.All);
+        simulatedTime.UtcNow.Returns(testDate.AddHours(2));
+        simulatedTime.Now.Returns(testDate.AddHours(2).ToLocalTime());
+        Core.Utils.TimeProvider.Current = simulatedTime;
+        expected = expected.AddHours(2);
+        scheduler.Next(0, TimeUnit.Hour);
+        Assert.Equal(expected, scheduler.NextExecution);
+    }
+
+    [Theory]
+    [InlineData(60, TimeUnit.Minute)]
+    [InlineData(24, TimeUnit.Hour)]
+    public void ExceedingMaximumUnitThrowsError(int value, TimeUnit unit)
+    {
+        var scheduler = new Scheduler();
+        var exception = Record.Exception(() => scheduler.Next(value, unit));
+        Assert.NotNull(exception);
+        Assert.Equal(typeof(Core.Exceptions.CoreException), exception.GetType());
+        Assert.Equal("An invalid unit has been specified for schedule. Minutes 0-59, Hours 0-23", exception.Message);
+    }
 }

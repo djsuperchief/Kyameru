@@ -24,9 +24,6 @@ namespace Kyameru.Core.Utils
 
         private readonly bool isUtc;
 
-        private const int MaxHours = 23;
-        private const int MaxMinutes = 59;
-
         /// <summary>
         /// Gets the next execution date.
         /// </summary>
@@ -47,17 +44,17 @@ namespace Kyameru.Core.Utils
 
         internal void Next(TimeUnit unit)
         {
-            var totalIncrease = NextExecution;
             do
             {
-                totalIncrease = totalIncrease.AddTicks(timeUnitTicks[unit]);
-            } while (GetTimeProvider() >= totalIncrease);
+                NextExecution = NextExecution.AddTicks(timeUnitTicks[unit]);
+            } while (GetTimeProvider() >= NextExecution);
 
             NextExecution = NextExecution.UpToMinute();
         }
 
         internal void Next(int at, TimeUnit unit)
         {
+            IsValid(at, unit);
             NextExecution = NextExecution.SetUnit(unit, at);
             if (at >= 0 && at < maxTimeUnit[unit])
             {
@@ -86,6 +83,14 @@ namespace Kyameru.Core.Utils
             }
 
             return newDate.SetUnit(unit, at);
+        }
+
+        private void IsValid(int value, TimeUnit unit)
+        {
+            if (value > maxTimeUnit[unit])
+            {
+                throw new Exceptions.CoreException(Resources.ERROR_SCHEDULE_TIME_INVALID);
+            }
         }
     }
 }
