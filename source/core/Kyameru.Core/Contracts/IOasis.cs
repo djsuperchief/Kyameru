@@ -34,6 +34,15 @@ namespace Kyameru.Core.Contracts
         IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers);
 
         /// <summary>
+        /// Creates a scheduled component.
+        /// </summary>
+        /// <param name="headers">Dictionary of headers to apply.</param>
+        /// <param name="isAtomic">Indicates if the route is atomic.</param>
+        /// <param name="serviceProvider">DI Service provider</param>
+        /// <returns>Returns an instance of the <see cref="IScheduleComponent"/> interface.</returns>
+        IScheduleComponent CreateScheduleComponent(Dictionary<sbyte, string> headers, bool isAtomic, IServiceProvider serviceProvider);
+
+        /// <summary>
         /// Registers internal to services
         /// </summary>
         /// <param name="serviceCollection">IoC collection</param>
@@ -46,5 +55,12 @@ namespace Kyameru.Core.Contracts
         /// <param name="serviceCollection">IoC collection</param>
         /// <returns>Returns the <see cref="IServiceCollection"/>.</returns>
         IServiceCollection RegisterFrom(IServiceCollection serviceCollection);
+
+        /// <summary>
+        /// Registers internal scheduled services.
+        /// </summary>
+        /// <param name="serviceCollection">IoC collection</param>
+        /// <returns>Returns the <see cref="IServiceCollection"/>.</returns>
+        IServiceCollection RegisterScheduled(IServiceCollection serviceCollection);
     }
 }

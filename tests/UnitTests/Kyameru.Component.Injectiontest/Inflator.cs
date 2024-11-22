@@ -45,5 +45,15 @@ namespace Kyameru.Component.Injectiontest
         {
             return serviceCollection.InstallFromService();
         }
+
+        public IScheduleComponent CreateScheduleComponent(Dictionary<sbyte, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

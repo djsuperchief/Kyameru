@@ -29,6 +29,10 @@ namespace Kyameru.Core.Utils
         /// </summary>
         public DateTime NextExecution { get; private set; }
 
+        /// <summary>
+        /// Instantiates a new instance of the <see cref="Scheduler"/> class.
+        /// </summary>
+        /// <param name="isUtcTime">Value indicating if UTC should be used.</param>
         public Scheduler(bool isUtcTime = true)
         {
             isUtc = isUtcTime;

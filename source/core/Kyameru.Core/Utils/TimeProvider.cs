@@ -8,16 +8,23 @@ namespace Kyameru.Core.Utils
     /// </summary>
     /// <remarks>
     /// Primarily for ensuring we can test schedules.
+    /// </remarks>
     public abstract class TimeProvider
     {
         private static ITimeProvider current = new DefaultTimeProvider();
 
+        /// <summary>
+        /// Current time provider.
+        /// </summary>
         public static ITimeProvider Current
         {
             get { return current; }
             set { current = value; }
         }
 
+        /// <summary>
+        /// Resets the time provider to default.
+        /// </summary>
         public static void Reset() => Current = new DefaultTimeProvider();
     }
 

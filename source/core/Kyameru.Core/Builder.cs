@@ -57,7 +57,7 @@ namespace Kyameru.Core
         /// <summary>
         /// Used for when reflection is needed for host assembly reflection.
         /// </summary>
-        private Assembly hostAssmebly;
+        private Assembly hostAssembly;
 
         private Schedule schedule;
 
@@ -79,7 +79,7 @@ namespace Kyameru.Core
             this.components = components;
             this.fromUri = fromUri;
             raiseExceptions = false;
-            hostAssmebly = callingAssembly;
+            hostAssembly = callingAssembly;
         }
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace Kyameru.Core
         }
 
         /// <summary>
-        /// Schedules the route to tigger at every <see cref="TimeUnit"/>.
+        /// Schedules the route to trigger at every <see cref="TimeUnit"/>.
         /// </summary>
         /// <param name="unit">Unit of available time.</param>
         public Builder ScheduleEvery(TimeUnit unit)
@@ -266,9 +266,9 @@ namespace Kyameru.Core
         /// <param name="services">Service collection.</param>
         public void Build(IServiceCollection services)
         {
-            if (hostAssmebly == null && ContainsReflectionComponents())
+            if (hostAssembly == null && ContainsReflectionComponents())
             {
-                hostAssmebly = Assembly.GetCallingAssembly();
+                hostAssembly = Assembly.GetCallingAssembly();
             }
 
             BuildKyameru(services);
@@ -307,6 +307,10 @@ namespace Kyameru.Core
             {
                 RegisterToServices(services, to.ComponentName);
             }
+            if (IsScheduled)
+            {
+                RegisterScheduledServices(services, fromUri.ComponentName);
+            }
         }
 
         /// <summary>
@@ -319,7 +323,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupChain(int i, ILogger logger, IChain<Routable> toComponents, IServiceProvider serviceProvider)
         {
-            var chain = new Process(logger, components[i].GetComponent(serviceProvider, hostAssmebly), GetIdentity());
+            var chain = new Process(logger, components[i].GetComponent(serviceProvider, hostAssembly), GetIdentity());
             logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, components[i]));
             if (i < components.Count - 1)
             {
@@ -345,7 +349,7 @@ namespace Kyameru.Core
             To toChain = null;
             if (toUris[i].HasPostprocessing)
             {
-                toChain = new To(logger, GetToComponent(i, serviceProvider), toUris[i].PostProcessingComponent.GetComponent(serviceProvider, hostAssmebly),
+                toChain = new To(logger, GetToComponent(i, serviceProvider), toUris[i].PostProcessingComponent.GetComponent(serviceProvider, hostAssembly),
                     GetIdentity());
             }
             else

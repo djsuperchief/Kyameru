@@ -16,6 +16,7 @@
     <NeutralLanguage>B</NeutralLanguage>
     <Authors>Giles Papworth</Authors>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

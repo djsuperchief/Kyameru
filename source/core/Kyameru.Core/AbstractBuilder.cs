@@ -11,7 +11,7 @@ namespace Kyameru.Core
     /// </summary>
     /// <remarks>
     /// Will make the below more efficient but readable is better for now,
-    /// optimise later.
+    /// optimize later.
     /// </remarks>
     public abstract class AbstractBuilder
     {
@@ -107,6 +107,27 @@ namespace Kyameru.Core
             try
             {
                 GetOasis(component).RegisterFrom(serviceCollection);
+            }
+            catch (Exception ex)
+            {
+                throw new Exceptions.ActivationException(Resources.ERROR_REGISTERING_SERVICES, ex, component);
+            }
+        }
+
+        /// <summary>
+        /// Registers scheduled services through DI.
+        /// </summary>
+        /// <param name="serviceCollection">DI Service descriptors</param>
+        /// <param name="component">Component to target.</param>
+        protected void RegisterScheduledServices(IServiceCollection serviceCollection, string component)
+        {
+            try
+            {
+                GetOasis(component).RegisterScheduled(serviceCollection);
+            }
+            catch (NotImplementedException)
+            {
+                throw new Exceptions.ActivationException(string.Format(Resources.ERROR_SCHEDULE_NOTSUPPORTED, component), component);
             }
             catch (Exception ex)
             {

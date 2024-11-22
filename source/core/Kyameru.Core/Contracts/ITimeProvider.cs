@@ -2,6 +2,12 @@ using System;
 
 namespace Kyameru.Core.Contracts
 {
+    /// <summary>
+    /// Time provider
+    /// </summary>
+    /// <remarks>
+    /// This is mostly for unit testing really.
+    /// </remarks>
     public interface ITimeProvider
     {
         /// <summary>

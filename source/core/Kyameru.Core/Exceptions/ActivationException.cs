@@ -16,6 +16,16 @@ namespace Kyameru.Core.Exceptions
         /// Initializes a new instance of the <see cref="ActivationException"/> class.
         /// </summary>
         /// <param name="message">Error Message.</param>
+        /// <param name="component">Component responsible for error.</param>
+        public ActivationException(string message, string component) : base(message)
+        {
+            Component = component;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ActivationException"/> class.
+        /// </summary>
+        /// <param name="message">Error Message.</param>
         /// <param name="innerException">Inner Exception.</param>
         /// <param name="component">Component responsible for error.</param>
         public ActivationException(string message, Exception innerException, string component) : base(message, innerException)

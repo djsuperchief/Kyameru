@@ -22,6 +22,8 @@
         internal const string ERROR_HEADER_IMMUTABLE_ADDED = "Error adding immutable header {0}, already present.";
         internal const string ERROR_SETUP_COMPONENT_INVOCATION = "Error activating component. No valid invocation.";
 
+        internal const string ERROR_SCHEDULE_NOTSUPPORTED = "Component '{0}' does not support scheduling";
+
         /// <summary>
         /// Message for unavailable routes.
         /// </summary>
