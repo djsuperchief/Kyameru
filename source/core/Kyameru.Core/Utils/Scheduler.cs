@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Kyameru.Core.Entities;
 using Kyameru.Core.Enums;
 using Kyameru.Core.Extensions;
 
@@ -48,12 +49,7 @@ namespace Kyameru.Core.Utils
 
         internal void Next(TimeUnit unit)
         {
-            do
-            {
-                NextExecution = NextExecution.AddTicks(timeUnitTicks[unit]);
-            } while (GetTimeProvider() >= NextExecution);
-
-            NextExecution = NextExecution.UpToMinute();
+            Every(1, unit);
         }
 
         internal void Next(int at, TimeUnit unit)
@@ -66,6 +62,33 @@ namespace Kyameru.Core.Utils
                 {
                     NextExecution = IncreaseWholeUnit(unit, at).UpToMinute();
                 } while (GetTimeProvider() >= NextExecution);
+            }
+        }
+
+        internal void Every(int value, TimeUnit unit)
+        {
+            do
+            {
+                if (value <= 0)
+                {
+                    value = 1;
+                }
+
+                NextExecution = NextExecution.AddTicks(timeUnitTicks[unit] * value);
+            } while (GetTimeProvider() >= NextExecution);
+
+            NextExecution = NextExecution.UpToMinute();
+        }
+
+        internal void Next(Schedule schedule)
+        {
+            if (schedule.IsEvery)
+            {
+                Every(schedule.Value, schedule.Unit);
+            }
+            else
+            {
+                Next(schedule.Value, schedule.Unit);
             }
         }
 

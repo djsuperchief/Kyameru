@@ -40,7 +40,7 @@ namespace Kyameru.Core.Contracts
         /// <param name="isAtomic">Indicates if the route is atomic.</param>
         /// <param name="serviceProvider">DI Service provider</param>
         /// <returns>Returns an instance of the <see cref="IScheduleComponent"/> interface.</returns>
-        IScheduleComponent CreateScheduleComponent(Dictionary<sbyte, string> headers, bool isAtomic, IServiceProvider serviceProvider);
+        IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider);
 
         /// <summary>
         /// Registers internal to services

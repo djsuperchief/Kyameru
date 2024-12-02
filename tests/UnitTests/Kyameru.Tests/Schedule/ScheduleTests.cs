@@ -171,4 +171,40 @@ public class ScheduleTests
         Assert.Equal(typeof(Core.Exceptions.CoreException), exception.GetType());
         Assert.Equal("An invalid unit has been specified for schedule. Minutes 0-59, Hours 0-23", exception.Message);
     }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void NextScheduleEveryXUsingScheduleObjectIsCorrect(int value)
+    {
+        Core.Utils.TimeProvider.Reset();
+        var simulatedTime = Substitute.For<ITimeProvider>();
+        var testDate = new DateTime(2024, 01, 01, 9, 0, 0, DateTimeKind.Utc);
+        var schedule = new Core.Entities.Schedule(TimeUnit.Minute, value, true);
+        simulatedTime.UtcNow.Returns(testDate);
+        simulatedTime.Now.Returns(testDate.ToLocalTime());
+        Core.Utils.TimeProvider.Current = simulatedTime;
+        var scheduler = new Scheduler();
+        var expected = new DateTime(testDate.Year, testDate.Month, testDate.Day, testDate.Hour, testDate.Minute + value, 0, 0, DateTimeKind.Utc);
+        scheduler.Next(schedule);
+        Assert.Equal(expected, scheduler.NextExecution);
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void NextScheduleEveryXHourUsingScheduleObjectIsCorrect(int value)
+    {
+        Core.Utils.TimeProvider.Reset();
+        var simulatedTime = Substitute.For<ITimeProvider>();
+        var testDate = new DateTime(2024, 01, 01, 9, 0, 0, DateTimeKind.Utc);
+        var schedule = new Core.Entities.Schedule(TimeUnit.Hour, value, true);
+        simulatedTime.UtcNow.Returns(testDate);
+        simulatedTime.Now.Returns(testDate.ToLocalTime());
+        Core.Utils.TimeProvider.Current = simulatedTime;
+        var scheduler = new Scheduler();
+        var expected = new DateTime(testDate.Year, testDate.Month, testDate.Day, testDate.Hour + value, 0, 0, 0, DateTimeKind.Utc);
+        scheduler.Next(schedule);
+        Assert.Equal(expected, scheduler.NextExecution);
+    }
 }

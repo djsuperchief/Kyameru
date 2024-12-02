@@ -60,6 +60,29 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Creates the scheduled component.
+        /// </summary>
+        /// <param name="from">Valid component name.</param>
+        /// <param name="headers">Dictionary of headers</param>
+        /// <param name="serviceProvider">DI Service provider.</param>
+        /// <param name="isAtomic">Indicates if the route is atomic.</param>
+        /// <returns>Returns an instance of the <see cref="IScheduleComponent"/> interface.</returns>
+        protected IScheduleComponent CreateScheduledComponent(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic)
+        {
+            IScheduleComponent response = null;
+            try
+            {
+                response = GetOasis(from).CreateScheduleComponent(headers, isAtomic, serviceProvider);
+            }
+            catch (Exception ex)
+            {
+                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_FROM, ex, "Scheduled");
+            }
+
+            return response;
+        }
+
+        /// <summary>
         /// Creates the atomic component.
         /// </summary>
         /// <param name="from">Valid component name.</param>

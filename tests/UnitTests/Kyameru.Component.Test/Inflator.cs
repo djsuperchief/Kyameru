@@ -35,14 +35,14 @@ namespace Kyameru.Component.Test
             return serviceCollection;
         }
 
-        public IScheduleComponent CreateScheduleComponent(Dictionary<sbyte, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
         {
             throw new NotImplementedException();
         }
 
         public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
         {
-            throw new NotImplementedException();
+            return serviceCollection;
         }
     }
 }
