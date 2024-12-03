@@ -51,7 +51,7 @@ namespace Kyameru.Tests.ActivationTests
             var exception = Record.Exception(() => this.GetHostedService("error", "test", "test", TimeUnit.Minute));
             Assert.NotNull(exception);
             Assert.IsType<ActivationException>(exception);
-            Assert.Equal("Component 'Injectiontest' does not support scheduling", exception.Message);
+            Assert.Equal("Component 'Error' does not support scheduling", exception.Message);
         }
 
         private IHostedService GetHostedService(

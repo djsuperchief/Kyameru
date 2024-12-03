@@ -67,7 +67,7 @@ namespace Kyameru.Core
         /// <param name="serviceProvider">DI Service provider.</param>
         /// <param name="isAtomic">Indicates if the route is atomic.</param>
         /// <returns>Returns an instance of the <see cref="IScheduleComponent"/> interface.</returns>
-        protected IScheduleComponent CreateScheduledComponent(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic)
+        protected IScheduleComponent CreateScheduled(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic)
         {
             IScheduleComponent response = null;
             try
@@ -76,7 +76,7 @@ namespace Kyameru.Core
             }
             catch (Exception ex)
             {
-                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_FROM, ex, "Scheduled");
+                throw new Exceptions.ActivationException(string.Format(Resources.ERROR_SCHEDULE_NOTSUPPORTED, from), ex, "Scheduled");
             }
 
             return response;

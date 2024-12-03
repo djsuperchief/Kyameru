@@ -242,9 +242,10 @@ namespace Kyameru.Core
         /// Schedules the route to trigger at every <see cref="TimeUnit"/>.
         /// </summary>
         /// <param name="unit">Unit of available time.</param>
-        public Builder ScheduleEvery(TimeUnit unit)
+        /// <param name="value">Value of time unit</param>
+        public Builder ScheduleEvery(TimeUnit unit, int value = 1)
         {
-            schedule = new Schedule(unit, 0, true);
+            schedule = new Schedule(unit, value, true);
             return this;
         }
 
@@ -279,7 +280,7 @@ namespace Kyameru.Core
             RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
             {
-                var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
+
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
@@ -293,7 +294,18 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                return new From(from, next, logger, identity, IsAtomic, raiseExceptions);
+                if (schedule == null)
+                {
+                    var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
+                    return new From(from, next, logger, identity, IsAtomic, raiseExceptions);
+                }
+                else
+                {
+                    var scheduled = CreateScheduled(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
+                    return new Scheduled(scheduled, next, logger, identity, IsAtomic, raiseExceptions, schedule);
+                }
+
+
             });
         }
 

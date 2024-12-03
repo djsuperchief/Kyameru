@@ -111,7 +111,7 @@ namespace Kyameru.Core.Chain
                     scheduler.Next(schedule);
                 }
 
-                autoResetEvent.WaitOne(TimeSpan.FromSeconds(1));
+                autoResetEvent.WaitOne(TimeSpan.FromSeconds(5));
             } while (!stoppingToken.IsCancellationRequested);
         }
 
