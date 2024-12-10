@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core.Sys;
 
@@ -23,6 +24,6 @@ namespace Kyameru.Core.Contracts
         /// Runs the main scheduled task.
         /// </summary>
         /// <returns>Returns a task representing the asynchronous event.</returns>
-        Task Run();
+        Task RunAsync(CancellationToken cancellationToken);
     }
 }

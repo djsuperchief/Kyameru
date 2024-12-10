@@ -92,11 +92,11 @@ namespace Kyameru.Core.Chain
         {
             do
             {
-                if (DateTime.UtcNow > scheduler.NextExecution)
+                if (Utils.TimeProvider.Current.UtcNow >= scheduler.NextExecution)
                 {
                     try
                     {
-                        await fromComponent.Run();
+                        await fromComponent.RunAsync(stoppingToken);
                     }
                     catch (Exception ex)
                     {
@@ -113,6 +113,7 @@ namespace Kyameru.Core.Chain
 
                 autoResetEvent.WaitOne(TimeSpan.FromSeconds(5));
             } while (!stoppingToken.IsCancellationRequested);
+            logger.LogDebug("Scheduled component stopping");
         }
 
         /// <summary>
