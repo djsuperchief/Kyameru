@@ -101,6 +101,20 @@ This may help identify errors if you use several routes that are all the same.
 
 You can create an error processing component `IErrorComponent` that execute if the route encounters any errors. This gives you an opportunity to do any final processing on a message in the event the route encounters any errors.
 
+### Scheduling
+
+You can schedule a route to execute every (x) minutes, hours or at (x) hour or minute. Full Cron support is not available right now but it will be in future iterations.
+
+```
+.ScheduleEvery(Core.Enums.TimeUnit.Minute, 1)
+
+OR
+
+.ScheduleAt(Core.Enums.TimeUnit.Minute, 1)
+```
+
+It is important to note that whilst you can ask for something to be scheduled, a component has to be able to support it (FROM part of the component) so ensure you are using a component that can support a schedule.
+
 ### Full Example
 
 ```

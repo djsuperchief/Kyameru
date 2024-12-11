@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Kyameru.Core;
 using Kyameru.Core.Sys;
 using Xunit;
+using System;
 
 namespace Kyameru.Component.Ftp.Tests.Routes
 {
@@ -19,7 +20,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
         [InlineData(false)]
         public async Task FromDownloadsAndDeletes(bool deletes)
         {
-            var tokenSource = new CancellationTokenSource();
+            var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(20));
             Mock<IWebRequestUtility> webRequestFactory = this.GetWebRequest();
             AutoResetEvent autoReset = new AutoResetEvent(false);
             Times times = Times.Never();
@@ -39,17 +40,19 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             {
                 routable = e.Data;
                 routable.SetHeader("&Method", "ASYNC");
-                autoReset.Set();
                 return Task.CompletedTask;
             };
             from.Setup();
-            await from.StartAsync(tokenSource.Token);
+            var thread = new Thread(async () =>
+            {
+                await from.StartAsync(tokenSource.Token);
+            });
+
+            thread.Start();
+            autoReset.WaitOne(3000);
+            tokenSource.Cancel();
 
             // possible the crash is being caused by 
-            if (routable == null)
-            {
-                autoReset.WaitOne(3000);
-            }
 
             Assert.Equal("Hello ftp", Encoding.UTF8.GetString((byte[])routable.Body));
             webRequestFactory.Verify(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>(), It.IsAny<CancellationToken>()), times);
