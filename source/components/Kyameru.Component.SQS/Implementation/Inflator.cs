@@ -42,4 +42,14 @@ public class Inflator : IOasis
         serviceCollection.AddTransient<IFrom, SqsFrom>();
         return serviceCollection;
     }
+
+    public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
+    {
+        throw new NotImplementedException();
+    }
 }
