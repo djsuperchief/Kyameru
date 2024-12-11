@@ -32,6 +32,11 @@ namespace Kyameru.Component.File
             return new FileWatcher(headers, new Utilities.BaseFileSystemWatcher());
         }
 
+        public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Creates a to component.
         /// </summary>
@@ -45,6 +50,11 @@ namespace Kyameru.Component.File
         public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
         {
             return serviceCollection;
+        }
+
+        public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
+        {
+            throw new NotImplementedException();
         }
 
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)

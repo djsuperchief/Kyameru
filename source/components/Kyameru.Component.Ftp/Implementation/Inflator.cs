@@ -22,6 +22,11 @@ namespace Kyameru.Component.Ftp
             return new From(headers, new Components.WebRequestUtility());
         }
 
+        public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        {
+            throw new NotImplementedException();
+        }
+
         public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             return new To(headers, new Components.WebRequestUtility());
@@ -30,6 +35,11 @@ namespace Kyameru.Component.Ftp
         public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
         {
             return serviceCollection;
+        }
+
+        public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
+        {
+            throw new NotImplementedException();
         }
 
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)

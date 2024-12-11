@@ -37,7 +37,7 @@ namespace Kyameru.Component.Test
 
         public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
         {
-            throw new NotImplementedException();
+            return new Scheduled();
         }
 
         public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)

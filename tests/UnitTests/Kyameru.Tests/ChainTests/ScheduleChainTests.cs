@@ -6,6 +6,7 @@ using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Tests.Mocks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NSubstitute;
@@ -34,7 +35,8 @@ public class ScheduleChainTests
     [Fact]
     public async Task ScheduledComponentExecutes()
     {
-        var mockNext = new Mock<IChain<Routable>>();
+        var serviceCollection = GetServiceDescriptors();
+        var mockNext = new Mock<IProcessComponent>();
         Routable output = null;
         var waitTimer = new AutoResetEvent(false);
         var simulatedTime = Substitute.For<ITimeProvider>();
@@ -42,26 +44,42 @@ public class ScheduleChainTests
         simulatedTime.UtcNow.Returns(testDate);
         simulatedTime.Now.Returns(testDate.ToLocalTime());
         Kyameru.Core.Utils.TimeProvider.Current = simulatedTime;
-        var cancellationToken = GetCancellationToken(120);
+        var cancellationTokenSource = GetCancellationToken(120);
 
         // TODO: This needs to be a proper Kyameru setup (like the other route tests)
-        // mockNext.Setup(x => x.HandleAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback(async (Routable x, CancellationToken y) =>
-        // {
-        //     output = x;
-        //     await Task.CompletedTask;
-        // });
+        mockNext.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback(async (Routable x, CancellationToken y) =>
+        {
+            output = x;
+            await Task.CompletedTask;
+        });
+        Kyameru.Route.From("test://test")
+        .Process(mockNext.Object)
+        .To("test://test")
+        .Id("scheduled_test")
+        .ScheduleEvery(Core.Enums.TimeUnit.Minute, 1)
+        .Build(serviceCollection);
+        IServiceProvider provider = serviceCollection.BuildServiceProvider();
+        IHostedService service = provider.GetService<IHostedService>();
 
 
-        // var scheduled = new ScheduleChainFacade(new MockScheduled(), mockNext.Object, new Mock<ILogger>().Object, "test", false, false, new Core.Entities.Schedule(Core.Enums.TimeUnit.Minute, 1, true));
-        // var testThread = new Thread(async () => {
-        //     await scheduled.Run(cancellationToken);
-        // });
+        var thread = new Thread(async () =>
+        {
+            await service.StartAsync(cancellationTokenSource.Token);
+        });
 
-        // waitTimer.WaitOne(TimeSpan.FromSeconds(10));
-        // testDate = testDate.AddMinutes(2);
-        // simulatedTime.UtcNow.Returns(testDate);
-        // simulatedTime.Now.Returns(testDate.ToLocalTime());
-        // waitTimer.WaitOne(TimeSpan.FromSeconds(10));
+        thread.Start();
+        waitTimer.WaitOne(TimeSpan.FromSeconds(10));
+        testDate = testDate.AddMinutes(2);
+        simulatedTime.UtcNow.Returns(testDate);
+        simulatedTime.Now.Returns(testDate.ToLocalTime());
+        waitTimer.WaitOne(TimeSpan.FromSeconds(10));
+
+        // Cancel the thread, wait for exit
+        await cancellationTokenSource.CancelAsync();
+        waitTimer.WaitOne(TimeSpan.FromSeconds(10));
+
+        // Stop background service
+        await service.StopAsync(cancellationTokenSource.Token);
 
 
         Assert.Equal("2", output.Headers["Counter"]);
@@ -79,8 +97,8 @@ public class ScheduleChainTests
         return serviceCollection;
     }
 
-    private CancellationToken GetCancellationToken(int timeInSeconds)
+    private CancellationTokenSource GetCancellationToken(int timeInSeconds)
     {
-        return new CancellationTokenSource(TimeSpan.FromSeconds(timeInSeconds)).Token;
+        return new CancellationTokenSource(TimeSpan.FromSeconds(timeInSeconds));
     }
 }
