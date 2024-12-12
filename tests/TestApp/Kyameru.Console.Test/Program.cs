@@ -47,9 +47,9 @@ namespace Kyameru.Console.Test
                 services.AddLogging();
                 services.AddLocalStack(Configuration);
                 services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
-                //SetupSnsTest(services);
+                SetupSnsTest(services);
                 SetupSesTest(services);
-
+                SetupS3Route(services, fileLocation);
 
 
             }).ConfigureLogging((hostContext, services) =>
