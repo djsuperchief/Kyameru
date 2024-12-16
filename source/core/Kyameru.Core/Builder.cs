@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Kyameru.Core.Chain;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -56,7 +57,9 @@ namespace Kyameru.Core
         /// <summary>
         /// Used for when reflection is needed for host assembly reflection.
         /// </summary>
-        private Assembly hostAssmebly;
+        private Assembly hostAssembly;
+
+        private Schedule schedule;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Builder"/> class.
@@ -76,7 +79,7 @@ namespace Kyameru.Core
             this.components = components;
             this.fromUri = fromUri;
             raiseExceptions = false;
-            hostAssmebly = callingAssembly;
+            hostAssembly = callingAssembly;
         }
 
         /// <summary>
@@ -93,6 +96,11 @@ namespace Kyameru.Core
         /// Gets a value indicating whether the route is considered to be atomic.
         /// </summary>
         public bool IsAtomic => atomicComponent != null;
+
+        /// <summary>
+        /// Gets a value indicating whether the route is on a schedule.
+        /// </summary>
+        public bool IsScheduled => schedule != null;
 
         /// <summary>
         /// Creates a new To component chain.
@@ -231,14 +239,37 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Schedules the route to trigger at every <see cref="TimeUnit"/>.
+        /// </summary>
+        /// <param name="unit">Unit of available time.</param>
+        /// <param name="value">Value of time unit</param>
+        public Builder ScheduleEvery(TimeUnit unit, int value = 1)
+        {
+            schedule = new Schedule(unit, value, true);
+            return this;
+        }
+
+        /// <summary>
+        /// Schedules the route to trigger at a specific <see cref="TimeUnit"/>.
+        /// </summary>
+        /// <param name="unit">Time unit</param>
+        /// <param name="value">Value between 0 and max for time unit.</param>
+        /// <returns></returns>
+        public Builder ScheduleAt(TimeUnit unit, int value)
+        {
+            schedule = new Schedule(unit, value, false);
+            return this;
+        }
+
+        /// <summary>
         /// Builds the final chain into dependency injection.
         /// </summary>
         /// <param name="services">Service collection.</param>
         public void Build(IServiceCollection services)
         {
-            if (hostAssmebly == null && ContainsReflectionComponents())
+            if (hostAssembly == null && ContainsReflectionComponents())
             {
-                hostAssmebly = Assembly.GetCallingAssembly();
+                hostAssembly = Assembly.GetCallingAssembly();
             }
 
             BuildKyameru(services);
@@ -249,7 +280,7 @@ namespace Kyameru.Core
             RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
             {
-                var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
+
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
@@ -263,7 +294,18 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                return new From(from, next, logger, identity, IsAtomic, raiseExceptions);
+                if (schedule == null)
+                {
+                    var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
+                    return new From(from, next, logger, identity, IsAtomic, raiseExceptions);
+                }
+                else
+                {
+                    var scheduled = CreateScheduled(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
+                    return new Scheduled(scheduled, next, logger, identity, IsAtomic, raiseExceptions, schedule);
+                }
+
+
             });
         }
 
@@ -277,6 +319,10 @@ namespace Kyameru.Core
             {
                 RegisterToServices(services, to.ComponentName);
             }
+            if (IsScheduled)
+            {
+                RegisterScheduledServices(services, fromUri.ComponentName);
+            }
         }
 
         /// <summary>
@@ -289,7 +335,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
         private IChain<Routable> SetupChain(int i, ILogger logger, IChain<Routable> toComponents, IServiceProvider serviceProvider)
         {
-            var chain = new Process(logger, components[i].GetComponent(serviceProvider, hostAssmebly), GetIdentity());
+            var chain = new Process(logger, components[i].GetComponent(serviceProvider, hostAssembly), GetIdentity());
             logger.LogInformation(string.Format(Resources.INFO_PROCESSINGCOMPONENT, components[i]));
             if (i < components.Count - 1)
             {
@@ -315,7 +361,7 @@ namespace Kyameru.Core
             To toChain = null;
             if (toUris[i].HasPostprocessing)
             {
-                toChain = new To(logger, GetToComponent(i, serviceProvider), toUris[i].PostProcessingComponent.GetComponent(serviceProvider, hostAssmebly),
+                toChain = new To(logger, GetToComponent(i, serviceProvider), toUris[i].PostProcessingComponent.GetComponent(serviceProvider, hostAssembly),
                     GetIdentity());
             }
             else
@@ -400,5 +446,7 @@ namespace Kyameru.Core
             var route = new RouteAttributes(componentUri, postProcessComponent);
             toUris.Add(route);
         }
+
+
     }
 }

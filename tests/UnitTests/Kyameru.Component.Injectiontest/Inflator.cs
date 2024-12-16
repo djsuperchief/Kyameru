@@ -14,7 +14,7 @@ namespace Kyameru.Component.Injectiontest
 
         public IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
         {
-            if(headers.ContainsKey("WillError"))
+            if (headers.ContainsKey("WillError"))
             {
                 throw new NotImplementedException("from");
             }
@@ -44,6 +44,16 @@ namespace Kyameru.Component.Injectiontest
         public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
         {
             return serviceCollection.InstallFromService();
+        }
+
+        public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
+        {
+            throw new NotImplementedException();
         }
     }
 }

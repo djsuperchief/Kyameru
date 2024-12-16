@@ -34,5 +34,15 @@ namespace Kyameru.Component.Test
         {
             return serviceCollection;
         }
+
+        public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        {
+            return new Scheduled();
+        }
+
+        public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
+        {
+            return serviceCollection;
+        }
     }
 }

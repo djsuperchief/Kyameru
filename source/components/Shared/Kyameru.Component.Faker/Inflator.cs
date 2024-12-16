@@ -35,5 +35,15 @@ namespace Kyameru.Component.Faker
             serviceCollection.AddTransient<IFakerFrom, From>();
             return serviceCollection;
         }
+
+        public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

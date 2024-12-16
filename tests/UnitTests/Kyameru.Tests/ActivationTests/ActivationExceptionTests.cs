@@ -1,4 +1,5 @@
-﻿using Kyameru.Core.Exceptions;
+﻿using Kyameru.Core.Enums;
+using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -35,10 +36,29 @@ namespace Kyameru.Tests.ActivationTests
             Assert.Equal(expected, errorComponent);
         }
 
+        [Fact]
+        public void ScheduleComponentThrowsErrorOnRegister()
+        {
+            var exception = Record.Exception(() => this.GetHostedService("injectiontest", "test", "test", TimeUnit.Minute));
+            Assert.NotNull(exception);
+            Assert.IsType<ActivationException>(exception);
+            Assert.Equal("Component 'Injectiontest' does not support scheduling", exception.Message);
+        }
+
+        [Fact]
+        public void ScheduleComponentThrowsErrorOnBuild()
+        {
+            var exception = Record.Exception(() => this.GetHostedService("error", "test", "test", TimeUnit.Minute));
+            Assert.NotNull(exception);
+            Assert.IsType<ActivationException>(exception);
+            Assert.Equal("Component 'Error' does not support scheduling", exception.Message);
+        }
+
         private IHostedService GetHostedService(
                 string fromHost,
                 string atomicHost,
-                string toHost)
+                string toHost,
+                TimeUnit? schedule = null)
         {
             IServiceCollection serviceCollection = new ServiceCollection();
             serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
@@ -49,10 +69,14 @@ namespace Kyameru.Tests.ActivationTests
             string to = $"{toHost}://hello";
             string atomic = $"{atomicHost}://hello";
 
-            Kyameru.Route.From(from)
+            var builder = Kyameru.Route.From(from)
                 .To(to)
-                .Atomic(atomic)
-                .Build(serviceCollection);
+                .Atomic(atomic);
+            if (schedule != null)
+            {
+                builder.ScheduleEvery(schedule.Value);
+            }
+            builder.Build(serviceCollection);
 
             IServiceProvider provider = serviceCollection.BuildServiceProvider();
             return provider.GetService<IHostedService>();

@@ -1,5 +1,6 @@
 ﻿using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Enums;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -58,7 +59,8 @@ namespace Kyameru.Tests.ActivationTests
         public void CanAddProcessComponentByDelegate()
         {
             var route = this.CreateRoute();
-            route.Process((Routable item) => {
+            route.Process((Routable item) =>
+            {
                 item.SetHeader("Test", "Test");
             });
             Assert.True(route.ComponentCount == 1);
@@ -99,6 +101,26 @@ namespace Kyameru.Tests.ActivationTests
         public void RouteBuilderThrowsException()
         {
             Assert.Throws<Core.Exceptions.RouteUriException>(() => { this.CreateRoute(string.Empty); });
+        }
+
+        [Theory]
+        [InlineData(TimeUnit.Minute)]
+        [InlineData(TimeUnit.Hour)]
+        public void CanCreateScheduleEvery(TimeUnit unit)
+        {
+            Core.Builder builder = this.CreateTo(this.CreateRoute());
+            builder.ScheduleEvery(unit);
+            Assert.True(builder.IsScheduled);
+        }
+
+        [Theory]
+        [InlineData(TimeUnit.Minute, 1)]
+        [InlineData(TimeUnit.Hour, 1)]
+        public void CanCreateScheduleAt(TimeUnit unit, int value)
+        {
+            Core.Builder builder = this.CreateTo(this.CreateRoute());
+            builder.ScheduleAt(unit, value);
+            Assert.True(builder.IsScheduled);
         }
 
         private Core.RouteBuilder CreateRoute(string route = "test://hello")

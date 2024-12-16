@@ -32,6 +32,11 @@ namespace Kyameru.Component.Slack
             throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "Slack"));
         }
 
+        public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Creates a to component.
         /// </summary>
@@ -45,6 +50,11 @@ namespace Kyameru.Component.Slack
         public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
         {
             throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "Slack"));
+        }
+
+        public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
+        {
+            throw new NotImplementedException();
         }
 
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)

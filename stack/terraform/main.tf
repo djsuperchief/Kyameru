@@ -53,3 +53,10 @@ module "component_sns" {
 module "component_ses" {
   source = "./components/ses"
 }
+
+# SQS Subscriptions
+resource "aws_sns_topic_subscription" "kt_to_sqs" {
+  topic_arn = module.component_sns.sns_kyameru_to_arn
+  protocol = "sqs"
+  endpoint = module.component_sqs.kyameru_sns_to_sqs_arn
+}

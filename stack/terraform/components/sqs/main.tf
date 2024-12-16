@@ -27,3 +27,7 @@ resource "aws_sqs_queue" "kyameru_sns_to" {
   receive_wait_time_seconds = 2
   sqs_managed_sse_enabled = true
 }
+
+output "kyameru_sns_to_sqs_arn" {
+  value = aws_sqs_queue.kyameru_sns_to.arn
+}

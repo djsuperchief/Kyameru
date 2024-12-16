@@ -32,5 +32,15 @@ namespace Kyameru.Component.Error
         {
             return serviceCollection;
         }
+
+        public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        {
+            throw new NotSupportedException();
+        }
+
+        public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
+        {
+            return serviceCollection;
+        }
     }
 }

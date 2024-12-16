@@ -17,6 +17,11 @@ public class Inflator : IOasis
         throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "SNS"));
     }
 
+    public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+    {
+        throw new NotImplementedException();
+    }
+
     public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
         var component = serviceProvider.GetRequiredService<ITo>();
@@ -28,6 +33,11 @@ public class Inflator : IOasis
     public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
     {
         throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "SNS"));
+    }
+
+    public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
+    {
+        throw new NotImplementedException();
     }
 
     public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
