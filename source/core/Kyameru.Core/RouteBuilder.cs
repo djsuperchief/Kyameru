@@ -179,6 +179,20 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Adds a conditional to component.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <param name="postProcessing">Async post processing delegate</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(Func<Routable, bool> conditional, string component, Func<Routable, Task> postProcessing)
+        {
+            var route = new RouteAttributes(conditional, component);
+            var postProcessComponent = Processable.Create(postProcessing);
+            return GetBuilder(component, postProcessComponent, route);
+        }
+
+        /// <summary>
         /// Adds a to component with post processing.
         /// </summary>
         /// <param name="componentUri">Valid Kyameru URI.</param>
@@ -238,9 +252,10 @@ namespace Kyameru.Core
             return GetBuilder(componentUri, postProcessComponent);
         }
 
-        private Builder GetBuilder(string componentUri, Processable postProcessComponent)
+        private Builder GetBuilder(string componentUri, Processable postProcessComponent, RouteAttributes route = null)
         {
-            var route = new RouteAttributes(componentUri, postProcessComponent);
+            route ??= new RouteAttributes(componentUri, postProcessComponent);
+
             return new Builder(
                 components,
                 route,

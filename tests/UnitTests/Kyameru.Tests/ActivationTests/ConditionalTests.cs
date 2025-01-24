@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,20 @@ public class ConditionalTests
     }
 
     [Fact]
+    public void WhenRegistersWithPostProcessingDelegate()
+    {
+        var routable = new Routable(new System.Collections.Generic.Dictionary<string, string>(), string.Empty);
+        var builder = Kyameru.Route.From("test://test")
+        .When((Routable x) => x.Body.ToString() == "Test", "testto://test", async (Routable x) =>
+        {
+            routable = x;
+
+            await Task.CompletedTask;
+        });
+        Assert.Equal(1, builder.ToComponentCount);
+    }
+
+    [Fact]
     public void RouteAttributesRegistersCondition()
     {
         var attribute = new RouteAttributes((Routable x) => x.Body.ToString() == "Test", "testto://test");
@@ -28,10 +43,11 @@ public class ConditionalTests
     }
 
     [Theory]
-    [InlineData("Test")]
-    [InlineData("Will not execute")]
-    public void WhenConditionExecutes(string bodyText)
+    [InlineData("Test", true)]
+    [InlineData("Will not execute", false)]
+    public void WhenConditionExecutes(string bodyText, bool expected)
     {
+        var executed = false;
         var serviceDescriptors = BuildServices();
         Route.From("test://test")
         .When(x => x.Body.ToString() == "Test", "test://test")
