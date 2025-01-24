@@ -377,6 +377,11 @@ namespace Kyameru.Core
                 toChain = new To(logger, GetToComponent(i, serviceProvider), toUris[i].PostProcessingComponent.GetComponent(serviceProvider, hostAssembly),
                     GetIdentity());
             }
+
+            if (toUris[i].HasCondition)
+            {
+
+            }
             else
             {
                 toChain = new To(logger, GetToComponent(i, serviceProvider), GetIdentity());

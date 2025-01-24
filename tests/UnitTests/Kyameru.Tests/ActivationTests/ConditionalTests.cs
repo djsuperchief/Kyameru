@@ -1,5 +1,8 @@
 using System;
 using Kyameru.Core.Entities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Xunit;
 
 namespace Kyameru.Tests.ActivationTests;
@@ -22,5 +25,34 @@ public class ConditionalTests
     {
         var attribute = new RouteAttributes((Routable x) => x.Body.ToString() == "Test", "testto://test");
         Assert.True(attribute.HasCondition);
+    }
+
+    [Theory]
+    [InlineData("Test")]
+    [InlineData("Will not execute")]
+    public void WhenConditionExecutes(string bodyText)
+    {
+        var serviceDescriptors = BuildServices();
+        Route.From("test://test")
+        .When(x => x.Body.ToString() == "Test", "test://test")
+        .Build(serviceDescriptors);
+
+        // TODO: write test to run.
+
+        Assert.True(false);
+
+    }
+
+    private IServiceCollection BuildServices()
+    {
+        var logger = new Mock<ILogger<Route>>();
+        IServiceCollection serviceCollection = new ServiceCollection();
+        serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
+        {
+            return logger.Object;
+        });
+        serviceCollection.AddTransient<Mocks.IMyComponent, Mocks.MyComponent>();
+
+        return serviceCollection;
     }
 }
