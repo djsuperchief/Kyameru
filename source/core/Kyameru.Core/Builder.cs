@@ -116,6 +116,19 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Adds a conditional to component.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(Func<Routable, bool> conditional, string component)
+        {
+            var route = new RouteAttributes(conditional, component);
+            toUris.Add(route);
+            return this;
+        }
+
+        /// <summary>
         /// Adds a to component with post processing.
         /// </summary>
         /// <param name="componentUri">Valid Kyameru URI.</param>
