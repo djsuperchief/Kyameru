@@ -61,21 +61,40 @@ namespace Kyameru.Core
 
         private Schedule schedule;
 
+        // /// <summary>
+        // /// Initializes a new instance of the <see cref="Builder"/> class.
+        // /// </summary>
+        // /// <param name="components">List of intermediary components.</param>
+        // /// <param name="to">To component.</param>
+        // /// <param name="fromUri">From Uri.</param>
+        // /// <param name="callingAssembly">Calling assembly namespace</param>
+        // internal Builder(
+        //     List<Processable> components,
+        //     RouteAttributes to,
+        //     RouteAttributes fromUri,
+        //     Assembly callingAssembly = null)
+        // {
+        //     this.fromUri = fromUri;
+        //     toUris.Add(to);
+        //     this.components = components;
+        //     this.fromUri = fromUri;
+        //     raiseExceptions = false;
+        //     hostAssembly = callingAssembly;
+        // }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Builder"/> class.
         /// </summary>
         /// <param name="components">List of intermediary components.</param>
-        /// <param name="to">To component.</param>
         /// <param name="fromUri">From Uri.</param>
         /// <param name="callingAssembly">Calling assembly namespace</param>
-        public Builder(
+        internal Builder(
             List<Processable> components,
-            RouteAttributes to,
             RouteAttributes fromUri,
-            Assembly callingAssembly = null)
+            Assembly callingAssembly = null
+        )
         {
             this.fromUri = fromUri;
-            toUris.Add(to);
             this.components = components;
             this.fromUri = fromUri;
             raiseExceptions = false;
@@ -125,6 +144,77 @@ namespace Kyameru.Core
         {
             var route = new RouteAttributes(conditional, component);
             toUris.Add(route);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a conditional to component with post processing.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <param name="postProcessing">Async post processing delegate</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(Func<Routable, bool> conditional, string component, Func<Routable, Task> postProcessing)
+        {
+            var postProcessingComponent = Processable.Create(postProcessing);
+            var route = new RouteAttributes(conditional, component, postProcessingComponent);
+            toUris.Add(route);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a conditional to component with post processing.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <param name="postProcessing">Post processing delegate</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(Func<Routable, bool> conditional, string component, Action<Routable> postProcessing)
+        {
+            var postProcessingComponent = Processable.Create(postProcessing);
+            AddToConditionalProcessing(conditional, component, postProcessingComponent);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a conditional to component with post processing.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <param name="postProcessing">Post processing component</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(Func<Routable, bool> conditional, string component, IProcessComponent postProcessing)
+        {
+            var postProcessingComponent = Processable.Create(postProcessing);
+            AddToConditionalProcessing(conditional, component, postProcessingComponent);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a conditional to component with post processing.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <typeparam name="T">IProcessComponent</typeparam>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When<T>(Func<Routable, bool> conditional, string component) where T : IProcessComponent
+        {
+            var postProcessingComponent = Processable.Create<T>();
+            AddToConditionalProcessing(conditional, component, postProcessingComponent);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a conditional to component with post processing.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <param name="postProcessing">Post processing component</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(Func<Routable, bool> conditional, string component, string postProcessing)
+        {
+            var postProcessingComponent = Processable.Create(postProcessing);
+            AddToConditionalProcessing(conditional, component, postProcessingComponent);
             return this;
         }
 
@@ -377,11 +467,6 @@ namespace Kyameru.Core
                 toChain = new To(logger, GetToComponent(i, serviceProvider), toUris[i].PostProcessingComponent.GetComponent(serviceProvider, hostAssembly),
                     GetIdentity());
             }
-
-            if (toUris[i].HasCondition)
-            {
-
-            }
             else
             {
                 toChain = new To(logger, GetToComponent(i, serviceProvider), GetIdentity());
@@ -465,6 +550,10 @@ namespace Kyameru.Core
             toUris.Add(route);
         }
 
-
+        private void AddToConditionalProcessing(Func<Routable, bool> conditional, string componentUri, Processable postProcessComponent)
+        {
+            var route = new RouteAttributes(conditional, componentUri, postProcessComponent);
+            toUris.Add(route);
+        }
     }
 }

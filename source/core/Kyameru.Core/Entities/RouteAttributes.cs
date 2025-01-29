@@ -75,6 +75,18 @@ namespace Kyameru.Core.Entities
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="RouteAttributes"/> class.
+        /// </summary>
+        /// <param name="condition">Condition to run evaluating executing.</param>
+        /// <param name="componentUri">Valid Kyameru URI.</param>
+        /// <param name="postProcessingComponent">Post processing component.</param>
+        public RouteAttributes(Func<Routable, bool> condition, string componentUri, Processable postProcessingComponent) : this(componentUri)
+        {
+            Condition = condition;
+            PostProcessingComponent = postProcessingComponent;
+        }
+
+        /// <summary>
         /// Gets the component name.
         /// </summary>
         public string ComponentName { get; private set; }

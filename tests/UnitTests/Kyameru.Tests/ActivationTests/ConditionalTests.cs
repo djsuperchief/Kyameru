@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Kyameru.Core.Entities;
+using Kyameru.Tests.Mocks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -22,7 +23,7 @@ public class ConditionalTests
     }
 
     [Fact]
-    public void WhenRegistersWithPostProcessingDelegate()
+    public void WhenRegistersWithAsyncPostProcessingDelegate()
     {
         var routable = new Routable(new System.Collections.Generic.Dictionary<string, string>(), string.Empty);
         var builder = Kyameru.Route.From("test://test")
@@ -34,6 +35,56 @@ public class ConditionalTests
         });
         Assert.Equal(1, builder.ToComponentCount);
     }
+
+    [Fact]
+    public void WhenRegistersWithPostProcessingDelegate()
+    {
+        var routable = new Routable(new System.Collections.Generic.Dictionary<string, string>(), string.Empty);
+        var builder = Kyameru.Route.From("test://test")
+        .When((Routable x) => x.Body.ToString() == "Test", "testto://test", (Routable x) =>
+        {
+            routable = x;
+        });
+        Assert.Equal(1, builder.ToComponentCount);
+    }
+
+    [Fact]
+    public void WhenRegistersWithPostProcessingConcrete()
+    {
+        var routable = new Routable(new System.Collections.Generic.Dictionary<string, string>(), string.Empty);
+        var concrete = new Mock<IProcessComponent>();
+        var builder = Kyameru.Route.From("test://test")
+        .When((Routable x) => x.Body.ToString() == "Test", "testto://test", concrete.Object);
+        Assert.Equal(1, builder.ToComponentCount);
+    }
+
+    [Fact]
+    public void WhenRegistersWithPostProcessingDi()
+    {
+        var routable = new Routable(new System.Collections.Generic.Dictionary<string, string>(), string.Empty);
+        var concrete = new Mock<IProcessComponent>();
+        var builder = Kyameru.Route.From("test://test")
+        .When<IMyComponent>((Routable x) => x.Body.ToString() == "Test", "testto://test");
+        Assert.Equal(1, builder.ToComponentCount);
+    }
+
+    [Fact]
+    public void WhenRegistersWithPostProcessingReflection()
+    {
+        var routable = new Routable(new System.Collections.Generic.Dictionary<string, string>(), string.Empty);
+        var concrete = new Mock<IProcessComponent>();
+        var builder = Kyameru.Route.From("test://test")
+        .When((Routable x) => x.Body.ToString() == "Test", "testto://test", "MyComponent");
+        Assert.Equal(1, builder.ToComponentCount);
+    }
+
+    // [Fact]
+    // public void WhenRegistersWithPostProcessingConcrete()
+    // {
+    //     var concrete = new Mock<IProcessComponent>();
+    //     var builder = Kyameru.Route.From("test://test")
+    //     .When((Routable x) => x.Body.ToString() == "Test", "testto://test", concrete.Object);
+    // }
 
     [Fact]
     public void RouteAttributesRegistersCondition()
