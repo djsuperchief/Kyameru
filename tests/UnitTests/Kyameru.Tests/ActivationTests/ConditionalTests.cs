@@ -1,8 +1,10 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core.Entities;
 using Kyameru.Tests.Mocks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -78,14 +80,6 @@ public class ConditionalTests
         Assert.Equal(1, builder.ToComponentCount);
     }
 
-    // [Fact]
-    // public void WhenRegistersWithPostProcessingConcrete()
-    // {
-    //     var concrete = new Mock<IProcessComponent>();
-    //     var builder = Kyameru.Route.From("test://test")
-    //     .When((Routable x) => x.Body.ToString() == "Test", "testto://test", concrete.Object);
-    // }
-
     [Fact]
     public void RouteAttributesRegistersCondition()
     {
@@ -96,17 +90,27 @@ public class ConditionalTests
     [Theory]
     [InlineData("Test", true)]
     [InlineData("Will not execute", false)]
-    public void WhenConditionExecutes(string bodyText, bool expected)
+    public async Task WhenConditionExecutes(string bodyText, bool expected)
     {
         var executed = false;
         var serviceDescriptors = BuildServices();
-        Route.From("test://test")
-        .When(x => x.Body.ToString() == "Test", "test://test")
+        Route.From("test://test?TestName=WhenConditionExecutes")
+        .Process((Routable x) =>
+        {
+            x.SetBody<string>(bodyText);
+        })
+        .When(x => x.Body.ToString() == "Test", "test://test", (Routable x) =>
+        {
+            executed = x.Headers.TryGetValue("ToExecuted", string.Empty) == "true";
+        })
         .Build(serviceDescriptors);
 
-        // TODO: write test to run.
+        IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
+        IHostedService service = provider.GetService<IHostedService>();
+        await service.StartAsync(CancellationToken.None);
+        await service.StopAsync(CancellationToken.None);
 
-        Assert.True(false);
+        Assert.Equal(expected, executed);
 
     }
 

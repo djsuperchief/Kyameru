@@ -462,14 +462,16 @@ namespace Kyameru.Core
         private IChain<Routable> SetupToChain(int i, ILogger logger, IServiceProvider serviceProvider)
         {
             To toChain = null;
+            var component = GetToComponent(i, serviceProvider);
             if (toUris[i].HasPostprocessing)
             {
-                toChain = new To(logger, GetToComponent(i, serviceProvider), toUris[i].PostProcessingComponent.GetComponent(serviceProvider, hostAssembly),
-                    GetIdentity());
+
+                toChain = new To(logger, component, toUris[i].PostProcessingComponent.GetComponent(serviceProvider, hostAssembly),
+                    GetIdentity(), toUris[i].Condition);
             }
             else
             {
-                toChain = new To(logger, GetToComponent(i, serviceProvider), GetIdentity());
+                toChain = new To(logger, component, GetIdentity(), toUris[i].Condition);
             }
 
             logger.LogInformation(string.Format(Resources.INFO_SETUP_TO, toChain?.ToString()));

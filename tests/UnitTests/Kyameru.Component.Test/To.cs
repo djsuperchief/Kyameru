@@ -33,9 +33,9 @@ namespace Kyameru.Component.Test
 
         private void DoProcessing(Routable item, string call)
         {
+            item.SetHeader("ToExecuted", "true");
             if (this.Headers["Host"] == "kyameru")
             {
-                item.SetHeader("ToExecuted", "true");
                 this.OnLog.Invoke(this, new Log(LogLevel.Warning, "Will not process"));
                 item.SetInError(new Error("To", "Process", "Error"));
                 GlobalCalls.AddCall(item.Headers["TestName"], call);

@@ -24,15 +24,22 @@ namespace Kyameru.Core.Chain
         private readonly IProcessComponent processComponent;
 
         /// <summary>
+        /// Conditional processing.
+        /// </summary>
+        private readonly Func<Routable, bool> conditionalCheck;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="To"/> class.
         /// </summary>
         /// <param name="logger">Logger class.</param>
         /// <param name="toComponent">To component.</param>
         /// <param name="identity">Identity of route.</param>
-        public To(ILogger logger, IToComponent toComponent, string identity) : base(logger, identity)
+        /// <param name="condition">Optional: condition for execution of To.</param>
+        public To(ILogger logger, IToComponent toComponent, string identity, Func<Routable, bool> condition = null) : base(logger, identity)
         {
             this.toComponent = toComponent;
             this.toComponent.OnLog += OnLog;
+            conditionalCheck = condition;
         }
 
         /// <summary>
@@ -42,8 +49,9 @@ namespace Kyameru.Core.Chain
         /// <param name="toComponent">To component.</param>
         /// <param name="postProcessComponent">Post processing component.</param>
         /// <param name="identity">Identity of route.</param>
-        public To(ILogger logger, IToComponent toComponent, IProcessComponent postProcessComponent, string identity) :
-            this(logger, toComponent, identity)
+        /// <param name="condition">Optional: condition for execution of To.</param>
+        public To(ILogger logger, IToComponent toComponent, IProcessComponent postProcessComponent, string identity, Func<Routable, bool> condition = null) :
+            this(logger, toComponent, identity, condition)
         {
             processComponent = postProcessComponent;
             this.processComponent.OnLog += OnLog;
@@ -60,6 +68,12 @@ namespace Kyameru.Core.Chain
             {
                 try
                 {
+                    if (conditionalCheck != null && !conditionalCheck(item))
+                    {
+                        await base.HandleAsync(item, cancellationToken);
+                        return;
+                    }
+
                     await toComponent.ProcessAsync(item, cancellationToken);
                     if (processComponent != null)
                     {
