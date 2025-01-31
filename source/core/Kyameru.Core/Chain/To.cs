@@ -71,6 +71,7 @@ namespace Kyameru.Core.Chain
                     if (conditionalCheck != null && !conditionalCheck(item))
                     {
                         await base.HandleAsync(item, cancellationToken);
+                        Logger.LogInformation("Route condition not met.");
                         return;
                     }
 
