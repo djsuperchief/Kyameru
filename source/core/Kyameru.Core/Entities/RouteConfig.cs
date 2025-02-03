@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Kyameru.Core.Entities
 {
@@ -12,17 +13,17 @@ namespace Kyameru.Core.Entities
         /// Gets or sets the from component.
         /// </summary>
         public RouteConfigComponent From { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the list of processing components.
         /// </summary>
         public string[] Process { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the list of to components.
         /// </summary>
         public RouteConfigComponent[] To { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the options.
         /// </summary>
@@ -36,7 +37,12 @@ namespace Kyameru.Core.Entities
         public static RouteConfig Load(string fileLocation)
         {
             var file = File.ReadAllText(fileLocation);
-            return JsonSerializer.Deserialize<RouteConfig>(file);
+            return JsonSerializer.Deserialize<RouteConfig>(file, new JsonSerializerOptions
+            {
+                Converters = {
+                    new JsonStringEnumConverter()
+                }
+            });
         }
     }
 }
