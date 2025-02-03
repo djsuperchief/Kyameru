@@ -15,6 +15,14 @@ namespace Kyameru.Core.Entities
         public Processable PostProcessingComponent { get; private set; }
 
         /// <summary>
+        /// Gets the condition associated with the component.
+        /// </summary>
+        /// <remarks>
+        /// This is expected to be null for all components except To where it can be used.
+        /// </remarks>
+        public Func<Routable, bool> Condition { get; private set; }
+
+        /// <summary>
         /// gets a value indicating whether the To component has any post-processing applied.
         /// </summary>
         public bool HasPostprocessing => PostProcessingComponent != null;
@@ -56,6 +64,29 @@ namespace Kyameru.Core.Entities
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="RouteAttributes"/> class.
+        /// </summary>
+        /// <param name="condition">Condition to run evaluating executing.</param>
+        /// <param name="componentUri">Valid Kyameru URI.</param>
+
+        public RouteAttributes(Func<Routable, bool> condition, string componentUri) : this(componentUri)
+        {
+            Condition = condition;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RouteAttributes"/> class.
+        /// </summary>
+        /// <param name="condition">Condition to run evaluating executing.</param>
+        /// <param name="componentUri">Valid Kyameru URI.</param>
+        /// <param name="postProcessingComponent">Post processing component.</param>
+        public RouteAttributes(Func<Routable, bool> condition, string componentUri, Processable postProcessingComponent) : this(componentUri)
+        {
+            Condition = condition;
+            PostProcessingComponent = postProcessingComponent;
+        }
+
+        /// <summary>
         /// Gets the component name.
         /// </summary>
         public string ComponentName { get; private set; }
@@ -64,6 +95,11 @@ namespace Kyameru.Core.Entities
         /// Gets the headers.
         /// </summary>
         public Dictionary<string, string> Headers { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating if a condition has been set.
+        /// </summary>
+        public bool HasCondition => Condition != null;
 
         /// <summary>
         /// Parses a URI query string.

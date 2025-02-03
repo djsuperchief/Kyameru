@@ -12,7 +12,7 @@ using Kyameru.Core.Sys;
 namespace Kyameru.Component.Test
 {
     public class From : IFromComponent
-    { 
+    {
         public event EventHandler<Log> OnLog;
         public event AsyncEventHandler<RoutableEventData> OnActionAsync;
 

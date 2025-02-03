@@ -152,15 +152,67 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="componentUri">Valid Kyameru URI.</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder To(string componentUri)
-        {
-            var route = new RouteAttributes(componentUri);
-            return new Builder(
-                components,
-                route,
-                fromUri,
-                hostAssembly);
-        }
+        public Builder To(string componentUri) => GetBuilder().To(componentUri);
+
+        /// <summary>
+        /// Adds a conditional to component.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(Func<Routable, bool> conditional, string component) => GetBuilder().When(conditional, component);
+
+
+        /// <summary>
+        /// Adds a conditional to component.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <param name="postProcessing">Async post processing delegate</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(Func<Routable, bool> conditional, string component, Func<Routable, Task> postProcessing) =>
+            GetBuilder().When(conditional, component, postProcessing);
+
+        /// <summary>
+        /// Adds a conditional to component.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <param name="postProcessing">Post processing delegate</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(Func<Routable, bool> conditional, string component, Action<Routable> postProcessing) =>
+            GetBuilder().When(conditional, component, postProcessing);
+
+        /// <summary>
+        /// Adds a conditional to component.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <param name="postProcessing">Post processing component</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(Func<Routable, bool> conditional, string component, IProcessComponent postProcessing) =>
+            GetBuilder().When(conditional, component, postProcessing);
+
+        /// <summary>
+        /// Adds a conditional to component.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <typeparam name="T">IProcessComponent</typeparam>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When<T>(Func<Routable, bool> conditional, string component) where T : IProcessComponent =>
+            GetBuilder().When<T>(conditional, component);
+
+        /// <summary>
+        /// Adds a conditional to component.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <param name="postProcessing">Post processing component</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(Func<Routable, bool> conditional, string component, string postProcessing) =>
+            GetBuilder().When(conditional, component, postProcessing);
+
 
         /// <summary>
         /// Adds a to component with post processing.
@@ -168,11 +220,7 @@ namespace Kyameru.Core
         /// <param name="componentUri">Valid Kyameru URI.</param>
         /// <param name="concretePostProcessing">A component to run any post processing.</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder To(string componentUri, IProcessComponent concretePostProcessing)
-        {
-            var postProcessComponent = Processable.Create(concretePostProcessing);
-            return GetBuilder(componentUri, postProcessComponent);
-        }
+        public Builder To(string componentUri, IProcessComponent concretePostProcessing) => GetBuilder().To(componentUri, concretePostProcessing);
 
         /// <summary>
         /// Adds a to component with post processing by DI
@@ -180,11 +228,7 @@ namespace Kyameru.Core
         /// <typeparam name="T">Type of post processing component</typeparam>
         /// <param name="componentUri">Valid Kyameru URI</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder To<T>(string componentUri) where T : IProcessComponent
-        {
-            var postProcessComponent = Processable.Create<T>();
-            return GetBuilder(componentUri, postProcessComponent);
-        }
+        public Builder To<T>(string componentUri) where T : IProcessComponent => GetBuilder().To<T>(componentUri);
 
         /// <summary>
         /// Adds a to component with post processing by action
@@ -192,11 +236,7 @@ namespace Kyameru.Core
         /// <param name="componentUri">Valid Kyameru URI</param>
         /// <param name="action">Action to perform post processing.</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder To(string componentUri, Action<Routable> action)
-        {
-            var postProcessComponent = Processable.Create(action);
-            return GetBuilder(componentUri, postProcessComponent);
-        }
+        public Builder To(string componentUri, Action<Routable> action) => GetBuilder().To(componentUri, action);
 
         /// <summary>
         /// Adds a to component with post processing by action
@@ -204,11 +244,7 @@ namespace Kyameru.Core
         /// <param name="componentUri">Valid Kyameru URI</param>
         /// <param name="postProcessing">Action to perform post processing.</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder To(string componentUri, Func<Routable, Task> postProcessing)
-        {
-            var postProcessComponent = Processable.Create(postProcessing);
-            return GetBuilder(componentUri, postProcessComponent);
-        }
+        public Builder To(string componentUri, Func<Routable, Task> postProcessing) => GetBuilder().To(componentUri, postProcessing);
 
         /// <summary>
         /// Adds a to component with post processing by action
@@ -216,18 +252,12 @@ namespace Kyameru.Core
         /// <param name="componentUri">Valid Kyameru URI</param>
         /// <param name="componentName">Name of the component to find by reflection (host assembly).</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder To(string componentUri, string componentName)
-        {
-            var postProcessComponent = Processable.Create(componentName);
-            return GetBuilder(componentUri, postProcessComponent);
-        }
+        public Builder To(string componentUri, string componentName) => GetBuilder().To(componentUri, componentName);
 
-        private Builder GetBuilder(string componentUri, Processable postProcessComponent)
+        private Builder GetBuilder()
         {
-            var route = new RouteAttributes(componentUri, postProcessComponent);
             return new Builder(
                 components,
-                route,
                 fromUri,
                 hostAssembly
             );

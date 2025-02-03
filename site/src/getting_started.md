@@ -87,6 +87,21 @@ Every To component has the ability to add post processing to it. This post proce
 .To("Component://setup", async (Routable x) => {})
 ```
 
+### Conditional To
+
+Kyameru has the ability to only run a `To` based on a certain condition. A function delegate needs to be specified up front and than the function of the `To` route is exactly the same. For example:
+
+```
+.When((x => x.Body.ToString == "MyBody"), "component://setup")
+.When((x => x.Body.ToString == "MyBody"), "component://setup", PostProcessingComponent)
+```
+
+You can also use post processing components in the `When` statement as well. The condition has the following signature:
+
+```
+Func<Routable, bool>
+```
+
 ### Id
 
 Every route can be assigned an Id specified by you or it will be assigned at random. To specify an Id, use the Id function.

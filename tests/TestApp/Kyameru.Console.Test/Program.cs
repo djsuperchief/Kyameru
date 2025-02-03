@@ -94,9 +94,16 @@ namespace Kyameru.Console.Test
             services.TryAddAwsService<IAmazonSimpleEmailServiceV2>();
             services.TryAddAwsService<IAmazonSimpleEmailService>();
             services.TryAddAwsService<IAmazonSQS>();
+            services.TryAddAwsService<IAmazonS3>();
             Kyameru.Route.From("sqs://kyameru-from")
             .Process((Routable x) =>
             {
+                if (x.Body.ToString().Contains("dowhen"))
+                {
+                    x.SetHeader("export", "true");
+                    x.SetHeader("S3DataType", "String");
+                }
+
                 x.SetBody<SesMessage>(new SesMessage()
                 {
                     BodyText = "This is the body",
@@ -104,6 +111,7 @@ namespace Kyameru.Console.Test
                 });
                 x.SetHeader("SESTo", "test@test.com");
             })
+            .When(x => x.Headers.TryGetValue("export", "false") == "true", "s3://kyameru-component-s3/test&FileName=conditional.txt")
             .To("ses:///?from=kyameru@kyameru.com")
             .Id("sestest")
             .Build(services);
