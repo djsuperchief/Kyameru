@@ -78,7 +78,7 @@ namespace Kyameru
                 final.RaiseExceptions();
             }
 
-            if (config.Options.ScheduleEvery != null)
+            if (config.Options?.ScheduleEvery != null)
             {
                 final.ScheduleEvery(config.Options.ScheduleEvery.TimeUnit, config.Options.ScheduleEvery.Value);
             }

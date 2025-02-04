@@ -17,7 +17,6 @@ public class LoadedConfigTests
     [Theory]
     [InlineData("JsonConfig.json", "MyComponent has processed Async")]
     [InlineData("JsonConfigPostProcessing.json", "MyPostComponent has processed Async")]
-    [InlineData("JsonConfigSchedule.json", "MyComponent has processed Async")]
     public async Task CanLoadJsonConfigWithUrisAsync(string config, string expectedMessage)
     {
         var hasLogged = false;
@@ -65,11 +64,11 @@ public class LoadedConfigTests
     public async Task ScheduleHasExecuted()
     {
         var config = "JsonConfigSchedule.json";
-        var expectedMessage = "Scheduled chain executing...";
+        var expectedMessage = "Schedule Has Executed";
         var hasLogged = false;
         logger.Reset();
         logger.Setup(x => x.Log(
-                LogLevel.Information,
+                It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsAnyType>(),
                 It.IsAny<Exception>(),
@@ -93,18 +92,39 @@ public class LoadedConfigTests
                     hasLogged = logMessage.Contains(expectedMessage);
                 }
             }));
-        logger.Setup(x => x.IsEnabled(LogLevel.Information)).Returns(true);
+        logger.Setup(x => x.IsEnabled(LogLevel.Debug)).Returns(true);
         var serviceDescriptors = GetServiceDescriptors();
         var routeConfig = RouteConfig.Load($"ConfigTests/{config}");
         Route.FromConfig(routeConfig, serviceDescriptors);
 
         IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
+
+        var cancellationTokenSource = GetCancellationToken(20);
+        var thread = new Thread(async () =>
+        {
+            await service.StartAsync(cancellationTokenSource.Token);
+        });
+        thread.Start();
+        var waitTimer = new AutoResetEvent(false);
+        waitTimer.WaitOne(TimeSpan.FromSeconds(21));
+        await service.StopAsync(cancellationTokenSource.Token);
 
         Assert.True(hasLogged);
 
+    }
+
+    [Fact]
+    public void ServiceProviderSetupFromConfigurationWorks()
+    {
+        var config = "JsonConfigSchedule.json";
+        var serviceDescriptors = GetServiceDescriptors();
+        serviceDescriptors.Kyameru.From(IConfiguration).Build();
+    }
+
+    private CancellationTokenSource GetCancellationToken(int timeInSeconds)
+    {
+        return new CancellationTokenSource(TimeSpan.FromSeconds(timeInSeconds));
     }
 
     private IServiceCollection GetServiceDescriptors()

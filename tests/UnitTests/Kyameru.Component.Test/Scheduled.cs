@@ -22,6 +22,8 @@ namespace Kyameru.Component.Test
             {
                 {"Counter", counter.ToString()}
             }, Kyameru.Core.Utils.TimeProvider.Current.UtcNow);
+
+            OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Debug, "Schedule Has Executed"));
             await OnActionAsync.Invoke(this, new RoutableEventData(routable, cancellationToken));
         }
 

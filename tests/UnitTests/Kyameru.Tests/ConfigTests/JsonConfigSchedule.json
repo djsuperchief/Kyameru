@@ -1,6 +1,6 @@
 {
   "From": {
-    "Uri": "injectiontest:///mememe"
+    "Uri": "test:///mememe"
   },
   "Process": [
     "Mocks.MyComponent"
