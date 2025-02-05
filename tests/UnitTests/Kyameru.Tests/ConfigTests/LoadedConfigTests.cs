@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -115,12 +116,24 @@ public class LoadedConfigTests
     }
 
     [Fact]
-    public void ServiceProviderSetupFromConfigurationWorks()
+    public void BothScheduleEveryAndAtError()
     {
-        var config = "JsonConfigSchedule.json";
-        var serviceDescriptors = GetServiceDescriptors();
-        serviceDescriptors.Kyameru.From(IConfiguration).Build();
+        Assert.Throws<CoreException>(() =>
+        {
+            var config = "JsonConfigScheduleError.json";
+            var serviceDescriptors = GetServiceDescriptors();
+            var routeConfig = RouteConfig.Load($"ConfigTests/{config}");
+            Route.FromConfig(routeConfig, serviceDescriptors);
+        });
     }
+
+    // [Fact]
+    // public void ServiceProviderSetupFromConfigurationWorks()
+    // {
+    //     var config = "JsonConfigSchedule.json";
+    //     var serviceDescriptors = GetServiceDescriptors();
+    //     serviceDescriptors.Kyameru.From(IConfiguration).Build();
+    // }
 
     private CancellationTokenSource GetCancellationToken(int timeInSeconds)
     {

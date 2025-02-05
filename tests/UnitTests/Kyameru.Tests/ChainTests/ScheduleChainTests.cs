@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Kyameru.Core.Chain;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Exceptions;
 using Kyameru.Tests.Mocks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,6 +31,21 @@ public class ScheduleChainTests
         });
 
         Assert.Null(exception);
+    }
+
+    [Fact]
+    public void EveryAndAtThrowException()
+    {
+        var serviceCollection = GetServiceDescriptors();
+        Assert.Throws<CoreException>(() =>
+        {
+            Kyameru.Route.From("test://test")
+            .To("test://test")
+            .Id("ScheduledTest")
+            .ScheduleAt(Core.Enums.TimeUnit.Hour, 1)
+            .ScheduleEvery(Core.Enums.TimeUnit.Minute, 1)
+            .Build(serviceCollection);
+        });
     }
 
     [Fact]

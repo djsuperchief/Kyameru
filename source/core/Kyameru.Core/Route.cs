@@ -83,6 +83,11 @@ namespace Kyameru
                 final.ScheduleEvery(config.Options.ScheduleEvery.TimeUnit, config.Options.ScheduleEvery.Value);
             }
 
+            if (config.Options?.ScheduleAt != null)
+            {
+                final.ScheduleEvery(config.Options.ScheduleAt.TimeUnit, config.Options.ScheduleAt.Value);
+            }
+
             return final;
         }
 

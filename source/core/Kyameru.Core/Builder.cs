@@ -7,6 +7,7 @@ using Kyameru.Core.Chain;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Enums;
+using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -348,7 +349,7 @@ namespace Kyameru.Core
         /// <param name="value">Value of time unit</param>
         public Builder ScheduleEvery(TimeUnit unit, int value = 1)
         {
-            schedule = new Schedule(unit, value, true);
+            AddSchedule(unit, value, true);
             return this;
         }
 
@@ -360,7 +361,7 @@ namespace Kyameru.Core
         /// <returns></returns>
         public Builder ScheduleAt(TimeUnit unit, int value)
         {
-            schedule = new Schedule(unit, value, false);
+            AddSchedule(unit, value, false);
             return this;
         }
 
@@ -556,6 +557,16 @@ namespace Kyameru.Core
         {
             var route = new RouteAttributes(conditional, componentUri, postProcessComponent);
             toUris.Add(route);
+        }
+
+        private void AddSchedule(TimeUnit unit, int value, bool isEvery)
+        {
+            if (schedule != null)
+            {
+                throw new CoreException(Resources.ERROR_SCHEDULE_ALREADY_DEFINED);
+            }
+
+            schedule = new Schedule(unit, value, false);
         }
     }
 }
