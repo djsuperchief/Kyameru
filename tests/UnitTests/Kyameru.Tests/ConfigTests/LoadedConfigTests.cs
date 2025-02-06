@@ -1,8 +1,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Castle.Core.Configuration;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Exceptions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -128,13 +130,14 @@ public class LoadedConfigTests
         });
     }
 
-    // [Fact]
-    // public void ServiceProviderSetupFromConfigurationWorks()
-    // {
-    //     var config = "JsonConfigSchedule.json";
-    //     var serviceDescriptors = GetServiceDescriptors();
-    //     serviceDescriptors.Kyameru.From(IConfiguration).Build();
-    // }
+    [Fact]
+    public void ServiceProviderSetupFromConfigurationWorks()
+    {
+        var serviceDescriptors = GetServiceDescriptors();
+        var config = GetConfig();
+
+        serviceDescriptors.Kyameru().FromConfiguration(config);
+    }
 
     private CancellationTokenSource GetCancellationToken(int timeInSeconds)
     {
@@ -148,6 +151,13 @@ public class LoadedConfigTests
         serviceCollection.AddTransient<Mocks.IMyComponent, Mocks.MyComponent>();
 
         return serviceCollection;
+    }
+
+    private Microsoft.Extensions.Configuration.IConfiguration GetConfig()
+    {
+        return new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                    .Build();
     }
 
 }
