@@ -52,6 +52,9 @@
     <None Update="ConfigTests\JsonConfigSchedule.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="ConfigTests\JsonConfigScheduleAt.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="ConfigTests\JsonConfigScheduleError.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

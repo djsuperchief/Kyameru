@@ -61,10 +61,11 @@ public class LoadedConfigTests
 
     }
 
-    [Fact]
-    public async Task ScheduleHasExecuted()
+    [Theory]
+    [InlineData("JsonConfigSchedule.json")]
+    [InlineData("JsonConfigScheduleAt.json")]
+    public async Task ScheduleHasExecuted(string config)
     {
-        var config = "JsonConfigSchedule.json";
         var expectedMessage = "Schedule Has Executed";
         var hasLogged = false;
         logger.Reset();
