@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,8 +29,12 @@ namespace Kyameru.Core
         /// <returns>Returns the service collection.</returns>
         public IServiceCollection FromConfiguration(IConfiguration configuration)
         {
-            var kyameruConfig = configuration.GetSection("Kyameru").Get<RouteConfig>();
-            Route.FromConfig(kyameruConfig, _services);
+            var kyameruConfig = configuration.GetSection("Kyameru").Get<RouteConfig[]>();
+            for (var i = 0; i < kyameruConfig.Count(); i++)
+            {
+                Route.FromConfig(kyameruConfig[i], _services);
+            }
+
             return _services;
         }
     }
