@@ -219,6 +219,12 @@ namespace Kyameru.Core
             return this;
         }
 
+        public Builder When(string component, string uri)
+        {
+            var whenConditional = GetReflectedConditionalComponent(component, hostAssembly);
+
+        }
+
         /// <summary>
         /// Adds a to component with post processing.
         /// </summary>
@@ -567,6 +573,14 @@ namespace Kyameru.Core
             }
 
             schedule = new Schedule(unit, value, false);
+        }
+
+        private IConditionalComponent GetReflectedConditionalComponent(string componentTypeName, Assembly hostAssembly)
+        {
+            var componentName = string.Concat(hostAssembly.FullName.Split(',')[0], ".", componentTypeName);
+            Type componentType = hostAssembly.GetType(componentName);
+
+            return Activator.CreateInstance(componentType) as IConditionalComponent;
         }
     }
 }
