@@ -219,10 +219,17 @@ namespace Kyameru.Core
             return this;
         }
 
-        public Builder When(string component, string uri)
+        /// <summary>
+        /// Adds a conditional to component with post processing.
+        /// </summary>
+        /// <param name="conditional">Conditional Component.</param>
+        /// <param name="component">To Component.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(string conditional, string component)
         {
-            var whenConditional = GetReflectedConditionalComponent(component, hostAssembly);
-
+            var whenConditional = GetReflectedConditionalComponent(conditional, hostAssembly);
+            AddToConditionalProcessing(whenConditional, component);
+            return this;
         }
 
         /// <summary>
@@ -565,6 +572,12 @@ namespace Kyameru.Core
             toUris.Add(route);
         }
 
+        private void AddToConditionalProcessing(IConditionalComponent conditional, string componentUri)
+        {
+            var route = new RouteAttributes(conditional, componentUri);
+            toUris.Add(route);
+        }
+
         private void AddSchedule(TimeUnit unit, int value, bool isEvery)
         {
             if (schedule != null)
@@ -579,8 +592,19 @@ namespace Kyameru.Core
         {
             var componentName = string.Concat(hostAssembly.FullName.Split(',')[0], ".", componentTypeName);
             Type componentType = hostAssembly.GetType(componentName);
+            IConditionalComponent response = null;
+            try
+            {
+                response = Activator.CreateInstance(componentType) as IConditionalComponent;
 
-            return Activator.CreateInstance(componentType) as IConditionalComponent;
+            }
+            catch
+            {
+                var componentError = string.Format(Resources.ERROR_COMPONENT_NOT_FOUND, componentTypeName);
+                throw new Exceptions.CoreException(string.Format(Resources.ERROR_ACTIVATION_TO, componentError));
+            }
+
+            return response;
         }
     }
 }

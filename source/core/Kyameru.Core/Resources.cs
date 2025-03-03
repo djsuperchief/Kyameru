@@ -37,5 +37,7 @@
         internal const string ERROR_SCHEDULE_TIME_INVALID = "An invalid unit has been specified for schedule. Minutes 0-59, Hours 0-23";
 
         internal const string ERROR_SCHEDULE_ALREADY_DEFINED = "A schedule has already been defined.";
+
+        internal const string ERROR_COMPONENT_NOT_FOUND = "Component not found {1}";
     }
 }

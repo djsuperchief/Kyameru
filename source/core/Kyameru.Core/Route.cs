@@ -25,7 +25,7 @@ namespace Kyameru
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public static RouteBuilder From(string componentUri)
         {
-            return new RouteBuilder(componentUri);
+            return new RouteBuilder(componentUri, Assembly.GetCallingAssembly());
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using Kyameru.Core.Extensions;
+﻿using Kyameru.Core.Contracts;
+using Kyameru.Core.Extensions;
 using System;
 using System.Collections.Generic;
 
@@ -21,6 +22,11 @@ namespace Kyameru.Core.Entities
         /// This is expected to be null for all components except To where it can be used.
         /// </remarks>
         public Func<Routable, bool> Condition { get; private set; }
+
+        /// <summary>
+        /// Gets the conditional component for execution.
+        /// </summary>
+        public IConditionalComponent ConditionalComponent { get; private set; }
 
         /// <summary>
         /// gets a value indicating whether the To component has any post-processing applied.
@@ -72,6 +78,16 @@ namespace Kyameru.Core.Entities
         public RouteAttributes(Func<Routable, bool> condition, string componentUri) : this(componentUri)
         {
             Condition = condition;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RouteAttributes"/> class.
+        /// </summary>
+        /// <param name="condition">Condition to run evaluating executing.</param>
+        /// <param name="componentUri">Valid Kyameru URI.</param>
+        public RouteAttributes(IConditionalComponent condition, string componentUri) : this(componentUri)
+        {
+            ConditionalComponent = condition;
         }
 
         /// <summary>

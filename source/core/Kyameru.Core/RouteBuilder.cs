@@ -213,6 +213,15 @@ namespace Kyameru.Core
         public Builder When(Func<Routable, bool> conditional, string component, string postProcessing) =>
             GetBuilder().When(conditional, component, postProcessing);
 
+        /// <summary>
+        /// Adds a conditional to component.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(string conditional, string component) =>
+            GetBuilder().When(conditional, component);
+
 
         /// <summary>
         /// Adds a to component with post processing.
