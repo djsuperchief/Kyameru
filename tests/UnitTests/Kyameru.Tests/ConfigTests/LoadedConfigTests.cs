@@ -139,6 +139,29 @@ public class LoadedConfigTests
         serviceDescriptors.Kyameru().FromConfiguration(config);
     }
 
+    // [Fact]
+    // public async Task WhenExecutesCorrectly()
+    // {
+    //     var serviceDescriptors = GetServiceDescriptors();
+    //     var routeConfig = RouteConfig.Load($"ConfigTests/JsonConfigWhen.json");
+    //     Route.FromConfig(routeConfig, serviceDescriptors);
+
+    //     IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
+    //     IHostedService service = provider.GetService<IHostedService>();
+
+    //     var cancellationTokenSource = GetCancellationToken(20);
+    //     var thread = new Thread(async () =>
+    //     {
+    //         await service.StartAsync(cancellationTokenSource.Token);
+    //     });
+
+    //     thread.Start();
+    //     var waitTimer = new AutoResetEvent(false);
+    //     waitTimer.WaitOne(21);
+    //     await service.StopAsync(cancellationTokenSource.Token);
+
+    // }
+
     private CancellationTokenSource GetCancellationToken(int timeInSeconds)
     {
         return new CancellationTokenSource(TimeSpan.FromSeconds(timeInSeconds));

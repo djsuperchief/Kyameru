@@ -8,6 +8,7 @@ public class ConditionalComponent : IConditionalComponent
 {
     public bool Execute(Routable routable)
     {
-        throw new NotImplementedException();
+        routable.SetHeader("CondComp", "true");
+        return routable.Body as string == "CondPass";
     }
 }

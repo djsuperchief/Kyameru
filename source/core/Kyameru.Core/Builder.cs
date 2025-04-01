@@ -143,7 +143,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
         public Builder When(Func<Routable, bool> conditional, string component)
         {
-            var route = new RouteAttributes(conditional, component);
+            var route = new RouteAttributes(new DefaultConditional(conditional), component);
             toUris.Add(route);
             return this;
         }
@@ -158,7 +158,7 @@ namespace Kyameru.Core
         public Builder When(Func<Routable, bool> conditional, string component, Func<Routable, Task> postProcessing)
         {
             var postProcessingComponent = Processable.Create(postProcessing);
-            var route = new RouteAttributes(conditional, component, postProcessingComponent);
+            var route = new RouteAttributes(new DefaultConditional(conditional), component, postProcessingComponent);
             toUris.Add(route);
             return this;
         }
@@ -568,7 +568,7 @@ namespace Kyameru.Core
 
         private void AddToConditionalProcessing(Func<Routable, bool> conditional, string componentUri, Processable postProcessComponent)
         {
-            var route = new RouteAttributes(conditional, componentUri, postProcessComponent);
+            var route = new RouteAttributes(new DefaultConditional(conditional), componentUri, postProcessComponent);
             toUris.Add(route);
         }
 

@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using Kyameru.Core;
 using Kyameru.Core.Entities;
 using Kyameru.Tests.Mocks;
 using Microsoft.Extensions.DependencyInjection;
@@ -93,8 +96,36 @@ public class ConditionalTests
     [Fact]
     public void RouteAttributesRegistersCondition()
     {
-        var attribute = new RouteAttributes((Routable x) => x.Body.ToString() == "Test", "testto://test");
+        var attribute = new RouteAttributes(new DefaultConditional((Routable x) => x.Body.ToString() == "Test"), "testto://test");
         Assert.True(attribute.HasCondition);
+    }
+
+    [Fact]
+    public async Task WhenComponentExecutesSuccessfully()
+    {
+        // Component used with config when condition.
+        var executed = false;
+        var serviceDescriptors = BuildServices();
+        var routable = new Routable(new Dictionary<string, string>(), "Nothing");
+        Route.From("test://test?TestName=WhenComponentExecutes")
+        .Process((Routable x) =>
+        {
+            x.SetBody<string>("CondPass");
+        })
+        .When("ConditionalComponent", "test://test")
+        .To("test://test", x =>
+        {
+            routable = x;
+        })
+        .Build(serviceDescriptors);
+        IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
+        IHostedService service = provider.GetService<IHostedService>();
+        var resetTimer = new AutoResetEvent(false);
+        var thread = TestThreading.GetExecutionThread(service.StartAsync, 5, out var cancellationTokenSource);
+        thread.Start();
+        resetTimer.WaitOne(TimeSpan.FromSeconds(5));
+        await cancellationTokenSource.CancelAsync();
+        Assert.True(routable.Headers.TryGetValue("CondComp", string.Empty) == "true");
     }
 
     [Theory]
