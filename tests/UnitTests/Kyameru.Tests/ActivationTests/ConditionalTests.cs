@@ -120,11 +120,10 @@ public class ConditionalTests
         .Build(serviceDescriptors);
         IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        var resetTimer = new AutoResetEvent(false);
-        var thread = TestThreading.GetExecutionThread(service.StartAsync, 5, out var cancellationTokenSource);
+        var thread = TestThread.CreateNew(service.StartAsync, 5);  //TestThreading.GetExecutionThread(service.StartAsync, 5);
         thread.Start();
-        resetTimer.WaitOne(TimeSpan.FromSeconds(5));
-        await cancellationTokenSource.CancelAsync();
+        thread.WaitForExecution();
+        await thread.Cancel();
         Assert.True(routable.Headers.TryGetValue("CondComp", string.Empty) == "true");
     }
 

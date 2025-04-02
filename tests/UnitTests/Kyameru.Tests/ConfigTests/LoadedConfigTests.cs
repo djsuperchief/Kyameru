@@ -139,28 +139,24 @@ public class LoadedConfigTests
         serviceDescriptors.Kyameru().FromConfiguration(config);
     }
 
-    // [Fact]
-    // public async Task WhenExecutesCorrectly()
-    // {
-    //     var serviceDescriptors = GetServiceDescriptors();
-    //     var routeConfig = RouteConfig.Load($"ConfigTests/JsonConfigWhen.json");
-    //     Route.FromConfig(routeConfig, serviceDescriptors);
+    [Fact]
+    public async Task WhenExecutesCorrectly()
+    {
+        var serviceDescriptors = GetServiceDescriptors();
+        var routeConfig = RouteConfig.Load($"ConfigTests/JsonConfigWhen.json");
+        Route.FromConfig(routeConfig, serviceDescriptors);
 
-    //     IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
-    //     IHostedService service = provider.GetService<IHostedService>();
+        IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
+        IHostedService service = provider.GetService<IHostedService>();
 
-    //     var cancellationTokenSource = GetCancellationToken(20);
-    //     var thread = new Thread(async () =>
-    //     {
-    //         await service.StartAsync(cancellationTokenSource.Token);
-    //     });
+        var thread = TestThread.CreateNew(service.StartAsync, 5);  //TestThreading.GetExecutionThread(service.StartAsync, 5);
+        thread.Start();
+        thread.WaitForExecution();
+        await thread.Cancel();
 
-    //     thread.Start();
-    //     var waitTimer = new AutoResetEvent(false);
-    //     waitTimer.WaitOne(21);
-    //     await service.StopAsync(cancellationTokenSource.Token);
-
-    // }
+        // Todo: config has no concept of when right now, we need to add this.
+        AssertLogger("ConfigWhenExecutes_To", LogLevel.Information);
+    }
 
     private CancellationTokenSource GetCancellationToken(int timeInSeconds)
     {
@@ -181,6 +177,16 @@ public class LoadedConfigTests
         return new ConfigurationBuilder()
                     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                     .Build();
+    }
+
+    private void AssertLogger(string message, LogLevel logLevel = LogLevel.Information)
+    {
+        logger.Verify(x => x.Log(
+            logLevel,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((logMessage, type) => logMessage.ToString().Contains(message)),
+            null,
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
 }

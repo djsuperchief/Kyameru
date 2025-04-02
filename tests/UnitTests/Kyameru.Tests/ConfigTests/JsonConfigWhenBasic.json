@@ -1,0 +1,17 @@
+{
+    "From": {
+        "Uri": "injectiontest:///mememe"
+    },
+    "Process": [
+        "Mocks.MyComponent"
+    ],
+    "When": {
+        "Condition": "ConditionalComponent",
+        "To": "test://RouteCallName=ConfigWhenExecutes_To"
+    },
+    "To": [
+        {
+            "Uri": "injectiontest:///mememe"
+        }
+    ]
+}
