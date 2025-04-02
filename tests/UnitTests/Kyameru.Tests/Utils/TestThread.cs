@@ -43,6 +43,12 @@ public class TestThread
         _executionThread.Start();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="threadStart"></param>
+    /// <param name="timeout"></param>
+    /// <returns></returns>
     public static TestThread CreateNew(Func<CancellationToken, Task> threadStart, int timeout)
     {
         return new TestThread(threadStart, timeout);
