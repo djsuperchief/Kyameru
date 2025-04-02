@@ -143,7 +143,7 @@ public class LoadedConfigTests
     public async Task WhenExecutesCorrectly()
     {
         var serviceDescriptors = GetServiceDescriptors();
-        var routeConfig = RouteConfig.Load($"ConfigTests/JsonConfigWhen.json");
+        var routeConfig = RouteConfig.Load($"ConfigTests/JsonConfigWhenBasic.json");
         Route.FromConfig(routeConfig, serviceDescriptors);
 
         IServiceProvider provider = serviceDescriptors.BuildServiceProvider();

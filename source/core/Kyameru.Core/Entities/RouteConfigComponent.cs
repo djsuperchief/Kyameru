@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Kyameru.Core.Entities
 {
@@ -18,12 +20,12 @@ namespace Kyameru.Core.Entities
         /// Gets of sets the post-processing component.
         /// </summary>
         public string PostProcess { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the path for the component.
         /// </summary>
         public string Path { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the headers of the component.
         /// </summary>
@@ -33,6 +35,24 @@ namespace Kyameru.Core.Entities
         /// Gets or sets the URI of the component.
         /// </summary>
         public string Uri { get; set; }
+
+        /// <summary>
+        /// Gets or sets the conditional component for a To route.
+        /// </summary>
+        public string When { get; set; }
+
+        /// <summary>
+        ///  Gets the registration type.
+        /// </summary>
+        [JsonIgnore]
+        public Enums.ConfigToRegistrationType RegistrationType
+        {
+            get
+            {
+                var binary = $"{BinaryCheck(When)}{BinaryCheck(PostProcess)}";
+                return (Enums.ConfigToRegistrationType)Convert.ToInt32(binary, 2);
+            }
+        }
 
         /// <summary>
         /// Gets the components full Kyameru URI
@@ -59,6 +79,11 @@ namespace Kyameru.Core.Entities
             }
 
             return Uri;
+        }
+
+        private int BinaryCheck(string item)
+        {
+            return Convert.ToInt32(!string.IsNullOrWhiteSpace(item));
         }
     }
 }

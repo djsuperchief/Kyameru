@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Kyameru.Core;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,6 +50,7 @@ namespace Kyameru
             }
 
             // This is not great (understatement). Need to refactor this.
+            // Todo: Add processing here for doing the first to route for when condition
             Builder final = null;
             if (!string.IsNullOrWhiteSpace(config.To[0].PostProcess))
             {
@@ -62,6 +65,11 @@ namespace Kyameru
             {
                 for (var i = 1; i < config.To.Length; i++)
                 {
+                    if (!string.IsNullOrWhiteSpace(config.To[i].When))
+                    {
+                        final.When(config.To[i].When, config.To[i].Uri);
+                        continue;
+                    }
                     if (!string.IsNullOrWhiteSpace(config.To[i].PostProcess))
                     {
                         final.To(config.To[i].ToString(), config.To[i].PostProcess);
@@ -90,7 +98,6 @@ namespace Kyameru
 
             return final;
         }
-
 
     }
 }
