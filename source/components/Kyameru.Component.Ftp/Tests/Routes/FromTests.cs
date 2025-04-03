@@ -20,7 +20,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
         [InlineData(false)]
         public async Task FromDownloadsAndDeletes(bool deletes)
         {
-            var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+            var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
             Mock<IWebRequestUtility> webRequestFactory = this.GetWebRequest();
             AutoResetEvent autoReset = new AutoResetEvent(false);
             Times times = Times.Never();
@@ -49,7 +49,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             });
 
             thread.Start();
-            autoReset.WaitOne(TimeSpan.FromSeconds(20));
+            autoReset.WaitOne(TimeSpan.FromSeconds(5));
             tokenSource.Cancel();
 
             // possible the crash is being caused by 
