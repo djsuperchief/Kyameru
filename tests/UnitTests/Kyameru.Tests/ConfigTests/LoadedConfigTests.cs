@@ -134,11 +134,13 @@ public class LoadedConfigTests
         serviceDescriptors.Kyameru().FromConfiguration(config);
     }
 
-    [Fact]
-    public async Task WhenExecutesCorrectly()
+    [Theory]
+    [InlineData("ConfigTests/JsonConfigWhenBasic.json")]
+    [InlineData("ConfigTests/JsonConfigWhenPost.json")]
+    public async Task WhenExecutesCorrectly(string fileName)
     {
         var serviceDescriptors = GetServiceDescriptors();
-        var routeConfig = RouteConfig.Load($"ConfigTests/JsonConfigWhenBasic.json");
+        var routeConfig = RouteConfig.Load(fileName);
         Route.FromConfig(routeConfig, serviceDescriptors);
         logger.Reset();
         logger.Setup(x => x.IsEnabled(LogLevel.Information)).Returns(true);

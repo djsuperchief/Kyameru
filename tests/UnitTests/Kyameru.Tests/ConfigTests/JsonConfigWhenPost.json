@@ -8,6 +8,7 @@
     "To": [
         {
             "When": "ConditionalComponent",
+            "PostProcess": "Mocks.MyPostComponent",
             "Uri": "test://test?RouteCallName=ConfigWhenExecutes_To"
         },
         {
