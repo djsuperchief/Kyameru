@@ -222,6 +222,16 @@ namespace Kyameru.Core
         public Builder When(string conditional, string component) =>
             GetBuilder().When(conditional, component);
 
+        /// <summary>
+        /// Adds a conditional to component.
+        /// </summary>
+        /// <param name="conditional">Condition to run.</param>
+        /// <param name="component">To component.</param>
+        /// <param name="postProcessing">Post processing.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(string conditional, string component, string postProcessing) =>
+            GetBuilder().When(conditional, component, postProcessing);
+
 
         /// <summary>
         /// Adds a to component with post processing.
@@ -262,6 +272,11 @@ namespace Kyameru.Core
         /// <param name="componentName">Name of the component to find by reflection (host assembly).</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder To(string componentUri, string componentName) => GetBuilder().To(componentUri, componentName);
+
+        internal Builder ToBuilder()
+        {
+            return GetBuilder();
+        }
 
         private Builder GetBuilder()
         {

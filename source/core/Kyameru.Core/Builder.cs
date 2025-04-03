@@ -220,7 +220,7 @@ namespace Kyameru.Core
         }
 
         /// <summary>
-        /// Adds a conditional to component with post processing.
+        /// Adds a conditional to component.
         /// </summary>
         /// <param name="conditional">Conditional Component.</param>
         /// <param name="component">To Component.</param>
@@ -229,6 +229,24 @@ namespace Kyameru.Core
         {
             var whenConditional = GetReflectedConditionalComponent(conditional, hostAssembly);
             AddToConditionalProcessing(whenConditional, component);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a conditional component with post processing.
+        /// </summary>
+        /// <param name="conditional">Conditional Component.</param>
+        /// <param name="component">To Component.</param>
+        /// <param name="postProcessing">Post processing component.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        /// <remarks>This method exists because it is needed for config loaded routes.
+        /// It is advised not to use this if creating routes through code.
+        /// </remarks>
+        public Builder When(string conditional, string component, string postProcessing)
+        {
+            var whenConditional = GetReflectedConditionalComponent(conditional, hostAssembly);
+            var postProcessingComponent = Processable.Create(postProcessing);
+            AddToConditionalProcessing(whenConditional, component, postProcessingComponent);
             return this;
         }
 
@@ -575,6 +593,12 @@ namespace Kyameru.Core
         private void AddToConditionalProcessing(IConditionalComponent conditional, string componentUri)
         {
             var route = new RouteAttributes(conditional, componentUri);
+            toUris.Add(route);
+        }
+
+        private void AddToConditionalProcessing(IConditionalComponent conditional, string componentUri, Processable postProcessingComponent)
+        {
+            var route = new RouteAttributes(conditional, componentUri, postProcessingComponent);
             toUris.Add(route);
         }
 

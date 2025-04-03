@@ -104,15 +104,10 @@ public class LoadedConfigTests
         IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
 
-        var cancellationTokenSource = GetCancellationToken(20);
-        var thread = new Thread(async () =>
-        {
-            await service.StartAsync(cancellationTokenSource.Token);
-        });
+        var thread = TestThread.CreateNew(service.StartAsync, 20);
         thread.Start();
-        var waitTimer = new AutoResetEvent(false);
-        waitTimer.WaitOne(TimeSpan.FromSeconds(21));
-        await service.StopAsync(cancellationTokenSource.Token);
+        thread.WaitForExecution();
+        await thread.Cancel();
 
         Assert.True(hasLogged);
 
@@ -145,16 +140,17 @@ public class LoadedConfigTests
         var serviceDescriptors = GetServiceDescriptors();
         var routeConfig = RouteConfig.Load($"ConfigTests/JsonConfigWhenBasic.json");
         Route.FromConfig(routeConfig, serviceDescriptors);
+        logger.Reset();
+        logger.Setup(x => x.IsEnabled(LogLevel.Information)).Returns(true);
 
         IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
 
-        var thread = TestThread.CreateNew(service.StartAsync, 5);  //TestThreading.GetExecutionThread(service.StartAsync, 5);
+        var thread = TestThread.CreateNew(service.StartAsync, 5);
         thread.Start();
         thread.WaitForExecution();
         await thread.Cancel();
 
-        // Todo: config has no concept of when right now, we need to add this.
         AssertLogger("ConfigWhenExecutes_To", LogLevel.Information);
     }
 
@@ -186,7 +182,7 @@ public class LoadedConfigTests
             It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((logMessage, type) => logMessage.ToString().Contains(message)),
             null,
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
     }
 
 }

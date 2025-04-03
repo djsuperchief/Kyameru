@@ -51,32 +51,26 @@ namespace Kyameru
 
             // This is not great (understatement). Need to refactor this.
             // Todo: Add processing here for doing the first to route for when condition
-            Builder final = null;
-            if (!string.IsNullOrWhiteSpace(config.To[0].PostProcess))
-            {
-                final = builder.To(config.To[0].ToString(), config.To[0].PostProcess);
-            }
-            else
-            {
-                final = builder.To(config.To[0].ToString());
-            }
+            Builder final = builder.ToBuilder();
 
-            if (config.To.Length > 1)
+            if (config.To.Length >= 1)
             {
-                for (var i = 1; i < config.To.Length; i++)
+                for (var i = 0; i < config.To.Length; i++)
                 {
-                    if (!string.IsNullOrWhiteSpace(config.To[i].When))
+                    switch (config.To[i].RegistrationType)
                     {
-                        final.When(config.To[i].When, config.To[i].Uri);
-                        continue;
-                    }
-                    if (!string.IsNullOrWhiteSpace(config.To[i].PostProcess))
-                    {
-                        final.To(config.To[i].ToString(), config.To[i].PostProcess);
-                    }
-                    else
-                    {
-                        final.To(config.To[i].ToString());
+                        case Core.Enums.ConfigToRegistrationType.To:
+                            final.To(config.To[i].ToString());
+                            break;
+                        case Core.Enums.ConfigToRegistrationType.ToWithPost:
+                            final.To(config.To[i].ToString(), config.To[i].PostProcess);
+                            break;
+                        case Core.Enums.ConfigToRegistrationType.When:
+                            final.When(config.To[i].When, config.To[i].ToString());
+                            break;
+                        case Core.Enums.ConfigToRegistrationType.WhenWithPost:
+                            final.When(config.To[i].When, config.To[i].ToString(), config.To[i].PostProcess);
+                            break;
                     }
                 }
             }

@@ -94,6 +94,15 @@ public class ConditionalTests
     }
 
     [Fact]
+    public void WhenReflectionRegistersWithPostProcessingConcrete()
+    {
+        var routable = new Routable(new System.Collections.Generic.Dictionary<string, string>(), string.Empty);
+        var builder = Kyameru.Route.From("test://test")
+        .When("ConditionalComponent", "testto://test", "test");
+        Assert.Equal(1, builder.ToComponentCount);
+    }
+
+    [Fact]
     public void RouteAttributesRegistersCondition()
     {
         var attribute = new RouteAttributes(new DefaultConditional((Routable x) => x.Body.ToString() == "Test"), "testto://test");
