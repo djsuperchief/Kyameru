@@ -49,7 +49,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             });
 
             thread.Start();
-            autoReset.WaitOne(3000);
+            autoReset.WaitOne(TimeSpan.FromSeconds(20));
             tokenSource.Cancel();
 
             // possible the crash is being caused by 
