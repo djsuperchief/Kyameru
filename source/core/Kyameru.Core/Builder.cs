@@ -7,6 +7,7 @@ using Kyameru.Core.Chain;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Enums;
+using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -142,7 +143,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
         public Builder When(Func<Routable, bool> conditional, string component)
         {
-            var route = new RouteAttributes(conditional, component);
+            var route = new RouteAttributes(new DefaultConditional(conditional), component);
             toUris.Add(route);
             return this;
         }
@@ -157,7 +158,7 @@ namespace Kyameru.Core
         public Builder When(Func<Routable, bool> conditional, string component, Func<Routable, Task> postProcessing)
         {
             var postProcessingComponent = Processable.Create(postProcessing);
-            var route = new RouteAttributes(conditional, component, postProcessingComponent);
+            var route = new RouteAttributes(new DefaultConditional(conditional), component, postProcessingComponent);
             toUris.Add(route);
             return this;
         }
@@ -215,6 +216,37 @@ namespace Kyameru.Core
         {
             var postProcessingComponent = Processable.Create(postProcessing);
             AddToConditionalProcessing(conditional, component, postProcessingComponent);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a conditional to component.
+        /// </summary>
+        /// <param name="conditional">Conditional Component.</param>
+        /// <param name="component">To Component.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        public Builder When(string conditional, string component)
+        {
+            var whenConditional = GetReflectedConditionalComponent(conditional, hostAssembly);
+            AddToConditionalProcessing(whenConditional, component);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a conditional component with post processing.
+        /// </summary>
+        /// <param name="conditional">Conditional Component.</param>
+        /// <param name="component">To Component.</param>
+        /// <param name="postProcessing">Post processing component.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
+        /// <remarks>This method exists because it is needed for config loaded routes.
+        /// It is advised not to use this if creating routes through code.
+        /// </remarks>
+        public Builder When(string conditional, string component, string postProcessing)
+        {
+            var whenConditional = GetReflectedConditionalComponent(conditional, hostAssembly);
+            var postProcessingComponent = Processable.Create(postProcessing);
+            AddToConditionalProcessing(whenConditional, component, postProcessingComponent);
             return this;
         }
 
@@ -348,7 +380,7 @@ namespace Kyameru.Core
         /// <param name="value">Value of time unit</param>
         public Builder ScheduleEvery(TimeUnit unit, int value = 1)
         {
-            schedule = new Schedule(unit, value, true);
+            AddSchedule(unit, value, true);
             return this;
         }
 
@@ -360,7 +392,7 @@ namespace Kyameru.Core
         /// <returns></returns>
         public Builder ScheduleAt(TimeUnit unit, int value)
         {
-            schedule = new Schedule(unit, value, false);
+            AddSchedule(unit, value, false);
             return this;
         }
 
@@ -554,8 +586,49 @@ namespace Kyameru.Core
 
         private void AddToConditionalProcessing(Func<Routable, bool> conditional, string componentUri, Processable postProcessComponent)
         {
-            var route = new RouteAttributes(conditional, componentUri, postProcessComponent);
+            var route = new RouteAttributes(new DefaultConditional(conditional), componentUri, postProcessComponent);
             toUris.Add(route);
+        }
+
+        private void AddToConditionalProcessing(IConditionalComponent conditional, string componentUri)
+        {
+            var route = new RouteAttributes(conditional, componentUri);
+            toUris.Add(route);
+        }
+
+        private void AddToConditionalProcessing(IConditionalComponent conditional, string componentUri, Processable postProcessingComponent)
+        {
+            var route = new RouteAttributes(conditional, componentUri, postProcessingComponent);
+            toUris.Add(route);
+        }
+
+        private void AddSchedule(TimeUnit unit, int value, bool isEvery)
+        {
+            if (schedule != null)
+            {
+                throw new CoreException(Resources.ERROR_SCHEDULE_ALREADY_DEFINED);
+            }
+
+            schedule = new Schedule(unit, value, false);
+        }
+
+        private IConditionalComponent GetReflectedConditionalComponent(string componentTypeName, Assembly hostAssembly)
+        {
+            var componentName = string.Concat(hostAssembly.FullName.Split(',')[0], ".", componentTypeName);
+            Type componentType = hostAssembly.GetType(componentName);
+            IConditionalComponent response = null;
+            try
+            {
+                response = Activator.CreateInstance(componentType) as IConditionalComponent;
+
+            }
+            catch
+            {
+                var componentError = string.Format(Resources.ERROR_COMPONENT_NOT_FOUND, componentTypeName);
+                throw new Exceptions.CoreException(string.Format(Resources.ERROR_ACTIVATION_TO, componentError));
+            }
+
+            return response;
         }
     }
 }

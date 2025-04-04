@@ -1,4 +1,5 @@
-﻿using Kyameru.Core.Extensions;
+﻿using Kyameru.Core.Contracts;
+using Kyameru.Core.Extensions;
 using System;
 using System.Collections.Generic;
 
@@ -14,13 +15,14 @@ namespace Kyameru.Core.Entities
         /// </summary>
         public Processable PostProcessingComponent { get; private set; }
 
+
         /// <summary>
-        /// Gets the condition associated with the component.
+        /// Gets the conditional component for execution.
         /// </summary>
         /// <remarks>
         /// This is expected to be null for all components except To where it can be used.
         /// </remarks>
-        public Func<Routable, bool> Condition { get; private set; }
+        public IConditionalComponent Condition { get; private set; }
 
         /// <summary>
         /// gets a value indicating whether the To component has any post-processing applied.
@@ -69,10 +71,11 @@ namespace Kyameru.Core.Entities
         /// <param name="condition">Condition to run evaluating executing.</param>
         /// <param name="componentUri">Valid Kyameru URI.</param>
 
-        public RouteAttributes(Func<Routable, bool> condition, string componentUri) : this(componentUri)
+        public RouteAttributes(IConditionalComponent condition, string componentUri) : this(componentUri)
         {
             Condition = condition;
         }
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RouteAttributes"/> class.
@@ -80,7 +83,7 @@ namespace Kyameru.Core.Entities
         /// <param name="condition">Condition to run evaluating executing.</param>
         /// <param name="componentUri">Valid Kyameru URI.</param>
         /// <param name="postProcessingComponent">Post processing component.</param>
-        public RouteAttributes(Func<Routable, bool> condition, string componentUri, Processable postProcessingComponent) : this(componentUri)
+        public RouteAttributes(IConditionalComponent condition, string componentUri, Processable postProcessingComponent) : this(componentUri)
         {
             Condition = condition;
             PostProcessingComponent = postProcessingComponent;

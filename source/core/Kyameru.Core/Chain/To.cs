@@ -26,7 +26,7 @@ namespace Kyameru.Core.Chain
         /// <summary>
         /// Conditional processing.
         /// </summary>
-        private readonly Func<Routable, bool> conditionalCheck;
+        private readonly IConditionalComponent conditionalCheck;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="To"/> class.
@@ -35,7 +35,7 @@ namespace Kyameru.Core.Chain
         /// <param name="toComponent">To component.</param>
         /// <param name="identity">Identity of route.</param>
         /// <param name="condition">Optional: condition for execution of To.</param>
-        public To(ILogger logger, IToComponent toComponent, string identity, Func<Routable, bool> condition = null) : base(logger, identity)
+        public To(ILogger logger, IToComponent toComponent, string identity, IConditionalComponent condition = null) : base(logger, identity)
         {
             this.toComponent = toComponent;
             this.toComponent.OnLog += OnLog;
@@ -50,7 +50,7 @@ namespace Kyameru.Core.Chain
         /// <param name="postProcessComponent">Post processing component.</param>
         /// <param name="identity">Identity of route.</param>
         /// <param name="condition">Optional: condition for execution of To.</param>
-        public To(ILogger logger, IToComponent toComponent, IProcessComponent postProcessComponent, string identity, Func<Routable, bool> condition = null) :
+        public To(ILogger logger, IToComponent toComponent, IProcessComponent postProcessComponent, string identity, IConditionalComponent condition = null) :
             this(logger, toComponent, identity, condition)
         {
             processComponent = postProcessComponent;
@@ -68,7 +68,7 @@ namespace Kyameru.Core.Chain
             {
                 try
                 {
-                    if (conditionalCheck != null && !conditionalCheck(item))
+                    if (conditionalCheck != null && !conditionalCheck.Execute(item))
                     {
                         await base.HandleAsync(item, cancellationToken);
                         Logger.LogInformation("Route condition not met.");

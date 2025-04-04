@@ -1,0 +1,23 @@
+{
+  "From": {
+    "Uri": "test:///mememe"
+  },
+  "Process": [
+    "Mocks.MyComponent"
+  ],
+  "To": [
+    {
+      "Uri": "injectiontest:///mememe"
+    }
+  ],
+  "Options": {
+    "ScheduleEvery": {
+      "TimeUnit": "Minute",
+      "value": 1
+    },
+    "ScheduleAt": {
+      "TimeUnit": "Hour",
+      "value": 16
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+    "From": {
+        "Uri": "test://test?TestName=JsonConfigWhenBasic"
+    },
+    "Process": [
+        "Mocks.ConditionalProcessingPass"
+    ],
+    "To": [
+        {
+            "When": "ConditionalComponent",
+            "Uri": "test://test?RouteCallName=ConfigWhenExecutes_To"
+        },
+        {
+            "Uri": "injectiontest:///mememe"
+        }
+    ]
+}

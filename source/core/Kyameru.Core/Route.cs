@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Kyameru.Core;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +27,7 @@ namespace Kyameru
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public static RouteBuilder From(string componentUri)
         {
-            return new RouteBuilder(componentUri);
+            return new RouteBuilder(componentUri, Assembly.GetCallingAssembly());
         }
 
         /// <summary>
@@ -48,27 +50,27 @@ namespace Kyameru
             }
 
             // This is not great (understatement). Need to refactor this.
-            Builder final = null;
-            if (!string.IsNullOrWhiteSpace(config.To[0].PostProcess))
-            {
-                final = builder.To(config.To[0].ToString(), config.To[0].PostProcess);
-            }
-            else
-            {
-                final = builder.To(config.To[0].ToString());
-            }
+            // Todo: Add processing here for doing the first to route for when condition
+            Builder final = builder.ToBuilder();
 
-            if (config.To.Length > 1)
+            if (config.To.Length >= 1)
             {
-                for (var i = 1; i < config.To.Length; i++)
+                for (var i = 0; i < config.To.Length; i++)
                 {
-                    if (!string.IsNullOrWhiteSpace(config.To[i].PostProcess))
+                    switch (config.To[i].RegistrationType)
                     {
-                        final.To(config.To[i].ToString(), config.To[i].PostProcess);
-                    }
-                    else
-                    {
-                        final.To(config.To[i].ToString());
+                        case Core.Enums.ConfigToRegistrationType.To:
+                            final.To(config.To[i].ToString());
+                            break;
+                        case Core.Enums.ConfigToRegistrationType.ToWithPost:
+                            final.To(config.To[i].ToString(), config.To[i].PostProcess);
+                            break;
+                        case Core.Enums.ConfigToRegistrationType.When:
+                            final.When(config.To[i].When, config.To[i].ToString());
+                            break;
+                        case Core.Enums.ConfigToRegistrationType.WhenWithPost:
+                            final.When(config.To[i].When, config.To[i].ToString(), config.To[i].PostProcess);
+                            break;
                     }
                 }
             }
@@ -77,9 +79,19 @@ namespace Kyameru
             {
                 final.RaiseExceptions();
             }
+
+            if (config.Options?.ScheduleEvery != null)
+            {
+                final.ScheduleEvery(config.Options.ScheduleEvery.TimeUnit, config.Options.ScheduleEvery.Value);
+            }
+
+            if (config.Options?.ScheduleAt != null)
+            {
+                final.ScheduleEvery(config.Options.ScheduleAt.TimeUnit, config.Options.ScheduleAt.Value);
+            }
+
             return final;
         }
-        
-        
+
     }
 }

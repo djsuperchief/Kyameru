@@ -50,6 +50,10 @@ namespace Kyameru.Component.Test
             GlobalCalls.AddCall(item.Headers["TestName"], call);
 
             this.OnLog?.Invoke(this, new Log(LogLevel.Information, call));
+            if (this.Headers.ContainsKey("RouteCallName"))
+            {
+                this.OnLog?.Invoke(this, new Log(LogLevel.Information, this.Headers["RouteCallName"]));
+            }
         }
     }
 }

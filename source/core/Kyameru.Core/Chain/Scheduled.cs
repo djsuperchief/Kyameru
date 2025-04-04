@@ -94,6 +94,7 @@ namespace Kyameru.Core.Chain
             {
                 if (Utils.TimeProvider.Current.UtcNow >= scheduler.NextExecution)
                 {
+                    logger.LogDebug("Scheduled chain executing...");
                     try
                     {
                         await fromComponent.RunAsync(stoppingToken);
