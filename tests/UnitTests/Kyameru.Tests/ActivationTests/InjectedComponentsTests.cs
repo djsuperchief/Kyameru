@@ -38,7 +38,7 @@ namespace Kyameru.Tests.ActivationTests
             var thread = TestThread.CreateNew(service.StartAsync, 2);
             thread.Start();
             thread.WaitForExecution();
-            await thread.Cancel();
+            await thread.CancelAsync();
 
             Assert.Equal("Async Injected Test Complete", routable?.Body);
         }
@@ -64,7 +64,7 @@ namespace Kyameru.Tests.ActivationTests
                 var thread = TestThread.CreateNew(service.StartAsync, 2);
                 thread.Start();
                 thread.WaitForExecution();
-                await thread.Cancel();
+                await thread.CancelAsync();
             }
             catch (Exception ex)
             {
@@ -95,7 +95,7 @@ namespace Kyameru.Tests.ActivationTests
             var thread = TestThread.CreateNew(service.StartAsync, 2);
             thread.Start();
             thread.WaitForExecution();
-            await thread.Cancel();
+            await thread.CancelAsync();
 
             Assert.Equal("Yes", routable.Headers["ComponentRan"]);
         }

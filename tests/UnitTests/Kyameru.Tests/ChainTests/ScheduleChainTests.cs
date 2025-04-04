@@ -76,7 +76,7 @@ public class ScheduleChainTests
         .Build(serviceCollection);
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        var thread = TestThread.CreateNew(service.StartAsync, 10);
+        var thread = TestThread.CreateNew(service.StartAsync, 10, 30);
         thread.Start();
         thread.WaitForExecution();
         testDate = testDate.AddMinutes(2);
@@ -85,7 +85,7 @@ public class ScheduleChainTests
         thread.WaitForExecution();
 
         // Cancel the thread, wait for exit
-        await thread.Cancel();
+        await thread.CancelAsync();
 
         Assert.Equal("2", output.Headers["Counter"]);
     }

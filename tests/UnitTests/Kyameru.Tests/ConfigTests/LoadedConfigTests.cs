@@ -108,7 +108,7 @@ public class LoadedConfigTests
         var thread = TestThread.CreateNew(service.StartAsync, 20);
         thread.Start();
         thread.WaitForExecution();
-        await thread.Cancel();
+        await thread.CancelAsync();
 
         Assert.True(hasLogged);
 
@@ -152,7 +152,7 @@ public class LoadedConfigTests
         var thread = TestThread.CreateNew(service.StartAsync, 5);
         thread.Start();
         thread.WaitForExecution();
-        await thread.Cancel();
+        await thread.CancelAsync();
 
         AssertLogger("ConfigWhenExecutes_To", LogLevel.Information);
     }

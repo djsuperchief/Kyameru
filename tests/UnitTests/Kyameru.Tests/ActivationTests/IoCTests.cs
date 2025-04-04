@@ -47,7 +47,7 @@ namespace Kyameru.Facts.ActivationFacts
             var thread = TestThread.CreateNew(service.StartAsync, 2);
             thread.Start();
             thread.WaitForExecution();
-            await thread.Cancel();
+            await thread.CancelAsync();
             Assert.Equal(7, this.GetCallCount("CanExecute"));
         }
 
@@ -64,7 +64,7 @@ namespace Kyameru.Facts.ActivationFacts
             var thread = TestThread.CreateNew(service.StartAsync, 2);
             thread.Start();
             thread.WaitForExecution();
-            await thread.Cancel();
+            await thread.CancelAsync();
             Assert.Equal("Yes", routable.Headers["ComponentRan"]);
         }
 
@@ -76,7 +76,7 @@ namespace Kyameru.Facts.ActivationFacts
             var thread = TestThread.CreateNew(service.StartAsync, 2);
             thread.Start();
             thread.WaitForExecution();
-            await thread.Cancel();
+            await thread.CancelAsync();
             Assert.Equal(20, this.GetCallCount("CanExecuteMultipleChains"));
         }
 
@@ -87,7 +87,7 @@ namespace Kyameru.Facts.ActivationFacts
             var thread = TestThread.CreateNew(service.StartAsync, 2);
             thread.Start();
             thread.WaitForExecution();
-            await thread.Cancel();
+            await thread.CancelAsync();
             Assert.Equal(6, this.GetCallCount("CanExecuteAtomic"));
         }
 
@@ -102,7 +102,7 @@ namespace Kyameru.Facts.ActivationFacts
             var thread = TestThread.CreateNew(service.StartAsync, 2);
             thread.Start();
             thread.WaitForExecution();
-            await thread.Cancel();
+            await thread.CancelAsync();
             Assert.Equal(1, this.GetCallCount(testName));
         }
 
@@ -123,7 +123,7 @@ namespace Kyameru.Facts.ActivationFacts
                 var thread = TestThread.CreateNew(services.ElementAt(i).StartAsync, 2);
                 thread.Start();
                 thread.WaitForExecution();
-                await thread.Cancel();
+                await thread.CancelAsync();
                 await services.ElementAt(i).StartAsync(CancellationToken.None);
                 await services.ElementAt(i).StopAsync(CancellationToken.None);
             }

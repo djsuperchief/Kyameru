@@ -133,7 +133,7 @@ public class ConditionalTests
         var thread = TestThread.CreateNew(service.StartAsync, 5);  //TestThreading.GetExecutionThread(service.StartAsync, 5);
         thread.Start();
         thread.WaitForExecution();
-        await thread.Cancel();
+        await thread.CancelAsync();
         Assert.True(routable.Headers.TryGetValue("CondComp", string.Empty) == "true");
     }
 
@@ -160,7 +160,7 @@ public class ConditionalTests
         var thread = TestThread.CreateNew(service.StartAsync, 2);
         thread.Start();
         thread.WaitForExecution();
-        await thread.Cancel();
+        await thread.CancelAsync();
 
         Assert.Equal(expected, executed);
 
