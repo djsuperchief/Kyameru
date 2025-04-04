@@ -1,5 +1,6 @@
 ﻿using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -43,15 +44,16 @@ namespace Kyameru.Facts.ActivationFacts
             Component.Test.GlobalCalls.Clear("CanExecute");
             IHostedService service = this.AddComponent("CanExecute");
 
-            await service.StartAsync(CancellationToken.None);
-            await service.StopAsync(CancellationToken.None);
+            var thread = TestThread.CreateNew(service.StartAsync, 2);
+            thread.Start();
+            thread.WaitForExecution();
+            await thread.Cancel();
             Assert.Equal(7, this.GetCallCount("CanExecute"));
         }
 
         [Fact]
         public async Task CanRunDIComponent()
         {
-            AutoResetEvent autoResetEvent = new AutoResetEvent(false);
             Routable routable = null;
             this.diProcessor.Reset();
             this.diProcessor.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
@@ -59,10 +61,10 @@ namespace Kyameru.Facts.ActivationFacts
                 routable = x;
             });
             IHostedService service = this.SetupDIComponent();
-
-            await service.StartAsync(CancellationToken.None);
-            autoResetEvent.WaitOne(TimeSpan.FromSeconds(5));
-            await service.StopAsync(CancellationToken.None);
+            var thread = TestThread.CreateNew(service.StartAsync, 2);
+            thread.Start();
+            thread.WaitForExecution();
+            await thread.Cancel();
             Assert.Equal("Yes", routable.Headers["ComponentRan"]);
         }
 
@@ -71,8 +73,10 @@ namespace Kyameru.Facts.ActivationFacts
         {
             IHostedService service = this.AddComponent("CanExecuteMultipleChains", true);
 
-            await service.StartAsync(CancellationToken.None);
-            await service.StopAsync(CancellationToken.None);
+            var thread = TestThread.CreateNew(service.StartAsync, 2);
+            thread.Start();
+            thread.WaitForExecution();
+            await thread.Cancel();
             Assert.Equal(20, this.GetCallCount("CanExecuteMultipleChains"));
         }
 
@@ -80,8 +84,10 @@ namespace Kyameru.Facts.ActivationFacts
         public async Task CanExecuteAtomic()
         {
             IHostedService service = this.GetNoErrorChain("CanExecuteAtomic");
-            await service.StartAsync(CancellationToken.None);
-            await service.StopAsync(CancellationToken.None);
+            var thread = TestThread.CreateNew(service.StartAsync, 2);
+            thread.Start();
+            thread.WaitForExecution();
+            await thread.Cancel();
             Assert.Equal(6, this.GetCallCount("CanExecuteAtomic"));
         }
 
@@ -93,8 +99,10 @@ namespace Kyameru.Facts.ActivationFacts
             string testName = $"AddHeaderErrors_{secondFunction.ToString()}";
             Component.Test.GlobalCalls.Clear(testName);
             IHostedService service = this.GetHeaderError(secondFunction, testName);
-            await service.StartAsync(CancellationToken.None);
-            await service.StopAsync(CancellationToken.None);
+            var thread = TestThread.CreateNew(service.StartAsync, 2);
+            thread.Start();
+            thread.WaitForExecution();
+            await thread.Cancel();
             Assert.Equal(1, this.GetCallCount(testName));
         }
 
@@ -112,6 +120,10 @@ namespace Kyameru.Facts.ActivationFacts
             Assert.Equal(2, services.Count());
             for (int i = 0; i < services.Count(); i++)
             {
+                var thread = TestThread.CreateNew(services.ElementAt(i).StartAsync, 2);
+                thread.Start();
+                thread.WaitForExecution();
+                await thread.Cancel();
                 await services.ElementAt(i).StartAsync(CancellationToken.None);
                 await services.ElementAt(i).StopAsync(CancellationToken.None);
             }

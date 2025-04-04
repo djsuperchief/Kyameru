@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../../Shared/Kyameru.TestUtilities/Kyameru.TestUtilities.csproj" />
     <ProjectReference Include="..\..\..\source\core\Kyameru.Core\Kyameru.Core.csproj" />
     <ProjectReference Include="..\Kyameru.Component.Error\Kyameru.Component.Error.csproj" />
     <ProjectReference Include="..\Kyameru.Component.Test\Kyameru.Component.Test.csproj" />
@@ -68,5 +69,9 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Utils/" />
   </ItemGroup>
 </Project>

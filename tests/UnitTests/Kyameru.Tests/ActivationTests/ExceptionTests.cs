@@ -1,6 +1,7 @@
 ﻿using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Exceptions;
+using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -33,8 +34,10 @@ namespace Kyameru.Tests.ActivationTests
             this.processComponent.Reset();
 
             IHostedService service = this.GetHostedService(SetupChain, true);
-            await service.StartAsync(CancellationToken.None);
-            await service.StopAsync(CancellationToken.None);
+            var thread = TestThread.CreateNew(service.StartAsync, 2);
+            thread.Start();
+            thread.WaitForExecution();
+            await thread.Cancel();
 
             Assert.Null(routable);
         }
@@ -45,8 +48,10 @@ namespace Kyameru.Tests.ActivationTests
             await Assert.ThrowsAsync<NotImplementedException>(async () =>
             {
                 IHostedService service = this.GetHostedService(SetupBubbleChain, true);
-                await service.StartAsync(CancellationToken.None);
-                await service.StopAsync(CancellationToken.None);
+                var thread = TestThread.CreateNew(service.StartAsync, 2);
+                thread.Start();
+                thread.WaitForExecution();
+                await thread.Cancel();
             });
         }
 
@@ -67,8 +72,10 @@ namespace Kyameru.Tests.ActivationTests
             });
 
             IHostedService service = this.GetHostedService(SetupChain);
-            await service.StartAsync(CancellationToken.None);
-            await service.StopAsync(CancellationToken.None);
+            var thread = TestThread.CreateNew(service.StartAsync, 2);
+            thread.Start();
+            thread.WaitForExecution();
+            await thread.Cancel();
 
             Assert.True(this.IsInError(routable, "Processing component"));
         }
@@ -86,8 +93,10 @@ namespace Kyameru.Tests.ActivationTests
             this.processComponent.Reset();
 
             IHostedService service = this.GetHostedService(SetupChain, false, true);
-            await service.StartAsync(CancellationToken.None);
-            await service.StopAsync(CancellationToken.None);
+            var thread = TestThread.CreateNew(service.StartAsync, 2);
+            thread.Start();
+            thread.WaitForExecution();
+            await thread.Cancel();
 
             Assert.True(this.IsInError(routable, "To Component"));
         }
@@ -105,8 +114,10 @@ namespace Kyameru.Tests.ActivationTests
             this.processComponent.Reset();
 
             IHostedService service = this.GetHostedService(SetupChain, false, false, true);
-            await service.StartAsync(CancellationToken.None);
-            await service.StopAsync(CancellationToken.None);
+            var thread = TestThread.CreateNew(service.StartAsync, 2);
+            thread.Start();
+            thread.WaitForExecution();
+            await thread.Cancel();
 
             Assert.True(this.IsInError(routable, "Atomic Component"));
         }
@@ -123,8 +134,10 @@ namespace Kyameru.Tests.ActivationTests
             });
 
             IHostedService service = this.GetHostedService(SetupChain, false, false, true);
-            await service.StartAsync(CancellationToken.None);
-            await service.StopAsync(CancellationToken.None);
+            var thread = TestThread.CreateNew(service.StartAsync, 2);
+            thread.Start();
+            thread.WaitForExecution();
+            await thread.Cancel();
 
             Assert.True(this.IsInError(routable, "Error Component"));
         }

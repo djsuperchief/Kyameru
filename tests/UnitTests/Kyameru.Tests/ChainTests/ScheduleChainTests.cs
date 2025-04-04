@@ -6,6 +6,7 @@ using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Exceptions;
 using Kyameru.Tests.Mocks;
+using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -54,7 +55,6 @@ public class ScheduleChainTests
         var serviceCollection = GetServiceDescriptors();
         var mockNext = new Mock<IProcessComponent>();
         Routable output = null;
-        var waitTimer = new AutoResetEvent(false);
         var simulatedTime = Substitute.For<ITimeProvider>();
         var testDate = new DateTime(2024, 01, 01, 9, 0, 0, DateTimeKind.Utc);
         simulatedTime.UtcNow.Returns(testDate);
@@ -76,27 +76,16 @@ public class ScheduleChainTests
         .Build(serviceCollection);
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-
-
-        var thread = new Thread(async () =>
-        {
-            await service.StartAsync(cancellationTokenSource.Token);
-        });
-
+        var thread = TestThread.CreateNew(service.StartAsync, 10);
         thread.Start();
-        waitTimer.WaitOne(TimeSpan.FromSeconds(10));
+        thread.WaitForExecution();
         testDate = testDate.AddMinutes(2);
         simulatedTime.UtcNow.Returns(testDate);
         simulatedTime.Now.Returns(testDate.ToLocalTime());
-        waitTimer.WaitOne(TimeSpan.FromSeconds(10));
+        thread.WaitForExecution();
 
         // Cancel the thread, wait for exit
-        await cancellationTokenSource.CancelAsync();
-        waitTimer.WaitOne(TimeSpan.FromSeconds(10));
-
-        // Stop background service
-        await service.StopAsync(cancellationTokenSource.Token);
-
+        await thread.Cancel();
 
         Assert.Equal("2", output.Headers["Counter"]);
     }

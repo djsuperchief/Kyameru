@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Kyameru.Core;
 using Kyameru.Core.Entities;
 using Kyameru.Tests.Mocks;
+using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -156,8 +157,10 @@ public class ConditionalTests
 
         IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
+        var thread = TestThread.CreateNew(service.StartAsync, 2);
+        thread.Start();
+        thread.WaitForExecution();
+        await thread.Cancel();
 
         Assert.Equal(expected, executed);
 

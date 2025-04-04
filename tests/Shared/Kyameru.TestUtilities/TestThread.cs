@@ -1,8 +1,6 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System;
 
-namespace Kyameru.Tests;
+namespace Kyameru.TestUtilities;
 
 public class TestThread
 {
