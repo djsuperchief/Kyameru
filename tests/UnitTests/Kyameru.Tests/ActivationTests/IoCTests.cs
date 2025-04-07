@@ -124,8 +124,6 @@ namespace Kyameru.Facts.ActivationFacts
                 thread.Start();
                 thread.WaitForExecution();
                 await thread.CancelAsync();
-                await services.ElementAt(i).StartAsync(CancellationToken.None);
-                await services.ElementAt(i).StopAsync(CancellationToken.None);
             }
 
             Assert.Equal(2, calls);

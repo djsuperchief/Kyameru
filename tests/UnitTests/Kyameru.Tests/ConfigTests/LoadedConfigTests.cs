@@ -57,8 +57,9 @@ public class LoadedConfigTests
 
         IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
+        var thread = TestThread.CreateNew(service.StartAsync, 3);
+        thread.StartAndWait();
+        await thread.CancelAsync();
 
         Assert.True(hasLogged);
 

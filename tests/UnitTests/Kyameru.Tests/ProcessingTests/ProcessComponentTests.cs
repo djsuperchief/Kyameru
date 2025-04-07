@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core.Entities;
+using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -35,8 +36,9 @@ public class ProcessComponentTests
 
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
+        var thread = TestThread.CreateNew(service.StartAsync, 3);
+        thread.StartAndWait();
+        await thread.CancelAsync();
 
         Assert.Equal("Async Injected Test Complete", routable?.Body);
 
@@ -64,8 +66,9 @@ public class ProcessComponentTests
 
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
+        var thread = TestThread.CreateNew(service.StartAsync, 3);
+        thread.StartAndWait();
+        await thread.CancelAsync();
 
         Assert.Equal("Async Injected Test Complete", routable?.Body);
 
@@ -88,8 +91,9 @@ public class ProcessComponentTests
 
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
+        var thread = TestThread.CreateNew(service.StartAsync, 3);
+        thread.StartAndWait();
+        await thread.CancelAsync();
 
         Assert.Equal("Async Injected Test Complete", routable?.Body);
 
@@ -111,8 +115,9 @@ public class ProcessComponentTests
         .Build(serviceCollection);
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
+        var thread = TestThread.CreateNew(service.StartAsync, 3);
+        thread.StartAndWait();
+        await thread.CancelAsync();
 
         Assert.Equal("Async Injected Test Complete", routable?.Body);
 

@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Component.Test;
 using Kyameru.Core.Entities;
+using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -28,17 +29,16 @@ public class AsyncTests
                 await Task.CompletedTask;
             });
 
-        
+
         BuildRoute(serviceCollection);
 
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
+        var thread = TestThread.CreateNew(service.StartAsync, 3);
+        thread.StartAndWait();
+        await thread.CancelAsync();
 
         Assert.Equal("Async Injected Test Complete", routable?.Body);
-
-        await Task.CompletedTask;
     }
 
     [Fact]
@@ -52,14 +52,15 @@ public class AsyncTests
             routable = x;
             await Task.CompletedTask;
         });
-        
+
         BuildRoute(serviceCollection);
-        
+
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
-        
+        var thread = TestThread.CreateNew(service.StartAsync, 3);
+        thread.StartAndWait();
+        await thread.CancelAsync();
+
         Assert.Contains("FROMASYNC", Component.Injectiontest.GlobalCalls.Calls);
         Assert.Contains("TOASYNC", Component.Injectiontest.GlobalCalls.Calls);
         Assert.Equal("ASYNC", routable.Headers["Process"]);

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Tests.Mocks;
+using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -109,7 +110,7 @@ public class ToRouteTests
         });
         Assert.Equal(2, final.ToComponentCount);
     }
-    
+
     [Fact]
     public void ToPostProcessingRegistersReflection_Builder()
     {
@@ -136,12 +137,13 @@ public class ToRouteTests
             .Build(services);
         IServiceProvider provider = services.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
-        
+        var thread = TestThread.CreateNew(service.StartAsync, 3);
+        thread.StartAndWait();
+        await thread.CancelAsync();
+
         Assert.Equal("true", result.Headers.TryGetValue("PostProcessing", string.Empty));
     }
-    
+
     [Fact]
     public async Task ToPostProcessDiExecutesAsExpected()
     {
@@ -164,12 +166,13 @@ public class ToRouteTests
             .Build(services);
         IServiceProvider provider = services.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
-        
+        var thread = TestThread.CreateNew(service.StartAsync, 3);
+        thread.StartAndWait();
+        await thread.CancelAsync();
+
         Assert.Equal("true", result.Headers.TryGetValue("PostProcessing", string.Empty));
     }
-    
+
     [Fact]
     public async Task ToPostProcessActionExecutesAsExpected()
     {
@@ -184,12 +187,13 @@ public class ToRouteTests
             .Build(services);
         IServiceProvider provider = services.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
-        
+        var thread = TestThread.CreateNew(service.StartAsync, 3);
+        thread.StartAndWait();
+        await thread.CancelAsync();
+
         Assert.Equal("true", result.Headers.TryGetValue("PostProcessing", string.Empty));
     }
-    
+
     [Fact]
     public async Task ToPostProcessFuncExecutesAsExpected()
     {
@@ -205,12 +209,13 @@ public class ToRouteTests
             .Build(services);
         IServiceProvider provider = services.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
-        
+        var thread = TestThread.CreateNew(service.StartAsync, 3);
+        thread.StartAndWait();
+        await thread.CancelAsync();
+
         Assert.Equal("true", result.Headers.TryGetValue("PostProcessing", string.Empty));
     }
-    
+
     [Fact]
     public async Task ToPostProcessReflectionExecutesAsExpected()
     {
@@ -231,13 +236,14 @@ public class ToRouteTests
             .Build(services);
         IServiceProvider provider = services.BuildServiceProvider();
         IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
-        
+        var thread = TestThread.CreateNew(service.StartAsync, 3);
+        thread.StartAndWait();
+        await thread.CancelAsync();
+
         Assert.NotNull(result);
         Assert.Equal("Yes", result.Headers.TryGetValue("ComponentRan", string.Empty));
     }
-    
+
     private IServiceCollection GetServiceDescriptors()
     {
         var logger = new Mock<ILogger<Route>>();

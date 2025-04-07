@@ -56,6 +56,12 @@ public class TestThread
         _executionThread.Start();
     }
 
+    public void StartAndWait()
+    {
+        _executionThread.Start();
+        _waitEvent.WaitOne(TimeSpan.FromSeconds(_executionTimeout));
+    }
+
     /// <summary>
     /// Creates a new test thread with a standard cancel and wait timeout.
     /// </summary>

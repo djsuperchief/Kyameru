@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -86,8 +87,9 @@ namespace Kyameru.Tests.EntityTests
         private async Task<bool> RunProcess(string callsContain, string test)
         {
             IHostedService service = this.GetRoute(test);
-            await service.StartAsync(CancellationToken.None);
-            await service.StopAsync(CancellationToken.None);
+            var thread = TestThread.CreateNew(service.StartAsync, 3);
+            thread.StartAndWait();
+            await thread.CancelAsync();
 
             return Kyameru.Component.Test.GlobalCalls.CallDict[test].Contains(callsContain);
         }
