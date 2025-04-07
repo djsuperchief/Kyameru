@@ -14,6 +14,7 @@ public class FromTests
     [Fact]
     public async Task CanProcessMessage()
     {
+        var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(15));
         var resetEvent = new AutoResetEvent(false);
         var sqsClient = Substitute.For<IAmazonSQS>();
         var message = string.Empty;
@@ -37,7 +38,8 @@ public class FromTests
         var from = new SqsFrom(sqsClient);
         from.SetHeaders(new Dictionary<string, string>()
         {
-            { "Host", "queue"}
+            { "Host", "queue"},
+            { "PollTime", "2" }
         });
         from.Setup();
         from.OnActionAsync += async (object sender, RoutableEventData eventData) =>
@@ -46,9 +48,9 @@ public class FromTests
             resetEvent.Set();
             await Task.CompletedTask;
         };
-        await from.StartAsync(default);
+        await from.StartAsync(cancellationTokenSource.Token);
         resetEvent.WaitOne(5000, true);
-        await from.StopAsync(default);
+        await from.StopAsync(cancellationTokenSource.Token);
         Assert.Equal(randomMessage, message);
 
     }
@@ -56,6 +58,7 @@ public class FromTests
     [Fact]
     public async Task CanProcessMultipleMessages()
     {
+        var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(15));
         var resetEvent = new AutoResetEvent(false);
         var sqsClient = Substitute.For<IAmazonSQS>();
         var messagesSent = new List<string>();
@@ -122,9 +125,9 @@ public class FromTests
             }
             await Task.CompletedTask;
         };
-        await from.StartAsync(default);
+        await from.StartAsync(cancellationTokenSource.Token);
         resetEvent.WaitOne(15000, true);
-        await from.StopAsync(default);
+        await from.StopAsync(cancellationTokenSource.Token);
         Assert.Equal(5, receivedMessages.Count);
 
     }
@@ -132,6 +135,7 @@ public class FromTests
     [Fact]
     public async Task DeletesMessageFromQueue()
     {
+        var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(20));
         var resetEvent = new AutoResetEvent(false);
         var sqsClient = Substitute.For<IAmazonSQS>();
         sqsClient.ClearSubstitute();
@@ -194,15 +198,16 @@ public class FromTests
 
             await Task.CompletedTask;
         };
-        await from.StartAsync(default);
+        await from.StartAsync(cancellationTokenSource.Token);
         resetEvent.WaitOne(20000, true);
-        await from.StopAsync(default);
+        await from.StopAsync(cancellationTokenSource.Token);
         Assert.Empty(messagesSent);
     }
 
     [Fact]
     public async Task GetsMessageAttributesAsHeaders()
     {
+        var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(15));
         var resetEvent = new AutoResetEvent(false);
         var sqsClient = Substitute.For<IAmazonSQS>();
         Headers? headers = null;
@@ -236,7 +241,8 @@ public class FromTests
         var from = new SqsFrom(sqsClient);
         from.SetHeaders(new Dictionary<string, string>()
         {
-            { "Host", "queue"}
+            { "Host", "queue"},
+            { "PollTime", "2" }
         });
         from.Setup();
         from.OnActionAsync += async (object sender, RoutableEventData eventData) =>
@@ -245,9 +251,9 @@ public class FromTests
             resetEvent.Set();
             await Task.CompletedTask;
         };
-        await from.StartAsync(default);
-        resetEvent.WaitOne(2000, true);
-        await from.StopAsync(default);
+        await from.StartAsync(cancellationTokenSource.Token);
+        resetEvent.WaitOne(4000, true);
+        await from.StopAsync(cancellationTokenSource.Token);
         Assert.Equal("Value", headers!["Test"]);
         Assert.False(headers.ContainsKey("IsNotHere"));
     }
@@ -255,6 +261,7 @@ public class FromTests
     [Fact]
     public async Task StoppingStopsScan()
     {
+        var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(2));
         var resetEvent = new AutoResetEvent(false);
         var sqsClient = Substitute.For<IAmazonSQS>();
         var randomMessage = Guid.NewGuid().ToString("N");
@@ -265,10 +272,10 @@ public class FromTests
             { "Host", "queue"}
         });
         from.Setup();
-        await from.StartAsync(default);
+        await from.StartAsync(cancellationTokenSource.Token);
         Assert.True(from.IsPolling);
         resetEvent.WaitOne(2000, true);
-        await from.StopAsync(default);
+        await from.StopAsync(cancellationTokenSource.Token);
         Assert.False(from.IsPolling);
     }
 
@@ -277,6 +284,7 @@ public class FromTests
     [InlineData("http", "true")]
     public async Task CanSendByUrl(string protocol, string doHttp)
     {
+        var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
         var expectedQueue = $"{protocol}://localhost:4566/000000000000/kyameru-to";
         // Test to make sure a queue url can be used.
         var attributes = new RouteAttributes($"sqs://localhost:4566/000000000000/kyameru-to?PollTime=2&http={doHttp}");
@@ -294,9 +302,9 @@ public class FromTests
         var from = new SqsFrom(sqsClient);
         from.SetHeaders(headers);
         from.Setup();
-        await from.StartAsync(default);
+        await from.StartAsync(cancellationTokenSource.Token);
         resetEvent.WaitOne();
-        await from.StopAsync(default);
+        await from.StopAsync(cancellationTokenSource.Token);
         Assert.Equal(expectedQueue, receivedQueue);
 
     }
