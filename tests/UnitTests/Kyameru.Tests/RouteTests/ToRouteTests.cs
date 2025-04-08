@@ -8,7 +8,7 @@ using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using Xunit;
 
 namespace Kyameru.Tests.RouteTests;
@@ -122,21 +122,20 @@ public class ToRouteTests
     [Fact]
     public async Task ToPostProcessConcreteExecutesAsExpected()
     {
-        var mockProcessor = new Mock<IProcessComponent>();
+        var mockProcessor = Substitute.For<IProcessComponent>();
         Routable result = null;
-        mockProcessor.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Returns(
-            async (Routable x, CancellationToken c) =>
-            {
-                x.SetHeader("PostProcessing", "true");
-                result = x;
-                await Task.CompletedTask;
-            });
+        mockProcessor.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
+        {
+            x.Arg<Routable>().SetHeader("PostProcessing", "true");
+            result = x.Arg<Routable>();
+            return Task.CompletedTask;
+        });
         var services = GetServiceDescriptors();
         Kyameru.Route.From("injectiontest:///test")
-            .To("injectiontest:///somewhere", mockProcessor.Object)
+            .To("injectiontest:///somewhere", mockProcessor)
             .Build(services);
-        IServiceProvider provider = services.BuildServiceProvider();
-        IHostedService service = provider.GetService<IHostedService>();
+        var provider = services.BuildServiceProvider();
+        var service = provider.GetService<IHostedService>();
         var thread = TestThread.CreateNew(service.StartAsync, 3);
         thread.StartAndWait();
         await thread.CancelAsync();
@@ -147,25 +146,24 @@ public class ToRouteTests
     [Fact]
     public async Task ToPostProcessDiExecutesAsExpected()
     {
-        var mockProcessor = new Mock<IMyComponent>();
+        var mockProcessor = Substitute.For<IMyComponent>();
         Routable result = null;
-        mockProcessor.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Returns(
-            async (Routable x, CancellationToken c) =>
-            {
-                x.SetHeader("PostProcessing", "true");
-                result = x;
-                await Task.CompletedTask;
-            });
+        mockProcessor.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
+        {
+            x.Arg<Routable>().SetHeader("PostProcessing", "true");
+            result = x.Arg<Routable>();
+            return Task.CompletedTask;
+        });
         var services = GetServiceDescriptors();
         services.AddTransient<IMyComponent>(x =>
         {
-            return mockProcessor.Object;
+            return mockProcessor;
         });
         Kyameru.Route.From("injectiontest:///test")
             .To<IMyComponent>("injectiontest:///somewhere")
             .Build(services);
-        IServiceProvider provider = services.BuildServiceProvider();
-        IHostedService service = provider.GetService<IHostedService>();
+        var provider = services.BuildServiceProvider();
+        var service = provider.GetService<IHostedService>();
         var thread = TestThread.CreateNew(service.StartAsync, 3);
         thread.StartAndWait();
         await thread.CancelAsync();
@@ -185,8 +183,8 @@ public class ToRouteTests
                 result = x;
             })
             .Build(services);
-        IServiceProvider provider = services.BuildServiceProvider();
-        IHostedService service = provider.GetService<IHostedService>();
+        var provider = services.BuildServiceProvider();
+        var service = provider.GetService<IHostedService>();
         var thread = TestThread.CreateNew(service.StartAsync, 3);
         thread.StartAndWait();
         await thread.CancelAsync();
@@ -207,8 +205,8 @@ public class ToRouteTests
                 await Task.CompletedTask;
             })
             .Build(services);
-        IServiceProvider provider = services.BuildServiceProvider();
-        IHostedService service = provider.GetService<IHostedService>();
+        var provider = services.BuildServiceProvider();
+        var service = provider.GetService<IHostedService>();
         var thread = TestThread.CreateNew(service.StartAsync, 3);
         thread.StartAndWait();
         await thread.CancelAsync();
@@ -219,23 +217,22 @@ public class ToRouteTests
     [Fact]
     public async Task ToPostProcessReflectionExecutesAsExpected()
     {
-        var mockProcessor = new Mock<IMyComponent>();
+        var mockProcessor = Substitute.For<IMyComponent>();
         Routable result = null;
-        mockProcessor.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Returns(
-            async (Routable x, CancellationToken c) =>
-            {
-                x.SetHeader("PostProcessing", "true");
-                result = x;
-                await Task.CompletedTask;
-            });
+        mockProcessor.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
+       {
+           x.Arg<Routable>().SetHeader("PostProcessing", "true");
+           result = x.Arg<Routable>();
+           return Task.CompletedTask;
+       });
         var services = GetServiceDescriptors();
-        services.AddTransient<IMyComponent>(x => mockProcessor.Object);
+        services.AddTransient<IMyComponent>(x => mockProcessor);
         Kyameru.Route.From("injectiontest:///test")
             .To("injectiontest:///plop", "Mocks.MyComponent")
             .To<IMyComponent>("injectiontest:///somewhere")
             .Build(services);
-        IServiceProvider provider = services.BuildServiceProvider();
-        IHostedService service = provider.GetService<IHostedService>();
+        var provider = services.BuildServiceProvider();
+        var service = provider.GetService<IHostedService>();
         var thread = TestThread.CreateNew(service.StartAsync, 3);
         thread.StartAndWait();
         await thread.CancelAsync();
@@ -246,11 +243,11 @@ public class ToRouteTests
 
     private IServiceCollection GetServiceDescriptors()
     {
-        var logger = new Mock<ILogger<Route>>();
+        var logger = Substitute.For<ILogger<Route>>();
         IServiceCollection serviceCollection = new ServiceCollection();
         serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
         {
-            return logger.Object;
+            return logger;
         });
         serviceCollection.AddTransient<Mocks.IMyComponent, Mocks.MyComponent>();
 

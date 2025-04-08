@@ -9,27 +9,26 @@ using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using Xunit;
 
 namespace Kyameru.Tests.EntityTests
 {
     public class RoutableTests
     {
-        private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
-        private readonly Mock<IProcessComponent> component = new Mock<IProcessComponent>();
+        private readonly ILogger<Route> logger = Substitute.For<ILogger<Route>>();
 
         [Fact]
         public void CreatedHeaderError()
         {
-            Routable routable = this.CreateMessage();
+            var routable = this.CreateRoutableMessage();
             Assert.Throws<Kyameru.Core.Exceptions.CoreException>(() => routable.SetHeader("Test", "changed"));
         }
 
         [Fact]
         public void UserImmutableThrowsHeader()
         {
-            Routable routable = this.CreateMessage();
+            var routable = this.CreateRoutableMessage();
             routable.SetHeader("&Nope", "Nope");
             Assert.Throws<Kyameru.Core.Exceptions.CoreException>(() => routable.SetHeader("Nope", "yep"));
         }
@@ -37,7 +36,7 @@ namespace Kyameru.Tests.EntityTests
         [Fact]
         public void UserMutableWorks()
         {
-            Routable routable = this.CreateMessage();
+            var routable = this.CreateRoutableMessage();
             routable.SetHeader("FileType", "txt");
             routable.SetHeader("FileType", "jpg");
             Assert.Equal("jpg", routable.Headers["FileType"]);
@@ -46,8 +45,8 @@ namespace Kyameru.Tests.EntityTests
         [Fact]
         public void SetBodyWorks()
         {
-            string body = "body text";
-            Routable routable = this.CreateMessage();
+            var body = "body text";
+            var routable = this.CreateRoutableMessage();
             routable.SetBody<string>(body);
             Assert.Equal(body, routable.Body);
         }
@@ -56,7 +55,7 @@ namespace Kyameru.Tests.EntityTests
         [MemberData(nameof(BodyTestCases))]
         public void SetBodyWorksWithHeader(IBodyTests bodyTest)
         {
-            Assert.True(bodyTest.IsEqual(this.CreateMessage()));
+            Assert.True(bodyTest.IsEqual(this.CreateRoutableMessage()));
         }
 
         [Theory]
@@ -64,18 +63,20 @@ namespace Kyameru.Tests.EntityTests
         [InlineData("ATOMIC", false)]
         public async Task ProcessExitWorks(string call, bool setupComponent)
         {
-            string testName = $"ProcessExitWorks_{call}";
-            this.component.Reset();
-            this.component.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
+            var testName = $"ProcessExitWorks_{call}";
+            var processComponent = Substitute.For<IProcessComponent>();
+            processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
             {
-                x.SetHeader("SetExit", "true");
+                x.Arg<Routable>().SetHeader("SetExit", "true");
                 if (setupComponent)
                 {
-                    x.SetExitRoute("Manually triggered exit");
+                    x.Arg<Routable>().SetExitRoute("Manually triggered exit");
                 }
+
+                return Task.CompletedTask;
             });
 
-            Assert.False(await this.RunProcess(call, testName));
+            Assert.False(await this.RunProcess(call, testName, processComponent));
         }
 
         public static IEnumerable<object[]> BodyTestCases()
@@ -84,9 +85,12 @@ namespace Kyameru.Tests.EntityTests
             yield return new object[] { new BodyTests<int>(1, "Int32") };
         }
 
-        private async Task<bool> RunProcess(string callsContain, string test)
+        private async Task<bool> RunProcess(
+            string callsContain,
+            string test,
+            IProcessComponent processComponent)
         {
-            IHostedService service = this.GetRoute(test);
+            var service = this.GetRoute(test, processComponent);
             var thread = TestThread.CreateNew(service.StartAsync, 3);
             thread.StartAndWait();
             await thread.CancelAsync();
@@ -94,7 +98,7 @@ namespace Kyameru.Tests.EntityTests
             return Kyameru.Component.Test.GlobalCalls.CallDict[test].Contains(callsContain);
         }
 
-        private Routable CreateMessage()
+        private Routable CreateRoutableMessage()
         {
             return new Routable(new System.Collections.Generic.Dictionary<string, string>()
             {
@@ -102,24 +106,24 @@ namespace Kyameru.Tests.EntityTests
             }, "test");
         }
 
-        private IHostedService GetRoute(string test)
+        private IHostedService GetRoute(string test, IProcessComponent component)
         {
-            IServiceCollection serviceCollection = this.GetServiceDescriptors();
+            var serviceCollection = this.GetServiceDescriptors();
             Kyameru.Route.From($"test://hello?TestName={test}")
-                .Process(this.component.Object)
+                .Process(component)
                 .To("test://world")
                 .Atomic("test://boom")
                 .Build(serviceCollection);
-            IServiceProvider provider = serviceCollection.BuildServiceProvider();
+            var provider = serviceCollection.BuildServiceProvider();
             return provider.GetService<IHostedService>();
         }
 
         private IServiceCollection GetServiceDescriptors()
         {
-            IServiceCollection serviceCollection = new ServiceCollection();
+            var serviceCollection = new ServiceCollection();
             serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
             {
-                return this.logger.Object;
+                return this.logger;
             });
 
             return serviceCollection;
