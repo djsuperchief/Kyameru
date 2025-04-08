@@ -9,49 +9,22 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using Xunit;
 
 namespace Kyameru.Tests.ConfigTests;
 
 public class LoadedConfigTests
 {
-    private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
 
     [Theory]
     [InlineData("JsonConfig.json", "MyComponent has processed Async")]
     [InlineData("JsonConfigPostProcessing.json", "MyPostComponent has processed Async")]
     public async Task CanLoadJsonConfigWithUrisAsync(string config, string expectedMessage)
     {
-        var hasLogged = false;
-        logger.Reset();
-        logger.Setup(x => x.Log(
-                LogLevel.Information,
-                It.IsAny<EventId>(),
-                It.IsAny<It.IsAnyType>(),
-                It.IsAny<Exception>(),
-                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()))
-            .Callback(new InvocationAction(invocation =>
-            {
-                var logLevel =
-                    (LogLevel)invocation
-                        .Arguments[0]; // The first two will always be whatever is specified in the setup above
-                var eventId =
-                    (EventId)invocation.Arguments[1]; // so I'm not sure you would ever want to actually use them
-                var state = invocation.Arguments[2];
-                var exception = (Exception)invocation.Arguments[3];
-                var formatter = invocation.Arguments[4];
-
-                var invokeMethod = formatter.GetType().GetMethod("Invoke");
-                var logMessage = (string)invokeMethod?.Invoke(formatter, new[] { state, exception });
-
-                if (!hasLogged)
-                {
-                    hasLogged = logMessage.Contains(expectedMessage);
-                }
-            }));
-        logger.Setup(x => x.IsEnabled(LogLevel.Information)).Returns(true);
-        var serviceDescriptors = GetServiceDescriptors();
+        var logger = Substitute.For<ILogger<Route>>();
+        logger.IsEnabled(Arg.Is<LogLevel>(LogLevel.Information)).Returns(true);
+        var serviceDescriptors = GetServiceDescriptors(logger);
         var routeConfig = RouteConfig.Load($"ConfigTests/{config}");
         Route.FromConfig(routeConfig, serviceDescriptors);
 
@@ -61,7 +34,7 @@ public class LoadedConfigTests
         thread.StartAndWait();
         await thread.CancelAsync();
 
-        Assert.True(hasLogged);
+        AssertLogger(logger, expectedMessage);
 
     }
 
@@ -71,35 +44,9 @@ public class LoadedConfigTests
     public async Task ScheduleHasExecuted(string config)
     {
         var expectedMessage = "Schedule Has Executed";
-        var hasLogged = false;
-        logger.Reset();
-        logger.Setup(x => x.Log(
-                It.IsAny<LogLevel>(),
-                It.IsAny<EventId>(),
-                It.IsAny<It.IsAnyType>(),
-                It.IsAny<Exception>(),
-                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()))
-            .Callback(new InvocationAction(invocation =>
-            {
-                var logLevel =
-                    (LogLevel)invocation
-                        .Arguments[0]; // The first two will always be whatever is specified in the setup above
-                var eventId =
-                    (EventId)invocation.Arguments[1]; // so I'm not sure you would ever want to actually use them
-                var state = invocation.Arguments[2];
-                var exception = (Exception)invocation.Arguments[3];
-                var formatter = invocation.Arguments[4];
-
-                var invokeMethod = formatter.GetType().GetMethod("Invoke");
-                var logMessage = (string)invokeMethod?.Invoke(formatter, new[] { state, exception });
-
-                if (!hasLogged)
-                {
-                    hasLogged = logMessage.Contains(expectedMessage);
-                }
-            }));
-        logger.Setup(x => x.IsEnabled(LogLevel.Debug)).Returns(true);
-        var serviceDescriptors = GetServiceDescriptors();
+        var logger = Substitute.For<ILogger<Route>>();
+        logger.IsEnabled(Arg.Is<LogLevel>(LogLevel.Debug)).Returns(true);
+        var serviceDescriptors = GetServiceDescriptors(logger);
         var routeConfig = RouteConfig.Load($"ConfigTests/{config}");
         Route.FromConfig(routeConfig, serviceDescriptors);
 
@@ -111,17 +58,18 @@ public class LoadedConfigTests
         thread.WaitForExecution();
         await thread.CancelAsync();
 
-        Assert.True(hasLogged);
+        AssertLogger(logger, expectedMessage, LogLevel.Debug);
 
     }
 
     [Fact]
     public void BothScheduleEveryAndAtError()
     {
+        var logger = Substitute.For<ILogger<Route>>();
         Assert.Throws<CoreException>(() =>
         {
             var config = "JsonConfigScheduleError.json";
-            var serviceDescriptors = GetServiceDescriptors();
+            var serviceDescriptors = GetServiceDescriptors(logger);
             var routeConfig = RouteConfig.Load($"ConfigTests/{config}");
             Route.FromConfig(routeConfig, serviceDescriptors);
         });
@@ -130,7 +78,8 @@ public class LoadedConfigTests
     [Fact]
     public void ServiceProviderSetupFromConfigurationWorks()
     {
-        var serviceDescriptors = GetServiceDescriptors();
+        var logger = Substitute.For<ILogger<Route>>();
+        var serviceDescriptors = GetServiceDescriptors(logger);
         var config = GetConfig();
 
         serviceDescriptors.Kyameru().FromConfiguration(config);
@@ -141,21 +90,22 @@ public class LoadedConfigTests
     [InlineData("ConfigTests/JsonConfigWhenPost.json")]
     public async Task WhenExecutesCorrectly(string fileName)
     {
-        var serviceDescriptors = GetServiceDescriptors();
+        var logger = Substitute.For<ILogger<Route>>();
+        logger.IsEnabled(Arg.Is<LogLevel>(LogLevel.Information)).Returns(true);
+        var serviceDescriptors = GetServiceDescriptors(logger);
         var routeConfig = RouteConfig.Load(fileName);
         Route.FromConfig(routeConfig, serviceDescriptors);
-        logger.Reset();
-        logger.Setup(x => x.IsEnabled(LogLevel.Information)).Returns(true);
 
-        IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
-        IHostedService service = provider.GetService<IHostedService>();
+
+        var provider = serviceDescriptors.BuildServiceProvider();
+        var service = provider.GetService<IHostedService>();
 
         var thread = TestThread.CreateNew(service.StartAsync, 5);
         thread.Start();
         thread.WaitForExecution();
         await thread.CancelAsync();
 
-        AssertLogger("ConfigWhenExecutes_To", LogLevel.Information);
+        AssertLogger(logger, "ConfigWhenExecutes_To", LogLevel.Information);
     }
 
     private CancellationTokenSource GetCancellationToken(int timeInSeconds)
@@ -163,10 +113,10 @@ public class LoadedConfigTests
         return new CancellationTokenSource(TimeSpan.FromSeconds(timeInSeconds));
     }
 
-    private IServiceCollection GetServiceDescriptors()
+    private IServiceCollection GetServiceDescriptors(ILogger<Route> logger)
     {
-        IServiceCollection serviceCollection = new ServiceCollection();
-        serviceCollection.AddTransient(sp => this.logger.Object);
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddTransient(sp => logger);
         serviceCollection.AddTransient<Mocks.IMyComponent, Mocks.MyComponent>();
 
         return serviceCollection;
@@ -179,14 +129,26 @@ public class LoadedConfigTests
                     .Build();
     }
 
-    private void AssertLogger(string message, LogLevel logLevel = LogLevel.Information)
+    // private void AssertLogger(string message, LogLevel logLevel = LogLevel.Information)
+    // {
+    //     logger.Verify(x => x.Log(
+    //         logLevel,
+    //         It.IsAny<EventId>(),
+    //         It.Is<It.IsAnyType>((logMessage, type) => logMessage.ToString().Contains(message)),
+    //         null,
+    //         It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+    // }
+
+    private void AssertLogger(ILogger logger, string message, LogLevel logLevel = LogLevel.Information)
     {
-        logger.Verify(x => x.Log(
+        logger.Received(1).Log
+        (
             logLevel,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((logMessage, type) => logMessage.ToString().Contains(message)),
+            Arg.Any<EventId>(),
+            Arg.Is<object>(x => x.ToString().Contains(message)),
             null,
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            Arg.Any<Func<object, Exception, string>>()
+        );
     }
 
 }
