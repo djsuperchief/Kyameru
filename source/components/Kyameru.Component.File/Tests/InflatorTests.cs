@@ -1,54 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Kyameru.Core.Exceptions;
 using Xunit;
 
-namespace Kyameru.Component.File.Tests
+namespace Kyameru.Component.File.Tests;
+
+public class InflatorTests
 {
-    public class InflatorTests
+    private IServiceProvider serviceProvider;
+    private ServiceHelper serviceHelper = new ServiceHelper();
+
+    public InflatorTests()
     {
-        private IServiceProvider serviceProvider;
-        private ServiceHelper serviceHelper = new ServiceHelper();
+        this.serviceProvider = this.serviceHelper.GetServiceProvider();
+    }
 
-        public InflatorTests()
+    [Fact]
+    public void CanGetFrom()
+    {
+        var headers = new Dictionary<string, string>()
         {
-            this.serviceProvider = this.serviceHelper.GetServiceProvider();
-        }
+            { "Target", "test/" },
+            { "Notifications", "Created" },
+            { "Filter", "*.tdd" },
+            { "SubDirectories", "true" }
+        };
+        var inflator = new Inflator();
+        Assert.NotNull(inflator.CreateFromComponent(headers, false, this.serviceProvider));
+    }
 
-        [Fact]
-        public void CanGetFrom()
+    [Fact]
+    public void CanGetTo()
+    {
+        var headers = new Dictionary<string, string>()
         {
-            Dictionary<string, string> headers = new Dictionary<string, string>()
-            {
-                { "Target", "test/" },
-                { "Notifications", "Created" },
-                { "Filter", "*.tdd" },
-                { "SubDirectories", "true" }
-            };
-            Inflator inflator = new Inflator();
-            Assert.NotNull(inflator.CreateFromComponent(headers, false, this.serviceProvider));
-        }
+            { "Target", "test/target" },
+            { "Action", "Move" },
+            { "Overwrite","true" }
+        };
 
-        [Fact]
-        public void CanGetTo()
-        {
-            Dictionary<string, string> headers = new Dictionary<string, string>()
-            {
-                { "Target", "test/target" },
-                { "Action", "Move" },
-                { "Overwrite","true" }
-            };
+        var inflator = new Inflator();
+        Assert.NotNull(inflator.CreateToComponent(headers, this.serviceProvider));
+    }
 
-            Inflator inflator = new Inflator();
-            Assert.NotNull(inflator.CreateToComponent(headers, this.serviceProvider));
-        }
-
-        [Fact]
-        public void AtomicThrows()
-        {
-            Inflator inflator = new Inflator();
-            Assert.Throws<RouteNotAvailableException>(() => inflator.CreateAtomicComponent(null));
-        }
+    [Fact]
+    public void AtomicThrows()
+    {
+        var inflator = new Inflator();
+        Assert.Throws<RouteNotAvailableException>(() => inflator.CreateAtomicComponent(null));
     }
 }

@@ -1,34 +1,30 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Kyameru.Component.File.Tests
+namespace Kyameru.Component.File.Tests;
+
+internal class ServiceHelper
 {
-    internal class ServiceHelper
+    public IServiceCollection GetServiceDescriptors()
     {
-        private readonly Mock<ILogger<Kyameru.Route>> logger = new Mock<ILogger<Route>>();
-        public IServiceCollection GetServiceDescriptors()
+
+        IServiceCollection serviceDescriptors = new ServiceCollection();
+        serviceDescriptors.AddTransient<ILogger<Kyameru.Route>>(sp =>
         {
+            return Substitute.For<ILogger<Kyameru.Route>>();
+        });
 
-            IServiceCollection serviceDescriptors = new ServiceCollection();
-            serviceDescriptors.AddTransient<ILogger<Kyameru.Route>>(sp =>
-            {
-                return this.logger.Object;
-            });
+        Inflator inflator = new Inflator();
+        inflator.RegisterFrom(serviceDescriptors);
+        inflator.RegisterTo(serviceDescriptors);
 
-            Inflator inflator = new Inflator();
-            inflator.RegisterFrom(serviceDescriptors);
-            inflator.RegisterTo(serviceDescriptors);
+        return serviceDescriptors;
+    }
 
-            return serviceDescriptors;
-        }
-
-        public IServiceProvider GetServiceProvider()
-        {
-            return this.GetServiceDescriptors().BuildServiceProvider();
-        }
+    public IServiceProvider GetServiceProvider()
+    {
+        return this.GetServiceDescriptors().BuildServiceProvider();
     }
 }

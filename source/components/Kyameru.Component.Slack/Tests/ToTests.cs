@@ -1,114 +1,92 @@
 ﻿using Kyameru.Core.Entities;
-using Moq;
-using Moq.Protected;
-using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Kyameru.Component.Slack.Tests
+namespace Kyameru.Component.Slack.Tests;
+
+public class ToTests
 {
-    public class ToTests
+    [Fact]
+    public async Task CanSendMessageFromBodyAsync()
     {
-        [Fact]
-        public async Task CanSendMessageFromBodyAsync()
+        var slackTo = this.GetComponent("Body", this.SetupOkHandler());
+        var routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
+        await slackTo.ProcessAsync(routable, default);
+        Assert.Null(routable.Error);
+    }
+
+    [Fact]
+    public async Task SendMessageInError()
+    {
+        var slackTo = this.GetComponent("Body", this.SetupErrorHandler());
+        var routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
+        await slackTo.ProcessAsync(routable, default);
+        Assert.NotNull(routable.Error);
+    }
+
+    [Fact]
+    public async Task CanSendMessageFromHeader()
+    {
+        var headers = new Dictionary<string, string>()
         {
-            SlackTo slackTo = this.GetComponent("Body", this.SetupOkHandler());
-            Routable routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
-            await slackTo.ProcessAsync(routable, default);
-            Assert.Null(routable.Error);
-        }
+            { "SlackMessage", "test" }
+        };
+        var slackTo = this.GetComponent("Header", this.SetupOkHandler());
+        var routable = new Routable(headers, "This is a slack message");
+        await slackTo.ProcessAsync(routable, default);
+        Assert.Null(routable.Error);
+    }
 
-        [Fact]
-        public async Task SendMessageInError()
+    [Fact]
+    public async Task LoggingIsTriggered()
+    {
+        var callbackMade = false;
+        var slackTo = this.GetComponent("Body", this.SetupOkHandler());
+        var routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
+        slackTo.OnLog += delegate (object sender, Log log)
         {
-            SlackTo slackTo = this.GetComponent("Body", this.SetupErrorHandler());
-            Routable routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
-            await slackTo.ProcessAsync(routable, default);
-            Assert.NotNull(routable.Error);
-        }
+            callbackMade = true;
+        };
+        await slackTo.ProcessAsync(routable, default);
+        Assert.True(callbackMade);
 
-        [Fact]
-        public async Task CanSendMessageFromHeader()
+    }
+
+
+    [Fact]
+    public async Task BlankHeaderErrors()
+    {
+        var slackTo = this.GetComponent("Header", this.SetupOkHandler());
+        var routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
+        await slackTo.ProcessAsync(routable, default);
+        Assert.NotNull(routable.Error);
+    }
+
+    private SlackTo GetComponent(string source, HttpMessageHandler messageHandler)
+    {
+        return new SlackTo(this.GetHeaders(source), messageHandler);
+    }
+
+    private HttpMessageHandler SetupOkHandler()
+    {
+        return MockHttpMessageHandler.Create("Ok", System.Net.HttpStatusCode.OK);
+    }
+
+    private HttpMessageHandler SetupErrorHandler()
+    {
+        return MockHttpMessageHandler.Create("Slack not here", System.Net.HttpStatusCode.BadRequest);
+    }
+
+    private Dictionary<string, string> GetHeaders(string source)
+    {
+        return new Dictionary<string, string>()
         {
-            Dictionary<string, string> headers = new Dictionary<string, string>()
-            {
-                { "SlackMessage", "test" }
-            };
-            SlackTo slackTo = this.GetComponent("Header", this.SetupOkHandler());
-            Routable routable = new Routable(headers, "This is a slack message");
-            await slackTo.ProcessAsync(routable, default);
-            Assert.Null(routable.Error);
-        }
-
-        [Fact]
-        public async Task LoggingIsTriggered()
-        {
-            bool callbackMade = false;
-            SlackTo slackTo = this.GetComponent("Body", this.SetupOkHandler());
-            Routable routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
-            slackTo.OnLog += delegate (object sender, Log log)
-            {
-                callbackMade = true;
-            };
-            await slackTo.ProcessAsync(routable, default);
-            Assert.True(callbackMade);
-
-        }
-
-
-        [Fact]
-        public async Task BlankHeaderErrors()
-        {
-            SlackTo slackTo = this.GetComponent("Header", this.SetupOkHandler());
-            Routable routable = new Routable(new Dictionary<string, string>(), "This is a slack message");
-            await slackTo.ProcessAsync(routable, default);
-            Assert.NotNull(routable.Error);
-        }
-
-        private SlackTo GetComponent(string source, HttpMessageHandler messageHandler)
-        {
-            return new SlackTo(this.GetHeaders(source), messageHandler);
-        }
-
-        private HttpMessageHandler SetupOkHandler()
-        {
-            Mock<HttpMessageHandler> messageHandler = new Mock<HttpMessageHandler>();
-            messageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .Returns(Task.FromResult(new HttpResponseMessage()
-                {
-                    Content = new StringContent("Ok"),
-                    StatusCode = System.Net.HttpStatusCode.OK
-                }));
-
-            return messageHandler.Object;
-        }
-
-        private HttpMessageHandler SetupErrorHandler()
-        {
-            Mock<HttpMessageHandler> messageHandler = new Mock<HttpMessageHandler>();
-            messageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .Returns(Task.FromResult(new HttpResponseMessage()
-                {
-                    Content = new StringContent("Slack not here"),
-                    StatusCode = System.Net.HttpStatusCode.BadRequest
-                }));
-
-            return messageHandler.Object;
-        }
-
-        private Dictionary<string, string> GetHeaders(string source)
-        {
-            return new Dictionary<string, string>()
-            {
-                { "Target", "test" },
-                { "MessageSource", source },
-                { "Username", "Kyameru" },
-                { "Channel", "General" }
-            };
-        }
+            { "Target", "test" },
+            { "MessageSource", source },
+            { "Username", "Kyameru" },
+            { "Channel", "General" }
+        };
     }
 }
