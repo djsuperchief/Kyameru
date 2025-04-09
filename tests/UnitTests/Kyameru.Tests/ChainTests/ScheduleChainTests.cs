@@ -1,16 +1,13 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Kyameru.Core.Chain;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Exceptions;
-using Kyameru.Tests.Mocks;
 using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Moq;
 using NSubstitute;
 using Xunit;
 
@@ -53,7 +50,7 @@ public class ScheduleChainTests
     public async Task ScheduledComponentExecutes()
     {
         var serviceCollection = GetServiceDescriptors();
-        var mockNext = new Mock<IProcessComponent>();
+        var mockNext = Substitute.For<IProcessComponent>();
         Routable output = null;
         var simulatedTime = Substitute.For<ITimeProvider>();
         var testDate = new DateTime(2024, 01, 01, 9, 0, 0, DateTimeKind.Utc);
@@ -62,20 +59,19 @@ public class ScheduleChainTests
         Kyameru.Core.Utils.TimeProvider.Current = simulatedTime;
         var cancellationTokenSource = GetCancellationToken(120);
 
-        // TODO: This needs to be a proper Kyameru setup (like the other route tests)
-        mockNext.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback(async (Routable x, CancellationToken y) =>
+        mockNext.ProcessAsync(Arg.Any<Routable>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
-            output = x;
-            await Task.CompletedTask;
+            output = x.Arg<Routable>();
+            return Task.CompletedTask;
         });
         Kyameru.Route.From("test://test")
-        .Process(mockNext.Object)
+        .Process(mockNext)
         .To("test://test")
         .Id("scheduled_test")
         .ScheduleEvery(Core.Enums.TimeUnit.Minute, 1)
         .Build(serviceCollection);
-        IServiceProvider provider = serviceCollection.BuildServiceProvider();
-        IHostedService service = provider.GetService<IHostedService>();
+        var provider = serviceCollection.BuildServiceProvider();
+        var service = provider.GetService<IHostedService>();
         var thread = TestThread.CreateNew(service.StartAsync, 10, 30);
         thread.Start();
         thread.WaitForExecution();
@@ -92,11 +88,11 @@ public class ScheduleChainTests
 
     private IServiceCollection GetServiceDescriptors()
     {
-        var logger = new Mock<ILogger<Route>>();
+        var logger = Substitute.For<ILogger<Route>>();
         IServiceCollection serviceCollection = new ServiceCollection();
         serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
         {
-            return logger.Object;
+            return logger;
         });
 
         return serviceCollection;

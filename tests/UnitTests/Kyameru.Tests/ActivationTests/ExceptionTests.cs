@@ -5,191 +5,190 @@ using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Kyameru.Tests.ActivationTests
+namespace Kyameru.Tests.ActivationTests;
+
+public class ExceptionTests
 {
-    public class ExceptionTests
+
+    [Fact]
+    public async Task FromException()
     {
-        private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
-        private readonly Mock<IErrorComponent> errorComponent = new Mock<IErrorComponent>();
-        private readonly Mock<IProcessComponent> processComponent = new Mock<IProcessComponent>();
-
-        [Fact]
-        public async Task FromException()
+        Routable routable = null;
+        var errorComponent = Substitute.For<IErrorComponent>();
+        var processComponent = Substitute.For<IProcessComponent>();
+        errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
-            Routable routable = null;
+            routable = x.Arg<Routable>();
+            return Task.CompletedTask;
+        });
 
-            this.errorComponent.Reset();
-            this.errorComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
-            {
-                routable = x;
-            });
-            this.processComponent.Reset();
+        var service = this.GetHostedService(SetupChain, processComponent, errorComponent, true);
+        var thread = TestThread.CreateNew(service.StartAsync, 2);
+        thread.Start();
+        thread.WaitForExecution();
+        await thread.CancelAsync();
 
-            IHostedService service = this.GetHostedService(SetupChain, true);
-            var thread = TestThread.CreateNew(service.StartAsync, 2);
-            thread.Start();
-            thread.WaitForExecution();
-            await thread.CancelAsync();
+        Assert.Null(routable);
+    }
 
-            Assert.Null(routable);
-        }
-
-        [Fact]
-        public async Task FromRaiseException()
+    [Fact]
+    public async Task FromRaiseException()
+    {
+        var errorComponent = Substitute.For<IErrorComponent>();
+        var processComponent = Substitute.For<IProcessComponent>();
+        await Assert.ThrowsAsync<NotImplementedException>(async () =>
         {
-            await Assert.ThrowsAsync<NotImplementedException>(async () =>
-            {
-                IHostedService service = this.GetHostedService(SetupBubbleChain, true);
-                var thread = TestThread.CreateNew(service.StartAsync, 2);
-                thread.Start();
-                thread.WaitForExecution();
-                await thread.CancelAsync();
-            });
-        }
+            var service = this.GetHostedService(SetupBubbleChain, processComponent, errorComponent, true);
+            await service.StartAsync(CancellationToken.None);
+        });
+    }
 
-        [Fact]
-        public async Task ComponentError()
+    [Fact]
+    public async Task ComponentError()
+    {
+        Routable routable = null;
+
+        var errorComponent = Substitute.For<IErrorComponent>();
+        errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
-            Routable routable = null;
+            routable = x.Arg<Routable>();
+            return Task.CompletedTask;
+        });
 
-            this.errorComponent.Reset();
-            this.errorComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
-            {
-                routable = x;
-            });
-            this.processComponent.Reset();
-            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
-            {
-                throw new Kyameru.Core.Exceptions.ProcessException("Manual Error");
-            });
-
-            IHostedService service = this.GetHostedService(SetupChain);
-            var thread = TestThread.CreateNew(service.StartAsync, 2);
-            thread.Start();
-            thread.WaitForExecution();
-            await thread.CancelAsync();
-
-            Assert.True(this.IsInError(routable, "Processing component"));
-        }
-
-        [Fact]
-        public async Task ToError()
+        var processComponent = Substitute.For<IProcessComponent>();
+        processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
-            Routable routable = null;
+            throw new Kyameru.Core.Exceptions.ProcessException("Manual Error");
+        });
 
-            this.errorComponent.Reset();
-            this.errorComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
-            {
-                routable = x;
-            });
-            this.processComponent.Reset();
+        var service = this.GetHostedService(SetupChain, processComponent, errorComponent);
+        var thread = TestThread.CreateNew(service.StartAsync, 2);
+        thread.Start();
+        thread.WaitForExecution();
+        await thread.CancelAsync();
 
-            IHostedService service = this.GetHostedService(SetupChain, false, true);
-            var thread = TestThread.CreateNew(service.StartAsync, 2);
-            thread.Start();
-            thread.WaitForExecution();
-            await thread.CancelAsync();
+        Assert.True(this.IsInError(routable, "Processing component"));
+    }
 
-            Assert.True(this.IsInError(routable, "To Component"));
-        }
+    [Fact]
+    public async Task ToError()
+    {
+        Routable routable = null;
 
-        [Fact]
-        public async Task AtomicError()
+        var errorComponent = Substitute.For<IErrorComponent>();
+        var processComponent = Substitute.For<IProcessComponent>();
+        errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
-            Routable routable = null;
+            routable = x.Arg<Routable>();
+            return Task.CompletedTask;
+        });
 
-            this.errorComponent.Reset();
-            this.errorComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
-            {
-                routable = x;
-            });
-            this.processComponent.Reset();
+        var service = this.GetHostedService(SetupChain, processComponent, errorComponent, false, true);
+        var thread = TestThread.CreateNew(service.StartAsync, 2);
+        thread.Start();
+        thread.WaitForExecution();
+        await thread.CancelAsync();
 
-            IHostedService service = this.GetHostedService(SetupChain, false, false, true);
-            var thread = TestThread.CreateNew(service.StartAsync, 2);
-            thread.Start();
-            thread.WaitForExecution();
-            await thread.CancelAsync();
+        Assert.True(this.IsInError(routable, "To Component"));
+    }
 
-            Assert.True(this.IsInError(routable, "Atomic Component"));
-        }
-
-        [Fact]
-        public async Task ErrorComponentErrors()
+    [Fact]
+    public async Task AtomicError()
+    {
+        Routable routable = null;
+        var errorComponent = Substitute.For<IErrorComponent>();
+        var processComponent = Substitute.For<IProcessComponent>();
+        errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
-            Routable routable = null;
-            this.errorComponent.Reset();
-            this.errorComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
-            {
-                routable = x;
-                throw new ProcessException("Manual Error", new IndexOutOfRangeException("Random index"));
-            });
+            routable = x.Arg<Routable>();
+            return Task.CompletedTask;
+        });
 
-            IHostedService service = this.GetHostedService(SetupChain, false, false, true);
-            var thread = TestThread.CreateNew(service.StartAsync, 2);
-            thread.Start();
-            thread.WaitForExecution();
-            await thread.CancelAsync();
+        var service = this.GetHostedService(SetupChain, processComponent, errorComponent, false, false, true);
+        var thread = TestThread.CreateNew(service.StartAsync, 2);
+        thread.Start();
+        thread.WaitForExecution();
+        await thread.CancelAsync();
 
-            Assert.True(this.IsInError(routable, "Error Component"));
-        }
+        Assert.True(this.IsInError(routable, "Atomic Component"));
+    }
 
-        private bool IsInError(Routable routable, string component)
+    [Fact]
+    public async Task ErrorComponentErrors()
+    {
+        Routable routable = null;
+        var errorComponent = Substitute.For<IErrorComponent>();
+        var processComponent = Substitute.For<IProcessComponent>();
+        errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
-            return routable != null
-                && routable.Error.Component == component
-                && routable.Error.CurrentAction == "Handle"
-                && routable.Error.Message == "Manual Error";
-        }
+            routable = x.Arg<Routable>();
+            throw new ProcessException("Manual Error", new IndexOutOfRangeException("Random index"));
+        });
 
-        private IHostedService GetHostedService(
-            Action<string, string, string, IServiceCollection> setup,
-            bool fromError = false,
-            bool toError = false,
-            bool atomicError = false)
+        var service = this.GetHostedService(SetupChain, processComponent, errorComponent, false, false, true);
+        var thread = TestThread.CreateNew(service.StartAsync, 2);
+        thread.Start();
+        thread.WaitForExecution();
+        await thread.CancelAsync();
+
+        Assert.True(this.IsInError(routable, "Error Component"));
+    }
+
+    private bool IsInError(Routable routable, string component)
+    {
+        return routable != null
+            && routable.Error.Component == component
+            && routable.Error.CurrentAction == "Handle"
+            && routable.Error.Message == "Manual Error";
+    }
+
+    private IHostedService GetHostedService(
+        Action<string, string, string, IServiceCollection, IProcessComponent, IErrorComponent> setup,
+        IProcessComponent processComponent,
+        IErrorComponent errorComponent,
+        bool fromError = false,
+        bool toError = false,
+        bool atomicError = false)
+    {
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
         {
-            IServiceCollection serviceCollection = new ServiceCollection();
-            serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
-            {
-                return this.logger.Object;
-            });
-            string from = $"error://path?Error={fromError}";
-            string to = $"error://path:test@test.com?Error={toError}";
-            string atomic = $"error://path?Error={atomicError}";
+            return Substitute.For<ILogger<Kyameru.Route>>();
+        });
+        var from = $"error://path?Error={fromError}";
+        var to = $"error://path:test@test.com?Error={toError}";
+        var atomic = $"error://path?Error={atomicError}";
 
-            setup.Invoke(from, to, atomic, serviceCollection);
+        setup.Invoke(from, to, atomic, serviceCollection, processComponent, errorComponent);
 
-            IServiceProvider provider = serviceCollection.BuildServiceProvider();
-            return provider.GetService<IHostedService>();
-        }
+        var provider = serviceCollection.BuildServiceProvider();
+        return provider.GetService<IHostedService>();
+    }
 
-        private void SetupChain(string from, string to, string atomic, IServiceCollection serviceDescriptors)
-        {
-            Kyameru.Route.From(from)
-                .Process(this.processComponent.Object)
-                .To(to)
-                .Atomic(atomic)
-                .Error(this.errorComponent.Object)
-                .Build(serviceDescriptors);
-        }
+    private void SetupChain(string from, string to, string atomic, IServiceCollection serviceDescriptors, IProcessComponent processComponent, IErrorComponent errorComponent)
+    {
+        Kyameru.Route.From(from)
+            .Process(processComponent)
+            .To(to)
+            .Atomic(atomic)
+            .Error(errorComponent)
+            .Build(serviceDescriptors);
+    }
 
-        private void SetupBubbleChain(string from, string to, string atomic, IServiceCollection serviceDescriptors)
-        {
-            Kyameru.Route.From(from)
-                .Process(this.processComponent.Object)
-                .To(to)
-                .Atomic(atomic)
-                .Error(this.errorComponent.Object)
-                .RaiseExceptions()
-                .Build(serviceDescriptors);
-        }
+    private void SetupBubbleChain(string from, string to, string atomic, IServiceCollection serviceDescriptors, IProcessComponent processComponent, IErrorComponent errorComponent)
+    {
+        Kyameru.Route.From(from)
+            .Process(processComponent)
+            .To(to)
+            .Atomic(atomic)
+            .Error(errorComponent)
+            .RaiseExceptions()
+            .Build(serviceDescriptors);
     }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Kyameru.Core.Contracts;
+﻿using System.Threading.Tasks;
 using Kyameru.Core.Entities;
 using Kyameru.Tests.Mocks;
 using Kyameru.TestUtilities;

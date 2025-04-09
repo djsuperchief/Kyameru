@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Castle.Core.Configuration;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Exceptions;
 using Kyameru.TestUtilities;

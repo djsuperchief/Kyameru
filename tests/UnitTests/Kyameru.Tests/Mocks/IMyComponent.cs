@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Kyameru.Tests.Mocks;
 
-namespace Kyameru.Tests.Mocks
+public interface IMyComponent : IProcessComponent
 {
-    public interface IMyComponent : IProcessComponent
-    {
-    }
 }

@@ -6,112 +6,109 @@ using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using Xunit;
 
-namespace Kyameru.Tests.ActivationTests
+namespace Kyameru.Tests.ActivationTests;
+
+public class InjectedComponentsTests
 {
-    public class InjectedComponentsTests
+    [Fact]
+    public async Task CanActivateAndRun()
     {
-        private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
-        private readonly Mock<IProcessComponent> processComponent = new Mock<IProcessComponent>();
-
-        [Fact]
-        public async Task CanActivateAndRun()
+        var serviceCollection = this.GetServiceDescriptors();
+        Routable routable = null;
+        var processComponent = Substitute.For<IProcessComponent>();
+        processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
-            IServiceCollection serviceCollection = this.GetServiceDescriptors();
-            Routable routable = null;
-            this.processComponent.Reset();
-            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
-            {
-                routable = x;
-            });
+            routable = x.Arg<Routable>();
+            return Task.CompletedTask;
+        });
 
-            Kyameru.Route.From("injectiontest:///mememe")
-                .Process(this.processComponent.Object)
-                .To("injectiontest:///somewhere")
-                .Build(serviceCollection);
+        Kyameru.Route.From("injectiontest:///mememe")
+            .Process(processComponent)
+            .To("injectiontest:///somewhere")
+            .Build(serviceCollection);
 
 
-            IServiceProvider provider = serviceCollection.BuildServiceProvider();
-            IHostedService service = provider.GetService<IHostedService>();
-            var thread = TestThread.CreateNew(service.StartAsync, 2);
-            thread.Start();
-            thread.WaitForExecution();
-            await thread.CancelAsync();
+        var provider = serviceCollection.BuildServiceProvider();
+        var service = provider.GetService<IHostedService>();
+        var thread = TestThread.CreateNew(service.StartAsync, 2);
+        thread.Start();
+        thread.WaitForExecution();
+        await thread.CancelAsync();
 
-            Assert.Equal("Async Injected Test Complete", routable?.Body);
-        }
-
-        [Theory]
-        [InlineData("from", "Error activating from component.")]
-        [InlineData("to", "Error activating to component.")]
-        public async Task CanComponentsStart(string componentToError, string expected)
-        {
-            IServiceCollection serviceCollection = this.GetServiceDescriptors();
-            string fromHeaders = componentToError == "from" ? "?WillError=true" : string.Empty;
-            string toHeaders = componentToError == "to" ? "?WillError=true" : string.Empty;
-            string actual = string.Empty;
-            try
-            {
-                Kyameru.Route.From($"injectiontest:///mememe{fromHeaders}")
-                    .Process(this.processComponent.Object)
-                    .To($"injectiontest:///somewhere{toHeaders}")
-                    .Build(serviceCollection);
-
-                IServiceProvider provider = serviceCollection.BuildServiceProvider();
-                IHostedService service = provider.GetService<IHostedService>();
-                var thread = TestThread.CreateNew(service.StartAsync, 2);
-                thread.Start();
-                thread.WaitForExecution();
-                await thread.CancelAsync();
-            }
-            catch (Exception ex)
-            {
-                actual = ex.Message;
-            }
-
-            Assert.Equal(expected, actual);
-        }
-
-        [Fact]
-        public async Task CanActivateProcessingByDomain()
-        {
-            IServiceCollection serviceCollection = this.GetServiceDescriptors();
-            Routable routable = null;
-            this.processComponent.Reset();
-            this.processComponent.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
-            {
-                routable = x;
-            });
-
-            Kyameru.Route.From("injectiontest:///mememe")
-                .Process("Mocks.MyComponent")
-                .Process(processComponent.Object)
-                .To("injectiontest:///somewhere")
-                .Build(serviceCollection);
-            IServiceProvider provider = serviceCollection.BuildServiceProvider();
-            IHostedService service = provider.GetService<IHostedService>();
-            var thread = TestThread.CreateNew(service.StartAsync, 2);
-            thread.Start();
-            thread.WaitForExecution();
-            await thread.CancelAsync();
-
-            Assert.Equal("Yes", routable.Headers["ComponentRan"]);
-        }
-
-        private IServiceCollection GetServiceDescriptors()
-        {
-            IServiceCollection serviceCollection = new ServiceCollection();
-            serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
-            {
-                return this.logger.Object;
-            });
-            serviceCollection.AddTransient<Mocks.IMyComponent, Mocks.MyComponent>();
-
-            return serviceCollection;
-        }
+        Assert.Equal("Async Injected Test Complete", routable?.Body);
     }
 
+    [Theory]
+    [InlineData("from", "Error activating from component.")]
+    [InlineData("to", "Error activating to component.")]
+    public async Task CanComponentsStart(string componentToError, string expected)
+    {
+        var serviceCollection = this.GetServiceDescriptors();
+        var processComponent = Substitute.For<IProcessComponent>();
+        var fromHeaders = componentToError == "from" ? "?WillError=true" : string.Empty;
+        var toHeaders = componentToError == "to" ? "?WillError=true" : string.Empty;
+        var actual = string.Empty;
+        try
+        {
+            Kyameru.Route.From($"injectiontest:///mememe{fromHeaders}")
+                .Process(processComponent)
+                .To($"injectiontest:///somewhere{toHeaders}")
+                .Build(serviceCollection);
 
+            var provider = serviceCollection.BuildServiceProvider();
+            var service = provider.GetService<IHostedService>();
+            var thread = TestThread.CreateNew(service.StartAsync, 2);
+            thread.Start();
+            thread.WaitForExecution();
+            await thread.CancelAsync();
+        }
+        catch (Exception ex)
+        {
+            actual = ex.Message;
+        }
+
+        Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public async Task CanActivateProcessingByDomain()
+    {
+        var serviceCollection = this.GetServiceDescriptors();
+        Routable routable = null;
+        var processComponent = Substitute.For<IProcessComponent>();
+        processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
+        {
+            routable = x.Arg<Routable>();
+            return Task.CompletedTask;
+        });
+
+        Kyameru.Route.From("injectiontest:///mememe")
+            .Process("Mocks.MyComponent")
+            .Process(processComponent)
+            .To("injectiontest:///somewhere")
+            .Build(serviceCollection);
+        var provider = serviceCollection.BuildServiceProvider();
+        var service = provider.GetService<IHostedService>();
+        var thread = TestThread.CreateNew(service.StartAsync, 2);
+        thread.Start();
+        thread.WaitForExecution();
+        await thread.CancelAsync();
+
+        Assert.Equal("Yes", routable.Headers["ComponentRan"]);
+    }
+
+    private IServiceCollection GetServiceDescriptors()
+    {
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
+        {
+            return Substitute.For<ILogger<Kyameru.Route>>();
+        });
+        serviceCollection.AddTransient<Mocks.IMyComponent, Mocks.MyComponent>();
+
+        return serviceCollection;
+    }
 }

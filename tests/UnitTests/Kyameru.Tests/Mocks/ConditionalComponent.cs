@@ -1,4 +1,3 @@
-using System;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 
