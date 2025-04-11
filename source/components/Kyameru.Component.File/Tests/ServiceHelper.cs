@@ -10,13 +10,13 @@ internal class ServiceHelper
     public IServiceCollection GetServiceDescriptors()
     {
 
-        IServiceCollection serviceDescriptors = new ServiceCollection();
+        var serviceDescriptors = new ServiceCollection();
         serviceDescriptors.AddTransient<ILogger<Kyameru.Route>>(sp =>
         {
             return Substitute.For<ILogger<Kyameru.Route>>();
         });
 
-        Inflator inflator = new Inflator();
+        var inflator = new Inflator();
         inflator.RegisterFrom(serviceDescriptors);
         inflator.RegisterTo(serviceDescriptors);
 
@@ -25,6 +25,6 @@ internal class ServiceHelper
 
     public IServiceProvider GetServiceProvider()
     {
-        return this.GetServiceDescriptors().BuildServiceProvider();
+        return GetServiceDescriptors().BuildServiceProvider();
     }
 }
