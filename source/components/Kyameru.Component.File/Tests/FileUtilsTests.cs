@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Kyameru.Component.File.Utilities;
@@ -18,7 +17,7 @@ namespace Kyameru.Component.File.Tests
         {
             fileLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace("\\", "/") + "/fileUtils";
             fileUtils = new FileUtils();
-            toFile = $"{this.fileLocation}/test.txt";
+            toFile = $"{fileLocation}/test.txt";
             Init();
         }
 
@@ -29,7 +28,7 @@ namespace Kyameru.Component.File.Tests
         {
             var data = System.Text.Encoding.UTF8.GetBytes("Data");
             WriteFile(overwrite);
-            var exception = await Record.ExceptionAsync(() => this.fileUtils.WriteAllBytesAsync(toFile, data, overwrite, default));
+            var exception = await Record.ExceptionAsync(() => fileUtils.WriteAllBytesAsync(toFile, data, overwrite, default));
             Assert.Null(exception);
         }
 
@@ -40,7 +39,7 @@ namespace Kyameru.Component.File.Tests
         {
             var data = "Data";
             WriteFile(overwrite);
-            var exception = await Record.ExceptionAsync(() => this.fileUtils.WriteAllTextAsync(this.toFile, data, overwrite, default));
+            var exception = await Record.ExceptionAsync(() => fileUtils.WriteAllTextAsync(toFile, data, overwrite, default));
             Assert.Null(exception);
         }
 
@@ -49,8 +48,8 @@ namespace Kyameru.Component.File.Tests
         [InlineData(false)]
         public async Task MoveFileOverrites(bool overwrite)
         {
-            var destination = $"{this.fileLocation}/to/dest.txt";
-            Directory.CreateDirectory($"{this.fileLocation}/to");
+            var destination = $"{fileLocation}/to/dest.txt";
+            Directory.CreateDirectory($"{fileLocation}/to");
             if (overwrite)
             {
                 System.IO.File.WriteAllText(destination, "destinationfile");
@@ -59,7 +58,7 @@ namespace Kyameru.Component.File.Tests
             System.IO.File.WriteAllText(toFile, "data");
             await fileUtils.MoveAsync(toFile, destination, overwrite, default);
             Assert.Equal("data", System.IO.File.ReadAllText(destination));
-            Assert.False(System.IO.File.Exists(this.toFile));
+            Assert.False(System.IO.File.Exists(toFile));
         }
 
         [Theory]
@@ -67,8 +66,8 @@ namespace Kyameru.Component.File.Tests
         [InlineData(false)]
         public async Task CopyFileOverwrites(bool overwrite)
         {
-            var destination = $"{this.fileLocation}/to/dest.txt";
-            Directory.CreateDirectory($"{this.fileLocation}/to");
+            var destination = $"{fileLocation}/to/dest.txt";
+            Directory.CreateDirectory($"{fileLocation}/to");
             if (overwrite)
             {
                 System.IO.File.WriteAllText(destination, "destinationfile");
@@ -76,17 +75,17 @@ namespace Kyameru.Component.File.Tests
             System.IO.File.WriteAllText(toFile, "data");
             await fileUtils.CopyFileAsync(toFile, destination, overwrite, default);
             Assert.Equal("data", System.IO.File.ReadAllText(destination));
-            Assert.True(System.IO.File.Exists(this.toFile));
+            Assert.True(System.IO.File.Exists(toFile));
         }
 
         private void Init()
         {
-            if (Directory.Exists(this.fileLocation))
+            if (Directory.Exists(fileLocation))
             {
-                Directory.Delete(this.fileLocation, true);
+                Directory.Delete(fileLocation, true);
             }
 
-            Directory.CreateDirectory(this.fileLocation);
+            Directory.CreateDirectory(fileLocation);
         }
 
         private void WriteFile(bool overwrite)

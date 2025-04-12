@@ -100,6 +100,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Ses", "so
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Ses.Tests", "source\components\Kyameru.Component.Ses\Tests\Kyameru.Component.Ses.Tests.csproj", "{93BF2137-809E-4D21-8142-805983AD518D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.TestUtilities", "tests\Shared\Kyameru.TestUtilities\Kyameru.TestUtilities.csproj", "{748711EC-055B-41E0-BF62-64912CF864F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -190,6 +192,10 @@ Global
 		{93BF2137-809E-4D21-8142-805983AD518D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93BF2137-809E-4D21-8142-805983AD518D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93BF2137-809E-4D21-8142-805983AD518D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{748711EC-055B-41E0-BF62-64912CF864F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{748711EC-055B-41E0-BF62-64912CF864F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{748711EC-055B-41E0-BF62-64912CF864F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{748711EC-055B-41E0-BF62-64912CF864F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -241,6 +247,7 @@ Global
 		{E355FA78-7C7D-4200-BE8E-AA84FB9EF4E0} = {992F7B27-632C-49F3-8A26-D871A37AA0BB}
 		{FBB90C88-83A7-455B-8147-EBAD3CB66672} = {1193C769-3074-4D48-B68B-9C42D7D9472F}
 		{93BF2137-809E-4D21-8142-805983AD518D} = {E355FA78-7C7D-4200-BE8E-AA84FB9EF4E0}
+		{748711EC-055B-41E0-BF62-64912CF864F8} = {EDEB676C-36AF-4A38-8401-6E9C54FD40C7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {86AAF1E5-3D43-424B-9101-A04C77A0D14F}

@@ -11,7 +11,7 @@ public class ConstructionExceptionTests
 
     public ConstructionExceptionTests()
     {
-        this.serviceProvider = this.serviceHelper.GetServiceProvider();
+        serviceProvider = serviceHelper.GetServiceProvider();
     }
 
     [Fact]
@@ -23,7 +23,7 @@ public class ConstructionExceptionTests
         };
         var inflator = new Inflator();
 
-        Assert.Throws<ArgumentException>(() => _ = inflator.CreateFromComponent(headers, false, this.serviceProvider));
+        Assert.Throws<ArgumentException>(() => _ = inflator.CreateFromComponent(headers, false, serviceProvider));
     }
 
     [Fact]
@@ -35,6 +35,6 @@ public class ConstructionExceptionTests
         };
         var inflator = new Inflator();
 
-        Assert.Throws<ArgumentException>(() => _ = inflator.CreateFromComponent(headers, false, this.serviceProvider));
+        Assert.Throws<ArgumentException>(() => _ = inflator.CreateFromComponent(headers, false, serviceProvider));
     }
 }

@@ -1,5 +1,4 @@
-﻿using Moq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -7,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Component.File.Utilities;
 using Kyameru.Core.Sys;
+using NSubstitute;
 using Xunit;
 
 namespace Kyameru.Component.File.Tests;
@@ -14,23 +14,23 @@ namespace Kyameru.Component.File.Tests;
 public class FileWatcherTests
 {
     private readonly string location;
-    private readonly Mock<Component.File.Utilities.IFileSystemWatcher> fileSystemWatcher = new Mock<Utilities.IFileSystemWatcher>();
+    private readonly IFileSystemWatcher fileSystemWatcher = Substitute.For<IFileSystemWatcher>();
 
     public FileWatcherTests()
     {
-        this.location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/test";
+        location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/test";
     }
 
     [Fact]
     public async Task CreatedWorks()
     {
         var tokenSource = new CancellationTokenSource();
-        this.CheckFile("created.tdd");
-        AutoResetEvent resetEvent = new AutoResetEvent(false);
+        CheckFile("created.tdd");
+        var resetEvent = new AutoResetEvent(false);
         var method = string.Empty;
         var raisedAsync = false;
         // Github tests for some reason do not raise created compared to local os.
-        FileWatcher from = this.Setup("Created");
+        FileWatcher from = Setup("Created");
 
         from.OnActionAsync += async delegate (object sender, RoutableEventData e)
         {
@@ -42,8 +42,8 @@ public class FileWatcherTests
 
         from.Setup();
         await from.StartAsync(tokenSource.Token);
-        System.IO.File.WriteAllText($"{this.location}/Created.tdd", "test data");
-        this.fileSystemWatcher.Raise(x => x.Created += null, new FileSystemEventArgs(WatcherChangeTypes.Created, this.location, "Created.tdd"));
+        System.IO.File.WriteAllText($"{location}/Created.tdd", "test data");
+        fileSystemWatcher.Created += Raise.Event<FileSystemEventHandler>(new FileSystemEventArgs(WatcherChangeTypes.Created, location, "Created.tdd"));
         bool wasAssigned = resetEvent.WaitOne(TimeSpan.FromSeconds(5));
 
         await from.StopAsync(tokenSource.Token);
@@ -56,26 +56,26 @@ public class FileWatcherTests
     {
         var tokenSource = new CancellationTokenSource();
         string filename = $"{Guid.NewGuid().ToString("N")}.txt";
-        this.CheckFile(filename);
-        AutoResetEvent resetEvent = new AutoResetEvent(false);
-        System.IO.File.WriteAllText($"{this.location}/{filename}", "test data");
+        CheckFile(filename);
+        var resetEvent = new AutoResetEvent(false);
+        System.IO.File.WriteAllText($"{location}/{filename}", "test data");
         string method = string.Empty;
 
-        FileWatcher from = this.Setup("Changed");
+        FileWatcher from = Setup("Changed");
 
         from.OnActionAsync += async delegate (object sender, RoutableEventData e)
         {
             method = e.Data.Headers["Method"];
-            resetEvent.Set();
+            //resetEvent.Set();
             await Task.CompletedTask;
         };
         from.Setup();
 
         await from.StartAsync(tokenSource.Token);
 
-        System.IO.File.WriteAllText($"{this.location}/{filename}", "more data added");
-        System.IO.File.WriteAllText($"{this.location}/{filename}", "more data added");
-        this.fileSystemWatcher.Raise(x => x.Changed += null, new FileSystemEventArgs(WatcherChangeTypes.Changed, this.location, filename));
+        System.IO.File.WriteAllText($"{location}/{filename}", "more data added");
+        System.IO.File.WriteAllText($"{location}/{filename}", "more data added");
+        fileSystemWatcher.Changed += Raise.Event<FileSystemEventHandler>(new FileSystemEventArgs(WatcherChangeTypes.Changed, location, filename));
         bool wasAssigned = resetEvent.WaitOne(TimeSpan.FromSeconds(5));
 
         // doing this async means it can be scanned before changed...also async tests, need a better way of
@@ -89,7 +89,7 @@ public class FileWatcherTests
     public async Task ScannerWorks(string subDirectories, int expected)
     {
         string contents = "test data";
-        string scanDir = this.location + "scan";
+        string scanDir = location + "scan";
         int count = 0;
         AutoResetEvent resetEvent = new AutoResetEvent(false);
 
@@ -107,7 +107,7 @@ public class FileWatcherTests
 
         System.IO.File.WriteAllText($"{scanDir}/testfile_root.txt", contents);
 
-        FileWatcher from = this.Setup("Changed", true, scanDir, "", "", subDirectories);
+        FileWatcher from = Setup("Changed", true, scanDir, "", "", subDirectories);
         from.OnActionAsync += async (object sender, RoutableEventData e) =>
         {
             if (e.Data.Headers["Method"] == "Scanned")
@@ -147,7 +147,7 @@ public class FileWatcherTests
         Directory.CreateDirectory(scanDir);
         System.IO.File.WriteAllText(Path.Combine(scanDir, fileName), contents);
 
-        FileWatcher from = this.Setup("Changed", true, scanDir, directories, strings);
+        FileWatcher from = Setup("Changed", true, scanDir, directories, strings);
         from.OnActionAsync += async (object sender, RoutableEventData e) =>
         {
             if (e.Data.Headers["Method"] == "Scanned")
@@ -181,14 +181,14 @@ public class FileWatcherTests
             { "IgnoreStrings", ignoreStrings }
         };
 
-        return new FileWatcher(headers, this.fileSystemWatcher.Object);
+        return new FileWatcher(headers, fileSystemWatcher);
     }
 
     private void CheckFile(string file)
     {
-        if (!Directory.Exists(this.location))
+        if (!Directory.Exists(location))
         {
-            Directory.CreateDirectory(this.location);
+            Directory.CreateDirectory(location);
         }
 
         if (System.IO.File.Exists($"{location}/{file}"))

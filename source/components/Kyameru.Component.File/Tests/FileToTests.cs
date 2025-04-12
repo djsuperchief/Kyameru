@@ -15,8 +15,8 @@ public class FileToTests
 
     public FileToTests()
     {
-        this.fileLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace("\\", "/") + "/test";
-        this.serviceProvider = serviceHelper.GetServiceProvider();
+        fileLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace("\\", "/") + "/test";
+        serviceProvider = serviceHelper.GetServiceProvider();
     }
 
     [Theory]
@@ -27,7 +27,7 @@ public class FileToTests
     public async Task CanDoAction(string action, string bodyType)
     {
         var randomFileName = $"{Guid.NewGuid().ToString("N")}.txt";
-        var fileTo = this.Setup(action, randomFileName);
+        var fileTo = Setup(action, randomFileName);
 
         var routableHeaders = new Dictionary<string, string>()
         {
@@ -42,7 +42,7 @@ public class FileToTests
         }
 
         await fileTo.ProcessAsync(routable, default);
-        Assert.True(System.IO.File.Exists($"{this.fileLocation}/target/{randomFileName}"));
+        Assert.True(System.IO.File.Exists($"{fileLocation}/target/{randomFileName}"));
     }
 
     [Theory]
@@ -53,7 +53,7 @@ public class FileToTests
     public async Task CanDoActionAsync(string action, string bodyType)
     {
         var randomFileName = $"{Guid.NewGuid().ToString("N")}.txt";
-        var fileTo = this.Setup(action, randomFileName);
+        var fileTo = Setup(action, randomFileName);
 
         var routableHeaders = new Dictionary<string, string>()
         {
@@ -68,14 +68,14 @@ public class FileToTests
         }
 
         await fileTo.ProcessAsync(routable, default);
-        Assert.True(System.IO.File.Exists($"{this.fileLocation}/target/{randomFileName}"));
+        Assert.True(System.IO.File.Exists($"{fileLocation}/target/{randomFileName}"));
     }
 
     [Fact]
     public async Task CanDeleteFile()
     {
         var randomFileName = $"{Guid.NewGuid():N}.txt";
-        var fileTo = this.Setup("Delete", randomFileName);
+        var fileTo = Setup("Delete", randomFileName);
         var routableHeaders = new Dictionary<string, string>()
         {
             { "FullSource", $"test/{randomFileName}" },
@@ -89,7 +89,7 @@ public class FileToTests
     public async Task CanDeleteFileAsync()
     {
         var randomFileName = $"{Guid.NewGuid():N}.txt";
-        var fileTo = this.Setup("Delete", randomFileName);
+        var fileTo = Setup("Delete", randomFileName);
         var routableHeaders = new Dictionary<string, string>()
         {
             { "FullSource", $"test/{randomFileName}" },
@@ -109,11 +109,11 @@ public class FileToTests
         System.IO.File.WriteAllText($"{fileLocation}/{randomFileName}", "test file");
         var headers = new Dictionary<string, string>()
         {
-            { "Target", $"{this.fileLocation}/target" },
+            { "Target", $"{fileLocation}/target" },
             { "Action", action }
         };
 
 
-        return (FileTo)new Inflator().CreateToComponent(headers, this.serviceProvider);
+        return (FileTo)new Inflator().CreateToComponent(headers, serviceProvider);
     }
 }

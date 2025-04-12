@@ -12,7 +12,7 @@ public class InflatorTests
 
     public InflatorTests()
     {
-        this.serviceProvider = this.serviceHelper.GetServiceProvider();
+        serviceProvider = serviceHelper.GetServiceProvider();
     }
 
     [Fact]
@@ -26,7 +26,7 @@ public class InflatorTests
             { "SubDirectories", "true" }
         };
         var inflator = new Inflator();
-        Assert.NotNull(inflator.CreateFromComponent(headers, false, this.serviceProvider));
+        Assert.NotNull(inflator.CreateFromComponent(headers, false, serviceProvider));
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class InflatorTests
         };
 
         var inflator = new Inflator();
-        Assert.NotNull(inflator.CreateToComponent(headers, this.serviceProvider));
+        Assert.NotNull(inflator.CreateToComponent(headers, serviceProvider));
     }
 
     [Fact]

@@ -17,7 +17,7 @@ public class ConfigTests
         };
 
         var resolved = headers.ToFromConfig();
-        Assert.True(this.ValidateFromHeaders(resolved));
+        Assert.True(ValidateFromHeaders(resolved));
     }
 
 

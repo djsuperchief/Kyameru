@@ -4,7 +4,6 @@ using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Threading;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -21,9 +20,9 @@ public class FileToExceptionTests
     [InlineData("Write")]
     public async Task ActionSetsError(string action)
     {
-        this.Init();
-        var fileTo = this.GetFileTo(action);
-        var message = this.GetRoutable();
+        Init();
+        var fileTo = GetFileTo(action);
+        var message = GetRoutable();
         await fileTo.ProcessAsync(message, default);
         Assert.NotNull(message.Error);
     }
