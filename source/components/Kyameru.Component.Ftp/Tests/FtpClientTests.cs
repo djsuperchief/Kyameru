@@ -21,7 +21,7 @@ public class FtpClientTests
     public async Task UploadThrowsError()
     {
         var webRequestUtility = Substitute.For<IWebRequestUtility>();
-        webRequestUtility.UploadFile(default, default, default, default).Throws(new OutOfMemoryException());
+        webRequestUtility.UploadFile(default, default, default, default).ThrowsAsyncForAnyArgs(new OutOfMemoryException());
         CreateTestFile();
         var client = new FtpClient(this.GetFtpSettings(), webRequestUtility);
         bool errorThrown = false;
@@ -39,7 +39,7 @@ public class FtpClientTests
     public async Task GetDirectoryContentsErrors()
     {
         var webRequestUtility = Substitute.For<IWebRequestUtility>();
-        webRequestUtility.GetDirectoryContents(default, default).Throws(new OutOfMemoryException());
+        webRequestUtility.GetDirectoryContents(default, default).ThrowsForAnyArgs(new OutOfMemoryException());
 
         RouteAttributes route = new RouteAttributes($"ftp://test:banana@127.0.0.1/out&Delete=true&PollTime=1");
         From from = new From(route.Headers, webRequestUtility);
@@ -63,15 +63,14 @@ public class FtpClientTests
     public async Task DownloadFileErrors()
     {
         AutoResetEvent resetEvent = new AutoResetEvent(false);
-        this.webRequestUtility.Reset();
-        this.webRequestUtility.Setup(x => x.GetDirectoryContents(It.IsAny<FtpSettings>(), It.IsAny<CancellationToken>())).Returns((FtpSettings f, CancellationToken c) =>
+        var webRequestUtility = Substitute.For<IWebRequestUtility>();
+        webRequestUtility.GetDirectoryContents(default, default).Returns(x =>
         {
             return Task.FromResult(new List<string>() { "file.txt" });
-
         });
-        this.webRequestUtility.Setup(x => x.DownloadFile(It.IsAny<string>(), It.IsAny<FtpSettings>(), It.IsAny<CancellationToken>())).Throws(new OutOfMemoryException());
+        webRequestUtility.DownloadFile(default, default, default).ThrowsAsyncForAnyArgs(new OutOfMemoryException());
         RouteAttributes route = new RouteAttributes($"ftp://test:banana@127.0.0.1/out&Delete=true&PollTime=1");
-        From from = new From(route.Headers, webRequestUtility.Object);
+        From from = new From(route.Headers, webRequestUtility);
         bool errorThrown = false;
         from.OnLog += (sender, e) =>
         {
@@ -93,14 +92,14 @@ public class FtpClientTests
     public async Task DeleteFileErrors()
     {
         AutoResetEvent resetEvent = new AutoResetEvent(false);
-        this.webRequestUtility.Reset();
-        this.webRequestUtility.Setup(x => x.GetDirectoryContents(It.IsAny<FtpSettings>(), It.IsAny<CancellationToken>())).Returns((FtpSettings f, CancellationToken c) =>
+        var webRequestUtility = Substitute.For<IWebRequestUtility>();
+        webRequestUtility.GetDirectoryContents(default, default).Returns(x =>
         {
             return Task.FromResult(new List<string>() { "file.txt" });
         });
-        this.webRequestUtility.Setup(x => x.DeleteFile(It.IsAny<FtpSettings>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).Throws(new OutOfMemoryException());
+        webRequestUtility.DeleteFile(default, default, default).ThrowsForAnyArgs(new OutOfMemoryException());
         RouteAttributes route = new RouteAttributes($"ftp://test:banana@127.0.0.1/out&Delete=true&PollTime=1");
-        From from = new From(route.Headers, webRequestUtility.Object);
+        From from = new From(route.Headers, webRequestUtility);
         bool errorThrown = false;
         from.OnLog += (sender, e) =>
         {

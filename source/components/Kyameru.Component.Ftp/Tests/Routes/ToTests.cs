@@ -2,7 +2,8 @@
 using Kyameru.Component.Ftp.Settings;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,128 +12,120 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Kyameru.Component.Ftp.Tests.Routes
+namespace Kyameru.Component.Ftp.Tests.Routes;
+
+public class ToTests
 {
-    public class ToTests
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task CanUploadFile(bool stringBody)
     {
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task CanUploadFile(bool stringBody)
+        IWebRequestUtility webRequestUtility = this.GetWebRequest();
+        To to = new To(this.GetRoute().Headers, webRequestUtility);
+        Routable routable = new Routable(new Dictionary<string, string>()
         {
-            Mock<IWebRequestUtility> webRequestUtility = this.GetWebRequest();
-            To to = new To(this.GetRoute().Headers, webRequestUtility.Object);
-            Routable routable = new Routable(new Dictionary<string, string>()
+            { "SourceFile", "Test.txt" }
+        },
+        Encoding.UTF8.GetBytes("Hello")
+        );
+        if (stringBody)
+        {
+            routable.SetBody<string>("Hello");
+        }
+
+        await to.ProcessAsync(routable, default);
+        await webRequestUtility.ReceivedWithAnyArgs().UploadFile(default, default, default, default);
+    }
+
+    [Fact]
+    public async Task CanUploadFileAsync()
+    {
+        var tokenSource = new CancellationTokenSource();
+        var webRequestUtility = this.GetWebRequest();
+        To to = new To(this.GetRoute().Headers, webRequestUtility);
+        Routable routable = new Routable(new Dictionary<string, string>()
             {
                 { "SourceFile", "Test.txt" }
             },
-            Encoding.UTF8.GetBytes("Hello")
-            );
-            if (stringBody)
-            {
-                routable.SetBody<string>("Hello");
-            }
+            "Hello"u8.ToArray()
+        );
 
-            await to.ProcessAsync(routable, default);
-            webRequestUtility.VerifyAll();
-        }
+        await to.ProcessAsync(routable, tokenSource.Token);
+        await webRequestUtility.ReceivedWithAnyArgs().UploadFile(default, default, default, default);
+    }
 
-        [Fact]
-        public async Task CanUploadFileAsync()
+    [Fact]
+    public async Task CanUploadAndArchive()
+    {
+        IWebRequestUtility webRequestUtility = this.GetWebRequest();
+        To to = new To(this.GetRoute(true, "File").Headers, webRequestUtility);
+        Routable routable = this.WriteFile();
+        await to.ProcessAsync(routable, default);
+        Assert.True(System.IO.File.Exists("MockOut/Archive/test.txt"));
+    }
+
+    [Theory]
+    [InlineData(LogLevel.Information)]
+    [InlineData(LogLevel.Error)]
+    public async Task CorrectLogReceived(LogLevel logLevel)
+    {
+        LogLevel received = LogLevel.Debug;
+        var webRequestUtility = Substitute.For<IWebRequestUtility>();
+        if (logLevel == LogLevel.Error)
         {
-            var tokenSource = new CancellationTokenSource();
-            Mock<IWebRequestUtility> webRequestUtility = this.GetWebRequest();
-            To to = new To(this.GetRoute().Headers, webRequestUtility.Object);
-            Routable routable = new Routable(new Dictionary<string, string>()
-                {
-                    { "SourceFile", "Test.txt" }
-                },
-                "Hello"u8.ToArray()
-            );
-
-            await to.ProcessAsync(routable, tokenSource.Token);
-            webRequestUtility.VerifyAll();
+            webRequestUtility.UploadFile(default, default, default, default).ThrowsAsyncForAnyArgs<OutOfMemoryException>();
         }
 
-        [Fact]
-        public async Task CanUploadAndArchive()
+        To to = new To(this.GetRoute().Headers, webRequestUtility);
+        Routable routable = new Routable(new Dictionary<string, string>()
         {
-            Mock<IWebRequestUtility> webRequestUtility = this.GetWebRequest();
-            To to = new To(this.GetRoute(true, "File").Headers, webRequestUtility.Object);
-            Routable routable = this.WriteFile();
-            await to.ProcessAsync(routable, default);
-            Assert.True(System.IO.File.Exists("MockOut/Archive/test.txt"));
-        }
-
-        [Theory]
-        [InlineData(LogLevel.Information)]
-        [InlineData(LogLevel.Error)]
-        public async Task CorrectLogReceived(LogLevel logLevel)
+            { "SourceFile", "Test.txt" },
+            {"FileName", "Test.txt" }
+        },
+        Encoding.UTF8.GetBytes("Hello")
+        );
+        to.OnLog += (sender, e) =>
         {
-            LogLevel received = LogLevel.Debug;
-            Mock<IWebRequestUtility> webRequestUtility = this.GetWebRequest();
-            if (logLevel == LogLevel.Error)
-            {
-                webRequestUtility.Setup(x => x.UploadFile(It.IsAny<byte[]>(), It.IsAny<FtpSettings>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Throws(new OutOfMemoryException());
-            }
+            received = e.LogLevel;
+        };
 
-            To to = new To(this.GetRoute().Headers, webRequestUtility.Object);
-            Routable routable = new Routable(new Dictionary<string, string>()
-            {
-                { "SourceFile", "Test.txt" },
-                {"FileName", "Test.txt" }
-            },
-            Encoding.UTF8.GetBytes("Hello")
-            );
-            to.OnLog += (sender, e) =>
-            {
-                received = e.LogLevel;
-            };
+        await to.ProcessAsync(routable, default);
+        Assert.Equal(logLevel, received);
+    }
 
-            await to.ProcessAsync(routable, default);
-            Assert.Equal(logLevel, received);
-        }
+    private Routable WriteFile()
+    {
+        this.PrepareArchiveTest();
 
-        private void To_OnLog(object sender, Log e)
+        System.IO.File.WriteAllText("MockOut/Out/test.txt", "Hello");
+        return new Routable(new Dictionary<string, string>()
         {
-            throw new NotImplementedException();
-        }
+            { "FullSource", "MockOut/Out/test.txt" },
+            {"SourceFile", "test.txt" }
+        },
+        Encoding.UTF8.GetBytes("Hello")
+        );
+    }
 
-        private Routable WriteFile()
+    private void PrepareArchiveTest()
+    {
+        if (Directory.Exists("MockOut/Out"))
         {
-            this.PrepareArchiveTest();
-
-            System.IO.File.WriteAllText("MockOut/Out/test.txt", "Hello");
-            return new Routable(new Dictionary<string, string>()
-            {
-                { "FullSource", "MockOut/Out/test.txt" },
-                {"SourceFile", "test.txt" }
-            },
-            Encoding.UTF8.GetBytes("Hello")
-            );
+            Directory.Delete("MockOut", true);
         }
 
-        private void PrepareArchiveTest()
-        {
-            if (Directory.Exists("MockOut/Out"))
-            {
-                Directory.Delete("MockOut", true);
-            }
+        Directory.CreateDirectory("MockOut/Out");
+    }
 
-            Directory.CreateDirectory("MockOut/Out");
-        }
+    private IWebRequestUtility GetWebRequest()
+    {
+        return Substitute.For<IWebRequestUtility>();
+    }
 
-        private Mock<IWebRequestUtility> GetWebRequest()
-        {
-            Mock<IWebRequestUtility> response = new Mock<IWebRequestUtility>();
-            response.Setup(x => x.UploadFile(It.IsAny<byte[]>(), It.IsAny<FtpSettings>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Verifiable();
-            return response;
-        }
-
-        private RouteAttributes GetRoute(bool archive = false, string source = "Body")
-        {
-            string archivePath = archive ? "&Archive=../Archive/" : string.Empty;
-            return new RouteAttributes($"ftp://test@127.0.0.1/out{archivePath}&Source={source}");
-        }
+    private RouteAttributes GetRoute(bool archive = false, string source = "Body")
+    {
+        string archivePath = archive ? "&Archive=../Archive/" : string.Empty;
+        return new RouteAttributes($"ftp://test@127.0.0.1/out{archivePath}&Source={source}");
     }
 }
