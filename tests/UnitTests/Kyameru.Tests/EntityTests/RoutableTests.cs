@@ -60,7 +60,7 @@ public class RoutableTests
     public async Task ProcessExitWorks(string call, bool setupComponent)
     {
         var testName = $"ProcessExitWorks_{call}";
-        var processComponent = Substitute.For<IProcessComponent>();
+        var processComponent = Substitute.For<IProcessor>();
         processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             x.Arg<Routable>().SetHeader("SetExit", "true");
@@ -84,7 +84,7 @@ public class RoutableTests
     private async Task<bool> RunProcess(
         string callsContain,
         string test,
-        IProcessComponent processComponent)
+        IProcessor processComponent)
     {
         var service = this.GetRoute(test, processComponent);
         var thread = TestThread.CreateNew(service.StartAsync, 3);
@@ -102,7 +102,7 @@ public class RoutableTests
         }, "test");
     }
 
-    private IHostedService GetRoute(string test, IProcessComponent component)
+    private IHostedService GetRoute(string test, IProcessor component)
     {
         var serviceCollection = this.GetServiceDescriptors();
         Kyameru.Route.From($"test://hello?TestName={test}")

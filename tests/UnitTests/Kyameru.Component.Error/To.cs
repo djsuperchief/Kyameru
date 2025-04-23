@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Kyameru.Component.Error
 {
-    public class To : BaseError, IToComponent
+    public class To : BaseError, IToChainLink
     {
         public event EventHandler<Log> OnLog;
 

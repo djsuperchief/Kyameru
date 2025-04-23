@@ -119,7 +119,7 @@ public class ToRouteTests
     [Fact]
     public async Task ToPostProcessConcreteExecutesAsExpected()
     {
-        var mockProcessor = Substitute.For<IProcessComponent>();
+        var mockProcessor = Substitute.For<IProcessor>();
         Routable result = null;
         mockProcessor.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {

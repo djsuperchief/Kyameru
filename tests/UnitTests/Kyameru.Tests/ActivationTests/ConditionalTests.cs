@@ -56,7 +56,7 @@ public class ConditionalTests
     public void WhenRegistersWithPostProcessingConcrete()
     {
         var routable = new Routable(new System.Collections.Generic.Dictionary<string, string>(), string.Empty);
-        var concrete = Substitute.For<IProcessComponent>();
+        var concrete = Substitute.For<IProcessor>();
         var builder = Kyameru.Route.From("test://test")
         .When((Routable x) => x.Body.ToString() == "Test", "testto://test", concrete);
         Assert.Equal(1, builder.ToComponentCount);

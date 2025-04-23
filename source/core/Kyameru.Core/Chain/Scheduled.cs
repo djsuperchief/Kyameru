@@ -18,7 +18,7 @@ namespace Kyameru.Core.Chain
         /// <summary>
         /// Main from component.
         /// </summary>
-        private readonly IScheduleComponent fromComponent;
+        private readonly IScheduleChainLink fromComponent;
 
         /// <summary>
         /// Next processing component.
@@ -63,7 +63,7 @@ namespace Kyameru.Core.Chain
         /// <param name="raiseExceptions">Value indicating whether the route should bubble exceptions.</param>
         /// <param name="targetedSchedule">Targeted schedule</param>
         public Scheduled(
-            IScheduleComponent fromComponent,
+            IScheduleChainLink fromComponent,
             IChain<Routable> next,
             ILogger logger,
             string id,

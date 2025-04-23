@@ -3,12 +3,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Kyameru.Core.BaseComponents
+namespace Kyameru.Core.BaseProcessors
 {
     /// <summary>
     /// Add header component.
     /// </summary>
-    public class AddHeader : IProcessComponent
+    public class AddHeader : IProcessor
     {
         /// <summary>
         /// Header value

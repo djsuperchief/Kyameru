@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Kyameru.Component.Ftp.Contracts
 {
-    internal interface IFtpFrom : IFromComponent
+    internal interface IFtpFrom : IFromChainLink
     {
     }
 }

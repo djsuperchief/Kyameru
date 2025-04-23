@@ -15,23 +15,23 @@ namespace Kyameru.Core.Contracts
         /// <param name="headers">Dictionary of headers to apply.</param>
         /// <param name="isAtomic">Indicates if the route is atomic.</param>
         /// <param name="serviceProvider">DI Service provider</param>
-        /// <returns>Returns an instance of the <see cref="IFromComponent"/> interface.</returns>
-        IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider);
+        /// <returns>Returns an instance of the <see cref="IFromChainLink"/> interface.</returns>
+        IFromChainLink CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider);
 
         /// <summary>
         /// Creates a to component.
         /// </summary>
         /// <param name="headers">Dictionary of headers to apply.</param>
         /// <param name="serviceProvider">DI Service provider</param>
-        /// <returns>Returns an instance of the <see cref="IToComponent"/> interface.</returns>
-        IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider);
+        /// <returns>Returns an instance of the <see cref="IToChainLink"/> interface.</returns>
+        IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider);
 
         /// <summary>
         /// Creates an atomic component.
         /// </summary>
         /// <param name="headers">Dictionary of headers to apply.</param>
-        /// <returns>Returns an instance of the <see cref="IAtomicComponent"/> interface.</returns>
-        IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers);
+        /// <returns>Returns an instance of the <see cref="IAtomicLink"/> interface.</returns>
+        IAtomicLink CreateAtomicComponent(Dictionary<string, string> headers);
 
         /// <summary>
         /// Creates a scheduled component.
@@ -39,8 +39,8 @@ namespace Kyameru.Core.Contracts
         /// <param name="headers">Dictionary of headers to apply.</param>
         /// <param name="isAtomic">Indicates if the route is atomic.</param>
         /// <param name="serviceProvider">DI Service provider</param>
-        /// <returns>Returns an instance of the <see cref="IScheduleComponent"/> interface.</returns>
-        IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider);
+        /// <returns>Returns an instance of the <see cref="IScheduleChainLink"/> interface.</returns>
+        IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider);
 
         /// <summary>
         /// Registers internal to services

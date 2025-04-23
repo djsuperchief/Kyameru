@@ -18,7 +18,7 @@ public class ProcessComponentTests
     {
         var serviceCollection = this.GetServiceDescriptors();
         Routable routable = null;
-        var processComponent = Substitute.For<IProcessComponent>();
+        var processComponent = Substitute.For<IProcessor>();
         processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
@@ -44,16 +44,16 @@ public class ProcessComponentTests
     {
         var serviceCollection = this.GetServiceDescriptors();
         Routable routable = null;
-        var processComponent = Substitute.For<IProcessComponent>();
+        var processComponent = Substitute.For<IProcessor>();
         processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
             return Task.CompletedTask;
         });
 
-        serviceCollection.AddTransient<IProcessComponent>((z) => processComponent);
+        serviceCollection.AddTransient<IProcessor>((z) => processComponent);
         Kyameru.Route.From("injectiontest:///mememe")
-            .Process<IProcessComponent>()
+            .Process<IProcessor>()
             .To("injectiontest:///somewhere")
             .Build(serviceCollection);
 

@@ -20,10 +20,10 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="to">To component.</param>
         /// <param name="serviceProvider">DI Service provider.</param>
-        /// <returns>Returns an instance of the <see cref="IToComponent"/> interface.</returns>
-        protected IToComponent CreateTo(RouteAttributes to, IServiceProvider serviceProvider)
+        /// <returns>Returns an instance of the <see cref="IToChainLink"/> interface.</returns>
+        protected IToChainLink CreateTo(RouteAttributes to, IServiceProvider serviceProvider)
         {
-            IToComponent response = null;
+            IToChainLink response = null;
             try
             {
                 response = GetOasis(to.ComponentName).CreateToComponent(to.Headers, serviceProvider);
@@ -43,10 +43,10 @@ namespace Kyameru.Core
         /// <param name="headers">Dictionary of headers</param>
         /// <param name="serviceProvider">DI Service provider.</param>
         /// <param name="isAtomic">Indicates if the route is atomic.</param>
-        /// <returns>Returns an instance of the <see cref="IFromComponent"/> interface.</returns>
-        protected IFromComponent CreateFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic)
+        /// <returns>Returns an instance of the <see cref="IFromChainLink"/> interface.</returns>
+        protected IFromChainLink CreateFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic)
         {
-            IFromComponent response = null;
+            IFromChainLink response = null;
             try
             {
                 response = GetOasis(from).CreateFromComponent(headers, isAtomic, serviceProvider);
@@ -66,10 +66,10 @@ namespace Kyameru.Core
         /// <param name="headers">Dictionary of headers</param>
         /// <param name="serviceProvider">DI Service provider.</param>
         /// <param name="isAtomic">Indicates if the route is atomic.</param>
-        /// <returns>Returns an instance of the <see cref="IScheduleComponent"/> interface.</returns>
-        protected IScheduleComponent CreateScheduled(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic)
+        /// <returns>Returns an instance of the <see cref="IScheduleChainLink"/> interface.</returns>
+        protected IScheduleChainLink CreateScheduled(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic)
         {
-            IScheduleComponent response = null;
+            IScheduleChainLink response = null;
             try
             {
                 response = GetOasis(from).CreateScheduleComponent(headers, isAtomic, serviceProvider);
@@ -87,10 +87,10 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="from">Valid component name.</param>
         /// <param name="headers">Dictionary of headers</param>
-        /// <returns>Returns an instance of the <see cref="IAtomicComponent"/> interface.</returns>
-        protected IAtomicComponent CreateAtomic(string from, Dictionary<string, string> headers)
+        /// <returns>Returns an instance of the <see cref="IAtomicLink"/> interface.</returns>
+        protected IAtomicLink CreateAtomic(string from, Dictionary<string, string> headers)
         {
-            IAtomicComponent response = null;
+            IAtomicLink response = null;
             try
             {
                 response = GetOasis(from).CreateAtomicComponent(headers);

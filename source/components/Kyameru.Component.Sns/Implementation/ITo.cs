@@ -2,7 +2,7 @@
 
 namespace Kyameru.Component.Sns;
 
-public interface ITo : IToComponent
+public interface ITo : IToChainLink
 {
     void SetHeaders(Dictionary<string, string> headers);
 }

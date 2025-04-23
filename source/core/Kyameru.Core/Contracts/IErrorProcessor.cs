@@ -3,7 +3,7 @@
     /// <summary>
     /// Error component.
     /// </summary>
-    public interface IErrorComponent : IProcessComponent
+    public interface IErrorProcessor : IProcessor
     {
 
     }

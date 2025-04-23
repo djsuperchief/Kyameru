@@ -37,12 +37,12 @@ namespace Kyameru.Core
         /// <summary>
         /// Error component.
         /// </summary>
-        private IErrorComponent errorComponent;
+        private IErrorProcessor errorComponent;
 
         /// <summary>
         /// Atomic component.
         /// </summary>
-        private IAtomicComponent atomicComponent;
+        private IAtomicLink atomicComponent;
 
         /// <summary>
         /// Value indicating whether exceptions should be raised from the route.
@@ -184,7 +184,7 @@ namespace Kyameru.Core
         /// <param name="component">To component.</param>
         /// <param name="postProcessing">Post processing component</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
-        public Builder When(Func<Routable, bool> conditional, string component, IProcessComponent postProcessing)
+        public Builder When(Func<Routable, bool> conditional, string component, IProcessor postProcessing)
         {
             var postProcessingComponent = Processable.Create(postProcessing);
             AddToConditionalProcessing(conditional, component, postProcessingComponent);
@@ -198,7 +198,7 @@ namespace Kyameru.Core
         /// <param name="component">To component.</param>
         /// <typeparam name="T">IProcessComponent</typeparam>
         /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
-        public Builder When<T>(Func<Routable, bool> conditional, string component) where T : IProcessComponent
+        public Builder When<T>(Func<Routable, bool> conditional, string component) where T : IProcessor
         {
             var postProcessingComponent = Processable.Create<T>();
             AddToConditionalProcessing(conditional, component, postProcessingComponent);
@@ -256,7 +256,7 @@ namespace Kyameru.Core
         /// <param name="componentUri">Valid Kyameru URI.</param>
         /// <param name="concretePostProcessing">A component to run any post processing.</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder To(string componentUri, IProcessComponent concretePostProcessing)
+        public Builder To(string componentUri, IProcessor concretePostProcessing)
         {
             var postProcessComponent = Processable.Create(concretePostProcessing);
             AddToPostProcessing(componentUri, postProcessComponent);
@@ -269,7 +269,7 @@ namespace Kyameru.Core
         /// <typeparam name="T">Type of post processing component</typeparam>
         /// <param name="componentUri">Valid Kyameru URI</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder To<T>(string componentUri) where T : IProcessComponent
+        public Builder To<T>(string componentUri) where T : IProcessor
         {
             var postProcessComponent = Processable.Create<T>();
             AddToPostProcessing(componentUri, postProcessComponent);
@@ -346,7 +346,7 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="component">Error component.</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder Error(IErrorComponent component)
+        public Builder Error(IErrorProcessor component)
         {
             errorComponent = component;
             return this;
@@ -533,7 +533,7 @@ namespace Kyameru.Core
             return toChain;
         }
 
-        private IToComponent GetToComponent(int index, IServiceProvider serviceProvider)
+        private IToChainLink GetToComponent(int index, IServiceProvider serviceProvider)
         {
             return CreateTo(toUris[index], serviceProvider);
         }
@@ -590,13 +590,13 @@ namespace Kyameru.Core
             toUris.Add(route);
         }
 
-        private void AddToConditionalProcessing(IConditionalComponent conditional, string componentUri)
+        private void AddToConditionalProcessing(IConditionalProcessor conditional, string componentUri)
         {
             var route = new RouteAttributes(conditional, componentUri);
             toUris.Add(route);
         }
 
-        private void AddToConditionalProcessing(IConditionalComponent conditional, string componentUri, Processable postProcessingComponent)
+        private void AddToConditionalProcessing(IConditionalProcessor conditional, string componentUri, Processable postProcessingComponent)
         {
             var route = new RouteAttributes(conditional, componentUri, postProcessingComponent);
             toUris.Add(route);
@@ -612,14 +612,14 @@ namespace Kyameru.Core
             schedule = new Schedule(unit, value, false);
         }
 
-        private IConditionalComponent GetReflectedConditionalComponent(string componentTypeName, Assembly hostAssembly)
+        private IConditionalProcessor GetReflectedConditionalComponent(string componentTypeName, Assembly hostAssembly)
         {
             var componentName = string.Concat(hostAssembly.FullName.Split(',')[0], ".", componentTypeName);
             Type componentType = hostAssembly.GetType(componentName);
-            IConditionalComponent response = null;
+            IConditionalProcessor response = null;
             try
             {
-                response = Activator.CreateInstance(componentType) as IConditionalComponent;
+                response = Activator.CreateInstance(componentType) as IConditionalProcessor;
 
             }
             catch

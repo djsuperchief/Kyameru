@@ -20,7 +20,7 @@ namespace Kyameru.Core.Chain
         /// <summary>
         /// Error component.
         /// </summary>
-        private readonly IErrorComponent errorComponent;
+        private readonly IErrorProcessor errorComponent;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Error"/> class.
@@ -28,7 +28,7 @@ namespace Kyameru.Core.Chain
         /// <param name="logger">Logging interface.</param>
         /// <param name="errorComponent">Error component.</param>
         /// <param name="identity">Route identity.</param>
-        public Error(ILogger logger, IErrorComponent errorComponent, string identity) : base(logger, identity)
+        public Error(ILogger logger, IErrorProcessor errorComponent, string identity) : base(logger, identity)
         {
             this.errorComponent = errorComponent;
             this.errorComponent.OnLog += OnLog;

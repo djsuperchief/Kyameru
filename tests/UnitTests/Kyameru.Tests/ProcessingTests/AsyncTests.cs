@@ -16,7 +16,7 @@ public class AsyncTests
     [Fact]
     public async Task AsyncRunsAsExpected()
     {
-        var processComponent = Substitute.For<IProcessComponent>();
+        var processComponent = Substitute.For<IProcessor>();
         var serviceCollection = this.GetServiceDescriptors();
         Routable routable = null;
         processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
@@ -39,7 +39,7 @@ public class AsyncTests
     [Fact]
     public async Task AsyncRouteRuns()
     {
-        var processComponent = Substitute.For<IProcessComponent>();
+        var processComponent = Substitute.For<IProcessor>();
         var serviceCollection = this.GetServiceDescriptors();
         Routable routable = null;
         processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
@@ -77,7 +77,7 @@ public class AsyncTests
         return serviceCollection;
     }
 
-    private void BuildRoute(IServiceCollection serviceCollection, IProcessComponent processComponent)
+    private void BuildRoute(IServiceCollection serviceCollection, IProcessor processComponent)
     {
         Kyameru.Route.From("injectiontest:///mememe")
             .Process(processComponent)

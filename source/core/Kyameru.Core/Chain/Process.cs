@@ -15,7 +15,7 @@ namespace Kyameru.Core.Chain
         /// <summary>
         /// Core processing component.
         /// </summary>
-        private readonly IProcessComponent component;
+        private readonly IProcessor component;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Process"/> class.
@@ -23,7 +23,7 @@ namespace Kyameru.Core.Chain
         /// <param name="logger">Logger class.</param>
         /// <param name="processComponent">Processing component.</param>
         /// <param name="identity">Identity of route.</param>
-        public Process(ILogger logger, IProcessComponent processComponent, string identity) : base(logger, identity)
+        public Process(ILogger logger, IProcessor processComponent, string identity) : base(logger, identity)
         {
             component = processComponent;
             component.OnLog += OnLog;

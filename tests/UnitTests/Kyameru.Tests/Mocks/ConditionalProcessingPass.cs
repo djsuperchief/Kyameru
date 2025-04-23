@@ -5,7 +5,7 @@ using Kyameru.Core.Entities;
 
 namespace Kyameru.Tests.Mocks;
 
-public class ConditionalProcessingPass : IProcessComponent
+public class ConditionalProcessingPass : IProcessor
 {
     public event EventHandler<Log> OnLog;
 

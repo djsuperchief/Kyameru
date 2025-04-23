@@ -10,9 +10,9 @@ namespace Kyameru.Core.Chain
 {
     internal class Atomic : BaseChain
     {
-        private readonly IAtomicComponent atomicComponent;
+        private readonly IAtomicLink atomicComponent;
 
-        public Atomic(ILogger logger, IAtomicComponent atomicComponent, string identity) : base(logger, identity)
+        public Atomic(ILogger logger, IAtomicLink atomicComponent, string identity) : base(logger, identity)
         {
             this.atomicComponent = atomicComponent;
             this.atomicComponent.OnLog += OnLog;

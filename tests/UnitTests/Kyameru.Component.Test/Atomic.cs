@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Kyameru.Component.Test
 {
-    public class Atomic : IAtomicComponent
+    public class Atomic : IAtomicLink
     {
         private readonly Dictionary<string, string> headers;
 

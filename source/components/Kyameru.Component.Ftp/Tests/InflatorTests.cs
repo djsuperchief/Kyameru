@@ -15,7 +15,7 @@ public class InflatorTests
     public void ActivateFromWorks()
     {
         IServiceProvider serviceProvider = this.GetServiceProvider();
-        IFromComponent fromComponent = new Ftp.Inflator().CreateFromComponent(this.GetHeaders(), false, serviceProvider);
+        IFromChainLink fromComponent = new Ftp.Inflator().CreateFromComponent(this.GetHeaders(), false, serviceProvider);
         Assert.NotNull(fromComponent);
     }
 
@@ -30,7 +30,7 @@ public class InflatorTests
     public void ActivateToWorks()
     {
         IServiceProvider serviceProvider = this.GetServiceProvider();
-        IToComponent toComponent = new Ftp.Inflator().CreateToComponent(this.GetHeaders(), serviceProvider);
+        IToChainLink toComponent = new Ftp.Inflator().CreateToComponent(this.GetHeaders(), serviceProvider);
         Assert.NotNull(toComponent);
     }
 

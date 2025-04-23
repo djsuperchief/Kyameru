@@ -16,7 +16,7 @@ namespace Kyameru.Component.File
         /// </summary>
         /// <param name="headers">Incoming headers</param>
         /// <returns>Returns an instance of </returns>
-        public IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers)
+        public IAtomicLink CreateAtomicComponent(Dictionary<string, string> headers)
         {
             throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "File"));
         }
@@ -25,14 +25,14 @@ namespace Kyameru.Component.File
         /// Creates a from component.
         /// </summary>
         /// <param name="headers">Incoming headers.</param>
-        /// <returns>Returns a new instance of a <see cref="IFromComponent"/> class.</returns>
-        public IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        /// <returns>Returns a new instance of a <see cref="IFromChainLink"/> class.</returns>
+        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
         {
 
             return new FileWatcher(headers, new Utilities.BaseFileSystemWatcher());
         }
 
-        public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
         {
             throw new NotImplementedException();
         }
@@ -41,8 +41,8 @@ namespace Kyameru.Component.File
         /// Creates a to component.
         /// </summary>
         /// <param name="headers">Incoming headers.</param>
-        /// <returns>Returns a new instance of a <see cref="IToComponent"/> class.</returns>
-        public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        /// <returns>Returns a new instance of a <see cref="IToChainLink"/> class.</returns>
+        public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             return new FileTo(headers, new Utilities.FileUtils());
         }

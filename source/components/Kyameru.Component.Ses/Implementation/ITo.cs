@@ -4,7 +4,7 @@ using Kyameru.Core.Contracts;
 
 namespace Kyameru.Component.Ses;
 
-public interface ITo : IToComponent
+public interface ITo : IToChainLink
 {
     void SetHeaders(Dictionary<string, string> incomingHeaders);
 }

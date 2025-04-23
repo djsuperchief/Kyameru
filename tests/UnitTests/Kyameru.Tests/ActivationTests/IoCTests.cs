@@ -49,7 +49,7 @@ public class IoCFacts
     public async Task CanRunDIComponent()
     {
         Routable routable = null;
-        var diProcessor = Substitute.For<IProcessComponent>();
+        var diProcessor = Substitute.For<IProcessor>();
         diProcessor.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
@@ -105,7 +105,7 @@ public class IoCFacts
     public async Task MultipleRoutesWork()
     {
         var calls = 0;
-        var processComponent = Substitute.For<IProcessComponent>();
+        var processComponent = Substitute.For<IProcessor>();
         processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             calls++;
@@ -135,8 +135,8 @@ public class IoCFacts
     private IHostedService AddComponent(string test, bool multiChain = false)
     {
         var serviceCollection = GetServiceDescriptors();
-        var processComponent = Substitute.For<IProcessComponent>();
-        var errorComponent = Substitute.For<IErrorComponent>();
+        var processComponent = Substitute.For<IProcessor>();
+        var errorComponent = Substitute.For<IErrorProcessor>();
         processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             Kyameru.Component.Test.GlobalCalls.AddCall(test, "COMPONENT");
@@ -172,7 +172,7 @@ public class IoCFacts
         return provider.GetService<IHostedService>();
     }
 
-    private IEnumerable<IHostedService> AddTwoRoutes(IProcessComponent processComponent)
+    private IEnumerable<IHostedService> AddTwoRoutes(IProcessor processComponent)
     {
         var serviceCollection = GetServiceDescriptors();
         Kyameru.Route.From("Test://first?TestName=TwoRoutes")
@@ -188,7 +188,7 @@ public class IoCFacts
         return provider.GetServices<IHostedService>();
     }
 
-    private IHostedService SetupDIComponent(IProcessComponent diProcessor)
+    private IHostedService SetupDIComponent(IProcessor diProcessor)
     {
         var serviceCollection = GetServiceDescriptors();
         Kyameru.Route.From("Test://hello?TestName=DITest")
@@ -215,7 +215,7 @@ public class IoCFacts
     private IHostedService GetHeaderError(bool dual, string test)
     {
         var serviceCollection = GetServiceDescriptors();
-        var errorComponent = Substitute.For<IErrorComponent>();
+        var errorComponent = Substitute.For<IErrorProcessor>();
         if (!dual)
         {
             Route.From($"Test://hello?TestName={test}")

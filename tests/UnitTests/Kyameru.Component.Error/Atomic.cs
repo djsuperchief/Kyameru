@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Kyameru.Component.Error
 {
-    public class Atomic : BaseError, IAtomicComponent
+    public class Atomic : BaseError, IAtomicLink
     {
         public Atomic(Dictionary<string, string> headers) : base(headers)
         {

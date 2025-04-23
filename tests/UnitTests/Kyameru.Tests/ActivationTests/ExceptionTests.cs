@@ -20,8 +20,8 @@ public class ExceptionTests
     public async Task FromException()
     {
         Routable routable = null;
-        var errorComponent = Substitute.For<IErrorComponent>();
-        var processComponent = Substitute.For<IProcessComponent>();
+        var errorComponent = Substitute.For<IErrorProcessor>();
+        var processComponent = Substitute.For<IProcessor>();
         errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
@@ -40,8 +40,8 @@ public class ExceptionTests
     [Fact]
     public async Task FromRaiseException()
     {
-        var errorComponent = Substitute.For<IErrorComponent>();
-        var processComponent = Substitute.For<IProcessComponent>();
+        var errorComponent = Substitute.For<IErrorProcessor>();
+        var processComponent = Substitute.For<IProcessor>();
         await Assert.ThrowsAsync<NotImplementedException>(async () =>
         {
             var service = this.GetHostedService(SetupBubbleChain, processComponent, errorComponent, true);
@@ -54,14 +54,14 @@ public class ExceptionTests
     {
         Routable routable = null;
 
-        var errorComponent = Substitute.For<IErrorComponent>();
+        var errorComponent = Substitute.For<IErrorProcessor>();
         errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
             return Task.CompletedTask;
         });
 
-        var processComponent = Substitute.For<IProcessComponent>();
+        var processComponent = Substitute.For<IProcessor>();
         processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             throw new Kyameru.Core.Exceptions.ProcessException("Manual Error");
@@ -81,8 +81,8 @@ public class ExceptionTests
     {
         Routable routable = null;
 
-        var errorComponent = Substitute.For<IErrorComponent>();
-        var processComponent = Substitute.For<IProcessComponent>();
+        var errorComponent = Substitute.For<IErrorProcessor>();
+        var processComponent = Substitute.For<IProcessor>();
         errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
@@ -102,8 +102,8 @@ public class ExceptionTests
     public async Task AtomicError()
     {
         Routable routable = null;
-        var errorComponent = Substitute.For<IErrorComponent>();
-        var processComponent = Substitute.For<IProcessComponent>();
+        var errorComponent = Substitute.For<IErrorProcessor>();
+        var processComponent = Substitute.For<IProcessor>();
         errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
@@ -123,8 +123,8 @@ public class ExceptionTests
     public async Task ErrorComponentErrors()
     {
         Routable routable = null;
-        var errorComponent = Substitute.For<IErrorComponent>();
-        var processComponent = Substitute.For<IProcessComponent>();
+        var errorComponent = Substitute.For<IErrorProcessor>();
+        var processComponent = Substitute.For<IProcessor>();
         errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
@@ -149,9 +149,9 @@ public class ExceptionTests
     }
 
     private IHostedService GetHostedService(
-        Action<string, string, string, IServiceCollection, IProcessComponent, IErrorComponent> setup,
-        IProcessComponent processComponent,
-        IErrorComponent errorComponent,
+        Action<string, string, string, IServiceCollection, IProcessor, IErrorProcessor> setup,
+        IProcessor processComponent,
+        IErrorProcessor errorComponent,
         bool fromError = false,
         bool toError = false,
         bool atomicError = false)
@@ -171,7 +171,7 @@ public class ExceptionTests
         return provider.GetService<IHostedService>();
     }
 
-    private void SetupChain(string from, string to, string atomic, IServiceCollection serviceDescriptors, IProcessComponent processComponent, IErrorComponent errorComponent)
+    private void SetupChain(string from, string to, string atomic, IServiceCollection serviceDescriptors, IProcessor processComponent, IErrorProcessor errorComponent)
     {
         Kyameru.Route.From(from)
             .Process(processComponent)
@@ -181,7 +181,7 @@ public class ExceptionTests
             .Build(serviceDescriptors);
     }
 
-    private void SetupBubbleChain(string from, string to, string atomic, IServiceCollection serviceDescriptors, IProcessComponent processComponent, IErrorComponent errorComponent)
+    private void SetupBubbleChain(string from, string to, string atomic, IServiceCollection serviceDescriptors, IProcessor processComponent, IErrorProcessor errorComponent)
     {
         Kyameru.Route.From(from)
             .Process(processComponent)

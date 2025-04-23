@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Kyameru.Component.Slack
 {
-    internal interface ISlackTo : IToComponent
+    internal interface ISlackTo : IToChainLink
     {
     }
 }

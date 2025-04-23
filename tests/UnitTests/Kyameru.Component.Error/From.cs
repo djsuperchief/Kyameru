@@ -10,7 +10,7 @@ using Kyameru.Core.Sys;
 
 namespace Kyameru.Component.Error
 {
-    public class From : BaseError, IFromComponent
+    public class From : BaseError, IFromChainLink
     {
         public event EventHandler<Routable> OnAction;
 

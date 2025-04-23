@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Kyameru.Component.File
 {
-    internal interface IFileTo : IToComponent
+    internal interface IFileTo : IToChainLink
     {
 
     }

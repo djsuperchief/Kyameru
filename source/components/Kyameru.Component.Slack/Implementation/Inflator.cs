@@ -16,7 +16,7 @@ namespace Kyameru.Component.Slack
         /// </summary>
         /// <param name="headers">Headers to process.</param>
         /// <returns>Throws a not implemented exception</returns>
-        public IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers)
+        public IAtomicLink CreateAtomicComponent(Dictionary<string, string> headers)
         {
             throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "Slack"));
         }
@@ -26,13 +26,13 @@ namespace Kyameru.Component.Slack
         /// </summary>
         /// <param name="headers">Incoming headers.</param>]
         /// <param name="isAtomic">value indicating whether the component is considered to be atomic.</param>
-        /// <returns>Returns a new instance of a <see cref="IFromComponent"/> class.</returns>
-        public IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        /// <returns>Returns a new instance of a <see cref="IFromChainLink"/> class.</returns>
+        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
         {
             throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "Slack"));
         }
 
-        public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
         {
             throw new NotImplementedException();
         }
@@ -41,8 +41,8 @@ namespace Kyameru.Component.Slack
         /// Creates a to component.
         /// </summary>
         /// <param name="headers">Incoming headers.</param>
-        /// <returns>Returns a new instance of a <see cref="IToComponent"/> class.</returns>
-        public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        /// <returns>Returns a new instance of a <see cref="IToChainLink"/> class.</returns>
+        public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             return new SlackTo(headers);
         }

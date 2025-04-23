@@ -10,7 +10,7 @@ public class AddHeaderTests
     [Fact]
     public void CanProcessString()
     {
-        var header = new Core.BaseComponents.AddHeader("Processing", "String");
+        var header = new Core.BaseProcessors.AddHeader("Processing", "String");
         var routable = new Routable(new Dictionary<string, string>(), "Test");
         header.Process(routable);
         Assert.Equal("String", routable.Headers["Processing"]);
@@ -19,7 +19,7 @@ public class AddHeaderTests
     [Fact]
     public void CanProcessCallbackOne()
     {
-        var header = new Core.BaseComponents.AddHeader("Processing", () =>
+        var header = new Core.BaseProcessors.AddHeader("Processing", () =>
         {
             return "CallbackOne";
         });
@@ -31,7 +31,7 @@ public class AddHeaderTests
     [Fact]
     public void CanProcessCallbackTwo()
     {
-        var header = new Core.BaseComponents.AddHeader("Processing", (x) =>
+        var header = new Core.BaseProcessors.AddHeader("Processing", (x) =>
         {
             return x.Headers["Target"];
         });
@@ -43,7 +43,7 @@ public class AddHeaderTests
     [Fact]
     public void SetErrorWorks()
     {
-        var header = new Core.BaseComponents.AddHeader("Processing", (x) =>
+        var header = new Core.BaseProcessors.AddHeader("Processing", (x) =>
         {
             throw new NotImplementedException();
         });

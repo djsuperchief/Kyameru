@@ -18,7 +18,7 @@ public class InjectedComponentsTests
     {
         var serviceCollection = this.GetServiceDescriptors();
         Routable routable = null;
-        var processComponent = Substitute.For<IProcessComponent>();
+        var processComponent = Substitute.For<IProcessor>();
         processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
@@ -47,7 +47,7 @@ public class InjectedComponentsTests
     public async Task CanComponentsStart(string componentToError, string expected)
     {
         var serviceCollection = this.GetServiceDescriptors();
-        var processComponent = Substitute.For<IProcessComponent>();
+        var processComponent = Substitute.For<IProcessor>();
         var fromHeaders = componentToError == "from" ? "?WillError=true" : string.Empty;
         var toHeaders = componentToError == "to" ? "?WillError=true" : string.Empty;
         var actual = string.Empty;
@@ -78,7 +78,7 @@ public class InjectedComponentsTests
     {
         var serviceCollection = this.GetServiceDescriptors();
         Routable routable = null;
-        var processComponent = Substitute.For<IProcessComponent>();
+        var processComponent = Substitute.For<IProcessor>();
         processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();

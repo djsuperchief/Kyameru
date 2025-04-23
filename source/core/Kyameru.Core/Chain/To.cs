@@ -16,17 +16,17 @@ namespace Kyameru.Core.Chain
         /// <summary>
         /// To Component.
         /// </summary>
-        private readonly IToComponent toComponent;
+        private readonly IToChainLink toComponent;
 
         /// <summary>
         /// Post processing component.
         /// </summary>
-        private readonly IProcessComponent processComponent;
+        private readonly IProcessor processComponent;
 
         /// <summary>
         /// Conditional processing.
         /// </summary>
-        private readonly IConditionalComponent conditionalCheck;
+        private readonly IConditionalProcessor conditionalCheck;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="To"/> class.
@@ -35,7 +35,7 @@ namespace Kyameru.Core.Chain
         /// <param name="toComponent">To component.</param>
         /// <param name="identity">Identity of route.</param>
         /// <param name="condition">Optional: condition for execution of To.</param>
-        public To(ILogger logger, IToComponent toComponent, string identity, IConditionalComponent condition = null) : base(logger, identity)
+        public To(ILogger logger, IToChainLink toComponent, string identity, IConditionalProcessor condition = null) : base(logger, identity)
         {
             this.toComponent = toComponent;
             this.toComponent.OnLog += OnLog;
@@ -50,7 +50,7 @@ namespace Kyameru.Core.Chain
         /// <param name="postProcessComponent">Post processing component.</param>
         /// <param name="identity">Identity of route.</param>
         /// <param name="condition">Optional: condition for execution of To.</param>
-        public To(ILogger logger, IToComponent toComponent, IProcessComponent postProcessComponent, string identity, IConditionalComponent condition = null) :
+        public To(ILogger logger, IToChainLink toComponent, IProcessor postProcessComponent, string identity, IConditionalProcessor condition = null) :
             this(logger, toComponent, identity, condition)
         {
             processComponent = postProcessComponent;

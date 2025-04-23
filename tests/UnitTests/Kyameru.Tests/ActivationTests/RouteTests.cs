@@ -41,7 +41,7 @@ namespace Kyameru.Tests.ActivationTests
         [Fact]
         public void CanAddProcessingComponent()
         {
-            var processingComponent = Substitute.For<IProcessComponent>();
+            var processingComponent = Substitute.For<IProcessor>();
             var route = this.CreateRoute();
             route.Process(processingComponent);
             Assert.True(route.ComponentCount == 1);
@@ -76,7 +76,7 @@ namespace Kyameru.Tests.ActivationTests
         [Fact]
         public void CanSetupError()
         {
-            var errorComponent = Substitute.For<IErrorComponent>();
+            var errorComponent = Substitute.For<IErrorProcessor>();
             var builder = this.CreateTo(this.CreateRoute());
             builder.Error(errorComponent);
             Assert.True(builder.WillProcessError);

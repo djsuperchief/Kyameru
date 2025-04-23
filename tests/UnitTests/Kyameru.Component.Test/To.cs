@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Kyameru.Component.Test
 {
-    public class To : IToComponent
+    public class To : IToChainLink
     {
         private readonly Dictionary<string, string> Headers;
 

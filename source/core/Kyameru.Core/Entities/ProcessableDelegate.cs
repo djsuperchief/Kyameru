@@ -5,7 +5,7 @@ using Kyameru.Core.Entities;
 
 namespace Kyameru.Core.Entities
 {
-    internal class ProcessableDelegate : IProcessComponent
+    internal class ProcessableDelegate : IProcessor
     {
         public event EventHandler<Log> OnLog;
 
