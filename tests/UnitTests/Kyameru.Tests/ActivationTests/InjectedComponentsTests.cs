@@ -42,8 +42,8 @@ public class InjectedComponentsTests
     }
 
     [Theory]
-    [InlineData("from", "Error activating from component.")]
-    [InlineData("to", "Error activating to component.")]
+    [InlineData("from", "Error activating from chain link.")]
+    [InlineData("to", "Error activating to chain link.")]
     public async Task CanComponentsStart(string componentToError, string expected)
     {
         var serviceCollection = this.GetServiceDescriptors();
