@@ -1,5 +1,4 @@
 ﻿using Kyameru.Component.Ftp.Contracts;
-using Kyameru.Component.Ftp.Settings;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.Logging;
 using NSubstitute;

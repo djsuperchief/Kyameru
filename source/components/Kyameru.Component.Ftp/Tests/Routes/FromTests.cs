@@ -19,8 +19,9 @@ namespace Kyameru.Component.Ftp.Tests.Routes
         [InlineData(false)]
         public async Task FromDownloadsAndDeletes(bool deletes)
         {
-            var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(4));
             var webRequestFactory = this.GetWebRequest();
+            webRequestFactory.ClearReceivedCalls();
             var autoReset = new AutoResetEvent(false);
             var times = 0;
             if (deletes)
@@ -35,26 +36,27 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             var from = new From(this.GetRoute(deletes).Headers, webRequestFactory);
             Routable routable = null;
 
+            from.Setup();
             from.OnActionAsync += delegate (object sender, RoutableEventData e)
             {
                 routable = e.Data;
                 routable.SetHeader("&Method", "ASYNC");
                 return Task.CompletedTask;
             };
-            from.Setup();
+
             var thread = new Thread(async () =>
             {
                 await from.StartAsync(tokenSource.Token);
             });
 
             thread.Start();
-            autoReset.WaitOne(TimeSpan.FromSeconds(5));
+            autoReset.WaitOne(TimeSpan.FromSeconds(4));
             tokenSource.Cancel();
 
             // possible the crash is being caused by 
 
             Assert.Equal("Hello ftp", Encoding.UTF8.GetString((byte[])routable.Body));
-            await webRequestFactory.DeleteFile(default, "Test.txt", default, default).Received(times);
+            await webRequestFactory.Received(times).DeleteFile(Arg.Any<FtpSettings>(), "Test.txt", Arg.Any<bool>(), Arg.Any<CancellationToken>());
 
             await from.StopAsync(tokenSource.Token);
             Assert.Equal("ASYNC", routable.Headers["Method"]);
@@ -82,12 +84,12 @@ namespace Kyameru.Component.Ftp.Tests.Routes
         public IWebRequestUtility GetWebRequest()
         {
             var response = Substitute.For<IWebRequestUtility>();
-            response.DownloadFile("Test.txt", default, default).Returns(x =>
+            response.DownloadFile("Test.txt", Arg.Any<FtpSettings>(), Arg.Any<CancellationToken>()).Returns(x =>
             {
                 return Task.FromResult(Encoding.UTF8.GetBytes("Hello ftp"));
             });
 
-            response.GetDirectoryContents(default, default).Returns(x =>
+            response.GetDirectoryContents(default, default).ReturnsForAnyArgs(x =>
             {
                 return Task.FromResult(new List<string>() { "Test.txt" });
             });

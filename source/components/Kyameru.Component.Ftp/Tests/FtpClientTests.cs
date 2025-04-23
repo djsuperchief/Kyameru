@@ -62,15 +62,15 @@ public class FtpClientTests
     [Fact]
     public async Task DownloadFileErrors()
     {
-        AutoResetEvent resetEvent = new AutoResetEvent(false);
+        var resetEvent = new AutoResetEvent(false);
         var webRequestUtility = Substitute.For<IWebRequestUtility>();
-        webRequestUtility.GetDirectoryContents(default, default).Returns(x =>
+        webRequestUtility.GetDirectoryContents(default, default).ReturnsForAnyArgs(x =>
         {
             return Task.FromResult(new List<string>() { "file.txt" });
         });
         webRequestUtility.DownloadFile(default, default, default).ThrowsAsyncForAnyArgs(new OutOfMemoryException());
-        RouteAttributes route = new RouteAttributes($"ftp://test:banana@127.0.0.1/out&Delete=true&PollTime=1");
-        From from = new From(route.Headers, webRequestUtility);
+        var route = new RouteAttributes($"ftp://test:banana@127.0.0.1/out&Delete=true&PollTime=1");
+        var from = new From(route.Headers, webRequestUtility);
         bool errorThrown = false;
         from.OnLog += (sender, e) =>
         {
@@ -93,7 +93,7 @@ public class FtpClientTests
     {
         AutoResetEvent resetEvent = new AutoResetEvent(false);
         var webRequestUtility = Substitute.For<IWebRequestUtility>();
-        webRequestUtility.GetDirectoryContents(default, default).Returns(x =>
+        webRequestUtility.GetDirectoryContents(default, default).ReturnsForAnyArgs(x =>
         {
             return Task.FromResult(new List<string>() { "file.txt" });
         });
