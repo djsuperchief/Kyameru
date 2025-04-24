@@ -23,7 +23,7 @@ nav_order: 1
 
 ## Kyameru
 
-Kyameru is a processing engine built with heavy inspiration from Apache Camel. The general idea is that you have a "bucket" of ready made components that you can use in a processing chain for any incoming data. You have a FROM component that starts the chain of events. Processing components that typically you build to process the data and then TO components to send the data to something.
+Kyameru is a processing engine built with heavy inspiration from Apache Camel. The general idea is that you have a "bucket" of ready made components that you can use in a processing chain for any incoming data. You have a FROM component that starts the chain of events. Processors that typically you build to process the data and then TO components to send the data to something.
 
 ## Get Started
 

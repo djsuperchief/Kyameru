@@ -45,9 +45,9 @@ Kyameru.Route.From("sqs://myqueue")
 
 Now there are other options for headers, for instance you can use the function delegate to do some more complex processing but that's beyond the scope of this getting started document.
 
-#### Add A Processing Component
+#### Add A Processor
 
-Processing components are components you build as part of your applications domain. They add any custom logic or processing you need to the routable message before it goes through the to the TO components. You can create processing components in many ways:
+Processors are chain links you build as part of your applications domain. They add any custom logic or processing you need to the routable message before it goes through the to the TO chain links. You can create a processor in many ways:
 
 - Concrete implementation
 - Dependency Injection
@@ -55,7 +55,7 @@ Processing components are components you build as part of your applications doma
 - Action
 - Async Function
 
-But for the purpose of this, we'll just use the action delegate.
+But for the purpose of this, we'll just use an `Action`.
 
 ```
 Kyameru.Route.From("sqs://myqueue")
@@ -68,8 +68,8 @@ You can do what you like with the routable message and process it how you wish.
 
 ### To Route
 
-The To route works in the same way as the from. You specify what component you want to route to (with any additional setup headers) and that's it!
-The To route does have some additional parts to it.
+The To chain link works in the same way as the from. You specify what component you want to route to (with any additional setup headers) and that's it!
+The To chain link does have some additional parts to it.
 
 #### Multiple To Routes
 
@@ -77,26 +77,26 @@ You can continue to chain To components together so if you wanted to say put a f
 
 #### To Post Processing
 
-Every To component has the ability to add post processing to it. This post processing is a `processing component` that you create (the same as an ordinary Processing Component) and it is executed immediately after the To component has finished.
+Every To chain link has the ability to add post processing to it. This post processing is a `Processor` that you create (the same as an ordinary Processor) and it is executed immediately after the To component has finished.
 
 ```
-.To("component://setup", new MyComponent())
-.To<IMyComponent>("component://setup")
-.To("component://setup", "MyNamespace.Component")
+.To("component://setup", new MyProcessor())
+.To<IMyProcessor>("component://setup")
+.To("component://setup", "MyNamespace.Processor")
 .To("Component://setup", (Routable x) => {})
 .To("Component://setup", async (Routable x) => {})
 ```
 
 ### Conditional To
 
-Kyameru has the ability to only run a `To` based on a certain condition. A function delegate needs to be specified up front and than the function of the `To` route is exactly the same. For example:
+Kyameru has the ability to only run a `To` based on a certain condition. A function delegate needs to be specified up front and than the function of the `To` chain link is exactly the same. For example:
 
 ```
 .When((x => x.Body.ToString == "MyBody"), "component://setup")
-.When((x => x.Body.ToString == "MyBody"), "component://setup", PostProcessingComponent)
+.When((x => x.Body.ToString == "MyBody"), "component://setup", PostProcessor)
 ```
 
-You can also use post processing components in the `When` statement as well. The condition has the following signature:
+You can also use post processors in the `When` statement as well. The condition has the following signature:
 
 ```
 Func<Routable, bool>
@@ -104,17 +104,17 @@ Func<Routable, bool>
 
 ### Id
 
-Every route can be assigned an Id specified by you or it will be assigned at random. To specify an Id, use the Id function.
+Every route can be assigned an Id specified by you or it will be assigned at random. To specify an Id, use the Id function. The random Id assigned will be a Guid.
 
 ```
 .Id("my-route")
 ```
 
-This may help identify errors if you use several routes that are all the same.
+This may help identify errors if you use several routes.
 
 ### Error Route
 
-You can create an error processing component `IErrorComponent` that execute if the route encounters any errors. This gives you an opportunity to do any final processing on a message in the event the route encounters any errors.
+You can create an error processor `IErrorComponent` that will execute if the route encounters any errors. This gives you an opportunity to do any final processing on a message in the event the route encounters any errors.
 
 ### Scheduling
 
@@ -140,7 +140,55 @@ Kyameru.Route.From("sqs://myqueue")
 })
 .Id("my-route")
 .To("s3://mybucket/path)
+.ScheduleEvery(Core.Enums.TimeUnit.Minute, 1)
 .Build(services);
+```
+
+>{:note}
+Some components `From` chain link will already offer polling (S3, SQS for example) so a schedule will not be necessary.
+
+## Config
+Kyameru routes can also be setup through config. You can do this either by specifying a Json file OR by adding a Kyamery section in your appsettings file.
+
+### Config Structure
+```mermaid
+classDiagram
+    RouteConfig --> RouteConfigComponent
+    RouteConfig --> RouteConfigOptions
+    RouteConfigOptions --> RouteConfigSchedule
+    class RouteConfig {
+        +RouteConfigComponent From
+        +string[] Process
+        +RouteConfigComponent To
+        +RouteConfigOptions Options
+        +Load(filelocation) RouteConfig
+    }
+
+    class RouteConfigComponent {
+       +string Component
+       +string PostProcess
+       +string Path
+       +Dictionary~string, string~ headers
+       +string Uri
+       +string When
+    }
+
+    class RouteConfigOptions {
+        +bool RaiseExceptions
+        +RouteConfigSchedule ScheduleEvery
+        +RouteConfigSchedule ScheduleAt
+    }
+
+    class RouteConfigSchedule {
+        +TimeUnit TimeUnit
+        +int Value
+    }
+
+    class TimeUnit{
+        <<enumeration>>
+        Minute
+        Hour
+    }
 ```
 
 ## Summary

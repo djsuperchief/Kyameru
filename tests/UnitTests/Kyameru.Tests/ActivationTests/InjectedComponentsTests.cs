@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core.Entities;
 using Kyameru.TestUtilities;
