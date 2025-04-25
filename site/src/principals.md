@@ -46,7 +46,7 @@ Kyameru runs asynchronously (as it is hosted in an `IHostedService`) so all oper
 
 ## URI Syntax
 
-As specified before, the chain links are instantiated using the URI format. The query part of the URI is always used for headers but the host and path may sometimes be used as a single entity known as `target`.
+As specified before, Components (and by definition chain links) are instantiated using the URI format. The query part of the URI is always used for headers but the host and path may sometimes be used as a single entity known as `target`.
 
 ```
 component://host/path?header=value

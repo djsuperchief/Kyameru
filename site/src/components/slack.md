@@ -11,7 +11,7 @@ The Slack component sends a message to a configured Slack webhook.
 {: .note}
 > Webhooks in Slack are still supported but this may be removed in the future. It is also not the advised way to send messages into Slack but this component is being provided as a legacy support avenue.
 
-## Routes
+## Chain Links
 
 {: .label .label-red}
 FROM
@@ -31,7 +31,7 @@ TO
 
 #### Message Headers
 
-Message headers can also be used as part of the component.
+Message headers can also be used as part of the component setup.
 
 |Header | Description | Optional|
 |:------ |: ----------- |: --------|

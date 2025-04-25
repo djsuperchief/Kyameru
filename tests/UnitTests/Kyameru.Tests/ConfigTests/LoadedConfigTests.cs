@@ -128,16 +128,6 @@ public class LoadedConfigTests
                     .Build();
     }
 
-    // private void AssertLogger(string message, LogLevel logLevel = LogLevel.Information)
-    // {
-    //     logger.Verify(x => x.Log(
-    //         logLevel,
-    //         It.IsAny<EventId>(),
-    //         It.Is<It.IsAnyType>((logMessage, type) => logMessage.ToString().Contains(message)),
-    //         null,
-    //         It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
-    // }
-
     private void AssertLogger(ILogger logger, string message, LogLevel logLevel = LogLevel.Information)
     {
         logger.Received(1).Log

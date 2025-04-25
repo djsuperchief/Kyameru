@@ -9,10 +9,10 @@ permalink: /components/aws/sns
 # AWS SNS
 ## Overview
 
-The AWS SNS component provides both a TO route allowing you to send messages to an SNS topic.
+The AWS SNS component provides a TO chain link allowing you to send messages to an SNS topic.
 
 
-## Routes
+## Chain Links
 
 {: .label .label-red}
 FROM
@@ -38,7 +38,7 @@ To("sns://arn:sns:so:on:and:so:forth")
 ```
 
 ### Message Headers
-The large majority of options for the S3 object upload are set through message headers.
+The large majority of options for the SNS message are set through message headers.
 
 |Header | Description | Optional| Default |
 |:------ |: ----------- |: --------|: ----------- |

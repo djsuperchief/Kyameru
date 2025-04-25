@@ -4,16 +4,18 @@ title: Getting Started
 permalink: /gettingstarted
 nav_order: 4
 ---
-
 # Getting started with Kyameru
+{: .no_toc }
+- TOC
+{:toc}
 
 ## Get Your Components
 
-As each component is reliant on the Kyameru Core library, there is no need to download that separately. Each component has been made as its own distributable so that you only need to get the components you need to use (instead of everything).
+As each component is reliant on `Kyameru.Core` there is no need to download that separately. Each component has been made as its own distributable so that you only need to get the components you need to use (instead of everything).
 Select the components you want from NuGet (pre-release for the latest development versions) and...that's it.
 
 ## Creating Your First Route
-### DI
+### Dependency Injection
 
 As Kyameru is dependent on dependency injection (as it uses a background service and a host to run it), you will need to ensure your application host adds an appropriate host. Once this has been added, you can start building a Kyameru Route.
 
@@ -100,6 +102,29 @@ You can also use post processors in the `When` statement as well. The condition 
 
 ```
 Func<Routable, bool>
+```
+
+#### Note On Conditional Using Config
+When loading routes by config it is important to note that you need to have a concrete class to run the conditional logic. The reason this has been done is to reduce the likelyhood that injected / executable code is introduced by config. In order to create a conditional processor you will need to create a class inside your project and inherit from the interface `IConditionalProcessor`.
+
+```
+{
+    "From": {
+        "Uri": "test://test?TestName=JsonConfigWhenBasic"
+    },
+    "Process": [
+        "Mocks.ConditionalProcessingPass"
+    ],
+    "To": [
+        {
+            "When": "ConditionalComponent",
+            "Uri": "test://test?RouteCallName=ConfigWhenExecutes_To"
+        },
+        {
+            "Uri": "injectiontest:///mememe"
+        }
+    ]
+}
 ```
 
 ### Id
@@ -189,6 +214,62 @@ classDiagram
         Minute
         Hour
     }
+```
+
+### Loading Config
+As stated before you will need to either load the config by either loading a Json file in or by using appsettings.
+
+#### Loading By File Example
+```
+Route.FromConfig("location/Of/Json/file.json)
+```
+
+#### Loading From AppSettings
+```
+serviceCollection.Kyameru().FromConfiguration(config);
+```
+
+The above assumes you have loaded configuration into a variable called `config`.
+
+### Example Config
+#### File Example
+```
+{
+  "From": {
+    "Uri": "sqs://myqueue"
+  },
+  "Process": [
+    "MyNamespace.MyProcessor"
+  ],
+  "To": [
+    {
+      "Uri": "file:///Users/Me/Somewhere"
+    }
+  ],
+  "Options": null
+}
+```
+
+#### Appsettings Example
+```
+{
+  "Kyameru": [
+    {
+      "From": {
+        "Uri": "injectiontest:///mememe"
+      },
+      "Process": [
+        "Mocks.MyComponent"
+      ],
+      "To": [
+        {
+          "Uri": "injectiontest:///mememe"
+        }
+      ],
+      "Options": null
+    }
+  ]
+}
 ```
 
 ## Summary
