@@ -28,14 +28,12 @@ public class FileWatcherTests
         CheckFile("created.tdd");
         var resetEvent = new AutoResetEvent(false);
         var method = string.Empty;
-        var raisedAsync = false;
         // Github tests for some reason do not raise created compared to local os.
         FileWatcher from = Setup("Created");
 
         from.OnActionAsync += async delegate (object sender, RoutableEventData e)
         {
             method = e.Data.Headers["Method"];
-            raisedAsync = true;
             resetEvent.Set();
             await Task.CompletedTask;
         };

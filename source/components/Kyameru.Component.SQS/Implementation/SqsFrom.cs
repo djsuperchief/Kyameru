@@ -28,7 +28,7 @@ public class SqsFrom(IAmazonSQS client) : IFrom
 
     private System.Timers.Timer poller = new();
 
-    private string queue;
+    private string queue = string.Empty;
     private int pollTime;
 
     public void Setup()

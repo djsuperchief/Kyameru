@@ -24,7 +24,9 @@ public class S3FileTarget
 
     public string? FilePath { get; private set; }
 
+#pragma warning disable CS8603 // Possible null reference return.
     public string Key => string.IsNullOrWhiteSpace(Path) || Path == "/" ? FileName : $"{Path}{FileName}";
+#pragma warning restore CS8603 // Possible null reference return.
 
     public enum OperationType
     {

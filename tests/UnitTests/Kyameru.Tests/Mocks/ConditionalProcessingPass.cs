@@ -16,6 +16,8 @@ public class ConditionalProcessingPass : IProcessor
             routable.SetBody<string>("CondPass");
         }
 
+        OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Processing"));
+
         return Task.CompletedTask;
     }
 }

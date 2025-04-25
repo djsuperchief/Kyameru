@@ -73,7 +73,7 @@ public class SnsTo : ITo
         snsHeaders = headers;
     }
 
-    private void Log(LogLevel logLevel, string message, Exception? exception = null)
+    private void Log(LogLevel logLevel, string message, Exception exception = null)
     {
         if (this.OnLog != null)
         {

@@ -22,6 +22,7 @@ namespace Kyameru.Component.Faker
         public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
         {
             extractor.SetRoutable(routable);
+            OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, "Fake To Route"));
             await Task.CompletedTask;
         }
     }

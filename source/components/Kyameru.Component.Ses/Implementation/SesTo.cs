@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Amazon.Runtime.SharedInterfaces;
 using Amazon.SimpleEmail;
 using Amazon.SimpleEmail.Model;
 using Kyameru.Core.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Component.Ses;
 
@@ -43,6 +43,7 @@ public class SesTo : ITo
 
     private async Task SendTemplate(Routable routable, CancellationToken cancellationToken)
     {
+        Log(LogLevel.Information, Resources.INFO_SENDING_TEMPLATE);
         var message = routable.Body as SesTemplate;
         var request = new SendTemplatedEmailRequest()
         {
@@ -69,6 +70,7 @@ public class SesTo : ITo
 
     private async Task SendEmail(Routable routable, CancellationToken cancellationToken)
     {
+        Log(LogLevel.Information, Resources.INFO_SENDING_EMAIL);
         var request = new SendEmailRequest()
         {
             Destination = new Destination()
@@ -176,6 +178,14 @@ public class SesTo : ITo
         if (string.IsNullOrWhiteSpace(to) || to.Split(',').Count() <= 0)
         {
             throw new Exceptions.MissingInformationException(string.Format(Resources.EXCEPTION_MISSINGINFORMATION, "To Addresses"));
+        }
+    }
+
+    private void Log(LogLevel logLevel, string message, Exception exception = null)
+    {
+        if (OnLog != null)
+        {
+            OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
         }
     }
 }

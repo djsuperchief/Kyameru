@@ -57,6 +57,7 @@ public class FtpClientTests
         from.Setup();
         thread.StartAndWait();
         Assert.True(errorThrown);
+        await Task.CompletedTask;
     }
 
     [Fact]
