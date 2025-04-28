@@ -9,7 +9,7 @@ namespace Kyameru.Core.Utils
     /// <summary>
     /// Utility to calculate when the next scheduled time for execution is.
     /// </summary>
-    public class Scheduler
+    internal class Scheduler
     {
         private readonly Dictionary<TimeUnit, long> timeUnitTicks = new Dictionary<TimeUnit, long>()
         {
