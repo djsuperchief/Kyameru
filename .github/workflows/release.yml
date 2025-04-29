@@ -12,19 +12,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
       - name: Determine Release Type
         run: |
           if ${PRE_RELEASE}; then
-            echo "RELEASE_TYPE=beta" >> "$GITHUB_ENV"
+            echo "RELEASE_TYPE=true" >> "$GITHUB_ENV"
             echo Doing beta release
           else
-            RELEASE_TYPE=""
+            echo "RELEASE_TYPE=false" >> "$GITHUB_ENV"
           fi
       - name: Set Release Version
         run: |
-          git fetch origin --tags
-          TAG_VERSION=$(git describe --tags --abbrev=0)
-          echo "RELEASE_VERSION=${TAG_VERSION}-${RELEASE_TYPE}" >> "$GITHUB_ENV"
+          echo "RELEASE_VERSION=$(python ./.ci/getversion.py $RELEASE_TYPE 2>&1)" >> "$GITHUB_ENV"
       
       - name: Print Release Version
         run: |
