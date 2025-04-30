@@ -3,6 +3,9 @@ name: Build
 on:
   push:
     branches: [ main ]
+  
+env:
+  MAJOR_VERSION: ${{ vars.MAJOR_VERSION }}
 
 jobs:
   dotnet-test:
@@ -31,13 +34,19 @@ jobs:
           path-to-lcov: ./build/TestCoverage/coverage.info
       - name: generate_tag
         run: |
-          NEW_TAG=$(python ./.ci/bump.py 2>&1)
+          git fetch origin --tags
+          CURRENT=$(git tag --list "${MAJOR_VERSION}.*.*" --sort=-version:refname | head -n 1)
+          # I dont like the below but we are where we are
+          echo $CURRENT | python ./.ci/bump.py
+
+          NEW_TAG=$(echo $CURRENT | python ./.ci/bump.py 2>&1)
           echo "Generated new tag: $NEW_TAG"
-          #echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+          
           git config user.name "GitHub Actions"
           git config user.email "github-actions@users.noreply.github.com"
+          
           git tag $NEW_TAG
-          git push origin main
+          git push origin tag $NEW_TAG
 
 
   # analyze:

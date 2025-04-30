@@ -1,8 +1,6 @@
 {
-    "version": {
+    "version_config": {
         "major": 0,
-        "minor": 0,
-        "revision": 30,
         "bump": "rev"
     }
 }

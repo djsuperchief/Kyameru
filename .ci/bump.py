@@ -1,12 +1,12 @@
 # Versioning script, it's been a while with python but this will do....ish
 # The idea is that I am in control of the versioning and what bump will happen
 # before the build happens...
-import json
+# Yea, that didn't work out so great. Back to tagging but some slight control.
 import sys
+import json
 import os
 
 path = os.path.dirname(os.path.realpath(__file__))
-ci_file = ''
 
 def open_ci():
     with open(f'{path}/ci.json') as json_data:
@@ -14,46 +14,39 @@ def open_ci():
         json_data.close()
         return ci_file
     
-def save_ci():
-    global ci_file
-    with open(f'{path}/ci.json', 'w', encoding='utf-8') as f:
-        json.dump(ci_file, f, ensure_ascii=False, indent=4)
-        f.close()
+def bump_major(ci_file, version):
+    if ci_file["version_config"]["major"] > int(version[0]):
+        version[0] = int(version[0]) + 1
+        print(f'{version[0]}.0.0')
+    else:
+        print('ERROR: Major version must be more than the current repository semver.')
+        exit(1)
 
-def bump_major():
-    global ci_file
-    ci_file["version"]["major"] += 1
-    ci_file["version"]["minor"] = 0
-    ci_file["version"]["revision"] = 0
+def bump_minor(version):
+    version[1] = int(version[1]) + 1
+    print(f'{version[0]}.{version[1]}.0')
 
-def bump_minor():
-    global ci_file
-    ci_file["version"]["minor"] += 1
-    ci_file["version"]["revision"] = 0
-
-def bump_revision():
-    global ci_file
-    ci_file["version"]["revision"] += 1
+def bump_revision(version):
+    version[2] = int(version[2]) + 1
+    print(f'{version[0]}.{version[1]}.{version[2]}')
 
 def main():
-    global ci_file
+    version = sys.stdin.read().rstrip().split('.')
+    if not version or not version[0] or len(version) < 3:
+        print('ERROR: Version unspecified.')
+        exit(1)
     ci_file = open_ci()
-    bump = ci_file["version"]["bump"]
-   
-    match bump:
+
+    match ci_file["version_config"]["bump"]:
         case 'major':
-            bump_major()
+            bump_major(ci_file, version)
         case 'minor':
-            bump_minor()
+            bump_minor(version)
         case 'rev':
-            bump_revision()
+            bump_revision(version)
         case _:
-            bump_revision()
-
-    ci_file["version"]["bump"] = "rev"
-
-    save_ci()
-    print(f'{ci_file["version"]["major"]}.{ci_file["version"]["minor"]}.{ci_file["version"]["revision"]}')
+            bump_revision(version)
+    
 
 if __name__ == '__main__':
     main()
