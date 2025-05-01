@@ -15,11 +15,11 @@ def open_ci():
         return ci_file
     
 def bump_major(ci_file, version):
-    if ci_file["version_config"]["major"] > int(version[0]):
+    if ci_file["version_config"]["major"] == (int(version[0]) + 1):
         version[0] = int(version[0]) + 1
         print(f'{version[0]}.0.0')
     else:
-        print('ERROR: Major version must be more than the current repository semver.')
+        print('ERROR: CI config and version increase must match.')
         exit(1)
 
 def bump_minor(version):
