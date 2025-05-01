@@ -2,21 +2,21 @@ name: Test pipeline steps
 on:
     workflow_dispatch:
 
-env:
-  SEMVER: ${{ vars.SEMVER }}
-
 jobs:
   tag-test:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
       - uses: actions/checkout@v3
       - name: generate_tag
         run: |
-            git fetch origin --tags
-            echo "${SEMVER}"
-            VERSION_PREFIX=""
-            VERSION_MAJOR_MINOR="${SEMVER}"
-            VERSION_PATCH=$(git tag --list "${VERSION_PREFIX}${VERSION_MAJOR_MINOR}*" --sort=-version:refname | head -n 1)
-            echo "CURRENT TAG: ${VERSION_PATCH}"
-            test=$(git tag --list)
-            echo "${test}"
+            NEW_TAG=$(python ./.ci/bump.py 2>&1)
+            echo "Generated new tag: $NEW_TAG"
+
+            git config user.name "GitHub Actions"
+            git config user.email "github-actions@users.noreply.github.com"
+            git tag $NEW_TAG
+            git push origin $NEW_TAG
