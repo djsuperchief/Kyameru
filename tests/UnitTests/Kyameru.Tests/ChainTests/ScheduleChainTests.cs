@@ -57,7 +57,7 @@ public class ScheduleChainTests
         simulatedTime.UtcNow.Returns(testDate);
         simulatedTime.Now.Returns(testDate.ToLocalTime());
         Kyameru.Core.Utils.TimeProvider.Current = simulatedTime;
-        var cancellationTokenSource = GetCancellationToken(120);
+
 
         mockNext.ProcessAsync(Arg.Any<Routable>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
@@ -72,7 +72,7 @@ public class ScheduleChainTests
         .Build(serviceCollection);
         var provider = serviceCollection.BuildServiceProvider();
         var service = provider.GetService<IHostedService>();
-        var thread = TestThread.CreateNew(service.StartAsync, 10, 30);
+        var thread = TestThread.CreateNew(service.StartAsync, 9, 30);
         thread.Start();
         thread.WaitForExecution();
         testDate = testDate.AddMinutes(2);
