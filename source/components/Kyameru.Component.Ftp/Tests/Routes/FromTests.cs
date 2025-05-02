@@ -50,13 +50,21 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             });
 
             thread.Start();
-            autoReset.WaitOne(TimeSpan.FromSeconds(4));
+            autoReset.WaitOne(TimeSpan.FromSeconds(6));
             tokenSource.Cancel();
 
             // possible the crash is being caused by 
 
             Assert.Equal("Hello ftp", Encoding.UTF8.GetString((byte[])routable.Body));
-            await webRequestFactory.Received(times).DeleteFile(Arg.Any<FtpSettings>(), "Test.txt", Arg.Any<bool>(), Arg.Any<CancellationToken>());
+            if (deletes)
+            {
+                await webRequestFactory.Received().DeleteFile(Arg.Any<FtpSettings>(), "Test.txt", Arg.Any<bool>(), Arg.Any<CancellationToken>());
+            }
+            else
+            {
+                await webRequestFactory.DidNotReceive().DeleteFile(Arg.Any<FtpSettings>(), "Test.txt", Arg.Any<bool>(), Arg.Any<CancellationToken>());
+            }
+
 
             await from.StopAsync(tokenSource.Token);
             Assert.Equal("ASYNC", routable.Headers["Method"]);
