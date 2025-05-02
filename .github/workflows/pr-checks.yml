@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [main, release]
 
+env:
+  MAJOR_VERSION: ${{ vars.MAJOR_VERSION }}
+
 #GITHUB_WORKSPACE
 
 jobs:
