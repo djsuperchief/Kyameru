@@ -110,6 +110,7 @@ public class ConditionalTests
     {
         var serviceDescriptors = BuildServices();
         var routable = new Routable(new Dictionary<string, string>(), "Nothing");
+        var thread = TestThread.CreateDeferred(5);
         Route.From("test://test?TestName=WhenComponentExecutes")
         .Process((Routable x) =>
         {
@@ -119,13 +120,13 @@ public class ConditionalTests
         .To("test://test", x =>
         {
             routable = x;
+            thread.Continue();
         })
         .Build(serviceDescriptors);
         var provider = serviceDescriptors.BuildServiceProvider();
         var service = provider.GetService<IHostedService>();
-        var thread = TestThread.CreateNew(service.StartAsync, 5);
-        thread.Start();
-        thread.WaitForExecution();
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
         await thread.CancelAsync();
         Assert.True(routable.Headers.TryGetValue("CondComp", string.Empty) == "true");
     }
@@ -137,6 +138,7 @@ public class ConditionalTests
     {
         var executed = false;
         var serviceDescriptors = BuildServices();
+        var thread = TestThread.CreateDeferred(2);
         Route.From("test://test?TestName=WhenConditionExecutes")
         .Process((Routable x) =>
         {
@@ -145,14 +147,14 @@ public class ConditionalTests
         .When(x => x.Body.ToString() == "Test", "test://test", (Routable x) =>
         {
             executed = x.Headers.TryGetValue("ToExecuted", string.Empty) == "true";
+            thread.Continue();
         })
         .Build(serviceDescriptors);
 
         var provider = serviceDescriptors.BuildServiceProvider();
         var service = provider.GetService<IHostedService>();
-        var thread = TestThread.CreateNew(service.StartAsync, 2);
-        thread.Start();
-        thread.WaitForExecution();
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
         await thread.CancelAsync();
 
         Assert.Equal(expected, executed);

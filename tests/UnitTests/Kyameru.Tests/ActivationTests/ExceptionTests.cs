@@ -22,16 +22,20 @@ public class ExceptionTests
         Routable routable = null;
         var errorComponent = Substitute.For<IErrorProcessor>();
         var processComponent = Substitute.For<IProcessor>();
+        var thread = TestThread.CreateDeferred(2);
         errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
             return Task.CompletedTask;
         });
 
-        var service = this.GetHostedService(SetupChain, processComponent, errorComponent, true);
-        var thread = TestThread.CreateNew(service.StartAsync, 2);
-        thread.Start();
-        thread.WaitForExecution();
+        var service = this.GetHostedService(SetupChain, processComponent, errorComponent, true, threadInterrupt: async (Routable x) =>
+        {
+            thread.Continue();
+            await Task.CompletedTask;
+        });
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
         await thread.CancelAsync();
 
         Assert.Null(routable);
@@ -149,12 +153,13 @@ public class ExceptionTests
     }
 
     private IHostedService GetHostedService(
-        Action<string, string, string, IServiceCollection, IProcessor, IErrorProcessor> setup,
+        Action<string, string, string, IServiceCollection, IProcessor, IErrorProcessor, Func<Routable, Task>> setup,
         IProcessor processComponent,
         IErrorProcessor errorComponent,
         bool fromError = false,
         bool toError = false,
-        bool atomicError = false)
+        bool atomicError = false,
+        Func<Routable, Task> threadInterrupt = null)
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
@@ -165,23 +170,23 @@ public class ExceptionTests
         var to = $"error://path:test@test.com?Error={toError}";
         var atomic = $"error://path?Error={atomicError}";
 
-        setup.Invoke(from, to, atomic, serviceCollection, processComponent, errorComponent);
+        setup.Invoke(from, to, atomic, serviceCollection, processComponent, errorComponent, threadInterrupt);
 
         var provider = serviceCollection.BuildServiceProvider();
         return provider.GetService<IHostedService>();
     }
 
-    private void SetupChain(string from, string to, string atomic, IServiceCollection serviceDescriptors, IProcessor processComponent, IErrorProcessor errorComponent)
+    private void SetupChain(string from, string to, string atomic, IServiceCollection serviceDescriptors, IProcessor processComponent, IErrorProcessor errorComponent, Func<Routable, Task> threadInterrupt)
     {
         Kyameru.Route.From(from)
             .Process(processComponent)
-            .To(to)
+            .To(to, threadInterrupt)
             .Atomic(atomic)
             .Error(errorComponent)
             .Build(serviceDescriptors);
     }
 
-    private void SetupBubbleChain(string from, string to, string atomic, IServiceCollection serviceDescriptors, IProcessor processComponent, IErrorProcessor errorComponent)
+    private void SetupBubbleChain(string from, string to, string atomic, IServiceCollection serviceDescriptors, IProcessor processComponent, IErrorProcessor errorComponent, Func<Routable, Task> threadInterrupt)
     {
         Kyameru.Route.From(from)
             .Process(processComponent)

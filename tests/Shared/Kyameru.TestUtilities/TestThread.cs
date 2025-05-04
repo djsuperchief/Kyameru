@@ -4,7 +4,7 @@ namespace Kyameru.TestUtilities;
 
 public class TestThread
 {
-    private readonly Thread _executionThread;
+    private Thread? _executionThread;
 
     private readonly AutoResetEvent _waitEvent;
 
@@ -41,6 +41,13 @@ public class TestThread
         });
     }
 
+    protected TestThread(int waitTimeout, int threadTimeout)
+    {
+        _executionTimeout = waitTimeout;
+        _cancelTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(threadTimeout));
+        _waitEvent = new AutoResetEvent(false);
+    }
+
     public void WaitForExecution()
     {
         _waitEvent.WaitOne(TimeSpan.FromSeconds(_executionTimeout));
@@ -53,13 +60,29 @@ public class TestThread
 
     public void Start()
     {
+        if (_executionThread == null) throw new NullReferenceException("Thread is not assigned.");
         _executionThread.Start();
     }
 
     public void StartAndWait()
     {
+        if (_executionThread == null) throw new NullReferenceException("Thread is not assigned.");
         _executionThread.Start();
         _waitEvent.WaitOne(TimeSpan.FromSeconds(_executionTimeout));
+    }
+
+    public void SetThread(Func<CancellationToken, Task> threadStart)
+    {
+        if (_executionThread != null) return;
+        _executionThread = new Thread(async () =>
+        {
+            await threadStart(_cancelTokenSource.Token);
+        });
+    }
+
+    public void Continue()
+    {
+        _waitEvent.Set();
     }
 
     /// <summary>
@@ -82,5 +105,11 @@ public class TestThread
     public static TestThread CreateNew(Func<CancellationToken, Task> threadStart, int waitTimeout, int threadTimeout)
     {
         return new TestThread(threadStart, waitTimeout, threadTimeout);
+    }
+
+    public static TestThread CreateDeferred(int waitTimeout, int threadTimeout = 0)
+    {
+        threadTimeout = threadTimeout == 0 ? waitTimeout : threadTimeout;
+        return new TestThread(waitTimeout, threadTimeout);
     }
 }
