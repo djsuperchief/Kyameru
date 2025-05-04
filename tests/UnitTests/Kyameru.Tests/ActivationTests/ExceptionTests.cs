@@ -71,10 +71,16 @@ public class ExceptionTests
             throw new Kyameru.Core.Exceptions.ProcessException("Manual Error");
         });
 
-        var service = this.GetHostedService(SetupChain, processComponent, errorComponent);
-        var thread = TestThread.CreateNew(service.StartAsync, 2);
-        thread.Start();
-        thread.WaitForExecution();
+        var thread = TestThread.CreateDeferred(2);
+
+        var service = this.GetHostedService(SetupChain, processComponent, errorComponent, threadInterrupt: async (Routable x) =>
+        {
+            thread.Continue();
+            await Task.CompletedTask;
+        });
+
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
         await thread.CancelAsync();
 
         Assert.True(this.IsInError(routable, "Processing component"));
