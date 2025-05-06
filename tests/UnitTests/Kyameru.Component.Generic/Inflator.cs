@@ -1,4 +1,6 @@
-﻿using Kyameru.Core.Contracts;
+﻿using System;
+using System.Collections.Generic;
+using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kyameru.Component.Generic;
@@ -12,7 +14,7 @@ public class Inflator : IOasis
 
     public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
     {
-        throw new NotImplementedException();
+        return serviceProvider.GetRequiredService<IGenericFrom>();
     }
 
     public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
@@ -22,21 +24,21 @@ public class Inflator : IOasis
 
     public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
-        throw new NotImplementedException();
+        return serviceProvider.GetRequiredService<IGenericTo>();
     }
 
     public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
     {
-        throw new NotImplementedException();
+        return serviceCollection;
     }
 
     public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
     {
-        throw new NotImplementedException();
+        return serviceCollection;
     }
 
     public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
     {
-        throw new NotImplementedException();
+        return serviceCollection;
     }
 }

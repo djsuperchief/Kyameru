@@ -16,41 +16,33 @@ using Xunit;
 
 namespace Kyameru.Tests.ActivationTests;
 
-public class DiTests
+/// <summary>
+/// This test class is so that we can use a generic component in the test project
+/// and get rid of the horrific ones we have now. Where possible, we should use
+/// this to make it easier to build custom flows in tests.
+/// </summary>
+public class GenericTestComponentTests
 {
     [Fact]
-    public async Task DependencyInjectionDoesNotError()
+    public async Task NonAtomic()
     {
         var routable = new Routable(new Dictionary<string, string>(), null);
-        var thread = TestThread.CreateDeferred(2);
+        var thread = TestThread.CreateDeferred(20);
         var services = GetServiceDescriptors();
-        var from = Substitute.For<IGenericFrom>();
-        from.StartAsync(default).ReturnsForAnyArgs(x =>
-        {
-            var routableData = new RoutableEventData(new Routable(new Dictionary<string, string>(), "Test"), x.Arg<CancellationToken>());
-            from.OnActionAsync += Raise.Event<AsyncEventHandler<RoutableEventData>>(routableData);
-            return Task.CompletedTask;
-        });
 
-        var to = Substitute.For<IGenericTo>();
-        to.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
-        {
-            return Task.CompletedTask;
-        });
-
-        var atomic = Substitute.For<IGenericAtomic>();
-        atomic.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
-        {
-            x.Arg<Routable>().SetBody<string>("Atomic Done");
-            routable = x.Arg<Routable>();
-            thread.Continue();
-            return Task.CompletedTask;
-        });
+        Component.Generic.Builder.Create()
+            .WithFrom(() => new Routable(new Dictionary<string, string>(), "Test"))
+            .WithTo((Routable x) =>
+            {
+                x.SetBody<string>("To Done");
+                routable = x;
+                thread.Continue();
+            })
+            .Build(services);
 
 
         Route.From("generic:///test")
         .To("generic:///test")
-        .Atomic("generic:///test")
         .Id("dynamic-component")
         .Build(services);
 
@@ -60,7 +52,7 @@ public class DiTests
         thread.StartAndWait();
         await thread.CancelAsync();
 
-        Assert.Equal("Atomic Done", routable.Body);
+        Assert.Equal("To Done", routable.Body);
     }
 
     private IServiceCollection GetServiceDescriptors()
