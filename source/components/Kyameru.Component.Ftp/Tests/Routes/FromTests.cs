@@ -93,7 +93,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
         public IWebRequestUtility GetWebRequest()
         {
             var response = Substitute.For<IWebRequestUtility>();
-            response.DownloadFile("Test.txt", Arg.Any<FtpSettings>(), Arg.Any<CancellationToken>()).Returns(x =>
+            response.DownloadFile("Test.txt", Arg.Any<FtpSettings>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
             {
                 return Task.FromResult(Encoding.UTF8.GetBytes("Hello ftp"));
             });
