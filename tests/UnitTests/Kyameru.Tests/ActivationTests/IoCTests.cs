@@ -48,7 +48,7 @@ public class IoCFacts
         };
 
         Component.Generic.Builder.Create()
-            .WithFrom(() => new Routable(new Dictionary<string, string> { { "FROM", "Executed" } }, "CanExecute"))
+            .WithFrom()
             .WithTo((Routable x) =>
             {
                 x.SetHeader("TO", "Executed");
@@ -77,18 +77,35 @@ public class IoCFacts
     public async Task CanRunDIComponent()
     {
         Routable routable = null;
-        var diProcessor = Substitute.For<IProcessor>();
-        diProcessor.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
+        var services = GetServiceDescriptors();
+        var thread = TestThread.CreateDeferred(10);
+        var expected = new List<string>()
         {
-            routable = x.Arg<Routable>();
-            return Task.CompletedTask;
-        });
-        var service = SetupDIComponent(diProcessor);
-        var thread = TestThread.CreateNew(service.StartAsync, 2);
-        thread.Start();
-        thread.WaitForExecution();
+            { "ComponentRan:Yes" },
+            { "FROM:Executed" },
+            { "TO:Executed"}
+        };
+
+        Component.Generic.Builder.Create()
+            .WithFrom()
+            .WithTo((Routable x) =>
+            {
+                x.SetHeader("TO", "Executed");
+                routable = x;
+                thread.Continue();
+            })
+            .Build(services);
+
+        Route.From("generic:///CanExecute")
+            .Process<Tests.Mocks.IMyComponent>()
+            .To("generic:///CanExecute")
+            .Build(services);
+        var serviceProvider = services.BuildServiceProvider();
+        var service = serviceProvider.GetRequiredService<IHostedService>();
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
         await thread.CancelAsync();
-        Assert.Equal("Yes", routable.Headers["ComponentRan"]);
+        Assert.Equal(expected, routable.Headers.ToAssertable());
     }
 
     [Fact]

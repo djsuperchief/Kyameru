@@ -26,6 +26,12 @@ public class Builder
         return this;
     }
 
+    public Builder WithFrom()
+    {
+        _fromProcessing = () => new Routable(new Dictionary<string, string> { { "FROM", "Executed" } }, "CanExecute");
+        return this;
+    }
+
     public Builder WithTo(Action<Routable> processing)
     {
         _toProcessing = processing;
