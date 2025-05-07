@@ -1,5 +1,6 @@
 ﻿using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Tests.Extensions;
 using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -35,14 +36,41 @@ public class IoCFacts
     [Fact]
     public async Task CanExecute()
     {
-        Component.Test.GlobalCalls.Clear("CanExecute");
-        var service = AddComponent("CanExecute");
+        // Checks that From, Component and To ran.
+        var services = GetServiceDescriptors();
+        var thread = TestThread.CreateDeferred(10);
+        var routable = new Routable(new Dictionary<string, string>(), string.Empty);
+        var expected = new List<string>()
+        {
+            { "FROM:Executed" },
+            { "PROCESSOR:Executed" },
+            { "TO:Executed" }
+        };
 
-        var thread = TestThread.CreateNew(service.StartAsync, 2);
-        thread.Start();
-        thread.WaitForExecution();
+        Component.Generic.Builder.Create()
+            .WithFrom(() => new Routable(new Dictionary<string, string> { { "FROM", "Executed" } }, "CanExecute"))
+            .WithTo((Routable x) =>
+            {
+                x.SetHeader("TO", "Executed");
+                routable = x;
+                thread.Continue();
+            })
+            .Build(services);
+
+        Route.From("generic:///CanExecute")
+            .Process(GetProcessor())
+            .To("generic:///CanExecute")
+            .Build(services);
+        var serviceProvider = services.BuildServiceProvider();
+        var service = serviceProvider.GetRequiredService<IHostedService>();
+
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
         await thread.CancelAsync();
-        Assert.Equal(7, GetCallCount("CanExecute"));
+
+        var result = routable.Headers.ToAssertable().Where(x => expected.Contains(x));
+        Assert.Equal(expected, result);
+
     }
 
     [Fact]
@@ -252,6 +280,18 @@ public class IoCFacts
         serviceCollection.AddTransient<Tests.Mocks.IMyComponent, Tests.Mocks.MyComponent>();
 
         return serviceCollection;
+    }
+
+    private IProcessor GetProcessor()
+    {
+        var processor = Substitute.For<IProcessor>();
+        processor.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
+        {
+            x.Arg<Routable>().SetHeader("PROCESSOR", "Executed");
+            return Task.CompletedTask;
+        });
+
+        return processor;
     }
 
     #endregion Helpers

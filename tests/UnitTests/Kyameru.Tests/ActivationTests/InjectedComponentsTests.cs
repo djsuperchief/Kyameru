@@ -18,6 +18,7 @@ public class InjectedComponentsTests
         var serviceCollection = this.GetServiceDescriptors();
         Routable routable = null;
         var processComponent = Substitute.For<IProcessor>();
+        var thread = TestThread.CreateDeferred(10);
         processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
@@ -26,15 +27,18 @@ public class InjectedComponentsTests
 
         Kyameru.Route.From("injectiontest:///mememe")
             .Process(processComponent)
-            .To("injectiontest:///somewhere")
+            .To("injectiontest:///somewhere", x =>
+            {
+                thread.Continue();
+            })
             .Build(serviceCollection);
 
 
         var provider = serviceCollection.BuildServiceProvider();
         var service = provider.GetService<IHostedService>();
-        var thread = TestThread.CreateNew(service.StartAsync, 2);
-        thread.Start();
-        thread.WaitForExecution();
+
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
         await thread.CancelAsync();
 
         Assert.Equal("Async Injected Test Complete", routable?.Body);
@@ -83,17 +87,20 @@ public class InjectedComponentsTests
             routable = x.Arg<Routable>();
             return Task.CompletedTask;
         });
-
+        var thread = TestThread.CreateDeferred(10);
         Kyameru.Route.From("injectiontest:///mememe")
             .Process("Mocks.MyComponent")
             .Process(processComponent)
-            .To("injectiontest:///somewhere")
+            .To("injectiontest:///somewhere", x =>
+            {
+                thread.Continue();
+            })
             .Build(serviceCollection);
         var provider = serviceCollection.BuildServiceProvider();
         var service = provider.GetService<IHostedService>();
-        var thread = TestThread.CreateNew(service.StartAsync, 2);
-        thread.Start();
-        thread.WaitForExecution();
+
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
         await thread.CancelAsync();
 
         Assert.Equal("Yes", routable.Headers["ComponentRan"]);

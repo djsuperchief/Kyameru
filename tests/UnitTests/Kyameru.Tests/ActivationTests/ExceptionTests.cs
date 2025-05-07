@@ -109,6 +109,10 @@ public class ExceptionTests
         Assert.True(this.IsInError(routable, "To Component"));
     }
 
+    /// <summary>
+    /// Atomic part will be going soon
+    /// </summary>
+    /// <returns></returns>
     [Fact]
     public async Task AtomicError()
     {
