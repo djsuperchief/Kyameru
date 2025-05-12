@@ -37,7 +37,6 @@ public class IoCFacts
     public async Task CanExecute()
     {
         // Checks that From, Component and To ran.
-        var services = GetServiceDescriptors();
         var thread = TestThread.CreateDeferred(10);
         var routable = new Routable(new Dictionary<string, string>(), string.Empty);
         var expected = new List<string>()
@@ -47,22 +46,20 @@ public class IoCFacts
             { "TO:Executed" }
         };
 
-        Component.Generic.Builder.Create()
+        var generics = Component.Generic.Builder.Create()
             .WithFrom()
             .WithTo((Routable x) =>
             {
                 x.SetHeader("TO", "Executed");
                 routable = x;
                 thread.Continue();
-            })
-            .Build(services);
+            });
 
-        Route.From("generic:///CanExecute")
+        var builder = Route.From("generic:///CanExecute")
             .Process(GetProcessor())
-            .To("generic:///CanExecute")
-            .Build(services);
-        var serviceProvider = services.BuildServiceProvider();
-        var service = serviceProvider.GetRequiredService<IHostedService>();
+            .To("generic:///CanExecute");
+
+        var service = BuildAndGetServices(builder, generics);
 
         thread.SetThread(service.StartAsync);
         thread.StartAndWait();
@@ -111,15 +108,71 @@ public class IoCFacts
     [Fact]
     public async Task CanExecuteMultipleChains()
     {
-        var service = AddComponent("CanExecuteMultipleChains", true);
+        Routable routable = null;
+        var thread = TestThread.CreateDeferred();
+        var processComponent = Substitute.For<IProcessor>();
+        var secondComponent = Substitute.For<IProcessor>();
 
-        var thread = TestThread.CreateNew(service.StartAsync, 2);
-        thread.Start();
-        thread.WaitForExecution();
+        processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
+        {
+            x.Arg<Routable>().SetHeader("ComponentOne", "Executed");
+            return Task.CompletedTask;
+        });
+
+        secondComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
+        {
+            x.Arg<Routable>().SetHeader("ComponentTwo", "Executed");
+            return Task.CompletedTask;
+        });
+
+        var expected = new List<string>()
+        {
+            { "ComponentOne:Executed" },
+            { "ComponentTwo:Executed" },
+            { "FROM:Executed" },
+            { "TO:Executed" },
+            { "TOSECOND:Executed" }
+        };
+
+        var generics = Component.Generic.Builder.Create()
+            .WithFrom()
+            .WithTo((Routable x) =>
+            {
+                var threadContinue = false;
+                if (x.Headers.ContainsKey("TO"))
+                {
+                    x.SetHeader("TOSECOND", "Executed");
+                    threadContinue = true;
+                }
+                else
+                {
+                    x.SetHeader("TO", "Executed");
+                }
+
+                routable = x;
+                if (threadContinue)
+                {
+                    thread.Continue();
+                }
+            });
+
+        var builder = Route.From("generic:///start")
+            .Process(processComponent)
+            .Process(secondComponent)
+            .To("generic:///first")
+            .To("generic:///second");
+
+        var service = BuildAndGetServices(builder, generics);
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
         await thread.CancelAsync();
-        Assert.Equal(20, GetCallCount("CanExecuteMultipleChains"));
+        Assert.Equal(expected, routable.Headers.ToAssertable());
     }
 
+    /// <summary>
+    /// Obsolete, Atomic will be going.
+    /// </summary>
+    /// <returns></returns>
     [Fact]
     public async Task CanExecuteAtomic()
     {
@@ -309,6 +362,14 @@ public class IoCFacts
         });
 
         return processor;
+    }
+
+    private IHostedService BuildAndGetServices(Core.Builder kyameruBuilder, Component.Generic.Builder componentBuilder)
+    {
+        var services = GetServiceDescriptors();
+        componentBuilder.Build(services);
+        kyameruBuilder.Build(services);
+        return services.BuildServiceProvider().GetRequiredService<IHostedService>();
     }
 
     #endregion Helpers

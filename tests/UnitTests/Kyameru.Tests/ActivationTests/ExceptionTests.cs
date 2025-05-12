@@ -119,16 +119,17 @@ public class ExceptionTests
         Routable routable = null;
         var errorComponent = Substitute.For<IErrorProcessor>();
         var processComponent = Substitute.For<IProcessor>();
+        var thread = TestThread.CreateDeferred();
         errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
+            thread.Continue();
             return Task.CompletedTask;
         });
 
         var service = this.GetHostedService(SetupChain, processComponent, errorComponent, false, false, true);
-        var thread = TestThread.CreateNew(service.StartAsync, 2);
-        thread.Start();
-        thread.WaitForExecution();
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
         await thread.CancelAsync();
 
         Assert.True(this.IsInError(routable, "Atomic Component"));

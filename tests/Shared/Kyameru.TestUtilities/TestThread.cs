@@ -12,6 +12,8 @@ public class TestThread
 
     private readonly int _executionTimeout;
 
+    private const int StandardTimeout = 10;
+
     protected TestThread(
         Func<CancellationToken, Task> threadStart,
         int timeOut
@@ -107,9 +109,27 @@ public class TestThread
         return new TestThread(threadStart, waitTimeout, threadTimeout);
     }
 
+    /// <summary>
+    /// Creates a new test thread with no thread entry point.
+    /// </summary>
+    /// <remarks>
+    /// This is so that we can reference the thread in other methods / delegates.
+    /// </remarks>
+    /// <param name="waitTimeout">Wait handle timeout.</param>
+    /// <param name="threadTimeout">Thread timeout.</param>
+    /// <returns>Returns an instance of the <see cref="TestThread"/> class.</returns>
     public static TestThread CreateDeferred(int waitTimeout, int threadTimeout = 0)
     {
         threadTimeout = threadTimeout == 0 ? waitTimeout : threadTimeout;
         return new TestThread(waitTimeout, threadTimeout);
+    }
+
+    /// <summary>
+    /// Creates a new test thread with no thread entry point and standard timeout of 10 seconds.
+    /// </summary>
+    /// <returns></returns>
+    public static TestThread CreateDeferred()
+    {
+        return new TestThread(StandardTimeout, StandardTimeout);
     }
 }
