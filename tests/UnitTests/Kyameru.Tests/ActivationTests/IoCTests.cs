@@ -1,5 +1,6 @@
 ﻿using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Tests;
 using Kyameru.Tests.Extensions;
 using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +15,7 @@ using Xunit;
 
 namespace Kyameru.Facts.ActivationFacts;
 
-public class IoCFacts
+public class IoCFacts : BaseTests
 {
     private readonly Dictionary<string, int> _callPoints = new Dictionary<string, int>();
 
@@ -340,18 +341,6 @@ public class IoCFacts
         return provider.GetService<IHostedService>();
     }
 
-    private IServiceCollection GetServiceDescriptors()
-    {
-        IServiceCollection serviceCollection = new ServiceCollection();
-        serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
-        {
-            return Substitute.For<ILogger<Kyameru.Route>>();
-        });
-        serviceCollection.AddTransient<Tests.Mocks.IMyComponent, Tests.Mocks.MyComponent>();
-
-        return serviceCollection;
-    }
-
     private IProcessor GetProcessor()
     {
         var processor = Substitute.For<IProcessor>();
@@ -362,14 +351,6 @@ public class IoCFacts
         });
 
         return processor;
-    }
-
-    private IHostedService BuildAndGetServices(Core.Builder kyameruBuilder, Component.Generic.Builder componentBuilder)
-    {
-        var services = GetServiceDescriptors();
-        componentBuilder.Build(services);
-        kyameruBuilder.Build(services);
-        return services.BuildServiceProvider().GetRequiredService<IHostedService>();
     }
 
     #endregion Helpers

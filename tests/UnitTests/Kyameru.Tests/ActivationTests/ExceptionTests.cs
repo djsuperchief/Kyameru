@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Kyameru.Tests.ActivationTests;
 
-public class ExceptionTests
+public class ExceptionTests : BaseTests
 {
 
     [Fact]
@@ -21,19 +21,25 @@ public class ExceptionTests
     {
         Routable routable = null;
         var errorComponent = Substitute.For<IErrorProcessor>();
-        var processComponent = Substitute.For<IProcessor>();
         var thread = TestThread.CreateDeferred(2);
         errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
+            thread.Continue();
             return Task.CompletedTask;
         });
 
-        var service = this.GetHostedService(SetupChain, processComponent, errorComponent, true, threadInterrupt: async (Routable x) =>
-        {
-            thread.Continue();
-            await Task.CompletedTask;
-        });
+        var generics = Component.Generic.Builder.Create()
+            .WithFrom(() =>
+            {
+                throw new NotImplementedException();
+            })
+            .WithTo((x) => { });
+
+        var builder = Route.From("generic:///error")
+            .To("generic:///wontexecute")
+            .Error(errorComponent);
+        var service = BuildAndGetServices(builder, generics);
         thread.SetThread(service.StartAsync);
         thread.StartAndWait();
         await thread.CancelAsync();
@@ -45,11 +51,22 @@ public class ExceptionTests
     public async Task FromRaiseException()
     {
         var errorComponent = Substitute.For<IErrorProcessor>();
-        var processComponent = Substitute.For<IProcessor>();
+        var generics = Component.Generic.Builder.Create()
+            .WithFrom(() =>
+            {
+                throw new NotImplementedException();
+            })
+            .WithTo((x) => { });
+
+        var builder = Route.From("generic:///error")
+            .To("generic:///wontexecute")
+            .Error(errorComponent)
+            .RaiseExceptions();
+        var service = BuildAndGetServices(builder, generics);
+
         await Assert.ThrowsAsync<NotImplementedException>(async () =>
         {
-            var service = this.GetHostedService(SetupBubbleChain, processComponent, errorComponent, true);
-            await service.StartAsync(CancellationToken.None);
+            await service.StartAsync(default);
         });
     }
 
@@ -57,11 +74,12 @@ public class ExceptionTests
     public async Task ComponentError()
     {
         Routable routable = null;
-
+        var thread = TestThread.CreateDeferred(2);
         var errorComponent = Substitute.For<IErrorProcessor>();
         errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
+            thread.Continue();
             return Task.CompletedTask;
         });
 
@@ -71,13 +89,16 @@ public class ExceptionTests
             throw new Kyameru.Core.Exceptions.ProcessException("Manual Error");
         });
 
-        var thread = TestThread.CreateDeferred(2);
+        var generics = Component.Generic.Builder.Create()
+            .WithFrom()
+            .WithTo((x) => { });
 
-        var service = this.GetHostedService(SetupChain, processComponent, errorComponent, threadInterrupt: async (Routable x) =>
-        {
-            thread.Continue();
-            await Task.CompletedTask;
-        });
+        var builder = Route.From("generic:///ok")
+            .Process(processComponent)
+            .To("generic:///ok")
+            .Error(errorComponent);
+
+        var service = BuildAndGetServices(builder, generics);
 
         thread.SetThread(service.StartAsync);
         thread.StartAndWait();
@@ -101,7 +122,21 @@ public class ExceptionTests
             return Task.CompletedTask;
         });
 
-        var service = this.GetHostedService(SetupChain, processComponent, errorComponent, false, true);
+        var generics = Component.Generic.Builder.Create()
+            .WithFrom()
+            .WithTo((x) =>
+            {
+                throw new NotImplementedException();
+            });
+
+        var builder = Route.From("generic:///ok")
+            .Process(processComponent)
+            .To("generic:///ok")
+            .Error(errorComponent);
+
+
+        var service = BuildAndGetServices(builder, generics);
+
         thread.SetThread(service.StartAsync);
         thread.StartAndWait();
         await thread.CancelAsync();
