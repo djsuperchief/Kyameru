@@ -30,7 +30,7 @@ namespace Kyameru.Core
         private readonly List<RouteAttributes> toUris = new List<RouteAttributes>();
 
         /// <summary>
-        /// From URI held to construct atomic component.
+        /// From URI.
         /// </summary>
         private readonly RouteAttributes fromUri;
 
@@ -38,11 +38,6 @@ namespace Kyameru.Core
         /// Error component.
         /// </summary>
         private IErrorProcessor errorComponent;
-
-        /// <summary>
-        /// Atomic component.
-        /// </summary>
-        private IAtomicLink atomicComponent;
 
         /// <summary>
         /// Value indicating whether exceptions should be raised from the route.
@@ -111,11 +106,6 @@ namespace Kyameru.Core
         /// Gets a value indicating whether the error component will process.
         /// </summary>
         public bool WillProcessError => errorComponent != null;
-
-        /// <summary>
-        /// Gets a value indicating whether the route is considered to be atomic.
-        /// </summary>
-        public bool IsAtomic => atomicComponent != null;
 
         /// <summary>
         /// Gets a value indicating whether the route is on a schedule.
@@ -316,32 +306,6 @@ namespace Kyameru.Core
         }
 
         /// <summary>
-        /// Creates an atomic component using the original From URI.
-        /// </summary>
-        /// <returns>Returns an instance of the <see cref="Builder"/> class</returns>
-        public Builder Atomic()
-        {
-            atomicComponent = CreateAtomic(
-                fromUri.ComponentName,
-                fromUri.Headers);
-            return this;
-        }
-
-        /// <summary>
-        /// Creates an atomic component using the original From URI.
-        /// </summary>
-        /// <param name="componentUri">Valid Kyameru URI.</param>
-        /// <returns>Returns an instance of the <see cref="Builder"/> class</returns>
-        public Builder Atomic(string componentUri)
-        {
-            var route = new RouteAttributes(componentUri);
-            atomicComponent = CreateAtomic(
-                route.ComponentName,
-                route.Headers);
-            return this;
-        }
-
-        /// <summary>
         /// Creates a new Error component chain.
         /// </summary>
         /// <param name="component">Error component.</param>
@@ -431,13 +395,13 @@ namespace Kyameru.Core
 
                 if (schedule == null)
                 {
-                    var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
-                    return new From(from, next, logger, identity, IsAtomic, raiseExceptions);
+                    var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x);
+                    return new From(from, next, logger, identity, raiseExceptions);
                 }
                 else
                 {
-                    var scheduled = CreateScheduled(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
-                    return new Scheduled(scheduled, next, logger, identity, IsAtomic, raiseExceptions, schedule);
+                    var scheduled = CreateScheduled(fromUri.ComponentName, fromUri.Headers, x);
+                    return new Scheduled(scheduled, next, logger, identity, raiseExceptions, schedule);
                 }
 
 
@@ -513,13 +477,8 @@ namespace Kyameru.Core
             }
             else
             {
-                IChain<Routable> atomic = null;
                 IChain<Routable> error = null;
-                if (atomicComponent != null)
-                {
-                    logger.LogInformation(string.Format(Resources.INFO_SETUP_ATOMIC, atomicComponent.ToString()));
-                    atomic = new Atomic(logger, atomicComponent, GetIdentity());
-                }
+
 
                 if (errorComponent != null)
                 {
@@ -527,7 +486,7 @@ namespace Kyameru.Core
                     error = new Chain.Error(logger, errorComponent, GetIdentity());
                 }
 
-                toChain.SetNext(GetFinal(error, atomic));
+                toChain.SetNext(error);
             }
 
             return toChain;
@@ -536,26 +495,6 @@ namespace Kyameru.Core
         private IToChainLink GetToComponent(int index, IServiceProvider serviceProvider)
         {
             return CreateTo(toUris[index], serviceProvider);
-        }
-
-        /// <summary>
-        /// Sets the correct next component.
-        /// </summary>
-        /// <param name="error">Component incoming.</param>
-        /// <param name="atomic">Target chain.</param>
-        /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
-        private IChain<Routable> GetFinal(IChain<Routable> error, IChain<Routable> atomic)
-        {
-            if (atomic != null && error != null)
-            {
-                atomic.SetNext(error);
-            }
-            else if (atomic == null && error != null)
-            {
-                atomic = error;
-            }
-
-            return atomic;
         }
 
         /// <summary>

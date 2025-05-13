@@ -10,12 +10,7 @@ namespace Kyameru.Component.Test
 {
     public class Inflator : IOasis
     {
-        public IAtomicLink CreateAtomicComponent(Dictionary<string, string> headers)
-        {
-            return new Atomic(headers);
-        }
-
-        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             return new From(headers);
         }
@@ -35,7 +30,7 @@ namespace Kyameru.Component.Test
             return serviceCollection;
         }
 
-        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             return new Scheduled();
         }

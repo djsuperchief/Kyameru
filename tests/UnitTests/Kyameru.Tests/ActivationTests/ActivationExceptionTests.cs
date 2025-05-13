@@ -14,7 +14,6 @@ public class ActivationExceptionTests
 
     [Theory]
     [InlineData("Invalidfromcomponent", "invalidFromComponent", "test", "test")]
-    [InlineData("Atomic", "test", "invalid", "test")]
     [InlineData("Invalidto", "test", "test", "InvalidTo")]
     public void ComponentInvalid(string expected, string from, string atomic, string to)
     {
@@ -61,11 +60,9 @@ public class ActivationExceptionTests
         });
         var from = $"{fromHost}://hello";
         var to = $"{toHost}://hello";
-        var atomic = $"{atomicHost}://hello";
 
         var builder = Kyameru.Route.From(from)
-            .To(to)
-            .Atomic(atomic);
+            .To(to);
         if (schedule != null)
         {
             builder.ScheduleEvery(schedule.Value);

@@ -255,7 +255,6 @@ public class IoCFacts : BaseTests
                 .Process(processComponent)
                 .To("Test://world")
                 .To("Test://kyameru")
-                .Atomic("Test://plop")
                 .Error(errorComponent)
                 .Id("WillNotExecute")
                 .Build(serviceCollection);
@@ -305,7 +304,6 @@ public class IoCFacts : BaseTests
         var serviceCollection = GetServiceDescriptors();
         Kyameru.Route.From($"Test://hello?TestName={test}")
             .To("Test://world")
-            .Atomic("Test://boom")
             .Build(serviceCollection);
         var provider = serviceCollection.BuildServiceProvider();
         return provider.GetService<IHostedService>();

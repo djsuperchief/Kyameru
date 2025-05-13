@@ -7,12 +7,7 @@ namespace Kyameru.Component.Injectiontest
 {
     public class Inflator : Kyameru.Core.Contracts.IOasis
     {
-        public IAtomicLink CreateAtomicComponent(Dictionary<string, string> headers)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             if (headers.ContainsKey("WillError"))
             {
@@ -46,7 +41,7 @@ namespace Kyameru.Component.Injectiontest
             return serviceCollection.InstallFromService();
         }
 
-        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             throw new NotImplementedException();
         }

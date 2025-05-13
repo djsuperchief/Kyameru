@@ -9,11 +9,8 @@
         internal const string INFO_PROCESSINGCOMPONENT = "Setting up processor {0}...";
         internal const string INFO_SETUP_TO = "Setting up to chain link {0}...";
         internal const string INFO_SETUP_ERR = "Setting up error processor {0}...";
-        internal const string INFO_SETUP_ATOMIC = "Setting up atomic chain link {0}...";
-
         internal const string ERROR_ACTIVATION_FROM = "Error activating from chain link.";
         internal const string ERROR_ACTIVATION_TO = "Error activating to chain link.";
-        internal const string ERROR_ACTIVATING_ATOMIC = "Error activating atomic chain link";
         internal const string ERROR_FROM_COMPONENT = "Error in starting from chain link, see inner exception.";
         internal const string ERROR_HEADER_IMMUTABLE = "Error in setting header, header already exists. Headers are immutable.";
         internal const string ERROR_HEADER_CALLBACK = "Error executing header callback. See inner exception.";

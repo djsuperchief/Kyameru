@@ -42,14 +42,13 @@ namespace Kyameru.Core
         /// <param name="from">Valid component name.</param>
         /// <param name="headers">Dictionary of headers</param>
         /// <param name="serviceProvider">DI Service provider.</param>
-        /// <param name="isAtomic">Indicates if the route is atomic.</param>
         /// <returns>Returns an instance of the <see cref="IFromChainLink"/> interface.</returns>
-        protected IFromChainLink CreateFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic)
+        protected IFromChainLink CreateFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             IFromChainLink response = null;
             try
             {
-                response = GetOasis(from).CreateFromComponent(headers, isAtomic, serviceProvider);
+                response = GetOasis(from).CreateFromComponent(headers, serviceProvider);
             }
             catch (Exception ex)
             {
@@ -65,39 +64,17 @@ namespace Kyameru.Core
         /// <param name="from">Valid component name.</param>
         /// <param name="headers">Dictionary of headers</param>
         /// <param name="serviceProvider">DI Service provider.</param>
-        /// <param name="isAtomic">Indicates if the route is atomic.</param>
         /// <returns>Returns an instance of the <see cref="IScheduleChainLink"/> interface.</returns>
-        protected IScheduleChainLink CreateScheduled(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, bool isAtomic)
+        protected IScheduleChainLink CreateScheduled(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             IScheduleChainLink response = null;
             try
             {
-                response = GetOasis(from).CreateScheduleComponent(headers, isAtomic, serviceProvider);
+                response = GetOasis(from).CreateScheduleComponent(headers, serviceProvider);
             }
             catch (Exception ex)
             {
                 throw new Exceptions.ActivationException(string.Format(Resources.ERROR_SCHEDULE_NOTSUPPORTED, from), ex, "Scheduled");
-            }
-
-            return response;
-        }
-
-        /// <summary>
-        /// Creates the atomic component.
-        /// </summary>
-        /// <param name="from">Valid component name.</param>
-        /// <param name="headers">Dictionary of headers</param>
-        /// <returns>Returns an instance of the <see cref="IAtomicLink"/> interface.</returns>
-        protected IAtomicLink CreateAtomic(string from, Dictionary<string, string> headers)
-        {
-            IAtomicLink response = null;
-            try
-            {
-                response = GetOasis(from).CreateAtomicComponent(headers);
-            }
-            catch (Exception ex)
-            {
-                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATING_ATOMIC, ex, "Atomic");
             }
 
             return response;

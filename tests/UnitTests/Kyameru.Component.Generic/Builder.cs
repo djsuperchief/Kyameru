@@ -11,10 +11,15 @@ public class Builder
     private Func<Routable> _fromProcessing;
     private Action<Routable> _toProcessing;
 
+#pragma warning disable CS8618
     protected Builder()
+
     {
 
     }
+
+#pragma warning restore CS8618
+
     public static Builder Create()
     {
         return new Builder();

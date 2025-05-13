@@ -59,7 +59,6 @@ namespace Kyameru.Core.Chain
         /// <param name="next">Next component in the chain.</param>
         /// <param name="logger">Logger.</param>
         /// <param name="id">Route Id.</param>
-        /// <param name="isAtomicRoute">Obsolete (maybe).</param>
         /// <param name="raiseExceptions">Value indicating whether the route should bubble exceptions.</param>
         /// <param name="targetedSchedule">Targeted schedule</param>
         public Scheduled(
@@ -67,7 +66,6 @@ namespace Kyameru.Core.Chain
             IChain<Routable> next,
             ILogger logger,
             string id,
-            bool isAtomicRoute,
             bool raiseExceptions,
             Schedule targetedSchedule)
         {
@@ -77,7 +75,6 @@ namespace Kyameru.Core.Chain
             this.logger = logger;
             this.fromComponent.OnLog += FromComponent_OnLog;
             identity = id;
-            //IsAtomicRoute = ;
             fromComponent.OnActionAsync += FromComponent_OnActionAsync;
             this.raiseExceptions = raiseExceptions;
             schedule = targetedSchedule;

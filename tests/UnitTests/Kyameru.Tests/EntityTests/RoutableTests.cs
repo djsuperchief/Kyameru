@@ -108,7 +108,6 @@ public class RoutableTests
         Kyameru.Route.From($"test://hello?TestName={test}")
             .Process(component)
             .To("test://world")
-            .Atomic("test://boom")
             .Build(serviceCollection);
         var provider = serviceCollection.BuildServiceProvider();
         return provider.GetService<IHostedService>();
