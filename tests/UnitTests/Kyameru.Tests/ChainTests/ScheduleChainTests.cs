@@ -51,13 +51,18 @@ public class ScheduleChainTests
     {
         var serviceCollection = GetServiceDescriptors();
         var mockNext = Substitute.For<IProcessor>();
+        var thread = TestThread.CreateDeferred();
         Routable output = null;
         var simulatedTime = Substitute.For<ITimeProvider>();
         var testDate = new DateTime(2024, 01, 01, 9, 0, 0, DateTimeKind.Utc);
         simulatedTime.UtcNow.Returns(testDate);
         simulatedTime.Now.Returns(testDate.ToLocalTime());
         Kyameru.Core.Utils.TimeProvider.Current = simulatedTime;
-
+        Component.Generic.Builder.Create()
+            .WithTo(x =>
+            {
+                thread.Continue();
+            }).Build(serviceCollection);
 
         mockNext.ProcessAsync(Arg.Any<Routable>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
@@ -66,15 +71,14 @@ public class ScheduleChainTests
         });
         Kyameru.Route.From("test://test")
         .Process(mockNext)
-        .To("test://test")
+        .To("generic://test")
         .Id("scheduled_test")
         .ScheduleEvery(Core.Enums.TimeUnit.Minute, 1)
         .Build(serviceCollection);
         var provider = serviceCollection.BuildServiceProvider();
         var service = provider.GetService<IHostedService>();
-        var thread = TestThread.CreateNew(service.StartAsync, 9, 30);
-        thread.Start();
-        thread.WaitForExecution();
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
         testDate = testDate.AddMinutes(2);
         simulatedTime.UtcNow.Returns(testDate);
         simulatedTime.Now.Returns(testDate.ToLocalTime());

@@ -12,27 +12,17 @@ namespace Kyameru.Component.File
     public class Inflator : IOasis
     {
         /// <summary>
-        /// Create an atomic component.
-        /// </summary>
-        /// <param name="headers">Incoming headers</param>
-        /// <returns>Returns an instance of </returns>
-        public IAtomicLink CreateAtomicComponent(Dictionary<string, string> headers)
-        {
-            throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "File"));
-        }
-
-        /// <summary>
         /// Creates a from component.
         /// </summary>
         /// <param name="headers">Incoming headers.</param>
         /// <returns>Returns a new instance of a <see cref="IFromChainLink"/> class.</returns>
-        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
 
             return new FileWatcher(headers, new Utilities.BaseFileSystemWatcher());
         }
 
-        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             throw new NotImplementedException();
         }

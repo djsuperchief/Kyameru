@@ -24,7 +24,7 @@ namespace Kyameru.Tests.ActivationTests;
 public class GenericTestComponentTests
 {
     [Fact]
-    public async Task NonAtomic()
+    public async Task VerifyGenericWorks()
     {
         var routable = new Routable(new Dictionary<string, string>(), null);
         var thread = TestThread.CreateDeferred(20);

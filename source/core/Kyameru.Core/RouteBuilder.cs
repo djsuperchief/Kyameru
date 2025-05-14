@@ -12,7 +12,7 @@ namespace Kyameru.Core
     public class RouteBuilder : AbstractBuilder
     {
         /// <summary>
-        /// From URI held to construct the atomic component.
+        /// From URI.
         /// </summary>
         private readonly RouteAttributes fromUri;
 

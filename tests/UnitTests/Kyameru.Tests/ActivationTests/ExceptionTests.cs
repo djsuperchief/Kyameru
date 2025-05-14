@@ -114,7 +114,7 @@ public class ExceptionTests : BaseTests
 
         var errorComponent = Substitute.For<IErrorProcessor>();
         var processComponent = Substitute.For<IProcessor>();
-        var thread = TestThread.CreateDeferred(2);
+        var thread = TestThread.CreateDeferred();
         errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
             routable = x.Arg<Routable>();
@@ -126,7 +126,7 @@ public class ExceptionTests : BaseTests
             .WithFrom()
             .WithTo((x) =>
             {
-                throw new NotImplementedException();
+                throw new Kyameru.Core.Exceptions.ProcessException("Manual Error");
             });
 
         var builder = Route.From("generic:///ok")
@@ -160,7 +160,7 @@ public class ExceptionTests : BaseTests
 
         var generics = Component.Generic.Builder.Create()
             .WithFrom()
-            .WithTo((x) => { });
+            .WithTo((x) => { throw new NotImplementedException(); });
 
         var builder = Route.From("generic:///ok")
             .Process(processComponent)

@@ -9,17 +9,12 @@ namespace Kyameru.Component.Ses;
 
 public class Inflator : IOasis
 {
-    public IAtomicLink CreateAtomicComponent(Dictionary<string, string> headers)
-    {
-        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "SES"));
-    }
-
-    public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+    public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
         throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "SES"));
     }
 
-    public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+    public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
         throw new NotImplementedException();
     }

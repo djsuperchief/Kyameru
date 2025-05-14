@@ -57,8 +57,6 @@ public class AsyncTests
         thread.StartAndWait();
         await thread.CancelAsync();
 
-        Assert.Contains("FROMASYNC", Component.Injectiontest.GlobalCalls.Calls);
-        Assert.Contains("TOASYNC", Component.Injectiontest.GlobalCalls.Calls);
         Assert.Equal("ASYNC", routable.Headers["Process"]);
         Assert.Equal("ASYNC", routable.Headers["FROM"]);
         Assert.Equal("ASYNC", routable.Headers["TO"]);

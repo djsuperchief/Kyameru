@@ -13,14 +13,14 @@ public class ActivationExceptionTests
     private readonly ILogger<Route> _logger = Substitute.For<ILogger<Route>>();
 
     [Theory]
-    [InlineData("Invalidfromcomponent", "invalidFromComponent", "test", "test")]
-    [InlineData("Invalidto", "test", "test", "InvalidTo")]
-    public void ComponentInvalid(string expected, string from, string atomic, string to)
+    [InlineData("Invalidfromcomponent", "invalidFromComponent", "test")]
+    [InlineData("Invalidto", "test", "InvalidTo")]
+    public void ComponentInvalid(string expected, string from, string to)
     {
         var errorComponent = string.Empty;
         try
         {
-            _ = this.GetHostedService(from, atomic, to);
+            _ = this.GetHostedService(from, to);
         }
         catch (ActivationException ex)
         {
@@ -32,7 +32,7 @@ public class ActivationExceptionTests
     [Fact]
     public void ScheduleComponentThrowsErrorOnRegister()
     {
-        var exception = Record.Exception(() => this.GetHostedService("injectiontest", "test", "test", TimeUnit.Minute));
+        var exception = Record.Exception(() => this.GetHostedService("injectiontest", "test", TimeUnit.Minute));
         Assert.NotNull(exception);
         Assert.IsType<ActivationException>(exception);
         Assert.Equal("Component 'Injectiontest' does not support scheduling", exception.Message);
@@ -41,7 +41,7 @@ public class ActivationExceptionTests
     [Fact]
     public void ScheduleComponentThrowsErrorOnBuild()
     {
-        var exception = Record.Exception(() => this.GetHostedService("error", "test", "test", TimeUnit.Minute));
+        var exception = Record.Exception(() => this.GetHostedService("error", "test", TimeUnit.Minute));
         Assert.NotNull(exception);
         Assert.IsType<ActivationException>(exception);
         Assert.Equal("Component 'Error' does not support scheduling", exception.Message);
@@ -49,7 +49,6 @@ public class ActivationExceptionTests
 
     private IHostedService GetHostedService(
             string fromHost,
-            string atomicHost,
             string toHost,
             TimeUnit? schedule = null)
     {

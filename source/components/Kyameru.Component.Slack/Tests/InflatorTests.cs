@@ -30,19 +30,7 @@ public class InflatorTests
             { "Target", "test" }
         };
         var inflator = new Inflator();
-        Assert.Throws<RouteNotAvailableException>(() => { inflator.CreateFromComponent(headers, false, this.GetServiceProvider()); });
-    }
-
-    [Fact]
-    public void ActivateAtomicThrows()
-    {
-        var headers = new Dictionary<string, string>()
-        {
-            { "Target", "test" },
-            { "MessageSource", "Body" }
-        };
-        var inflator = new Inflator();
-        Assert.Throws<RouteNotAvailableException>(() => { inflator.CreateAtomicComponent(headers); });
+        Assert.Throws<RouteNotAvailableException>(() => { inflator.CreateFromComponent(headers, this.GetServiceProvider()); });
     }
 
     [Fact]

@@ -548,7 +548,7 @@ namespace Kyameru.Core
                 throw new CoreException(Resources.ERROR_SCHEDULE_ALREADY_DEFINED);
             }
 
-            schedule = new Schedule(unit, value, false);
+            schedule = new Schedule(unit, value, isEvery);
         }
 
         private IConditionalProcessor GetReflectedConditionalComponent(string componentTypeName, Assembly hostAssembly)

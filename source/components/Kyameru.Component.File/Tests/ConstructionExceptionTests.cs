@@ -23,7 +23,7 @@ public class ConstructionExceptionTests
         };
         var inflator = new Inflator();
 
-        Assert.Throws<ArgumentException>(() => _ = inflator.CreateFromComponent(headers, false, serviceProvider));
+        Assert.Throws<ArgumentException>(() => _ = inflator.CreateFromComponent(headers, serviceProvider));
     }
 
     [Fact]
@@ -35,6 +35,6 @@ public class ConstructionExceptionTests
         };
         var inflator = new Inflator();
 
-        Assert.Throws<ArgumentException>(() => _ = inflator.CreateFromComponent(headers, false, serviceProvider));
+        Assert.Throws<ArgumentException>(() => _ = inflator.CreateFromComponent(headers, serviceProvider));
     }
 }

@@ -26,13 +26,6 @@ public class InjectionTests
     }
 
     [Fact]
-    public void CreateAtomicThrowsNotImplemented()
-    {
-        var inflator = new Inflator();
-        Assert.Throws<RouteNotAvailableException>(() => inflator.CreateAtomicComponent(new Dictionary<string, string>()));
-    }
-
-    [Fact]
     public void CanCreateToComponent()
     {
         var serviceCollection = new ServiceCollection();
@@ -58,7 +51,7 @@ public class InjectionTests
         var inflator = new Inflator();
         inflator.RegisterFrom(serviceCollection);
         var provider = serviceCollection.BuildServiceProvider();
-        var component = inflator.CreateFromComponent(new Dictionary<string, string>(), false, provider);
+        var component = inflator.CreateFromComponent(new Dictionary<string, string>(), provider);
         Assert.NotNull(component);
     }
 }

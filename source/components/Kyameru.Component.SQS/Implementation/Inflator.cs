@@ -10,7 +10,7 @@ namespace Kyameru.Component.Sqs;
 
 public class Inflator : IOasis
 {
-    public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+    public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
         var from = serviceProvider.GetRequiredService<IFrom>();
         from.SetHeaders(headers);
@@ -22,11 +22,6 @@ public class Inflator : IOasis
         var to = serviceProvider.GetRequiredService<ITo>();
         to.SetHeaders(headers);
         return to;
-    }
-
-    public IAtomicLink CreateAtomicComponent(Dictionary<string, string> headers)
-    {
-        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "SQS"));
     }
 
     public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
@@ -43,7 +38,7 @@ public class Inflator : IOasis
         return serviceCollection;
     }
 
-    public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+    public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
         throw new NotImplementedException();
     }

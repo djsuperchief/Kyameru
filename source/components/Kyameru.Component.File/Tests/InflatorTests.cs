@@ -26,7 +26,7 @@ public class InflatorTests
             { "SubDirectories", "true" }
         };
         var inflator = new Inflator();
-        Assert.NotNull(inflator.CreateFromComponent(headers, false, serviceProvider));
+        Assert.NotNull(inflator.CreateFromComponent(headers, serviceProvider));
     }
 
     [Fact]
@@ -41,12 +41,5 @@ public class InflatorTests
 
         var inflator = new Inflator();
         Assert.NotNull(inflator.CreateToComponent(headers, serviceProvider));
-    }
-
-    [Fact]
-    public void AtomicThrows()
-    {
-        var inflator = new Inflator();
-        Assert.Throws<RouteNotAvailableException>(() => inflator.CreateAtomicComponent(null));
     }
 }

@@ -12,27 +12,17 @@ namespace Kyameru.Component.Slack
     public class Inflator : IOasis
     {
         /// <summary>
-        /// Creates an atomic component.
-        /// </summary>
-        /// <param name="headers">Headers to process.</param>
-        /// <returns>Throws a not implemented exception</returns>
-        public IAtomicLink CreateAtomicComponent(Dictionary<string, string> headers)
-        {
-            throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "Slack"));
-        }
-
-        /// <summary>
         /// Creates a from component.
         /// </summary>
         /// <param name="headers">Incoming headers.</param>]
         /// <param name="isAtomic">value indicating whether the component is considered to be atomic.</param>
         /// <returns>Returns a new instance of a <see cref="IFromChainLink"/> class.</returns>
-        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "Slack"));
         }
 
-        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             throw new NotImplementedException();
         }

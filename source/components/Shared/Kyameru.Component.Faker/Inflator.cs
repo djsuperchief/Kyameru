@@ -7,7 +7,7 @@ namespace Kyameru.Component.Faker
 {
     public class Inflator : IOasis
     {
-        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             var component = serviceProvider.GetRequiredService<IFakerFrom>();
             return component;
@@ -17,11 +17,6 @@ namespace Kyameru.Component.Faker
         {
             var component = serviceProvider.GetRequiredService<IFakerTo>();
             return component;
-        }
-
-        public IAtomicLink CreateAtomicComponent(Dictionary<string, string> headers)
-        {
-            throw new NotImplementedException();
         }
 
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
@@ -36,7 +31,7 @@ namespace Kyameru.Component.Faker
             return serviceCollection;
         }
 
-        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             throw new NotImplementedException();
         }

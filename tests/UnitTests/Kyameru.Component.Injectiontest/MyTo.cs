@@ -26,7 +26,6 @@ namespace Kyameru.Component.Injectiontest
 
         public void Process(Routable item)
         {
-            GlobalCalls.Calls.Add("TO");
             item.SetBody<string>("Injected Test Complete");
             this.OnLog?.Invoke(this, new Log(LogLevel.Information, "TO"));
         }
@@ -35,12 +34,11 @@ namespace Kyameru.Component.Injectiontest
         {
             if (!cancellationToken.IsCancellationRequested)
             {
-                GlobalCalls.Calls.Add("TOASYNC");
                 if (!routable.Headers.ContainsKey("TO"))
                 {
-                    routable.SetHeader("&TO", "ASYNC");    
+                    routable.SetHeader("&TO", "ASYNC");
                 }
-                
+
                 routable.SetBody<string>("Async Injected Test Complete");
                 this.OnLog?.Invoke(this, new Log(LogLevel.Information, "TO"));
             }

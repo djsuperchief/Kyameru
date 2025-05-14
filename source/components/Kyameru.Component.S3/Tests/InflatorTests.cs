@@ -23,16 +23,7 @@ public class InflatorTests
         var serviceCollection = new ServiceCollection();
         var provider = serviceCollection.BuildServiceProvider();
         var inflator = new Inflator();
-        Assert.Throws<RouteNotAvailableException>(() => inflator.CreateFromComponent(new Dictionary<string, string>(), false, provider));
-    }
-
-    [Fact]
-    public void CreateAtomicThrowsNotImplemented()
-    {
-        var serviceCollection = new ServiceCollection();
-        var provider = serviceCollection.BuildServiceProvider();
-        var inflator = new Inflator();
-        Assert.Throws<RouteNotAvailableException>(() => inflator.CreateAtomicComponent(new Dictionary<string, string>()));
+        Assert.Throws<RouteNotAvailableException>(() => inflator.CreateFromComponent(new Dictionary<string, string>(), provider));
     }
 
     [Fact]

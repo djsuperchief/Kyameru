@@ -17,21 +17,26 @@ namespace Kyameru.Facts.ActivationFacts;
 
 public class IoCFacts : BaseTests
 {
-    private readonly Dictionary<string, int> _callPoints = new Dictionary<string, int>();
-
-    public IoCFacts()
-    {
-        _callPoints.Add("FROM", 1);
-        _callPoints.Add("TO", 2);
-        _callPoints.Add("ATOMIC", 3);
-        _callPoints.Add("COMPONENT", 4);
-        _callPoints.Add("ERROR", 5);
-    }
-
     [Fact]
     public void CanSetupFullFact()
     {
-        Assert.NotNull(AddComponent("CanSetupFullFact"));
+        var serviceCollection = GetServiceDescriptors();
+        var processComponent = Substitute.For<IProcessor>();
+        var errorComponent = Substitute.For<IErrorProcessor>();
+        Component.Generic.Builder.Create()
+            .WithFrom()
+            .WithTo(x => { })
+            .Build(serviceCollection);
+        Kyameru.Route.From($"generic://hello?TestName=Setup")
+            .Process(processComponent)
+            .Process(processComponent)
+            .To("generic://world")
+            .To("generic://kyameru")
+            .Error(errorComponent)
+            .Id("WillNotExecute")
+            .Build(serviceCollection);
+        var provider = serviceCollection.BuildServiceProvider();
+        Assert.NotNull(provider.GetRequiredService<IHostedService>());
     }
 
     [Fact]
@@ -170,34 +175,56 @@ public class IoCFacts : BaseTests
         Assert.Equal(expected, routable.Headers.ToAssertable());
     }
 
-    /// <summary>
-    /// Obsolete, Atomic will be going.
-    /// </summary>
-    /// <returns></returns>
-    [Fact]
-    public async Task CanExecuteAtomic()
-    {
-        var service = GetNoErrorChain("CanExecuteAtomic");
-        var thread = TestThread.CreateNew(service.StartAsync, 2);
-        thread.Start();
-        thread.WaitForExecution();
-        await thread.CancelAsync();
-        Assert.Equal(6, GetCallCount("CanExecuteAtomic"));
-    }
-
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
     public async Task AddHeaderErrors(bool secondFunction)
     {
-        var testName = $"AddHeaderErrors_{secondFunction.ToString()}";
-        Component.Test.GlobalCalls.Clear(testName);
-        var service = GetHeaderError(secondFunction, testName);
-        var thread = TestThread.CreateNew(service.StartAsync, 2);
-        thread.Start();
-        thread.WaitForExecution();
+        var expected = new List<string>() {
+            { "FROM:Executed" }
+        };
+        Routable routable = null;
+        var thread = TestThread.CreateDeferred();
+        var error = Substitute.For<IErrorProcessor>();
+        error.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
+        {
+            routable = x.Arg<Routable>();
+            thread.Continue();
+            return Task.CompletedTask;
+        });
+
+        var generics = Component.Generic.Builder.Create()
+            .WithFrom()
+            .WithTo(x => { });
+
+        Core.Builder builder = null;
+
+        builder = Route.From("generic:///test")
+            .AddHeader("Error", () =>
+            {
+                throw new NotImplementedException();
+            })
+            .To("generic:///shouldNotBeHere")
+            .Error(error);
+
+        if (secondFunction)
+        {
+            builder = Route.From("generic:///test")
+                .AddHeader("Error", (x) =>
+                {
+                    throw new NotImplementedException();
+                })
+                .To("generic:///shouldNotBeHere")
+                .Error(error);
+        }
+
+
+        var service = BuildAndGetServices(builder, generics);
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
         await thread.CancelAsync();
-        Assert.Equal(1, GetCallCount(testName));
+
+        Assert.Equal(expected, routable.Headers.ToAssertable());
     }
 
     [Fact]
@@ -211,133 +238,48 @@ public class IoCFacts : BaseTests
             return Task.CompletedTask;
         });
 
-        var services = AddTwoRoutes(processComponent);
+        var threadOne = TestThread.CreateDeferred();
+        var threadTwo = TestThread.CreateDeferred();
+
+        var serviceCollection = GetServiceDescriptors();
+        // this executes twice!
+        Component.Generic.Builder.Create()
+            .WithFrom()
+            .WithTo(x => { })
+            .Build(serviceCollection);
+
+        Kyameru.Route.From("generic://first?TestName=TwoRoutes")
+                .Process(processComponent)
+                .To("generic://world", x =>
+                {
+                    threadOne.Continue();
+                })
+                .Id("First")
+                .Build(serviceCollection);
+
+        Kyameru.Route.From("generic://second?TestName=TwoRoutes")
+                .Process(processComponent)
+                .To("generic://world", x =>
+                {
+                    threadTwo.Continue();
+                })
+                .Id("Second")
+                .Build(serviceCollection);
+        var provider = serviceCollection.BuildServiceProvider();
+        var services = provider.GetServices<IHostedService>();
+
         Assert.Equal(2, services.Count());
-        for (int i = 0; i < services.Count(); i++)
-        {
-            var thread = TestThread.CreateNew(services.ElementAt(i).StartAsync, 2);
-            thread.Start();
-            thread.WaitForExecution();
-            await thread.CancelAsync();
-        }
+        threadOne.SetThread(services.ElementAt(0).StartAsync);
+        threadTwo.SetThread(services.ElementAt(1).StartAsync);
+        threadOne.StartAndWait();
+        threadTwo.StartAndWait();
+        await threadOne.CancelAsync();
+        await threadTwo.CancelAsync();
 
         Assert.Equal(2, calls);
     }
 
     #region Helpers
-
-    private int GetCallCount(string test)
-    {
-        return Component.Test.GlobalCalls.CallDict[test].Sum(x => _callPoints[x]);
-    }
-
-    private IHostedService AddComponent(string test, bool multiChain = false)
-    {
-        var serviceCollection = GetServiceDescriptors();
-        var processComponent = Substitute.For<IProcessor>();
-        var errorComponent = Substitute.For<IErrorProcessor>();
-        processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
-        {
-            Kyameru.Component.Test.GlobalCalls.AddCall(test, "COMPONENT");
-            return Task.CompletedTask;
-        });
-        errorComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
-        {
-            Kyameru.Component.Test.GlobalCalls.AddCall(test, "ERROR");
-            return Task.CompletedTask;
-        });
-
-
-        if (multiChain)
-        {
-            Kyameru.Route.From($"Test://hello?TestName={test}")
-                .Process(processComponent)
-                .Process(processComponent)
-                .To("Test://world")
-                .To("Test://kyameru")
-                .Error(errorComponent)
-                .Id("WillNotExecute")
-                .Build(serviceCollection);
-        }
-        else
-        {
-            Kyameru.Route.From($"Test://hello?TestName={test}")
-                .Process(processComponent)
-                .To("Test://world")
-                .Build(serviceCollection);
-        }
-        var provider = serviceCollection.BuildServiceProvider();
-        return provider.GetService<IHostedService>();
-    }
-
-    private IEnumerable<IHostedService> AddTwoRoutes(IProcessor processComponent)
-    {
-        var serviceCollection = GetServiceDescriptors();
-        Kyameru.Route.From("Test://first?TestName=TwoRoutes")
-                .Process(processComponent)
-                .To("Test://world")
-                .Build(serviceCollection);
-
-        Kyameru.Route.From("Test://second?TestName=TwoRoutes")
-                .Process(processComponent)
-                .To("Test://world")
-                .Build(serviceCollection);
-        var provider = serviceCollection.BuildServiceProvider();
-        return provider.GetServices<IHostedService>();
-    }
-
-    private IHostedService SetupDIComponent(IProcessor diProcessor)
-    {
-        var serviceCollection = GetServiceDescriptors();
-        Kyameru.Route.From("Test://hello?TestName=DITest")
-            .Process<Tests.Mocks.IMyComponent>()
-            .Process(diProcessor)
-            .To("Test://world")
-            .Build(serviceCollection);
-
-        var provider = serviceCollection.BuildServiceProvider();
-        return provider.GetService<IHostedService>();
-    }
-
-    private IHostedService GetNoErrorChain(string test)
-    {
-        var serviceCollection = GetServiceDescriptors();
-        Kyameru.Route.From($"Test://hello?TestName={test}")
-            .To("Test://world")
-            .Build(serviceCollection);
-        var provider = serviceCollection.BuildServiceProvider();
-        return provider.GetService<IHostedService>();
-    }
-
-    private IHostedService GetHeaderError(bool dual, string test)
-    {
-        var serviceCollection = GetServiceDescriptors();
-        var errorComponent = Substitute.For<IErrorProcessor>();
-        if (!dual)
-        {
-            Route.From($"Test://hello?TestName={test}")
-                .AddHeader("One", () =>
-                {
-                    throw new NotImplementedException("whoops");
-                })
-                .To("Test://world")
-                .Error(errorComponent)
-                .Build(serviceCollection);
-        }
-        else
-        {
-            Route.From($"Test://hello?TestName={test}")
-                .AddHeader("One", (x) =>
-                {
-                    throw new NotImplementedException("whoops");
-                })
-                .To("Test://world")
-                .Error(errorComponent)
-                .Build(serviceCollection);
-        }
-        var provider = serviceCollection.BuildServiceProvider();
-        return provider.GetService<IHostedService>();
-    }
 
     private IProcessor GetProcessor()
     {

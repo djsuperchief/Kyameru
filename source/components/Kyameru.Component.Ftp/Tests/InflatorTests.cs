@@ -15,15 +15,8 @@ public class InflatorTests
     public void ActivateFromWorks()
     {
         IServiceProvider serviceProvider = this.GetServiceProvider();
-        IFromChainLink fromComponent = new Ftp.Inflator().CreateFromComponent(this.GetHeaders(), false, serviceProvider);
+        IFromChainLink fromComponent = new Ftp.Inflator().CreateFromComponent(this.GetHeaders(), serviceProvider);
         Assert.NotNull(fromComponent);
-    }
-
-    [Fact]
-    public void AtomicThrows()
-    {
-        IServiceProvider serviceProvider = this.GetServiceProvider();
-        Assert.Throws<RouteNotAvailableException>(() => new Ftp.Inflator().CreateAtomicComponent(this.GetHeaders()));
     }
 
     [Fact]

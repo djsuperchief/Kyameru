@@ -45,16 +45,14 @@ public class Builder
 
     public void Build(IServiceCollection services)
     {
-        var from = CreateFrom();
-        var to = CreateTo();
         services.AddTransient<IGenericFrom>(x =>
         {
-            return from;
+            return CreateFrom();
         });
 
         services.AddTransient<IGenericTo>(x =>
         {
-            return to;
+            return CreateTo();
         });
     }
 

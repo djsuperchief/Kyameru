@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Kyameru.Core.Entities;
 using Kyameru.TestUtilities;
@@ -10,7 +11,7 @@ using Xunit;
 
 namespace Kyameru.Tests.EntityTests;
 
-public class RoutableTests
+public class RoutableTests : BaseTests
 {
     private readonly ILogger<Route> logger = Substitute.For<ILogger<Route>>();
 
@@ -55,24 +56,44 @@ public class RoutableTests
     }
 
     [Theory]
-    [InlineData("TO", true)]
-    [InlineData("ATOMIC", false)]
-    public async Task ProcessExitWorks(string call, bool setupComponent)
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ProcessExitWorks(bool earlyExit)
     {
-        var testName = $"ProcessExitWorks_{call}";
+        var services = GetServiceDescriptors();
         var processComponent = Substitute.For<IProcessor>();
+        var thread = TestThread.CreateDeferred();
+        Routable routable = null;
         processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
-            x.Arg<Routable>().SetHeader("SetExit", "true");
-            if (setupComponent)
+            if (earlyExit)
             {
                 x.Arg<Routable>().SetExitRoute("Manually triggered exit");
+                routable = x.Arg<Routable>();
             }
 
             return Task.CompletedTask;
         });
 
-        Assert.False(await this.RunProcess(call, testName, processComponent));
+        var generics = Component.Generic.Builder.Create()
+            .WithFrom()
+            .WithTo(x =>
+            {
+                x.SetHeader("TO", "Executed");
+                routable = x;
+                thread.Continue();
+            });
+
+        var builder = Route.From("generic:///nope")
+            .Process(processComponent)
+            .To("generic:///nope");
+
+        var service = BuildAndGetServices(builder, generics);
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
+        await thread.CancelAsync();
+
+        Assert.Equal(!earlyExit, routable.Headers.ContainsKey("TO"));
     }
 
     public static IEnumerable<object[]> BodyTestCases()
@@ -81,46 +102,11 @@ public class RoutableTests
         yield return new object[] { new BodyTests<int>(1, "Int32") };
     }
 
-    private async Task<bool> RunProcess(
-        string callsContain,
-        string test,
-        IProcessor processComponent)
-    {
-        var service = this.GetRoute(test, processComponent);
-        var thread = TestThread.CreateNew(service.StartAsync, 3);
-        thread.StartAndWait();
-        await thread.CancelAsync();
-
-        return Kyameru.Component.Test.GlobalCalls.CallDict[test].Contains(callsContain);
-    }
-
     private Routable CreateRoutableMessage()
     {
         return new Routable(new System.Collections.Generic.Dictionary<string, string>()
         {
             {"&Test", "value" }
         }, "test");
-    }
-
-    private IHostedService GetRoute(string test, IProcessor component)
-    {
-        var serviceCollection = this.GetServiceDescriptors();
-        Kyameru.Route.From($"test://hello?TestName={test}")
-            .Process(component)
-            .To("test://world")
-            .Build(serviceCollection);
-        var provider = serviceCollection.BuildServiceProvider();
-        return provider.GetService<IHostedService>();
-    }
-
-    private IServiceCollection GetServiceDescriptors()
-    {
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
-        {
-            return this.logger;
-        });
-
-        return serviceCollection;
     }
 }

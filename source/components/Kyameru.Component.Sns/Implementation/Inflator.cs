@@ -7,17 +7,12 @@ namespace Kyameru.Component.Sns;
 
 public class Inflator : IOasis
 {
-    public IAtomicLink CreateAtomicComponent(Dictionary<string, string> headers)
-    {
-        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "SNS"));
-    }
-
-    public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+    public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
         throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "SNS"));
     }
 
-    public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+    public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
         throw new NotImplementedException();
     }
