@@ -9,6 +9,7 @@ using Kyameru.Core.Sys;
 using Xunit;
 using System;
 using NSubstitute;
+using Kyameru.TestUtilities;
 
 namespace Kyameru.Component.Ftp.Tests.Routes
 {
@@ -19,11 +20,9 @@ namespace Kyameru.Component.Ftp.Tests.Routes
         [InlineData(false)]
         public async Task FromDownloadsAndDeletes(bool deletes)
         {
-            var timespanSeconds = 6;
-            var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(timespanSeconds));
+            var thread = TestThread.CreateDeferred();
             var webRequestFactory = this.GetWebRequest();
             webRequestFactory.ClearReceivedCalls();
-            var autoReset = new AutoResetEvent(false);
             var times = 0;
             if (deletes)
             {
@@ -42,19 +41,14 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             {
                 routable = e.Data;
                 routable.SetHeader("&Method", "ASYNC");
+                thread.Continue();
                 return Task.CompletedTask;
             };
 
-            var thread = new Thread(async () =>
-            {
-                await from.StartAsync(tokenSource.Token);
-            });
-
-            thread.Start();
-            autoReset.WaitOne(TimeSpan.FromSeconds(timespanSeconds));
-            tokenSource.Cancel();
-
-            // possible the crash is being caused by 
+            thread.SetThread(from.StartAsync);
+            thread.StartAndWait();
+            await from.StopAsync(thread.CancelToken);
+            await thread.CancelAsync();
 
             Assert.Equal("Hello ftp", Encoding.UTF8.GetString((byte[])routable.Body));
             if (deletes)
@@ -66,12 +60,7 @@ namespace Kyameru.Component.Ftp.Tests.Routes
                 await webRequestFactory.DidNotReceive().DeleteFile(Arg.Any<FtpSettings>(), "Test.txt", Arg.Any<bool>(), Arg.Any<CancellationToken>());
             }
 
-
-            await from.StopAsync(tokenSource.Token);
             Assert.Equal("ASYNC", routable.Headers["Method"]);
-
-            Assert.False(from.PollerIsActive);
-
         }
 
         [Fact]

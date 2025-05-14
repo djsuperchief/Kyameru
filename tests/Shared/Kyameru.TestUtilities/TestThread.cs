@@ -4,6 +4,7 @@ namespace Kyameru.TestUtilities;
 
 public class TestThread
 {
+    public CancellationToken CancelToken => _cancelTokenSource.Token;
     private Thread? _executionThread;
 
     private readonly AutoResetEvent _waitEvent;

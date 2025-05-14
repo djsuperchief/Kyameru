@@ -15,8 +15,6 @@ namespace Kyameru.Component.Ftp.Tests;
 
 public class FtpClientTests
 {
-    //private readonly Mock<IWebRequestUtility> webRequestUtility = new Mock<IWebRequestUtility>();
-
     [Fact]
     public async Task UploadThrowsError()
     {
@@ -43,28 +41,29 @@ public class FtpClientTests
 
         RouteAttributes route = new RouteAttributes($"ftp://test:banana@127.0.0.1/out&Delete=true&PollTime=1");
         From from = new From(route.Headers, webRequestUtility);
-        var thread = TestThread.CreateNew(from.StartAsync, 5);
+        var thread = TestThread.CreateDeferred();
         bool errorThrown = false;
         from.OnLog += (sender, e) =>
         {
             if (e.LogLevel == Microsoft.Extensions.Logging.LogLevel.Error)
             {
                 errorThrown = true;
-
+                thread.Continue();
             }
         };
 
         from.Setup();
+        thread.SetThread(from.StartAsync);
         thread.StartAndWait();
         Assert.True(errorThrown);
-        await Task.CompletedTask;
+        await thread.CancelAsync();
     }
 
     [Fact]
     public async Task DownloadFileErrors()
     {
-        var resetEvent = new AutoResetEvent(false);
         var webRequestUtility = Substitute.For<IWebRequestUtility>();
+        var thread = TestThread.CreateDeferred();
         webRequestUtility.GetDirectoryContents(default, default).ReturnsForAnyArgs(x =>
         {
             return Task.FromResult(new List<string>() { "file.txt" });
@@ -78,13 +77,15 @@ public class FtpClientTests
             if (e.LogLevel == Microsoft.Extensions.Logging.LogLevel.Error)
             {
                 errorThrown = true;
-                resetEvent.Set();
+                thread.Continue();
             }
         };
 
         from.Setup();
-        await from.StartAsync(default);
-        bool wasAssigned = resetEvent.WaitOne(TimeSpan.FromSeconds(5));
+        thread.SetThread(from.StartAsync);
+        thread.StartAndWait();
+        await from.StopAsync(thread.CancelToken);
+        await thread.CancelAsync();
         Assert.True(errorThrown);
 
     }
@@ -92,7 +93,7 @@ public class FtpClientTests
     [Fact]
     public async Task DeleteFileErrors()
     {
-        AutoResetEvent resetEvent = new AutoResetEvent(false);
+        var thread = TestThread.CreateDeferred();
         var webRequestUtility = Substitute.For<IWebRequestUtility>();
         webRequestUtility.GetDirectoryContents(default, default).ReturnsForAnyArgs(x =>
         {
@@ -107,13 +108,15 @@ public class FtpClientTests
             if (e.LogLevel == Microsoft.Extensions.Logging.LogLevel.Error)
             {
                 errorThrown = true;
-                resetEvent.Set();
+                thread.Continue();
             }
         };
 
         from.Setup();
-        await from.StartAsync(default);
-        bool wasAssigned = resetEvent.WaitOne(TimeSpan.FromSeconds(5));
+        thread.SetThread(from.StartAsync);
+        thread.StartAndWait();
+        await from.StopAsync(thread.CancelToken);
+        await thread.CancelAsync();
         Assert.True(errorThrown);
 
     }

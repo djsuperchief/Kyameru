@@ -28,6 +28,8 @@ namespace Kyameru.Component.Ftp
         private FtpClient ftp;
         private Timer poller;
 
+        private bool _isStopping = false;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="From"/> class.
         /// </summary>
@@ -69,7 +71,14 @@ namespace Kyameru.Component.Ftp
         /// <param name="e">Elapsed arguments.</param>
         private void Poller_Elapsed(object sender, ElapsedEventArgs e)
         {
-            ftp.Poll();
+            if (!_isStopping)
+            {
+                ftp.Poll();
+            }
+            else
+            {
+                poller.Stop();
+            }
         }
 
         /// <summary>
@@ -115,7 +124,10 @@ namespace Kyameru.Component.Ftp
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
+            _isStopping = true;
+            poller.AutoReset = false;
             poller.Stop();
+            poller.Enabled = false;
             await Task.CompletedTask;
         }
 
