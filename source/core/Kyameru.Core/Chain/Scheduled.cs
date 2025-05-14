@@ -91,6 +91,7 @@ namespace Kyameru.Core.Chain
             {
                 if (Utils.TimeProvider.Current.UtcNow >= scheduler.NextExecution)
                 {
+                    scheduler.Next(schedule);
                     logger.LogDebug("Scheduled chain executing...");
                     try
                     {
@@ -106,7 +107,7 @@ namespace Kyameru.Core.Chain
 
                     }
 
-                    scheduler.Next(schedule);
+
                 }
 
                 autoResetEvent.WaitOne(TimeSpan.FromSeconds(5));
