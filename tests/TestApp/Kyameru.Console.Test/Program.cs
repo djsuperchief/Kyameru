@@ -95,7 +95,7 @@ namespace Kyameru.Console.Test
             services.TryAddAwsService<IAmazonSimpleEmailService>();
             services.TryAddAwsService<IAmazonSQS>();
             services.TryAddAwsService<IAmazonS3>();
-            Kyameru.Route.From("sqs://kyameru-from")
+            Kyameru.Route.From("sqs://kyameru-ses-sender")
             .Process((Routable x) =>
             {
                 if (x.Body.ToString().Contains("dowhen"))
