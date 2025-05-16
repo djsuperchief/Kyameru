@@ -137,9 +137,16 @@ Every route can be assigned an Id specified by you or it will be assigned at ran
 
 This may help identify errors if you use several routes.
 
+### Bubble Errors
+By default Kyameru will handle and log any errors encountered during your routes processing. You can opt to have this error bubbled up to your application by adding `RaiseExceptions()` into your route.
+
 ### Error Route
 
 You can create an error processor `IErrorComponent` that will execute if the route encounters any errors. This gives you an opportunity to do any final processing on a message in the event the route encounters any errors.
+
+```
+.Error(MyErrorComponent)
+```
 
 ### Scheduling
 

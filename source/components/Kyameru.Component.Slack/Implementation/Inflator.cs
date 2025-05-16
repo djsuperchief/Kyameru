@@ -15,7 +15,6 @@ namespace Kyameru.Component.Slack
         /// Creates a from component.
         /// </summary>
         /// <param name="headers">Incoming headers.</param>]
-        /// <param name="isAtomic">value indicating whether the component is considered to be atomic.</param>
         /// <returns>Returns a new instance of a <see cref="IFromChainLink"/> class.</returns>
         public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
