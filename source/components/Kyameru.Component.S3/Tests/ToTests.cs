@@ -94,7 +94,7 @@ public class ToTests
         var expected = "MyBucket";
         var s3Client = Substitute.For<IAmazonS3>();
         var received = string.Empty;
-        s3Client.PutObjectAsync(Arg.Any<PutObjectRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        s3Client.PutObjectAsync(Arg.Any<PutObjectRequest>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
         {
             var request = (PutObjectRequest)x[0];
             var response = new PutObjectResponse()
@@ -174,7 +174,7 @@ public class ToTests
     {
         var s3Client = Substitute.For<IAmazonS3>();
 
-        s3Client.PutObjectAsync(Arg.Any<PutObjectRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        s3Client.PutObjectAsync(Arg.Any<PutObjectRequest>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
         {
             var request = (PutObjectRequest)x[0];
             var response = new PutObjectResponse()

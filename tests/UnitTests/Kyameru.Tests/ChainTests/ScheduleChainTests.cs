@@ -51,7 +51,7 @@ public class ScheduleChainTests
     {
         var serviceCollection = GetServiceDescriptors();
         var mockNext = Substitute.For<IProcessor>();
-        var thread = TestThread.CreateDeferred(100);
+        var thread = TestThread.CreateDeferred(20);
         Routable output = null;
         var simulatedTime = Substitute.For<ITimeProvider>();
         var testDate = new DateTime(2024, 01, 01, 9, 0, 0, DateTimeKind.Utc);

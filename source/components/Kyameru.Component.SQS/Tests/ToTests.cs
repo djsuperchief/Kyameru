@@ -19,7 +19,7 @@ public class ToTests
         var bodySame = false;
         var queueSame = false;
 
-        client.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        client.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
         {
             var message = x[0] as SendMessageRequest;
             bodySame = message!.MessageBody == expectedMessage;
@@ -44,7 +44,7 @@ public class ToTests
         routable.SetHeader("SQSQueue", queue);
         var receivedQueue = string.Empty;
 
-        client.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        client.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
         {
             receivedQueue = (x[0] as SendMessageRequest)!.QueueUrl;
             return new SendMessageResponse();
@@ -67,7 +67,7 @@ public class ToTests
         var bodySame = false;
         var queueSame = false;
 
-        client.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        client.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
         {
             var message = x[0] as SendMessageRequest;
             bodySame = message!.MessageBody == expectedMessage;
@@ -93,7 +93,7 @@ public class ToTests
         };
         var routable = new Routable(headers, "Data");
         var client = Substitute.For<IAmazonSQS>();
-        client.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        client.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
         {
             var request = x[0] as SendMessageRequest;
             receivedHeaders = request?.MessageAttributes.ToDictionary(x => x.Key, x => x.Value.StringValue);
@@ -125,7 +125,7 @@ public class ToTests
         var sqsClient = Substitute.For<IAmazonSQS>();
         var resetEvent = new AutoResetEvent(false);
         var receivedQueue = string.Empty;
-        sqsClient.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        sqsClient.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
         {
             receivedQueue = (x[0] as SendMessageRequest)!.QueueUrl;
             resetEvent.Set();
@@ -157,7 +157,7 @@ public class ToTests
         var sqsClient = Substitute.For<IAmazonSQS>();
         var resetEvent = new AutoResetEvent(false);
         var receivedQueue = string.Empty;
-        sqsClient.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        sqsClient.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
         {
             receivedQueue = (x[0] as SendMessageRequest)!.QueueUrl;
             resetEvent.Set();

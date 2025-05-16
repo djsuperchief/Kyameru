@@ -2,6 +2,7 @@ using Amazon.SQS;
 using Amazon.SQS.Model;
 using Kyameru.Component.Faker;
 using Kyameru.Core.Entities;
+using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,7 @@ public class FullTests
     public async Task ChainedToSyncWorksAsExpected()
     {
         var serviceCollection = GetServiceDescriptors();
+        var thread = TestThread.CreateDeferred();
         var routable = new Routable(new Dictionary<string, string>(), "Test");
         var extractor = Substitute.For<IExtractor>();
         extractor.When(x => x.SetRoutable(Arg.Any<Routable>())).Do(x =>
@@ -24,18 +26,21 @@ public class FullTests
         serviceCollection.AddTransient<IExtractor>(x => extractor);
         Kyameru.Route.From("faker://who/cares")
             .To("sqs://queue")
-            .To("faker://who/cares")
+            .To("faker://who/cares", x =>
+            {
+                thread.Continue();
+            })
             .Id("FakerSyncTest")
             .Build(serviceCollection);
 
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
-        IHostedService? service = provider.GetService<IHostedService>();
-        await service!.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
+        IHostedService service = provider.GetRequiredService<IHostedService>();
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
+        await service.StopAsync(thread.CancelToken);
+        await thread.CancelAsync();
 
         Assert.Equal("Faker Test", routable.Headers["SQSMessageId"]);
-
-        await Task.CompletedTask;
     }
 
 
@@ -44,9 +49,9 @@ public class FullTests
     {
         var expectedMessage = Guid.NewGuid().ToString("N");
         var serviceCollection = GetServiceDescriptors(expectedMessage);
+        var thread = TestThread.CreateDeferred();
         var routable = new Routable(new Dictionary<string, string>(), "Test");
         var extractor = Substitute.For<IExtractor>();
-        var syncEvent = new AutoResetEvent(false);
 
         extractor.When(x => x.SetRoutable(Arg.Any<Routable>())).Do(x =>
         {
@@ -55,14 +60,19 @@ public class FullTests
         serviceCollection.AddTransient<IExtractor>(x => extractor);
         Kyameru.Route.From("sqs://queue?PollTime=2")
             .To("sqs://queue")
-            .To("faker://who/cares")
+            .To("faker://who/cares", x =>
+            {
+                thread.Continue();
+            })
             .Id("FakerSyncTest")
             .Build(serviceCollection);
         IServiceProvider provider = serviceCollection.BuildServiceProvider();
-        IHostedService? service = provider.GetService<IHostedService>();
-        await service!.StartAsync(CancellationToken.None);
-        syncEvent.WaitOne(5000);
-        await service.StopAsync(CancellationToken.None);
+        IHostedService service = provider.GetRequiredService<IHostedService>();
+        thread.SetThread(service.StartAsync);
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
+        await service.StopAsync(thread.CancelToken);
+        await thread.CancelAsync();
 
         Assert.Equal("Faker Test", routable.Headers["SQSMessageId"]);
         Assert.Equal("MessageHeader", routable.Headers["Full Test"]);
@@ -76,7 +86,7 @@ public class FullTests
         {
             { message }
         };
-        sqsClient.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
+        sqsClient.SendMessageAsync(Arg.Any<SendMessageRequest>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
         {
             var response = new SendMessageResponse();
             response.MessageId = "Faker Test";
@@ -85,7 +95,7 @@ public class FullTests
             return response;
         });
 
-        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).Returns(x =>
+        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).ReturnsForAnyArgs(x =>
         {
             if (messages.Count > 0)
             {
