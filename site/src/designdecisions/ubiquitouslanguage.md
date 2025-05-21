@@ -19,14 +19,17 @@ I need to be more consistent through code and through documentation to make sure
 ### Route
 `Route` is the name of what you create to take a message from a starting point to its eventual end point. A `Route` consists of Components, chains and a Routable message.
 
-### Chain
-A `Chain` referrs to a piece of a component that does processing. So `From`, `To`, `Scheduled`, `Processing` are all chains and processing is passed from one chain to the next (called because this framework is based on the design pattern `Chain Of Responsibility`).
-
 ### Component
 A `Component` is what you pull in to use as part of your `Route`. A component may be something like S3 or SQS.
 
-### Routable
-`Routable` refers to the message passed between chains that is the core of the processing.
+### Chain Link
+A `Chain Link` refers to the implementation of the `From` or `To` parts of a component. So a component contains `Chain Links` that in turn are consumed by `Chains` in the core library.
 
-## Next Steps
-Update...well...everything...eep.
+### Chain
+A `Chain` is the fundemental implementation of the Chain Of Responsibility pattern. Each chain passes execution through to the next (depending on your `Route` setup) until the last in the chain.
+
+### Processor
+A `Processor` refers to any object or class acting directly on a `Routable` message. Even though the `Process` part of the a Route is executed in a chain, because it is optional it is more of a processor than a `Chain Link`.
+
+### Routable
+The `Routable` is the data passed from one `Chain` to another. This data is updated as it goes through each `Chain` and `Processor`.

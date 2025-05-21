@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -15,6 +16,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Injectiontest", "tests\UnitTests\Kyameru.Component.Injectiontest\Kyameru.Component.Injectiontest.csproj", "{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Core", "source\core\Kyameru.Core\Kyameru.Core.csproj", "{5533BCC2-1320-4CB5-B8B2-AFB467CE6264}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.TestUtilities", "tests\Shared\Kyameru.TestUtilities\Kyameru.TestUtilities.csproj", "{32DD1A48-8F90-482E-B5D9-8AA6D5CEFAEF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Generic", "tests\UnitTests\Kyameru.Component.Generic\Kyameru.Component.Generic.csproj", "{1F4D5D77-C3AF-42F1-A743-2EFC5C7C9F64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +47,14 @@ Global
 		{5533BCC2-1320-4CB5-B8B2-AFB467CE6264}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5533BCC2-1320-4CB5-B8B2-AFB467CE6264}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5533BCC2-1320-4CB5-B8B2-AFB467CE6264}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32DD1A48-8F90-482E-B5D9-8AA6D5CEFAEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32DD1A48-8F90-482E-B5D9-8AA6D5CEFAEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32DD1A48-8F90-482E-B5D9-8AA6D5CEFAEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32DD1A48-8F90-482E-B5D9-8AA6D5CEFAEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F4D5D77-C3AF-42F1-A743-2EFC5C7C9F64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F4D5D77-C3AF-42F1-A743-2EFC5C7C9F64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F4D5D77-C3AF-42F1-A743-2EFC5C7C9F64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F4D5D77-C3AF-42F1-A743-2EFC5C7C9F64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,6 +65,8 @@ Global
 		{DC1BDE5F-794F-4E27-B73D-10CD22E5CEC8} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
 		{3F2B47A7-58A3-4D56-9D37-9E6E7A7492AA} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
 		{5533BCC2-1320-4CB5-B8B2-AFB467CE6264} = {48E13342-E35A-462A-8BAF-28A34398D495}
+		{32DD1A48-8F90-482E-B5D9-8AA6D5CEFAEF} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
+		{1F4D5D77-C3AF-42F1-A743-2EFC5C7C9F64} = {DFAF0CC4-8340-4D1F-895A-5C49BFB2344F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {86AAF1E5-3D43-424B-9101-A04C77A0D14F}

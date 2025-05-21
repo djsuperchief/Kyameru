@@ -8,7 +8,7 @@ parent: Components
 
 The Ftp component provides a very simple poller, downloader and uploader for Ftp files. It currently can only pull from a single specified directory.
 
-## Routes
+## Chain Links
 
 {: .label .label-green}
 FROM
@@ -38,7 +38,7 @@ Kyameru.Route.From("ftp://test@127.0.0.1&PollTime=5000&Filter=50000&Delete=true)
 
 ### To
 
-The To route is (as expected) the route that sends a file or body data packet to the Ftp endpoint.
+The To chain link is (as expected) the chain that sends a file or body data packet to the Ftp endpoint.
 
 #### Headers
 

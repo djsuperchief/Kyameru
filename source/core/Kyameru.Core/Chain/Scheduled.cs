@@ -18,7 +18,7 @@ namespace Kyameru.Core.Chain
         /// <summary>
         /// Main from component.
         /// </summary>
-        private readonly IScheduleComponent fromComponent;
+        private readonly IScheduleChainLink fromComponent;
 
         /// <summary>
         /// Next processing component.
@@ -59,15 +59,13 @@ namespace Kyameru.Core.Chain
         /// <param name="next">Next component in the chain.</param>
         /// <param name="logger">Logger.</param>
         /// <param name="id">Route Id.</param>
-        /// <param name="isAtomicRoute">Obsolete (maybe).</param>
         /// <param name="raiseExceptions">Value indicating whether the route should bubble exceptions.</param>
         /// <param name="targetedSchedule">Targeted schedule</param>
         public Scheduled(
-            IScheduleComponent fromComponent,
+            IScheduleChainLink fromComponent,
             IChain<Routable> next,
             ILogger logger,
             string id,
-            bool isAtomicRoute,
             bool raiseExceptions,
             Schedule targetedSchedule)
         {
@@ -77,7 +75,6 @@ namespace Kyameru.Core.Chain
             this.logger = logger;
             this.fromComponent.OnLog += FromComponent_OnLog;
             identity = id;
-            //IsAtomicRoute = ;
             fromComponent.OnActionAsync += FromComponent_OnActionAsync;
             this.raiseExceptions = raiseExceptions;
             schedule = targetedSchedule;
@@ -94,6 +91,7 @@ namespace Kyameru.Core.Chain
             {
                 if (Utils.TimeProvider.Current.UtcNow >= scheduler.NextExecution)
                 {
+                    scheduler.Next(schedule);
                     logger.LogDebug("Scheduled chain executing...");
                     try
                     {
@@ -109,7 +107,7 @@ namespace Kyameru.Core.Chain
 
                     }
 
-                    scheduler.Next(schedule);
+
                 }
 
                 autoResetEvent.WaitOne(TimeSpan.FromSeconds(5));

@@ -1,15 +1,15 @@
 ﻿using Kyameru.Component.Ftp.Contracts;
 using Kyameru.Component.Ftp.Settings;
 using Kyameru.Core.Entities;
-using Moq;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Kyameru.Core;
 using Kyameru.Core.Sys;
 using Xunit;
 using System;
+using NSubstitute;
+using Kyameru.TestUtilities;
 
 namespace Kyameru.Component.Ftp.Tests.Routes
 {
@@ -20,71 +20,78 @@ namespace Kyameru.Component.Ftp.Tests.Routes
         [InlineData(false)]
         public async Task FromDownloadsAndDeletes(bool deletes)
         {
-            var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-            Mock<IWebRequestUtility> webRequestFactory = this.GetWebRequest();
-            AutoResetEvent autoReset = new AutoResetEvent(false);
-            Times times = Times.Never();
+            var thread = TestThread.CreateDeferred();
+            var webRequestFactory = this.GetWebRequest();
+            webRequestFactory.ClearReceivedCalls();
+            var times = 0;
             if (deletes)
             {
-                times = Times.Once();
+                times = 1;
             }
-
-            webRequestFactory.Setup(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>(), It.IsAny<CancellationToken>())).Returns(async (FtpSettings x, string y, bool z, CancellationToken c) =>
+            webRequestFactory.DeleteFile(default, "Test.txt", default, default).Returns(x =>
             {
-                await Task.CompletedTask;
+                return Task.CompletedTask;
             });
-            From from = new From(this.GetRoute(deletes).Headers, webRequestFactory.Object);
+
+            var from = new From(this.GetRoute(deletes).Headers, webRequestFactory);
             Routable routable = null;
 
+            from.Setup();
             from.OnActionAsync += delegate (object sender, RoutableEventData e)
             {
                 routable = e.Data;
                 routable.SetHeader("&Method", "ASYNC");
+                thread.Continue();
                 return Task.CompletedTask;
             };
-            from.Setup();
-            var thread = new Thread(async () =>
-            {
-                await from.StartAsync(tokenSource.Token);
-            });
 
-            thread.Start();
-            autoReset.WaitOne(TimeSpan.FromSeconds(5));
-            tokenSource.Cancel();
-
-            // possible the crash is being caused by 
+            thread.SetThread(from.StartAsync);
+            thread.StartAndWait();
+            await from.StopAsync(thread.CancelToken);
+            await thread.CancelAsync();
 
             Assert.Equal("Hello ftp", Encoding.UTF8.GetString((byte[])routable.Body));
-            webRequestFactory.Verify(x => x.DeleteFile(It.IsAny<FtpSettings>(), "Test.txt", It.IsAny<bool>(), It.IsAny<CancellationToken>()), times);
+            if (deletes)
+            {
+                await webRequestFactory.Received().DeleteFile(Arg.Any<FtpSettings>(), "Test.txt", Arg.Any<bool>(), Arg.Any<CancellationToken>());
+            }
+            else
+            {
+                await webRequestFactory.DidNotReceive().DeleteFile(Arg.Any<FtpSettings>(), "Test.txt", Arg.Any<bool>(), Arg.Any<CancellationToken>());
+            }
 
-            await from.StopAsync(tokenSource.Token);
             Assert.Equal("ASYNC", routable.Headers["Method"]);
-
-            Assert.False(from.PollerIsActive);
-
         }
 
         [Fact]
         public void WebRequestLogIsHandled()
         {
             bool hasLogged = false;
-            Mock<IWebRequestUtility> webRequestFactory = this.GetWebRequest();
-            From from = new From(this.GetRoute(false).Headers, webRequestFactory.Object);
+            var webRequestFactory = this.GetWebRequest();
+            From from = new From(this.GetRoute(false).Headers, webRequestFactory);
             from.Setup();
             from.OnLog += (object sender, Log e) =>
             {
                 hasLogged = true;
             };
+            webRequestFactory.OnLog += Raise.Event<EventHandler<string>>(this, "test");
 
-            webRequestFactory.Raise(x => x.OnLog += null, this, "test");
             Assert.True(hasLogged);
         }
 
-        public Mock<IWebRequestUtility> GetWebRequest()
+        public IWebRequestUtility GetWebRequest()
         {
-            Mock<IWebRequestUtility> response = new Mock<IWebRequestUtility>();
-            response.Setup(x => x.DownloadFile("Test.txt", It.IsAny<FtpSettings>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(Encoding.UTF8.GetBytes("Hello ftp")));
-            response.Setup(x => x.GetDirectoryContents(It.IsAny<FtpSettings>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(new List<string>() { "Test.txt" }));
+            var response = Substitute.For<IWebRequestUtility>();
+            response.DownloadFile("Test.txt", Arg.Any<FtpSettings>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
+            {
+                return Task.FromResult(Encoding.UTF8.GetBytes("Hello ftp"));
+            });
+
+            response.GetDirectoryContents(default, default).ReturnsForAnyArgs(x =>
+            {
+                return Task.FromResult(new List<string>() { "Test.txt" });
+            });
+
             return response;
         }
 

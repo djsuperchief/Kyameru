@@ -6,9 +6,9 @@ parent: Components
 
 # Overview
 
-The file component provides both FROM and TO routes to allow you to watch a folder for changes and also to write a file to a location.
+The file component provides both FROM and TO chain links to allow you to watch a folder for changes and also to write a file to a location.
 
-## Routes
+## Chain Links
 
 {: .label .label-green}
 FROM
@@ -56,7 +56,7 @@ Kyameru.Route.From("file:///C:/Temp?Notifications=Created&SubDirectories=true&Fi
 
 ### To
 
-The to component does a couple of very simple actions:
+The to chain link does a couple of very simple actions:
 
 * Moves the picked up source file
 * Copies the picked up source file

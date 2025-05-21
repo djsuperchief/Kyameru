@@ -7,7 +7,7 @@ namespace Kyameru.Core.Contracts
     /// Conditional route decision component.
     /// </summary>
     /// <remarks>This is used in conditions that are specified by configuration.</remarks>
-    public interface IConditionalComponent
+    public interface IConditionalProcessor
     {
         /// <summary>
         /// Executes the conditional requirements to indicate if the To component should execute.

@@ -37,15 +37,8 @@ What is important is each of the declared components sit within a core Chain obj
 
 If at any point the Routable message is deemed to be in error, all processing stops and the only component that continues to process is an Error component that is entirely optional.
 
-### Atomicity
-#### Atomic Option
-Currently under construction, each route can be configured to be atomic. The From component is responsible for the atomic nature of the route for insance if you use the Ftp component and specify that it needs to be atomic, it will not delete the downloaded file from the Ftp server until the To component executes successfully.
-
-#### Current Atomicity.
-Each component is considered atomic as opposed to the entire route. The engineer is expected to be able to handle failures through the use of the Error component to ensure the route is atomic. The reason for this is that a From component cannot assume what the end To component will do and as such cannot assume what action needs to be taken.
-
 #### FTP Example
-For instance an FTP download will download a file to a temporary location to be processed. Whilst it can assume some sort of processing on the data of that file will happen it is not known what the end state of the file will be. The FTP component will clean up after itself but it is up to the engineer to decide if any processing failed on the file, what should they do with the temporary file downloaded? Should they move it to an error folder? As far as the FTP component is concerned, its job was to download the file, delete the source and raise the internal message for processing. Its process has been atomic and it now plays no further part in the processing of the file.
+For instance an FTP download will download a file to a temporary location to be processed. Whilst it can assume some sort of processing on the data of that file will happen it is not known what the end state of the file will be. The FTP component will clean up after itself but it is up to the engineer to decide if any processing failed on the file, what should they do with the temporary file downloaded? Should they move it to an error folder? As far as the FTP component is concerned, its job was to download the file, delete the source and raise the internal message for processing.
 
 ## Basic Syntax
 ### URI Format

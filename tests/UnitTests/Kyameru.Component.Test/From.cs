@@ -11,7 +11,7 @@ using Kyameru.Core.Sys;
 
 namespace Kyameru.Component.Test
 {
-    public class From : IFromComponent
+    public class From : IFromChainLink
     {
         public event EventHandler<Log> OnLog;
         public event AsyncEventHandler<RoutableEventData> OnActionAsync;

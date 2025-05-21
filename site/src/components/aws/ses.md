@@ -9,7 +9,7 @@ permalink: /components/aws/ses
 # AWS SES
 ## Overview
 
-The AWS SES component provides a TO route allowing you to send messages to the Simple Email Services.
+The AWS SES component provides a TO chain link allowing you to send messages to the Simple Email Services.
 
 {: .note }
 > The component currently uses V1 of the SES API. V2 will be implemented at a later date and will be available as a header.

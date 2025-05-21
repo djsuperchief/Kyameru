@@ -28,8 +28,12 @@ public class SqsFrom(IAmazonSQS client) : IFrom
 
     private System.Timers.Timer poller = new();
 
-    private string queue;
+    private string queue = string.Empty;
     private int pollTime;
+
+    private CancellationToken _cancellationToken;
+
+    private bool isStopping = false;
 
     public void Setup()
     {
@@ -42,11 +46,19 @@ public class SqsFrom(IAmazonSQS client) : IFrom
 
     private async void Poller_Elapsed(object sender, ElapsedEventArgs e)
     {
-        await Process(default);
+        if (!isStopping)
+        {
+            await Process(_cancellationToken);
+        }
+        else
+        {
+            poller.Stop();
+        }
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        _cancellationToken = cancellationToken;
         Log(LogLevel.Information, string.Format(Resources.INFORMATION_SCANSTART, queue));
         poller.Start();
         await Process(cancellationToken); // Perform an initial scan.
@@ -55,6 +67,7 @@ public class SqsFrom(IAmazonSQS client) : IFrom
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
+        isStopping = true; // safety to stop processing.
         poller.Stop();
         poller.Elapsed -= Poller_Elapsed;
 

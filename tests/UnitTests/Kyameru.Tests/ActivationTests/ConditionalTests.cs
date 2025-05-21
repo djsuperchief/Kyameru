@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core;
 using Kyameru.Core.Entities;
 using Kyameru.Tests.Mocks;
+using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using Xunit;
 
 namespace Kyameru.Tests.ActivationTests;
@@ -57,9 +56,9 @@ public class ConditionalTests
     public void WhenRegistersWithPostProcessingConcrete()
     {
         var routable = new Routable(new System.Collections.Generic.Dictionary<string, string>(), string.Empty);
-        var concrete = new Mock<IProcessComponent>();
+        var concrete = Substitute.For<IProcessor>();
         var builder = Kyameru.Route.From("test://test")
-        .When((Routable x) => x.Body.ToString() == "Test", "testto://test", concrete.Object);
+        .When((Routable x) => x.Body.ToString() == "Test", "testto://test", concrete);
         Assert.Equal(1, builder.ToComponentCount);
     }
 
@@ -67,7 +66,6 @@ public class ConditionalTests
     public void WhenRegistersWithPostProcessingDi()
     {
         var routable = new Routable(new System.Collections.Generic.Dictionary<string, string>(), string.Empty);
-        var concrete = new Mock<IProcessComponent>();
         var builder = Kyameru.Route.From("test://test")
         .When<IMyComponent>((Routable x) => x.Body.ToString() == "Test", "testto://test");
         Assert.Equal(1, builder.ToComponentCount);
@@ -77,7 +75,6 @@ public class ConditionalTests
     public void WhenRegistersWithPostProcessingReflection()
     {
         var routable = new Routable(new System.Collections.Generic.Dictionary<string, string>(), string.Empty);
-        var concrete = new Mock<IProcessComponent>();
         var builder = Kyameru.Route.From("test://test")
         .When((Routable x) => x.Body.ToString() == "Test", "testto://test", "MyComponent");
         Assert.Equal(1, builder.ToComponentCount);
@@ -87,7 +84,6 @@ public class ConditionalTests
     public void WhenReflectionRegisters()
     {
         var routable = new Routable(new System.Collections.Generic.Dictionary<string, string>(), string.Empty);
-        var concrete = new Mock<IProcessComponent>();
         var builder = Kyameru.Route.From("test://test")
         .When("ConditionalComponent", "testto://test");
         Assert.Equal(1, builder.ToComponentCount);
@@ -112,10 +108,9 @@ public class ConditionalTests
     [Fact]
     public async Task WhenComponentExecutesSuccessfully()
     {
-        // Component used with config when condition.
-        var executed = false;
         var serviceDescriptors = BuildServices();
         var routable = new Routable(new Dictionary<string, string>(), "Nothing");
+        var thread = TestThread.CreateDeferred(5);
         Route.From("test://test?TestName=WhenComponentExecutes")
         .Process((Routable x) =>
         {
@@ -125,14 +120,14 @@ public class ConditionalTests
         .To("test://test", x =>
         {
             routable = x;
+            thread.Continue();
         })
         .Build(serviceDescriptors);
-        IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
-        IHostedService service = provider.GetService<IHostedService>();
-        var thread = TestThread.CreateNew(service.StartAsync, 5);  //TestThreading.GetExecutionThread(service.StartAsync, 5);
-        thread.Start();
-        thread.WaitForExecution();
-        await thread.Cancel();
+        var provider = serviceDescriptors.BuildServiceProvider();
+        var service = provider.GetService<IHostedService>();
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
+        await thread.CancelAsync();
         Assert.True(routable.Headers.TryGetValue("CondComp", string.Empty) == "true");
     }
 
@@ -143,6 +138,7 @@ public class ConditionalTests
     {
         var executed = false;
         var serviceDescriptors = BuildServices();
+        var thread = TestThread.CreateDeferred(2);
         Route.From("test://test?TestName=WhenConditionExecutes")
         .Process((Routable x) =>
         {
@@ -151,13 +147,15 @@ public class ConditionalTests
         .When(x => x.Body.ToString() == "Test", "test://test", (Routable x) =>
         {
             executed = x.Headers.TryGetValue("ToExecuted", string.Empty) == "true";
+            thread.Continue();
         })
         .Build(serviceDescriptors);
 
-        IServiceProvider provider = serviceDescriptors.BuildServiceProvider();
-        IHostedService service = provider.GetService<IHostedService>();
-        await service.StartAsync(CancellationToken.None);
-        await service.StopAsync(CancellationToken.None);
+        var provider = serviceDescriptors.BuildServiceProvider();
+        var service = provider.GetService<IHostedService>();
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
+        await thread.CancelAsync();
 
         Assert.Equal(expected, executed);
 
@@ -165,11 +163,11 @@ public class ConditionalTests
 
     private IServiceCollection BuildServices()
     {
-        var logger = new Mock<ILogger<Route>>();
+        var logger = Substitute.For<ILogger<Route>>();
         IServiceCollection serviceCollection = new ServiceCollection();
         serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
         {
-            return logger.Object;
+            return logger;
         });
         serviceCollection.AddTransient<Mocks.IMyComponent, Mocks.MyComponent>();
 

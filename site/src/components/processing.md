@@ -2,21 +2,21 @@
 layout: page
 parent: Components
 nav_order: 1
-title: Processing Component
+title: Processor
 ---
 
 # Overview
 
-The processing component is the part designed for you to build. It is the part of the route that you decide what extra logic to apply to the routable message. For instance, if you pick up a file using the File component, then you could develop a processing component to read the file, apply some headers to the message and then write out to SQS.
-The processing components are for you to write any way you like.
+The processor is the part designed for you to build. It is the part of the route that you decide what extra logic to apply to the routable message. For instance, if you pick up a file using the File component, then you could develop a processor to read the file, apply some headers to the message and then write out to SQS.
+The processor is for you to write any way you like.
 
-# Component order
+# Execution Order
 
-The order in which you add your processing components is the order in which they will be executed. Once it has been defined in the route, it cannot be changed.
+The order in which you add your processors is the order in which they will be executed. Once it has been defined in the route, it cannot be changed.
 
 # Execution Type
 
-There are five ways in which to add a processing component:
+There are five ways in which to add a processor:
 
 - Concrete type
 - Dependency Injection
@@ -26,7 +26,7 @@ There are five ways in which to add a processing component:
 
 ## General Rules
 
-Any processing component class you create must inherit from the `IProcessComponent` interface in order to be correctly added to the route.
+Any processor class you create must inherit from the `IProcessor` interface in order to be correctly added to the route.
 
 ## Concrete Type
 

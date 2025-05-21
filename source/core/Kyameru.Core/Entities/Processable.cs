@@ -35,7 +35,7 @@ namespace Kyameru.Core.Entities
             /// Action delegate execution
             /// </summary>
             ActionDelegate,
-            
+
             /// <summary>
             /// Async function delegate
             /// </summary>
@@ -46,7 +46,7 @@ namespace Kyameru.Core.Entities
         /// Initializes a new instance of the <see cref="Processable"/> class.
         /// </summary>
         /// <param name="target">Target component.</param>
-        protected Processable(IProcessComponent target)
+        protected Processable(IProcessor target)
         {
             Invocation = InvocationType.Concrete;
             Component = target;
@@ -106,7 +106,7 @@ namespace Kyameru.Core.Entities
         /// <summary>
         /// Gets the component.
         /// </summary>
-        public IProcessComponent Component { get; private set; }
+        public IProcessor Component { get; private set; }
 
         /// <summary>
         /// Gets the component type name if creation is reflection.
@@ -118,7 +118,7 @@ namespace Kyameru.Core.Entities
         /// </summary>
         /// <typeparam name="T">Type of component.</typeparam>
         /// <returns>Returns an instance of the <see cref="Processable"/> class.</returns>
-        public static Processable Create<T>() where T : IProcessComponent
+        public static Processable Create<T>() where T : IProcessor
         {
             return new Processable(typeof(T));
         }
@@ -128,7 +128,7 @@ namespace Kyameru.Core.Entities
         /// </summary>
         /// <param name="component">Concrete component.</param>
         /// <returns>Returns an instance of the <see cref="Processable"/> class.</returns>
-        public static Processable Create(IProcessComponent component)
+        public static Processable Create(IProcessor component)
         {
             return new Processable(component);
         }
@@ -170,8 +170,8 @@ namespace Kyameru.Core.Entities
         /// </summary>
         /// <param name="provider">DI Service Provider.</param>
         /// <param name="hostAssembly">Host assembly namespace.</param>
-        /// <returns>Returns an instance of the <see cref="IProcessComponent"/> class.</returns>
-        public IProcessComponent GetComponent(IServiceProvider provider, Assembly hostAssembly)
+        /// <returns>Returns an instance of the <see cref="IProcessor"/> class.</returns>
+        public IProcessor GetComponent(IServiceProvider provider, Assembly hostAssembly)
         {
             switch (Invocation)
             {
@@ -180,7 +180,7 @@ namespace Kyameru.Core.Entities
                 case InvocationType.FuncDelegate:
                     return Component;
                 case InvocationType.DI:
-                    return (IProcessComponent)provider.GetService(ComponentType);
+                    return (IProcessor)provider.GetService(ComponentType);
                 case InvocationType.Reflection:
                     return GetReflectedComponent(ComponentTypeName, hostAssembly);
             }
@@ -188,12 +188,12 @@ namespace Kyameru.Core.Entities
             throw new ComponentException(Resources.ERROR_SETUP_COMPONENT_INVOCATION);
         }
 
-        private IProcessComponent GetReflectedComponent(string componentTypeName, Assembly hostAssembly)
+        private IProcessor GetReflectedComponent(string componentTypeName, Assembly hostAssembly)
         {
             var componentName = string.Concat(hostAssembly.FullName.Split(',')[0], ".", componentTypeName);
             Type componentType = hostAssembly.GetType(componentName);
 
-            return Activator.CreateInstance(componentType) as IProcessComponent;
+            return Activator.CreateInstance(componentType) as IProcessor;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Kyameru.Core.Contracts
     /// <summary>
     /// From Component.
     /// </summary>
-    public interface IFromComponent : IComponent
+    public interface IFromChainLink : IComponent
     {
         /// <summary>
         /// Event raised to trigger processing the chain async.

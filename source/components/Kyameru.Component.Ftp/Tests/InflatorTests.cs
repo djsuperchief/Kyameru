@@ -1,79 +1,65 @@
-﻿using Kyameru.Component.Ftp.Contracts;
-using Kyameru.Core;
-using Kyameru.Core.Contracts;
+﻿using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Moq;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Kyameru.Core.Exceptions;
 using Xunit;
+using NSubstitute;
 
-namespace Kyameru.Component.Ftp.Tests
+namespace Kyameru.Component.Ftp.Tests;
+
+public class InflatorTests
 {
-    public class InflatorTests
+    [Fact]
+    public void ActivateFromWorks()
     {
-        private readonly Mock<ILogger<Kyameru.Route>> logger = new Mock<ILogger<Route>>();
+        IServiceProvider serviceProvider = this.GetServiceProvider();
+        IFromChainLink fromComponent = new Ftp.Inflator().CreateFromComponent(this.GetHeaders(), serviceProvider);
+        Assert.NotNull(fromComponent);
+    }
 
+    [Fact]
+    public void ActivateToWorks()
+    {
+        IServiceProvider serviceProvider = this.GetServiceProvider();
+        IToChainLink toComponent = new Ftp.Inflator().CreateToComponent(this.GetHeaders(), serviceProvider);
+        Assert.NotNull(toComponent);
+    }
 
-        [Fact]
-        public void ActivateFromWorks()
+    private Dictionary<string, string> GetHeaders()
+    {
+        return new Dictionary<string, string>()
         {
-            IServiceProvider serviceProvider = this.GetServiceProvider();
-            IFromComponent fromComponent = new Ftp.Inflator().CreateFromComponent(this.GetHeaders(), false, serviceProvider);
-            Assert.NotNull(fromComponent);
-        }
+            { "Host", "127.0.0.1" },
+            { "Target", "Test" },
+            { "Port", "21" },
+            { "PollTime", "1" },
+            { "Filter", "*" },
+            { "UserName", "test" },
+            { "Recursive", "true" },
+            { "Delete", "false" },
+        };
+    }
 
-        [Fact]
-        public void AtomicThrows()
+
+    private IServiceCollection GetServiceDescriptors()
+    {
+        IServiceCollection serviceDescriptors = new ServiceCollection();
+        serviceDescriptors.AddTransient<ILogger<Kyameru.Route>>(sp =>
         {
-            IServiceProvider serviceProvider = this.GetServiceProvider();
-            Assert.Throws<RouteNotAvailableException>(() => new Ftp.Inflator().CreateAtomicComponent(this.GetHeaders()));
-        }
+            return Substitute.For<ILogger<Route>>();
+        });
 
-        [Fact]
-        public void ActivateToWorks()
-        {
-            IServiceProvider serviceProvider = this.GetServiceProvider();
-            IToComponent toComponent = new Ftp.Inflator().CreateToComponent(this.GetHeaders(), serviceProvider);
-            Assert.NotNull(toComponent);
-        }
+        Inflator inflator = new Inflator();
+        inflator.RegisterTo(serviceDescriptors);
+        inflator.RegisterFrom(serviceDescriptors);
 
-        private Dictionary<string, string> GetHeaders()
-        {
-            return new Dictionary<string, string>()
-            {
-                { "Host", "127.0.0.1" },
-                { "Target", "Test" },
-                { "Port", "21" },
-                { "PollTime", "1" },
-                { "Filter", "*" },
-                { "UserName", "test" },
-                { "Recursive", "true" },
-                { "Delete", "false" },
-            };
-        }
+        return serviceDescriptors;
+    }
 
-
-        private IServiceCollection GetServiceDescriptors()
-        {
-            IServiceCollection serviceDescriptors = new ServiceCollection();
-            serviceDescriptors.AddTransient<ILogger<Kyameru.Route>>(sp =>
-            {
-                return this.logger.Object;
-            });
-
-            Inflator inflator = new Inflator();
-            inflator.RegisterTo(serviceDescriptors);
-            inflator.RegisterFrom(serviceDescriptors);
-
-            return serviceDescriptors;
-        }
-
-        private IServiceProvider GetServiceProvider()
-        {
-            return this.GetServiceDescriptors().BuildServiceProvider();
-        }
+    private IServiceProvider GetServiceProvider()
+    {
+        return this.GetServiceDescriptors().BuildServiceProvider();
     }
 }

@@ -133,7 +133,7 @@ public class SesToTests
             var request = x[0] as SendEmailRequest;
             response.HttpStatusCode = System.Net.HttpStatusCode.OK;
             response.ResponseMetadata = new Amazon.Runtime.ResponseMetadata();
-            response.ResponseMetadata.Metadata.Add("Test-To", string.Join(",", request.Destination.ToAddresses));
+            response.ResponseMetadata.Metadata.Add("Test-To", string.Join(",", request!.Destination.ToAddresses));
             response.ResponseMetadata.Metadata.Add("Test-From", string.Join(",", request.Source));
 
 
@@ -149,7 +149,7 @@ public class SesToTests
             var request = x[0] as SendTemplatedEmailRequest;
             response.HttpStatusCode = System.Net.HttpStatusCode.OK;
             response.ResponseMetadata = new Amazon.Runtime.ResponseMetadata();
-            response.ResponseMetadata.Metadata.Add("Test-To", string.Join(",", request.Destination.ToAddresses));
+            response.ResponseMetadata.Metadata.Add("Test-To", string.Join(",", request!.Destination.ToAddresses));
             response.ResponseMetadata.Metadata.Add("Test-From", string.Join(",", request.Source));
 
             return response;

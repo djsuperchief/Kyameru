@@ -1,46 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Xunit;
 
-namespace Kyameru.Component.File.Tests
+namespace Kyameru.Component.File.Tests;
+
+public class ConfigTests
 {
-    public class ConfigTests
+    private string[] optionalFrom = new string[] { "Filter", "SubDirectories", "InitialScan", "Ignore", "IgnoreStrings" };
+
+    [Fact]
+    public void FromDefaultsWork()
     {
-        private string[] optionalFrom = new string[] { "Filter", "SubDirectories", "InitialScan", "Ignore", "IgnoreStrings" };
-
-        [Fact]
-        public void FromDefaultsWork()
+        var headers = new Dictionary<string, string>()
         {
-            Dictionary<string, string> headers = new Dictionary<string, string>()
-            {
-                { "Target", "/test" },
-                { "Notifications", "Added" }
-            };
+            { "Target", "/test" },
+            { "Notifications", "Added" }
+        };
 
-            Dictionary<string, string> resolved = headers.ToFromConfig();
-            Assert.True(this.ValidateFromHeaders(resolved));
+        var resolved = headers.ToFromConfig();
+        Assert.True(ValidateFromHeaders(resolved));
+    }
+
+
+    private bool ValidateFromHeaders(Dictionary<string, string> resolved)
+    {
+        var response = true;
+
+        if (resolved.Count != 7)
+        {
+            return false;
         }
 
-
-        private bool ValidateFromHeaders(Dictionary<string, string> resolved)
+        for (int i = 0; i < optionalFrom.Length; i++)
         {
-            bool response = true;
-
-            if(resolved.Count != 7)
+            if (!resolved.ContainsKey(optionalFrom[i]))
             {
-                return false;
+                response = false;
+                break;
             }
-
-            for(int i = 0; i < optionalFrom.Length; i++)
-            {
-                if(!resolved.ContainsKey(optionalFrom[i]))
-                {
-                    response = false;
-                    break;
-                }
-            }
-
-            return response;
         }
+
+        return response;
     }
 }

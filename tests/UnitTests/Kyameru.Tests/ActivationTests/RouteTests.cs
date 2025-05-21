@@ -1,26 +1,17 @@
 ﻿using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Enums;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using NSubstitute;
 using Xunit;
 
 namespace Kyameru.Tests.ActivationTests
 {
     public class RouteTests
     {
-        private readonly Mock<IErrorComponent> errorComponent = new Mock<IErrorComponent>();
-        private readonly Mock<IProcessComponent> processingComponent = new Mock<IProcessComponent>();
-
         [Fact]
         public void CanAddHeader()
         {
-            Core.RouteBuilder route = this.CreateRoute();
+            var route = this.CreateRoute();
             route.AddHeader("Test", "Test");
             Assert.True(route.ComponentCount == 1);
         }
@@ -28,7 +19,7 @@ namespace Kyameru.Tests.ActivationTests
         [Fact]
         public void CanAddHeaderAction()
         {
-            Core.RouteBuilder route = this.CreateRoute();
+            var route = this.CreateRoute();
             route.AddHeader("Test", (x) =>
             {
                 return x.Headers["Target"];
@@ -39,7 +30,7 @@ namespace Kyameru.Tests.ActivationTests
         [Fact]
         public void CanAddHeaderActionTwo()
         {
-            Core.RouteBuilder route = this.CreateRoute();
+            var route = this.CreateRoute();
             route.AddHeader("Test", () =>
             {
                 return "World";
@@ -50,8 +41,9 @@ namespace Kyameru.Tests.ActivationTests
         [Fact]
         public void CanAddProcessingComponent()
         {
-            Core.RouteBuilder route = this.CreateRoute();
-            route.Process(this.processingComponent.Object);
+            var processingComponent = Substitute.For<IProcessor>();
+            var route = this.CreateRoute();
+            route.Process(processingComponent);
             Assert.True(route.ComponentCount == 1);
         }
 
@@ -69,14 +61,14 @@ namespace Kyameru.Tests.ActivationTests
         [Fact]
         public void CanCreateTo()
         {
-            Core.Builder builder = this.CreateTo(this.CreateRoute());
+            var builder = this.CreateTo(this.CreateRoute());
             Assert.True(builder.ToComponentCount == 1);
         }
 
         [Fact]
         public void CanChainTwoTo()
         {
-            Core.Builder builder = this.CreateTo(this.CreateRoute());
+            var builder = this.CreateTo(this.CreateRoute());
             builder.To("test://world?myHeader=Test");
             Assert.True(builder.ToComponentCount == 2);
         }
@@ -84,17 +76,10 @@ namespace Kyameru.Tests.ActivationTests
         [Fact]
         public void CanSetupError()
         {
-            Core.Builder builder = this.CreateTo(this.CreateRoute());
-            builder.Error(this.errorComponent.Object);
+            var errorComponent = Substitute.For<IErrorProcessor>();
+            var builder = this.CreateTo(this.CreateRoute());
+            builder.Error(errorComponent);
             Assert.True(builder.WillProcessError);
-        }
-
-        [Fact]
-        public void CanSetupAtomic()
-        {
-            Core.Builder builder = this.CreateTo(this.CreateRoute());
-            builder = this.CreateAtomic(builder);
-            Assert.True(builder.IsAtomic);
         }
 
         [Fact]
@@ -108,7 +93,7 @@ namespace Kyameru.Tests.ActivationTests
         [InlineData(TimeUnit.Hour)]
         public void CanCreateScheduleEvery(TimeUnit unit)
         {
-            Core.Builder builder = this.CreateTo(this.CreateRoute());
+            var builder = this.CreateTo(this.CreateRoute());
             builder.ScheduleEvery(unit);
             Assert.True(builder.IsScheduled);
         }
@@ -118,7 +103,7 @@ namespace Kyameru.Tests.ActivationTests
         [InlineData(TimeUnit.Hour, 1)]
         public void CanCreateScheduleAt(TimeUnit unit, int value)
         {
-            Core.Builder builder = this.CreateTo(this.CreateRoute());
+            var builder = this.CreateTo(this.CreateRoute());
             builder.ScheduleAt(unit, value);
             Assert.True(builder.IsScheduled);
         }
@@ -131,11 +116,6 @@ namespace Kyameru.Tests.ActivationTests
         private Core.Builder CreateTo(Core.RouteBuilder builder, string route = "test://world")
         {
             return builder.To(route);
-        }
-
-        private Core.Builder CreateAtomic(Core.Builder builder, string route = "test://hello")
-        {
-            return builder.Atomic(route);
         }
     }
 }

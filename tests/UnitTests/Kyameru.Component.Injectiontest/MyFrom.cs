@@ -59,7 +59,6 @@ namespace Kyameru.Component.Injectiontest
         {
             var routable = new Routable(this.headers, "InjectedData");
             routable.SetHeader("&FROM", "ASYNC");
-            GlobalCalls.Calls.Add(call);
             this.OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Information, call));
             return routable;
         }

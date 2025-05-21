@@ -6,9 +6,9 @@ using Kyameru.Core.Entities;
 namespace Kyameru
 {
     /// <summary>
-    /// Intermediary Processing Component
+    /// Intermediary Processor
     /// </summary>
-    public interface IProcessComponent : IComponent
+    public interface IProcessor : IComponent
     {
         /// <summary>
         /// Process the incoming request.

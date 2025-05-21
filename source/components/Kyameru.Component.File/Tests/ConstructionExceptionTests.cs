@@ -1,43 +1,40 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Xunit;
+﻿using Xunit;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Kyameru.Component.File.Tests
+namespace Kyameru.Component.File.Tests;
+
+public class ConstructionExceptionTests
 {
-    public class ConstructionExceptionTests
+    private readonly IServiceProvider serviceProvider;
+    private ServiceHelper serviceHelper = new ServiceHelper();
+
+    public ConstructionExceptionTests()
     {
-        private readonly IServiceProvider serviceProvider;
-        private ServiceHelper serviceHelper = new ServiceHelper();
+        serviceProvider = serviceHelper.GetServiceProvider();
+    }
 
-        public ConstructionExceptionTests()
+    [Fact]
+    public void EmptyTargetThrowsError()
+    {
+        var headers = new Dictionary<string, string>()
         {
-            this.serviceProvider = this.serviceHelper.GetServiceProvider();
-        }
+            { "Notifications", "Changed" },
+        };
+        var inflator = new Inflator();
 
-        [Fact]
-        public void EmptyTargetThrowsError()
+        Assert.Throws<ArgumentException>(() => _ = inflator.CreateFromComponent(headers, serviceProvider));
+    }
+
+    [Fact]
+    public void EmptyNotificationsThrowsError()
+    {
+        var headers = new Dictionary<string, string>()
         {
-            Dictionary<string, string> headers = new Dictionary<string, string>()
-            {
-                { "Notifications", "Changed" },
-            };
-            Inflator inflator = new Inflator();
+            { "Target", "C:/test" },
+        };
+        var inflator = new Inflator();
 
-            Assert.Throws<ArgumentException>(() => _ = inflator.CreateFromComponent(headers, false, this.serviceProvider));
-        }
-
-        [Fact]
-        public void EmptyNotificationsThrowsError()
-        {
-            Dictionary<string, string> headers = new Dictionary<string, string>()
-            {
-                { "Target", "C:/test" },
-            };
-            Inflator inflator = new Inflator();
-
-            Assert.Throws<ArgumentException>(() => _ = inflator.CreateFromComponent(headers, false, this.serviceProvider));
-        }
+        Assert.Throws<ArgumentException>(() => _ = inflator.CreateFromComponent(headers, serviceProvider));
     }
 }

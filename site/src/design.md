@@ -14,21 +14,22 @@ nav_order: 2
 Kyameru is built on the Chain Of Responsibility pattern. It is built up using the three main construction objects:
 
 1. Route
-1. RouteBuilder
-1. Builder
+2. RouteBuilder
+3. Builder
 
-Each of the objects above are instantiated in the order specified. Route provides the start of the construction by allowing the definition of a From component. This returns a RouteBuilder object allowing you to add Processing components, add headers or a number of other tasks related to message processing.
-The To component is also created here which in turn returns the final Builder object which allows you to add more To components for final processing and an Error component to handle any chain errors.
 
-The Builder component is responsible for injection into the DI container of .NET Core (which is in turn responsible for resolving ILogger instances) and creates an IHosted service for what is known as a Route.
+`Route` is the entry point to create your Kyameru processing. It allows you to specify your starting chain link from your downloaded components and then construct a `Route` that consists of `To` chain links as well as a number of other `Processors`. The `From` chain link starts the process and then each part of the Route, in turn, passes data through to the next processor in the chain until the last chain link has executed.
+
+A `To` chain link is the final step in the chain (apart from `Error` which deals with errors....obviously) and you can have multiple `To` chain links for example having a final step to write a file to physical storage as well as cloud storage.
+None of the components you use are aware of each other and each chain link executes in isolation. The only link between them is the `Routable` data passed between each chain link and component.
 
 ### Workflow
 ![Image of workflow](/assets/img/workflow.png)
 
-The workflow is fairly simple. Everything starts at the From component. This raises an OnAction event which is picked up by the From chain object that then starts the process off. The Routable message is then passed from component to component until it reaches the last To component in the chain.
-What is important is each of the declared components sit within a core Chain object responsible for handling logging, errors and passing execution to injected components during the build.
+The workflow is fairly simple. Everything starts at the From chain link. This raises an OnAction event which is picked up by the From chain object that then starts the process off. The Routable message is then passed from chain link to chain link (or processor) until it reaches the last `To` chain link.
+What is important is each of the declared chain links sit within a core Chain object responsible for handling logging, errors and passing execution to injected entities during the build.
 
-If at any point the Routable message is deemed to be in error, all processing stops and the only component that continues to process is an Error component that is entirely optional.
+If at any point the Routable message is deemed to be in error, all processing stops and the only chain link that continues to process is an Error processor that is entirely optional.
 
 ## More Information
 

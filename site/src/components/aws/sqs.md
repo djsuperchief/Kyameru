@@ -9,10 +9,10 @@ permalink: /components/aws/sqs
 # AWS SQS
 ## Overview
 
-The AWS SQS component provides both a TO and FROM route allowing you to send and receive messages via SQS.
+The AWS SQS component provides both a TO and FROM chain link allowing you to send and receive messages via SQS.
 
 
-## Routes
+## Chain Links
 
 {: .label .label-green}
 FROM
@@ -71,7 +71,7 @@ To("sqs://sqs://localhost:4566/000000000000/kyameru-to")
 ```
 
 ### Message Headers
-The large majority of options for the S3 object upload are set through message headers.
+The large majority of options for the SQS queue are set through message headers.
 
 |Header | Description | Optional| Default |
 |:------ |: ----------- |: --------|: ----------- |

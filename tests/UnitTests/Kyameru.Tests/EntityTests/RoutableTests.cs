@@ -1,126 +1,112 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using Xunit;
 
-namespace Kyameru.Tests.EntityTests
+namespace Kyameru.Tests.EntityTests;
+
+public class RoutableTests : BaseTests
 {
-    public class RoutableTests
+    private readonly ILogger<Route> logger = Substitute.For<ILogger<Route>>();
+
+    [Fact]
+    public void CreatedHeaderError()
     {
-        private readonly Mock<ILogger<Route>> logger = new Mock<ILogger<Route>>();
-        private readonly Mock<IProcessComponent> component = new Mock<IProcessComponent>();
+        var routable = this.CreateRoutableMessage();
+        Assert.Throws<Kyameru.Core.Exceptions.CoreException>(() => routable.SetHeader("Test", "changed"));
+    }
 
-        [Fact]
-        public void CreatedHeaderError()
-        {
-            Routable routable = this.CreateMessage();
-            Assert.Throws<Kyameru.Core.Exceptions.CoreException>(() => routable.SetHeader("Test", "changed"));
-        }
+    [Fact]
+    public void UserImmutableThrowsHeader()
+    {
+        var routable = this.CreateRoutableMessage();
+        routable.SetHeader("&Nope", "Nope");
+        Assert.Throws<Kyameru.Core.Exceptions.CoreException>(() => routable.SetHeader("Nope", "yep"));
+    }
 
-        [Fact]
-        public void UserImmutableThrowsHeader()
-        {
-            Routable routable = this.CreateMessage();
-            routable.SetHeader("&Nope", "Nope");
-            Assert.Throws<Kyameru.Core.Exceptions.CoreException>(() => routable.SetHeader("Nope", "yep"));
-        }
+    [Fact]
+    public void UserMutableWorks()
+    {
+        var routable = this.CreateRoutableMessage();
+        routable.SetHeader("FileType", "txt");
+        routable.SetHeader("FileType", "jpg");
+        Assert.Equal("jpg", routable.Headers["FileType"]);
+    }
 
-        [Fact]
-        public void UserMutableWorks()
-        {
-            Routable routable = this.CreateMessage();
-            routable.SetHeader("FileType", "txt");
-            routable.SetHeader("FileType", "jpg");
-            Assert.Equal("jpg", routable.Headers["FileType"]);
-        }
+    [Fact]
+    public void SetBodyWorks()
+    {
+        var body = "body text";
+        var routable = this.CreateRoutableMessage();
+        routable.SetBody<string>(body);
+        Assert.Equal(body, routable.Body);
+    }
 
-        [Fact]
-        public void SetBodyWorks()
-        {
-            string body = "body text";
-            Routable routable = this.CreateMessage();
-            routable.SetBody<string>(body);
-            Assert.Equal(body, routable.Body);
-        }
+    [Theory]
+    [MemberData(nameof(BodyTestCases))]
+    public void SetBodyWorksWithHeader(IBodyTests bodyTest)
+    {
+        Assert.True(bodyTest.IsEqual(this.CreateRoutableMessage()));
+    }
 
-        [Theory]
-        [MemberData(nameof(BodyTestCases))]
-        public void SetBodyWorksWithHeader(IBodyTests bodyTest)
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ProcessExitWorks(bool earlyExit)
+    {
+        var services = GetServiceDescriptors();
+        var processComponent = Substitute.For<IProcessor>();
+        var thread = TestThread.CreateDeferred();
+        Routable routable = null;
+        processComponent.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
-            Assert.True(bodyTest.IsEqual(this.CreateMessage()));
-        }
-
-        [Theory]
-        [InlineData("TO", true)]
-        [InlineData("ATOMIC", false)]
-        public async Task ProcessExitWorks(string call, bool setupComponent)
-        {
-            string testName = $"ProcessExitWorks_{call}";
-            this.component.Reset();
-            this.component.Setup(x => x.ProcessAsync(It.IsAny<Routable>(), It.IsAny<CancellationToken>())).Callback((Routable x, CancellationToken c) =>
+            if (earlyExit)
             {
-                x.SetHeader("SetExit", "true");
-                if (setupComponent)
-                {
-                    x.SetExitRoute("Manually triggered exit");
-                }
+                x.Arg<Routable>().SetExitRoute("Manually triggered exit");
+                routable = x.Arg<Routable>();
+            }
+
+            return Task.CompletedTask;
+        });
+
+        var generics = Component.Generic.Builder.Create()
+            .WithFrom()
+            .WithTo(x =>
+            {
+                x.SetHeader("TO", "Executed");
+                routable = x;
+                thread.Continue();
             });
 
-            Assert.False(await this.RunProcess(call, testName));
-        }
+        var builder = Route.From("generic:///nope")
+            .Process(processComponent)
+            .To("generic:///nope");
 
-        public static IEnumerable<object[]> BodyTestCases()
+        var service = BuildAndGetServices(builder, generics);
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
+        await thread.CancelAsync();
+
+        Assert.Equal(!earlyExit, routable.Headers.ContainsKey("TO"));
+    }
+
+    public static IEnumerable<object[]> BodyTestCases()
+    {
+        yield return new object[] { new BodyTests<string>("test", "String") };
+        yield return new object[] { new BodyTests<int>(1, "Int32") };
+    }
+
+    private Routable CreateRoutableMessage()
+    {
+        return new Routable(new System.Collections.Generic.Dictionary<string, string>()
         {
-            yield return new object[] { new BodyTests<string>("test", "String") };
-            yield return new object[] { new BodyTests<int>(1, "Int32") };
-        }
-
-        private async Task<bool> RunProcess(string callsContain, string test)
-        {
-            IHostedService service = this.GetRoute(test);
-            await service.StartAsync(CancellationToken.None);
-            await service.StopAsync(CancellationToken.None);
-
-            return Kyameru.Component.Test.GlobalCalls.CallDict[test].Contains(callsContain);
-        }
-
-        private Routable CreateMessage()
-        {
-            return new Routable(new System.Collections.Generic.Dictionary<string, string>()
-            {
-                {"&Test", "value" }
-            }, "test");
-        }
-
-        private IHostedService GetRoute(string test)
-        {
-            IServiceCollection serviceCollection = this.GetServiceDescriptors();
-            Kyameru.Route.From($"test://hello?TestName={test}")
-                .Process(this.component.Object)
-                .To("test://world")
-                .Atomic("test://boom")
-                .Build(serviceCollection);
-            IServiceProvider provider = serviceCollection.BuildServiceProvider();
-            return provider.GetService<IHostedService>();
-        }
-
-        private IServiceCollection GetServiceDescriptors()
-        {
-            IServiceCollection serviceCollection = new ServiceCollection();
-            serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
-            {
-                return this.logger.Object;
-            });
-
-            return serviceCollection;
-        }
+            {"&Test", "value" }
+        }, "test");
     }
 }

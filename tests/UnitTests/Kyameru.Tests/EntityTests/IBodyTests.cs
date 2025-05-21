@@ -1,9 +1,8 @@
 ﻿using Kyameru.Core.Entities;
 
-namespace Kyameru.Tests.EntityTests
+namespace Kyameru.Tests.EntityTests;
+
+public interface IBodyTests
 {
-    public interface IBodyTests
-    {
-        bool IsEqual(Routable routable);
-    }
+    bool IsEqual(Routable routable);
 }

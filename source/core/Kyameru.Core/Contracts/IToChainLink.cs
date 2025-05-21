@@ -3,7 +3,7 @@
     /// <summary>
     /// End processing component.
     /// </summary>
-    public interface IToComponent : IProcessComponent
+    public interface IToChainLink : IProcessor
     {
 
     }

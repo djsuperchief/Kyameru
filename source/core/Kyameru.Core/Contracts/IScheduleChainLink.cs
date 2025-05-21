@@ -8,7 +8,7 @@ namespace Kyameru.Core.Contracts
     /// <summary>
     /// Schedule component
     /// </summary>
-    public interface IScheduleComponent : IComponent
+    public interface IScheduleChainLink : IComponent
     {
         /// <summary>
         /// Event raised to trigger processing the chain async.

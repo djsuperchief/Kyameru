@@ -3,6 +3,7 @@ using Amazon.SQS.Model;
 using Kyameru.Component.Faker;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Sys;
+using Kyameru.TestUtilities;
 using NSubstitute;
 using NSubstitute.ClearExtensions;
 using NSubstitute.ExceptionExtensions;
@@ -14,11 +15,11 @@ public class FromTests
     [Fact]
     public async Task CanProcessMessage()
     {
-        var resetEvent = new AutoResetEvent(false);
+        var thread = TestThread.CreateDeferred();
         var sqsClient = Substitute.For<IAmazonSQS>();
         var message = string.Empty;
         var randomMessage = Guid.NewGuid().ToString("N");
-        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).Returns(x =>
+        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).ReturnsForAnyArgs(x =>
         {
             var response = Task.FromResult(new ReceiveMessageResponse()
             {
@@ -37,18 +38,21 @@ public class FromTests
         var from = new SqsFrom(sqsClient);
         from.SetHeaders(new Dictionary<string, string>()
         {
-            { "Host", "queue"}
+            { "Host", "queue"},
+            { "PollTime", "2" }
         });
         from.Setup();
         from.OnActionAsync += async (object sender, RoutableEventData eventData) =>
         {
             message = eventData.Data.Body as string;
-            resetEvent.Set();
+            thread.Continue();
             await Task.CompletedTask;
         };
-        await from.StartAsync(default);
-        resetEvent.WaitOne(5000, true);
-        await from.StopAsync(default);
+        thread.SetThread(from.StartAsync);
+        thread.StartAndWait();
+        await from.StopAsync(thread.CancelToken);
+        await thread.CancelAsync();
+
         Assert.Equal(randomMessage, message);
 
     }
@@ -56,7 +60,7 @@ public class FromTests
     [Fact]
     public async Task CanProcessMultipleMessages()
     {
-        var resetEvent = new AutoResetEvent(false);
+        var thread = TestThread.CreateDeferred(15);
         var sqsClient = Substitute.For<IAmazonSQS>();
         var messagesSent = new List<string>();
         var receivedMessages = new List<string>();
@@ -66,7 +70,7 @@ public class FromTests
             messagesSent.Add(Guid.NewGuid().ToString("N"));
         }
 
-        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).Returns(x =>
+        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).ReturnsForAnyArgs(x =>
         {
             endOfMessages = messagesSent.Count == 0;
             if (!endOfMessages)
@@ -86,11 +90,15 @@ public class FromTests
                 });
                 return response;
             }
+            else
+            {
+                thread.Continue();
+            }
 
             return Task.FromResult(new ReceiveMessageResponse());
         });
 
-        sqsClient.DeleteMessageAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(x =>
+        sqsClient.DeleteMessageAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
         {
             var message = x[1];
             if (message != null)
@@ -116,15 +124,18 @@ public class FromTests
                 receivedMessages.Add(message.ToString()!);
             }
 
-            if (endOfMessages)
+            if (messagesSent.Count == 0)
             {
-                resetEvent.Set();
+                thread.Continue();
             }
             await Task.CompletedTask;
         };
-        await from.StartAsync(default);
-        resetEvent.WaitOne(15000, true);
-        await from.StopAsync(default);
+
+        thread.SetThread(from.StartAsync);
+        thread.StartAndWait();
+        await from.StopAsync(thread.CancelToken);
+        await thread.CancelAsync();
+
         Assert.Equal(5, receivedMessages.Count);
 
     }
@@ -132,21 +143,17 @@ public class FromTests
     [Fact]
     public async Task DeletesMessageFromQueue()
     {
-        var resetEvent = new AutoResetEvent(false);
+        var thread = TestThread.CreateDeferred(15);
         var sqsClient = Substitute.For<IAmazonSQS>();
-        sqsClient.ClearSubstitute();
-        sqsClient.ClearReceivedCalls();
         var messagesSent = new List<string>();
-        var endOfMessages = false;
         for (var i = 0; i < 5; i++)
         {
             messagesSent.Add(Guid.NewGuid().ToString("N"));
         }
 
-        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).Returns(x =>
+        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).ReturnsForAnyArgs(x =>
         {
-            endOfMessages = messagesSent.Count == 0;
-            if (!endOfMessages)
+            if (messagesSent.Count > 0)
             {
 
                 var randomMessage = messagesSent.First();
@@ -164,11 +171,15 @@ public class FromTests
                 });
                 return response;
             }
+            else
+            {
+                thread.Continue();
+            }
 
             return Task.FromResult(new ReceiveMessageResponse());
         });
 
-        sqsClient.DeleteMessageAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(x =>
+        sqsClient.DeleteMessageAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
         {
             var message = x[1];
             if (message != null)
@@ -187,27 +198,28 @@ public class FromTests
         from.Setup();
         from.OnActionAsync += async (object sender, RoutableEventData eventData) =>
         {
-            if (endOfMessages)
+            if (messagesSent.Count == 0)
             {
-                resetEvent.Set();
+                thread.Continue();
             }
 
             await Task.CompletedTask;
         };
-        await from.StartAsync(default);
-        resetEvent.WaitOne(20000, true);
-        await from.StopAsync(default);
+        thread.SetThread(from.StartAsync);
+        thread.StartAndWait();
+        await from.StopAsync(thread.CancelToken);
+        await thread.CancelAsync();
         Assert.Empty(messagesSent);
     }
 
     [Fact]
     public async Task GetsMessageAttributesAsHeaders()
     {
-        var resetEvent = new AutoResetEvent(false);
+        var thread = TestThread.CreateDeferred();
         var sqsClient = Substitute.For<IAmazonSQS>();
         Headers? headers = null;
         var randomMessage = Guid.NewGuid().ToString("N");
-        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).Returns(x =>
+        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).ReturnsForAnyArgs(x =>
         {
             var stream = new MemoryStream();
             var message = System.Text.Encoding.UTF8.GetBytes("Will not use");
@@ -236,18 +248,22 @@ public class FromTests
         var from = new SqsFrom(sqsClient);
         from.SetHeaders(new Dictionary<string, string>()
         {
-            { "Host", "queue"}
+            { "Host", "queue"},
+            { "PollTime", "2" }
         });
         from.Setup();
         from.OnActionAsync += async (object sender, RoutableEventData eventData) =>
         {
             headers = eventData.Data.Headers;
-            resetEvent.Set();
+            thread.Continue();
             await Task.CompletedTask;
         };
-        await from.StartAsync(default);
-        resetEvent.WaitOne(2000, true);
-        await from.StopAsync(default);
+
+        thread.SetThread(from.StartAsync);
+        thread.StartAndWait();
+        await from.StopAsync(thread.CancelToken);
+        await thread.CancelAsync();
+
         Assert.Equal("Value", headers!["Test"]);
         Assert.False(headers.ContainsKey("IsNotHere"));
     }
@@ -255,7 +271,7 @@ public class FromTests
     [Fact]
     public async Task StoppingStopsScan()
     {
-        var resetEvent = new AutoResetEvent(false);
+        var thread = TestThread.CreateDeferred();
         var sqsClient = Substitute.For<IAmazonSQS>();
         var randomMessage = Guid.NewGuid().ToString("N");
 
@@ -265,10 +281,10 @@ public class FromTests
             { "Host", "queue"}
         });
         from.Setup();
-        await from.StartAsync(default);
-        Assert.True(from.IsPolling);
-        resetEvent.WaitOne(2000, true);
-        await from.StopAsync(default);
+        thread.SetThread(from.StartAsync);
+        thread.StartAndWait();
+        await from.StopAsync(thread.CancelToken);
+        await thread.CancelAsync();
         Assert.False(from.IsPolling);
     }
 
@@ -277,26 +293,27 @@ public class FromTests
     [InlineData("http", "true")]
     public async Task CanSendByUrl(string protocol, string doHttp)
     {
+        var thread = TestThread.CreateDeferred();
         var expectedQueue = $"{protocol}://localhost:4566/000000000000/kyameru-to";
         // Test to make sure a queue url can be used.
         var attributes = new RouteAttributes($"sqs://localhost:4566/000000000000/kyameru-to?PollTime=2&http={doHttp}");
         var headers = attributes.Headers;
         var sqsClient = Substitute.For<IAmazonSQS>();
-        var resetEvent = new AutoResetEvent(false);
         var receivedQueue = string.Empty;
-        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).Returns(x =>
+        sqsClient.ReceiveMessageAsync(Arg.Any<ReceiveMessageRequest>()).ReturnsForAnyArgs(x =>
         {
             receivedQueue = (x[0] as ReceiveMessageRequest)!.QueueUrl;
-            resetEvent.Set();
+            thread.Continue();
             return new ReceiveMessageResponse();
         });
 
         var from = new SqsFrom(sqsClient);
         from.SetHeaders(headers);
         from.Setup();
-        await from.StartAsync(default);
-        resetEvent.WaitOne();
-        await from.StopAsync(default);
+        thread.SetThread(from.StartAsync);
+        thread.StartAndWait();
+        await from.StopAsync(thread.CancelToken);
+        await thread.CancelAsync();
         Assert.Equal(expectedQueue, receivedQueue);
 
     }

@@ -18,7 +18,7 @@ namespace Kyameru.Core.Chain
         /// <summary>
         /// Main from component.
         /// </summary>
-        private readonly IFromComponent fromComponent;
+        private readonly IFromChainLink fromComponent;
 
         /// <summary>
         /// Next processing component.
@@ -35,10 +35,6 @@ namespace Kyameru.Core.Chain
         /// </summary>
         private readonly string identity;
 
-        /// <summary>
-        /// value indicating whether the route will be atomic.
-        /// </summary>
-        private readonly bool IsAtomicRoute;
         private readonly bool raiseExceptions;
 
         /// <summary>
@@ -48,9 +44,8 @@ namespace Kyameru.Core.Chain
         /// <param name="next">Next processing component.</param>
         /// <param name="logger">Logger class.</param>
         /// <param name="id">Identity of the route.</param>
-        /// <param name="isAtomicRoute">Value indicating whether the route is atomic.</param>
         /// <param name="raiseExceptions">Value indicating that the route should throw route exceptions up</param>
-        public From(IFromComponent fromComponent, IChain<Routable> next, ILogger logger, string id, bool isAtomicRoute, bool raiseExceptions)
+        public From(IFromChainLink fromComponent, IChain<Routable> next, ILogger logger, string id, bool raiseExceptions)
         {
             this.fromComponent = fromComponent;
             this.fromComponent.Setup();
@@ -58,7 +53,6 @@ namespace Kyameru.Core.Chain
             this.logger = logger;
             this.fromComponent.OnLog += FromComponent_OnLog;
             identity = id;
-            IsAtomicRoute = isAtomicRoute;
             fromComponent.OnActionAsync += FromComponent_OnActionAsync;
             this.raiseExceptions = raiseExceptions;
         }

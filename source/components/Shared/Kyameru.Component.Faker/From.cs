@@ -32,14 +32,16 @@ namespace Kyameru.Component.Faker
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             var eventData = new RoutableEventData(DoProcessing("FAKE FROM ASYNC"), cancellationToken);
-            await this.OnActionAsync?.Invoke(this, eventData);
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            await OnActionAsync?.Invoke(this, eventData);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             await Task.CompletedTask;
         }
-        
+
         private Routable DoProcessing(string call)
         {
             var routable = new Routable(this.headers, "InjectedData");

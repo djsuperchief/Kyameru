@@ -65,7 +65,7 @@ namespace Kyameru.Component.Ftp
         internal void Poll()
         {
             List<string> files = new List<string>();
-            var getContents = Task<List<string>>.Run(async () =>
+            var getContents = Task.Run(async () =>
             {
                 return await this.GetDirectoryContents(default);
 

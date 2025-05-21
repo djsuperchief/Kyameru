@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Kyameru.Console.Test
 {
-    internal class ProcessingComp : IProcessComponent
+    internal class ProcessingComp : IProcessor
     {
         public event EventHandler<Log> OnLog;
 

@@ -6,7 +6,7 @@ namespace Kyameru.Core.Extensions
     /// <summary>
     /// Extensions for date and time.
     /// </summary>
-    public static class DateTimeExtensions
+    internal static class DateTimeExtensions
     {
         /// <summary>
         /// Gets the date time up to the minute excluding milliseconds.

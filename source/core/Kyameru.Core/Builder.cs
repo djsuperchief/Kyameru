@@ -30,19 +30,14 @@ namespace Kyameru.Core
         private readonly List<RouteAttributes> toUris = new List<RouteAttributes>();
 
         /// <summary>
-        /// From URI held to construct atomic component.
+        /// From URI.
         /// </summary>
         private readonly RouteAttributes fromUri;
 
         /// <summary>
         /// Error component.
         /// </summary>
-        private IErrorComponent errorComponent;
-
-        /// <summary>
-        /// Atomic component.
-        /// </summary>
-        private IAtomicComponent atomicComponent;
+        private IErrorProcessor errorComponent;
 
         /// <summary>
         /// Value indicating whether exceptions should be raised from the route.
@@ -113,11 +108,6 @@ namespace Kyameru.Core
         public bool WillProcessError => errorComponent != null;
 
         /// <summary>
-        /// Gets a value indicating whether the route is considered to be atomic.
-        /// </summary>
-        public bool IsAtomic => atomicComponent != null;
-
-        /// <summary>
         /// Gets a value indicating whether the route is on a schedule.
         /// </summary>
         public bool IsScheduled => schedule != null;
@@ -184,7 +174,7 @@ namespace Kyameru.Core
         /// <param name="component">To component.</param>
         /// <param name="postProcessing">Post processing component</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
-        public Builder When(Func<Routable, bool> conditional, string component, IProcessComponent postProcessing)
+        public Builder When(Func<Routable, bool> conditional, string component, IProcessor postProcessing)
         {
             var postProcessingComponent = Processable.Create(postProcessing);
             AddToConditionalProcessing(conditional, component, postProcessingComponent);
@@ -198,7 +188,7 @@ namespace Kyameru.Core
         /// <param name="component">To component.</param>
         /// <typeparam name="T">IProcessComponent</typeparam>
         /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
-        public Builder When<T>(Func<Routable, bool> conditional, string component) where T : IProcessComponent
+        public Builder When<T>(Func<Routable, bool> conditional, string component) where T : IProcessor
         {
             var postProcessingComponent = Processable.Create<T>();
             AddToConditionalProcessing(conditional, component, postProcessingComponent);
@@ -256,7 +246,7 @@ namespace Kyameru.Core
         /// <param name="componentUri">Valid Kyameru URI.</param>
         /// <param name="concretePostProcessing">A component to run any post processing.</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder To(string componentUri, IProcessComponent concretePostProcessing)
+        public Builder To(string componentUri, IProcessor concretePostProcessing)
         {
             var postProcessComponent = Processable.Create(concretePostProcessing);
             AddToPostProcessing(componentUri, postProcessComponent);
@@ -269,7 +259,7 @@ namespace Kyameru.Core
         /// <typeparam name="T">Type of post processing component</typeparam>
         /// <param name="componentUri">Valid Kyameru URI</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder To<T>(string componentUri) where T : IProcessComponent
+        public Builder To<T>(string componentUri) where T : IProcessor
         {
             var postProcessComponent = Processable.Create<T>();
             AddToPostProcessing(componentUri, postProcessComponent);
@@ -316,37 +306,11 @@ namespace Kyameru.Core
         }
 
         /// <summary>
-        /// Creates an atomic component using the original From URI.
-        /// </summary>
-        /// <returns>Returns an instance of the <see cref="Builder"/> class</returns>
-        public Builder Atomic()
-        {
-            atomicComponent = CreateAtomic(
-                fromUri.ComponentName,
-                fromUri.Headers);
-            return this;
-        }
-
-        /// <summary>
-        /// Creates an atomic component using the original From URI.
-        /// </summary>
-        /// <param name="componentUri">Valid Kyameru URI.</param>
-        /// <returns>Returns an instance of the <see cref="Builder"/> class</returns>
-        public Builder Atomic(string componentUri)
-        {
-            var route = new RouteAttributes(componentUri);
-            atomicComponent = CreateAtomic(
-                route.ComponentName,
-                route.Headers);
-            return this;
-        }
-
-        /// <summary>
         /// Creates a new Error component chain.
         /// </summary>
         /// <param name="component">Error component.</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder Error(IErrorComponent component)
+        public Builder Error(IErrorProcessor component)
         {
             errorComponent = component;
             return this;
@@ -431,13 +395,13 @@ namespace Kyameru.Core
 
                 if (schedule == null)
                 {
-                    var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
-                    return new From(from, next, logger, identity, IsAtomic, raiseExceptions);
+                    var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x);
+                    return new From(from, next, logger, identity, raiseExceptions);
                 }
                 else
                 {
-                    var scheduled = CreateScheduled(fromUri.ComponentName, fromUri.Headers, x, IsAtomic);
-                    return new Scheduled(scheduled, next, logger, identity, IsAtomic, raiseExceptions, schedule);
+                    var scheduled = CreateScheduled(fromUri.ComponentName, fromUri.Headers, x);
+                    return new Scheduled(scheduled, next, logger, identity, raiseExceptions, schedule);
                 }
 
 
@@ -513,13 +477,8 @@ namespace Kyameru.Core
             }
             else
             {
-                IChain<Routable> atomic = null;
                 IChain<Routable> error = null;
-                if (atomicComponent != null)
-                {
-                    logger.LogInformation(string.Format(Resources.INFO_SETUP_ATOMIC, atomicComponent.ToString()));
-                    atomic = new Atomic(logger, atomicComponent, GetIdentity());
-                }
+
 
                 if (errorComponent != null)
                 {
@@ -527,35 +486,15 @@ namespace Kyameru.Core
                     error = new Chain.Error(logger, errorComponent, GetIdentity());
                 }
 
-                toChain.SetNext(GetFinal(error, atomic));
+                toChain.SetNext(error);
             }
 
             return toChain;
         }
 
-        private IToComponent GetToComponent(int index, IServiceProvider serviceProvider)
+        private IToChainLink GetToComponent(int index, IServiceProvider serviceProvider)
         {
             return CreateTo(toUris[index], serviceProvider);
-        }
-
-        /// <summary>
-        /// Sets the correct next component.
-        /// </summary>
-        /// <param name="error">Component incoming.</param>
-        /// <param name="atomic">Target chain.</param>
-        /// <returns>Returns an instance of the <see cref="IChain{T}"/> interface.</returns>
-        private IChain<Routable> GetFinal(IChain<Routable> error, IChain<Routable> atomic)
-        {
-            if (atomic != null && error != null)
-            {
-                atomic.SetNext(error);
-            }
-            else if (atomic == null && error != null)
-            {
-                atomic = error;
-            }
-
-            return atomic;
         }
 
         /// <summary>
@@ -590,13 +529,13 @@ namespace Kyameru.Core
             toUris.Add(route);
         }
 
-        private void AddToConditionalProcessing(IConditionalComponent conditional, string componentUri)
+        private void AddToConditionalProcessing(IConditionalProcessor conditional, string componentUri)
         {
             var route = new RouteAttributes(conditional, componentUri);
             toUris.Add(route);
         }
 
-        private void AddToConditionalProcessing(IConditionalComponent conditional, string componentUri, Processable postProcessingComponent)
+        private void AddToConditionalProcessing(IConditionalProcessor conditional, string componentUri, Processable postProcessingComponent)
         {
             var route = new RouteAttributes(conditional, componentUri, postProcessingComponent);
             toUris.Add(route);
@@ -609,17 +548,17 @@ namespace Kyameru.Core
                 throw new CoreException(Resources.ERROR_SCHEDULE_ALREADY_DEFINED);
             }
 
-            schedule = new Schedule(unit, value, false);
+            schedule = new Schedule(unit, value, isEvery);
         }
 
-        private IConditionalComponent GetReflectedConditionalComponent(string componentTypeName, Assembly hostAssembly)
+        private IConditionalProcessor GetReflectedConditionalComponent(string componentTypeName, Assembly hostAssembly)
         {
             var componentName = string.Concat(hostAssembly.FullName.Split(',')[0], ".", componentTypeName);
             Type componentType = hostAssembly.GetType(componentName);
-            IConditionalComponent response = null;
+            IConditionalProcessor response = null;
             try
             {
-                response = Activator.CreateInstance(componentType) as IConditionalComponent;
+                response = Activator.CreateInstance(componentType) as IConditionalProcessor;
 
             }
             catch

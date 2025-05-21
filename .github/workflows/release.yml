@@ -31,14 +31,13 @@ jobs:
         run: |
           echo "Release / Nuget version will be: ${RELEASE_VERSION}"
 
-      # Todo: comment back in when you have tested the release function...
-      # - name: Pack
-      #   run: dotnet pack KyameruFull.sln -o ./dist -c Release -p:PackageVersion=$RELEASE_VERSION
+      - name: Pack
+        run: dotnet pack KyameruFull.sln -o ./dist -c Release -p:PackageVersion=$RELEASE_VERSION
 
-      # - name: List Packages
-      #   run: |
-      #     cd dist
-      #     ls
+      - name: List Packages
+        run: |
+          cd dist
+          ls
 
-      # - name: Push
-      #   run: dotnet nuget push ./dist/*.nupkg --api-key ${{ secrets.KYAMERU_NUGET }} -s https://api.nuget.org/v3/index.json
+      - name: Push
+        run: dotnet nuget push ./dist/*.nupkg --api-key ${{ secrets.KYAMERU_NUGET }} -s https://api.nuget.org/v3/index.json

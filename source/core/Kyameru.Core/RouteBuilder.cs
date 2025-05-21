@@ -12,7 +12,7 @@ namespace Kyameru.Core
     public class RouteBuilder : AbstractBuilder
     {
         /// <summary>
-        /// From URI held to construct the atomic component.
+        /// From URI.
         /// </summary>
         private readonly RouteAttributes fromUri;
 
@@ -56,7 +56,7 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="processComponent">Component to add.</param>
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
-        public RouteBuilder Process(IProcessComponent processComponent)
+        public RouteBuilder Process(IProcessor processComponent)
         {
             components.Add(Processable.Create(processComponent));
 
@@ -68,7 +68,7 @@ namespace Kyameru.Core
         /// </summary>
         /// <typeparam name="T">Type of process component.</typeparam>
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
-        public RouteBuilder Process<T>() where T : IProcessComponent
+        public RouteBuilder Process<T>() where T : IProcessor
         {
             components.Add(Processable.Create<T>());
 
@@ -119,7 +119,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public RouteBuilder AddHeader(string key, string value)
         {
-            components.Add(Processable.Create(new BaseComponents.AddHeader(key, value)));
+            components.Add(Processable.Create(new BaseProcessors.AddHeader(key, value)));
             return this;
         }
 
@@ -131,7 +131,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public RouteBuilder AddHeader(string key, Func<string> callback)
         {
-            components.Add(Processable.Create(new BaseComponents.AddHeader(key, callback)));
+            components.Add(Processable.Create(new BaseProcessors.AddHeader(key, callback)));
             return this;
         }
 
@@ -143,7 +143,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="RouteBuilder"/> class.</returns>
         public RouteBuilder AddHeader(string key, Func<Routable, string> callback)
         {
-            components.Add(Processable.Create(new BaseComponents.AddHeader(key, callback)));
+            components.Add(Processable.Create(new BaseProcessors.AddHeader(key, callback)));
             return this;
         }
 
@@ -190,7 +190,7 @@ namespace Kyameru.Core
         /// <param name="component">To component.</param>
         /// <param name="postProcessing">Post processing component</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
-        public Builder When(Func<Routable, bool> conditional, string component, IProcessComponent postProcessing) =>
+        public Builder When(Func<Routable, bool> conditional, string component, IProcessor postProcessing) =>
             GetBuilder().When(conditional, component, postProcessing);
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace Kyameru.Core
         /// <param name="component">To component.</param>
         /// <typeparam name="T">IProcessComponent</typeparam>
         /// <returns>Returns an instance of the <see cref="Builder"/> type.</returns>
-        public Builder When<T>(Func<Routable, bool> conditional, string component) where T : IProcessComponent =>
+        public Builder When<T>(Func<Routable, bool> conditional, string component) where T : IProcessor =>
             GetBuilder().When<T>(conditional, component);
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace Kyameru.Core
         /// <param name="componentUri">Valid Kyameru URI.</param>
         /// <param name="concretePostProcessing">A component to run any post processing.</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder To(string componentUri, IProcessComponent concretePostProcessing) => GetBuilder().To(componentUri, concretePostProcessing);
+        public Builder To(string componentUri, IProcessor concretePostProcessing) => GetBuilder().To(componentUri, concretePostProcessing);
 
         /// <summary>
         /// Adds a to component with post processing by DI
@@ -247,7 +247,7 @@ namespace Kyameru.Core
         /// <typeparam name="T">Type of post processing component</typeparam>
         /// <param name="componentUri">Valid Kyameru URI</param>
         /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
-        public Builder To<T>(string componentUri) where T : IProcessComponent => GetBuilder().To<T>(componentUri);
+        public Builder To<T>(string componentUri) where T : IProcessor => GetBuilder().To<T>(componentUri);
 
         /// <summary>
         /// Adds a to component with post processing by action

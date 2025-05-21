@@ -4,7 +4,7 @@ using Kyameru.Core.Entities;
 
 namespace Kyameru.Core
 {
-    sealed class DefaultConditional : IConditionalComponent
+    sealed class DefaultConditional : IConditionalProcessor
     {
         private Func<Routable, bool> _condition;
 

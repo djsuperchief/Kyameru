@@ -50,8 +50,6 @@ Note that the slack target does not include the prefix of 'https://hooks.slack.c
 ## From
 From is not supported in this component.
 
-## Atomic
-Atomic is not supported in this component.
 
 ## More Info
 For more information see Kyameru Core documentation. (https://github.com/djsuperchief/Kyameru)

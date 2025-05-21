@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "ms-dotnettools.csdevkit",
+        "hashicorp.terraform",
+        "oderwat.indent-rainbow",
+        "ms-azuretools.vscode-docker"
+    ]
+}

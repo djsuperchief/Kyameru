@@ -18,7 +18,7 @@ public class SnsToTests
 
             return new PublishResponse()
             {
-                MessageId = request.Message,
+                MessageId = request!.Message,
                 SequenceNumber = "1",
                 HttpStatusCode = System.Net.HttpStatusCode.OK
             };
@@ -42,7 +42,7 @@ public class SnsToTests
         snsClient.PublishAsync(Arg.Any<PublishRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
             var request = x[0] as PublishRequest;
-            receivedArn = request.TopicArn;
+            receivedArn = request!.TopicArn;
             return new PublishResponse()
             {
                 MessageId = request.Message,
@@ -70,7 +70,7 @@ public class SnsToTests
         snsClient.PublishAsync(Arg.Any<PublishRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
             var request = x[0] as PublishRequest;
-            receivedAttribute = request.MessageAttributes["TestHeader"].StringValue;
+            receivedAttribute = request!.MessageAttributes["TestHeader"].StringValue;
             return new PublishResponse()
             {
                 MessageId = request.Message,
@@ -105,7 +105,7 @@ public class SnsToTests
         snsClient.PublishAsync(Arg.Any<PublishRequest>(), Arg.Any<CancellationToken>()).Returns(x =>
         {
             var request = x[0] as PublishRequest;
-            receivedDeDupeId = request.MessageDeduplicationId;
+            receivedDeDupeId = request!.MessageDeduplicationId;
             receivedGroupId = request.MessageGroupId;
             return new PublishResponse()
             {
@@ -142,7 +142,7 @@ public class SnsToTests
             var request = x[0] as PublishRequest;
             return new PublishResponse()
             {
-                MessageId = request.Message,
+                MessageId = request!.Message,
                 SequenceNumber = "1",
                 HttpStatusCode = System.Net.HttpStatusCode.InternalServerError
             };

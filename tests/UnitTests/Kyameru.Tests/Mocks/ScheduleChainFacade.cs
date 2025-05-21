@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core.Contracts;
@@ -9,7 +8,7 @@ namespace Kyameru.Tests.Mocks;
 
 public class ScheduleChainFacade : Kyameru.Core.Chain.Scheduled
 {
-    public ScheduleChainFacade(IScheduleComponent fromComponent, IChain<Routable> next, ILogger logger, string id, bool isAtomicRoute, bool raiseExceptions, Core.Entities.Schedule targetedSchedule) : base(fromComponent, next, logger, id, isAtomicRoute, raiseExceptions, targetedSchedule)
+    public ScheduleChainFacade(IScheduleChainLink fromComponent, IChain<Routable> next, ILogger logger, string id, bool raiseExceptions, Core.Entities.Schedule targetedSchedule) : base(fromComponent, next, logger, id, raiseExceptions, targetedSchedule)
     {
     }
 

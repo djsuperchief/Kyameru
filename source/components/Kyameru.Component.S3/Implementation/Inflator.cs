@@ -8,22 +8,17 @@ namespace Kyameru.Component.S3;
 
 public class Inflator : IOasis
 {
-    public IAtomicComponent CreateAtomicComponent(Dictionary<string, string> headers)
-    {
-        throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "ATOMIC", "S3"));
-    }
-
-    public IFromComponent CreateFromComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+    public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
         throw new RouteNotAvailableException(string.Format(Core.Resources.ERROR_ROUTE_UNAVAILABLE, "FROM", "S3"));
     }
 
-    public IScheduleComponent CreateScheduleComponent(Dictionary<string, string> headers, bool isAtomic, IServiceProvider serviceProvider)
+    public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
         throw new NotImplementedException();
     }
 
-    public IToComponent CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
+    public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
         var component = serviceProvider.GetRequiredService<ITo>();
         component.SetHeaders(headers);

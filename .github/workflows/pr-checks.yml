@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [main, release]
 
+env:
+  MAJOR_VERSION: ${{ vars.MAJOR_VERSION }}
+
 #GITHUB_WORKSPACE
 
 jobs:
@@ -15,6 +18,10 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
             dotnet-version: 9.0.x
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
       - name: Install dependencies
         run: dotnet restore KyameruFull.sln
       - name: Build
@@ -27,6 +34,14 @@ jobs:
         #run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=TestCoverage/
       #  run: dotnet test --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat="lcov%2cjson" /p:CoverletOutput=${GITHUB_WORKSPACE}/build/TestCoverage/ /p:MergeWith="${GITHUB_WORKSPACE}/build/TestCoverage/coverage.json"
       #  working-directory: source/components/Kyameru.Component.S3/Tests
+
+      - name: Release Version Check
+        run: |
+          git fetch origin --tags
+          CURRENT=$(git tag --list "${MAJOR_VERSION}.*.*" --sort=-version:refname | head -n 1)
+          echo "GETTING NEXT RELEASE VERSION...."
+          echo $CURRENT | python ./.ci/bump.py
+
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:

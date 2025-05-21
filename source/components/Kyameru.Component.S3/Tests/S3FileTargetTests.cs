@@ -1,4 +1,3 @@
-using Amazon.S3;
 using Kyameru.Core.Entities;
 
 namespace Kyameru.Component.S3.Tests;

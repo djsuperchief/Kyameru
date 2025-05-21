@@ -5,7 +5,7 @@ namespace Kyameru.Component.S3;
 /// <summary>
 /// Kyameru S3 To Interface
 /// </summary>
-public interface ITo : IToComponent
+public interface ITo : IToChainLink
 {
     void SetHeaders(Dictionary<string, string> headers);
 }

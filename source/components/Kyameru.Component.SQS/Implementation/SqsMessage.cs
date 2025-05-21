@@ -9,13 +9,12 @@ namespace Kyameru.Component.Sqs;
 
 public class SqsMessage
 {
-
-
     public SqsMessage(Dictionary<string, string> componentHeaders, Routable routable)
     {
         component = componentHeaders;
         message = routable.Headers;
         Body = (routable.Body as string)!;
+        Queue = string.Empty;
     }
 
     public string Queue { get; private set; }

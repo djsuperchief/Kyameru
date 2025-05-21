@@ -8,7 +8,7 @@ using Kyameru.Core.Sys;
 
 namespace Kyameru.Component.Test
 {
-    public class Scheduled : IScheduleComponent
+    public class Scheduled : IScheduleChainLink
     {
         public event AsyncEventHandler<RoutableEventData> OnActionAsync;
         public event EventHandler<Log> OnLog;
