@@ -23,11 +23,6 @@ namespace Kyameru.Component.Ftp.Tests.Routes
             var thread = TestThread.CreateDeferred();
             var webRequestFactory = this.GetWebRequest();
             webRequestFactory.ClearReceivedCalls();
-            var times = 0;
-            if (deletes)
-            {
-                times = 1;
-            }
             webRequestFactory.DeleteFile(default, "Test.txt", default, default).Returns(x =>
             {
                 return Task.CompletedTask;

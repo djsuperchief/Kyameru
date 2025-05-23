@@ -13,6 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+            dotnet-version: 9.0.x
       - name: Determine Release Type
         run: |
           if ${PRE_RELEASE}; then
