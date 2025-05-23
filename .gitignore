@@ -358,3 +358,4 @@ TestCoverage.info
 stack/terraform/.terraform/**/*
 stack/terraform/.terraform.lock.hcl
 site/src_v1/**/*
+**/*.tfstate
