@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -102,6 +103,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Ses.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.TestUtilities", "tests\Shared\Kyameru.TestUtilities\Kyameru.TestUtilities.csproj", "{748711EC-055B-41E0-BF62-64912CF864F8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rest", "Rest", "{0E6ACF9C-8C3B-5CA9-914A-13040DBAC4DD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BF769FB3-636B-1012-65D7-B0D794CA335B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{667BADC7-A9B1-2E5E-73F0-A92EA6799ABC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Rest", "source\components\Kyameru.Component.Rest\Implementation\Kyameru.Component.Rest.csproj", "{1860ED5C-9EAB-4ED3-9B79-B16B6B3B1F56}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Rest.Tests", "source\components\Kyameru.Component.Rest\tests\Kyameru.Component.Rest.Tests.csproj", "{A829A3CB-7E05-4584-A1D3-F3678169F799}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -196,6 +207,14 @@ Global
 		{748711EC-055B-41E0-BF62-64912CF864F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{748711EC-055B-41E0-BF62-64912CF864F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{748711EC-055B-41E0-BF62-64912CF864F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1860ED5C-9EAB-4ED3-9B79-B16B6B3B1F56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1860ED5C-9EAB-4ED3-9B79-B16B6B3B1F56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1860ED5C-9EAB-4ED3-9B79-B16B6B3B1F56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1860ED5C-9EAB-4ED3-9B79-B16B6B3B1F56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A829A3CB-7E05-4584-A1D3-F3678169F799}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A829A3CB-7E05-4584-A1D3-F3678169F799}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A829A3CB-7E05-4584-A1D3-F3678169F799}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A829A3CB-7E05-4584-A1D3-F3678169F799}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -248,6 +267,11 @@ Global
 		{FBB90C88-83A7-455B-8147-EBAD3CB66672} = {1193C769-3074-4D48-B68B-9C42D7D9472F}
 		{93BF2137-809E-4D21-8142-805983AD518D} = {E355FA78-7C7D-4200-BE8E-AA84FB9EF4E0}
 		{748711EC-055B-41E0-BF62-64912CF864F8} = {EDEB676C-36AF-4A38-8401-6E9C54FD40C7}
+		{0E6ACF9C-8C3B-5CA9-914A-13040DBAC4DD} = {BDB4F8AE-F117-4999-AD26-86E5BBC6FD6F}
+		{BF769FB3-636B-1012-65D7-B0D794CA335B} = {0E6ACF9C-8C3B-5CA9-914A-13040DBAC4DD}
+		{667BADC7-A9B1-2E5E-73F0-A92EA6799ABC} = {0E6ACF9C-8C3B-5CA9-914A-13040DBAC4DD}
+		{1860ED5C-9EAB-4ED3-9B79-B16B6B3B1F56} = {BF769FB3-636B-1012-65D7-B0D794CA335B}
+		{A829A3CB-7E05-4584-A1D3-F3678169F799} = {667BADC7-A9B1-2E5E-73F0-A92EA6799ABC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {86AAF1E5-3D43-424B-9101-A04C77A0D14F}
