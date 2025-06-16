@@ -1,8 +1,10 @@
-﻿using Kyameru.Core.Contracts;
+﻿using System.Collections.Generic;
+using Kyameru.Core.Contracts;
 
-namespace Kyameru.Component.Sns;
-
-public interface ITo : IToChainLink
+namespace Kyameru.Component.Sns
 {
-    void SetHeaders(Dictionary<string, string> headers);
+    public interface ITo : IToChainLink
+    {
+        void SetHeaders(Dictionary<string, string> headers);
+    }
 }
