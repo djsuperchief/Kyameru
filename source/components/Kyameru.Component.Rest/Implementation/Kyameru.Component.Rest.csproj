@@ -1,9 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Description>Kyameru ftp component adds ftp routes to and from in your processing chain.</Description>
+    <Copyright>Giles Papworth 2025</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://djsuperchief.github.io/Kyameru/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/djsuperchief/Kyameru</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <NeutralLanguage>B</NeutralLanguage>
+    <Authors>Giles Papworth</Authors>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
