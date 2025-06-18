@@ -1,4 +1,5 @@
 using System;
+using Kyameru.Component.Rest.Contracts;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,18 +14,11 @@ public class InflatorTests
         var serviceCollection = GetServiceCollection();
         inflator.RegisterTo(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
-
-        var toChain = inflator.CreateToComponent(new Dictionary<string, string>(), serviceProvider);
+        var headers = GetValidHeaders();
+        var toChain = inflator.CreateToComponent(headers, serviceProvider);
         Assert.NotNull(toChain);
-    }
-
-    [Fact]
-    public void TestRouteCreation()
-    {
-        var routeString = "rest://api/v1/hello?endpoint=myapi.com:8080&https=false";
-        var routeAttr = new RouteAttributes(routeString);
-
-        Assert.True(true);
+        Assert.Equal("get", ((IRestTo)toChain).HttpMethod);
+        Assert.Equal("https://localhost:8080/api/v1/hello", ((IRestTo)toChain).Url);
     }
 
     private IServiceCollection GetServiceCollection()
@@ -33,4 +27,12 @@ public class InflatorTests
         // Any generic items here
         return collection;
     }
+
+    private Dictionary<string, string> GetValidHeaders() => new Dictionary<string, string>()
+        {
+            { "endpoint", "localhost:8080" },
+            { "Host", "api" },
+            { "Target", "/v1/hello" }
+        };
+
 }

@@ -1,19 +1,20 @@
 using System;
+using System.Collections.Generic;
 using Kyameru.Core.Entities;
 
 namespace Kyameru.Component.Rest.Extensions
 {
-    public static class RouteAttributesExtensions
+    public static class DictionaryExtensions
     {
-        public static string ToValidApiEndpoint(this RouteAttributes input)
+        public static string ToValidApiEndpoint(this Dictionary<string, string> input)
         {
             var protocol = "https";
-            if (input.Headers.TryGetValue("https", out var isHttps) && isHttps == "false")
+            if (input.TryGetValue("https", out var isHttps) && isHttps == "false")
             {
                 protocol = "http";
             }
 
-            return $"{protocol}://{input.Headers["endpoint"]}/{input.Headers["Host"]}{input.Headers["Target"]}";
+            return $"{protocol}://{input["endpoint"]}/{input["Host"]}{input["Target"]}";
         }
     }
 }

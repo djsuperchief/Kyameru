@@ -22,7 +22,8 @@ namespace Kyameru.Component.Rest
         public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             var toChain = serviceProvider.GetRequiredService<IRestTo>();
-            // Set headers
+            toChain.SetHeaders(headers);
+
             return toChain;
         }
 

@@ -3,7 +3,7 @@ using Kyameru.Core.Contracts;
 
 namespace Kyameru.Component.Rest.Contracts
 {
-    public interface IRestTo : IToChainLink
+    public interface IRestTo : IToChainLink, IRestChain
     {
 
     }
