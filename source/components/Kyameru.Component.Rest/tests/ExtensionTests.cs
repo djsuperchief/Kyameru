@@ -22,5 +22,19 @@ namespace Kyameru.Component.Rest.Tests
 
             Assert.Equal(expectedHost, routeAttr.Headers.ToValidApiEndpoint());
         }
+
+        [Fact]
+        public void QueryStringConvertsParametersCorrectly()
+        {
+            var expected = "https://localhost:8080/api/v1/hello?name=test&id=20";
+            var routeAttributes = new RouteAttributes("rest://api/v1/hello?endpoint=localhost:8080&name=test&id=20");
+            var validMethods = new string[]
+            {
+                "endpoint",
+                "Host",
+                "Target"
+            };
+            Assert.Equal(expected, routeAttributes.Headers.ToValidApiEndpoint(validMethods));
+        }
     }
 }

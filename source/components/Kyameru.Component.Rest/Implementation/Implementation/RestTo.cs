@@ -23,22 +23,5 @@ namespace Kyameru.Component.Rest.Implementation
             ValidateHeaders();
         }
 
-        private void ValidateHeaders()
-        {
-            foreach (var required in _requiredHeaders)
-            {
-                if (!_headers.ContainsKey(required) || string.IsNullOrWhiteSpace(_headers[required]))
-                {
-                    throw new Core.Exceptions.ComponentException(string.Format(Resources.ERROR_MISSINGHEADER, required));
-                }
-            }
-
-            if (_headers.ContainsKey("method") && _validMethods.Any(x => x == _headers["method"]))
-            {
-                HttpMethod = _headers["method"];
-            }
-
-            SetUrl();
-        }
     }
 }
