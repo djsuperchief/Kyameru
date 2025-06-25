@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Component.Rest.Contracts;
@@ -10,11 +11,25 @@ namespace Kyameru.Component.Rest.Implementation
 {
     public class RestTo : CommonBase, IRestTo
     {
+        private readonly HttpMessageHandler httpHandler;
+
         public event EventHandler<Log> OnLog;
 
-        public Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
+        public RestTo(HttpMessageHandler httpMessageHandler = null)
         {
-            throw new NotImplementedException();
+            httpHandler = httpMessageHandler;
+        }
+
+        public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
+        {
+            using (HttpClient client = this.GetHttpClient())
+            {
+                var response = await client.GetAsync(Url, cancellationToken);
+                if (response.IsSuccessStatusCode)
+                {
+                    routable.SetBody(response.Content);
+                }
+            }
         }
 
         public void SetHeaders(Dictionary<string, string> headers)
@@ -23,5 +38,19 @@ namespace Kyameru.Component.Rest.Implementation
             ValidateHeaders();
         }
 
+        private HttpClient GetHttpClient()
+        {
+            HttpClient response;
+            if (httpHandler == null)
+            {
+                response = new HttpClient();
+            }
+            else
+            {
+                response = new HttpClient(httpHandler);
+            }
+
+            return response;
+        }
     }
 }
