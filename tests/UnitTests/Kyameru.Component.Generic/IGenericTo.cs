@@ -5,5 +5,5 @@ namespace Kyameru.Component.Generic;
 
 public interface IGenericTo : IToChainLink
 {
-
+    string Id { get; }
 }

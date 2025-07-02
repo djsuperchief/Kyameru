@@ -79,6 +79,11 @@ public class Builder
             return Task.CompletedTask;
         });
 
+        response.When(x => x.SetId(Arg.Any<string>())).Do(x =>
+        {
+            response.Id.Returns(x.Arg<string>());
+        });
+
         return response;
     }
 }

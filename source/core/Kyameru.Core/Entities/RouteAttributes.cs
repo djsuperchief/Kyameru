@@ -48,6 +48,7 @@ namespace Kyameru.Core.Entities
                     Headers = ParseQuery($"Target={uriBuilder.Path}{GetQuery(uriBuilder)}");
                 }
 
+                Id = Guid.NewGuid();
             }
             catch (Exception ex)
             {
@@ -103,6 +104,11 @@ namespace Kyameru.Core.Entities
         /// Gets a value indicating if a condition has been set.
         /// </summary>
         public bool HasCondition => Condition != null;
+
+        /// <summary>
+        /// Unique identity of this route attribute.
+        /// </summary>
+        public Guid Id { get; internal set; }
 
         /// <summary>
         /// Parses a URI query string.

@@ -51,32 +51,16 @@ namespace Kyameru.Core
         private string identity;
 
         /// <summary>
+        /// Dependencies to register.
+        /// </summary>
+        private readonly List<Entities.ChainDependency> chainDependencies = new List<ChainDependency>();
+
+        /// <summary>
         /// Used for when reflection is needed for host assembly reflection.
         /// </summary>
         private Assembly hostAssembly;
 
         private Schedule schedule;
-
-        // /// <summary>
-        // /// Initializes a new instance of the <see cref="Builder"/> class.
-        // /// </summary>
-        // /// <param name="components">List of intermediary components.</param>
-        // /// <param name="to">To component.</param>
-        // /// <param name="fromUri">From Uri.</param>
-        // /// <param name="callingAssembly">Calling assembly namespace</param>
-        // internal Builder(
-        //     List<Processable> components,
-        //     RouteAttributes to,
-        //     RouteAttributes fromUri,
-        //     Assembly callingAssembly = null)
-        // {
-        //     this.fromUri = fromUri;
-        //     toUris.Add(to);
-        //     this.components = components;
-        //     this.fromUri = fromUri;
-        //     raiseExceptions = false;
-        //     hostAssembly = callingAssembly;
-        // }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Builder"/> class.
@@ -92,10 +76,15 @@ namespace Kyameru.Core
         {
             this.fromUri = fromUri;
             this.components = components;
-            this.fromUri = fromUri;
             raiseExceptions = false;
             hostAssembly = callingAssembly;
         }
+
+        internal RouteAttributes fromChainLink => fromUri;
+
+        internal List<RouteAttributes> toChainLinks => toUris;
+
+        internal List<ChainDependency> dependencies => chainDependencies;
 
         /// <summary>
         /// Gets the To component count.
@@ -111,6 +100,8 @@ namespace Kyameru.Core
         /// Gets a value indicating whether the route is on a schedule.
         /// </summary>
         public bool IsScheduled => schedule != null;
+
+
 
         /// <summary>
         /// Creates a new To component chain.
@@ -330,7 +321,7 @@ namespace Kyameru.Core
         /// <summary>
         /// Indicates that the framework will bubble a route exception up to consumer.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder RaiseExceptions()
         {
             raiseExceptions = true;
@@ -342,6 +333,7 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="unit">Unit of available time.</param>
         /// <param name="value">Value of time unit</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder ScheduleEvery(TimeUnit unit, int value = 1)
         {
             AddSchedule(unit, value, true);
@@ -353,7 +345,7 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="unit">Time unit</param>
         /// <param name="value">Value between 0 and max for time unit.</param>
-        /// <returns></returns>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
         public Builder ScheduleAt(TimeUnit unit, int value)
         {
             AddSchedule(unit, value, false);
@@ -374,8 +366,67 @@ namespace Kyameru.Core
             BuildKyameru(services);
         }
 
+        /// <summary>
+        /// Adds a DI component to the last known To chain link.
+        /// </summary>
+        /// <typeparam name="TContract">Contract interface.</typeparam>
+        /// <typeparam name="TImplementation">Concrete implementation.</typeparam>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        /// <exception cref="Exceptions.DependencyRegisterException"></exception>
+        public Builder AddToDependency<TContract, TImplementation>()
+        {
+            // validate.
+            if (chainDependencies.Any(x => x.Contract == typeof(TContract) && x.Implementation == typeof(TImplementation) && x.Id == toUris.Last().Id))
+            {
+                throw new Exceptions.DependencyRegisterException(string.Format(Resources.ERROR_DUPLICATE_DEPENDENCY, nameof(TContract), "To"));
+            }
+
+            chainDependencies.Add(new ChainDependency(toUris.Last().Id, typeof(TContract), typeof(TImplementation)));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a DI component to the From chain link.
+        /// </summary>
+        /// <typeparam name="TContract">Contract interface.</typeparam>
+        /// <typeparam name="TImplementation">Concrete implementation.</typeparam>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        /// <exception cref="Exceptions.DependencyRegisterException"></exception>
+        public Builder AddFromDependency<TContract, TImplementation>()
+        {
+            if (chainDependencies.Any(x => x.Contract == typeof(TContract) && x.Implementation == typeof(TImplementation) && x.Id == fromUri.Id))
+            {
+                throw new Exceptions.DependencyRegisterException(string.Format(Resources.ERROR_DUPLICATE_DEPENDENCY, nameof(TContract), "From"));
+            }
+
+            chainDependencies.Add(new ChainDependency(fromUri.Id, typeof(TContract), typeof(TImplementation)));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a dependency for a chain link.
+        /// </summary>
+        /// <typeparam name="TContract">Interface or contract.</typeparam>
+        /// <typeparam name="TImplementation">Implementation of contract</typeparam>
+        /// <param name="identity">Identity of the chain link.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Builder AddDependency<TContract, TImplementation>(Guid identity)
+        {
+            // TODO: Implementation.
+            var dependency = new ChainDependency(identity, typeof(TContract), typeof(TImplementation));
+            chainDependencies.Add(dependency);
+
+            return this;
+        }
+
         private void BuildKyameru(IServiceCollection services)
         {
+            foreach (var service in chainDependencies)
+            {
+                services.AddKeyedTransient(service.Contract, service.Id, service.Implementation);
+            }
+
             RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
             {
@@ -569,5 +620,7 @@ namespace Kyameru.Core
 
             return response;
         }
+
+
     }
 }

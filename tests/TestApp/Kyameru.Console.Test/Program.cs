@@ -64,6 +64,7 @@ namespace Kyameru.Console.Test
         {
             services.AddAwsService<IAmazonS3>();
             services.AddAwsService<IAmazonSQS>();
+
             Kyameru.Route.From($"file://{fileLocation}?Notifications=Created&SubDirectories=true&Filter=*.*")
                 .Process(new ProcessingComp())
                 .Process((Routable x) =>

@@ -36,5 +36,7 @@
         internal const string ERROR_SCHEDULE_ALREADY_DEFINED = "A schedule has already been defined.";
 
         internal const string ERROR_COMPONENT_NOT_FOUND = "Component not found {1}";
+
+        internal const string ERROR_DUPLICATE_DEPENDENCY = "Error, dependency of {0} has already been registered to {1} chain link.";
     }
 }

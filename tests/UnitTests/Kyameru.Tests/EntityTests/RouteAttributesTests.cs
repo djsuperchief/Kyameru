@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Kyameru.Core.Entities;
 using Xunit;
 
@@ -53,5 +54,12 @@ public class RouteAttributesTests
         var routeAttribute = new RouteAttributes(uri);
         Assert.Single(routeAttribute.Headers);
         Assert.Equal(expected, routeAttribute.Headers["ARN"]);
+    }
+
+    [Fact]
+    public void RouteAttributesIsGivenId()
+    {
+        var routeAttribute = new RouteAttributes("test://test");
+        Assert.True(Guid.TryParse(routeAttribute.Id.ToString(), out var parsedGuid));
     }
 }

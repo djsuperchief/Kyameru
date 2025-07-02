@@ -9,6 +9,8 @@ public class Inflator : IOasis
 {
     public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
+        var from = serviceProvider.GetRequiredService<IGenericFrom>();
+        from.SetId(headers["KyameruFromChainLinkId"]);
         return serviceProvider.GetRequiredService<IGenericFrom>();
     }
 
