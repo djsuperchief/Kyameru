@@ -61,9 +61,12 @@ public class Builder
         var response = Substitute.For<IGenericTo>();
         response.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
+            x.Arg<Routable>().SetHeader("&ToId", response.Id.ToString());
             _toProcessing.Invoke(x.Arg<Routable>());
             return Task.CompletedTask;
         });
+
+        response.When(x => x.SetId(Arg.Any<Guid>())).Do(x => response.Id.Returns(x.Arg<Guid>()));
 
         return response;
     }
@@ -74,7 +77,7 @@ public class Builder
         response.StartAsync(default).ReturnsForAnyArgs(x =>
         {
             var routable = _fromProcessing.Invoke();
-            routable.SetHeader("fromId", response.Id.ToString());
+            routable.SetHeader("&FromId", response.Id.ToString());
             var routableData = new RoutableEventData(routable, x.Arg<CancellationToken>());
             response.OnActionAsync += Raise.Event<AsyncEventHandler<RoutableEventData>>(null, routableData);
             return Task.CompletedTask;

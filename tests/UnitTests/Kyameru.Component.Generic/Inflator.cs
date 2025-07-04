@@ -11,7 +11,7 @@ public class Inflator : IOasis
     {
         var from = serviceProvider.GetRequiredService<IGenericFrom>();
         from.SetId(id);
-        return serviceProvider.GetRequiredService<IGenericFrom>();
+        return from;
     }
 
     public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider, Guid id)
@@ -21,7 +21,9 @@ public class Inflator : IOasis
 
     public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider, Guid id)
     {
-        return serviceProvider.GetRequiredService<IGenericTo>();
+        var to = serviceProvider.GetRequiredService<IGenericTo>();
+        to.SetId(id);
+        return to;
     }
 
     public IServiceCollection RegisterFrom(IServiceCollection serviceCollection, Guid id)

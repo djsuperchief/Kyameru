@@ -6,4 +6,6 @@ namespace Kyameru.Component.Generic;
 public interface IGenericTo : IToChainLink
 {
     Guid Id { get; }
+
+    void SetId(Guid id);
 }
