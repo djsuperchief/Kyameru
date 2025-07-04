@@ -74,14 +74,15 @@ public class Builder
         response.StartAsync(default).ReturnsForAnyArgs(x =>
         {
             var routable = _fromProcessing.Invoke();
+            routable.SetHeader("fromId", response.Id.ToString());
             var routableData = new RoutableEventData(routable, x.Arg<CancellationToken>());
             response.OnActionAsync += Raise.Event<AsyncEventHandler<RoutableEventData>>(null, routableData);
             return Task.CompletedTask;
         });
 
-        response.When(x => x.SetId(Arg.Any<string>())).Do(x =>
+        response.When(x => x.SetId(Arg.Any<Guid>())).Do(x =>
         {
-            response.Id.Returns(x.Arg<string>());
+            response.Id.Returns(x.Arg<Guid>());
         });
 
         return response;

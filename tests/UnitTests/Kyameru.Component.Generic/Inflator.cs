@@ -7,34 +7,34 @@ namespace Kyameru.Component.Generic;
 
 public class Inflator : IOasis
 {
-    public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
+    public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider, Guid id)
     {
         var from = serviceProvider.GetRequiredService<IGenericFrom>();
-        from.SetId(headers["KyameruFromChainLinkId"]);
+        from.SetId(id);
         return serviceProvider.GetRequiredService<IGenericFrom>();
     }
 
-    public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
+    public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider, Guid id)
     {
         throw new NotImplementedException();
     }
 
-    public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
+    public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider, Guid id)
     {
         return serviceProvider.GetRequiredService<IGenericTo>();
     }
 
-    public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
+    public IServiceCollection RegisterFrom(IServiceCollection serviceCollection, Guid id)
     {
         return serviceCollection;
     }
 
-    public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
+    public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection, Guid id)
     {
         return serviceCollection;
     }
 
-    public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
+    public IServiceCollection RegisterTo(IServiceCollection serviceCollection, Guid id)
     {
         return serviceCollection;
     }

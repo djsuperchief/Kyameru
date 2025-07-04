@@ -26,7 +26,7 @@ namespace Kyameru.Core
             IToChainLink response = null;
             try
             {
-                response = GetOasis(to.ComponentName).CreateToComponent(to.Headers, serviceProvider);
+                response = GetOasis(to.ComponentName).CreateToComponent(to.Headers, serviceProvider, to.Id);
             }
             catch (Exception ex)
             {
@@ -42,13 +42,14 @@ namespace Kyameru.Core
         /// <param name="from">Valid component name.</param>
         /// <param name="headers">Dictionary of headers</param>
         /// <param name="serviceProvider">DI Service provider.</param>
+        /// <param name="id">Identity of the chain link</param>
         /// <returns>Returns an instance of the <see cref="IFromChainLink"/> interface.</returns>
-        protected IFromChainLink CreateFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        protected IFromChainLink CreateFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, Guid id)
         {
             IFromChainLink response = null;
             try
             {
-                response = GetOasis(from).CreateFromComponent(headers, serviceProvider);
+                response = GetOasis(from).CreateFromComponent(headers, serviceProvider, id);
             }
             catch (Exception ex)
             {

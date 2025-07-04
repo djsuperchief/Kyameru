@@ -5,7 +5,7 @@ namespace Kyameru.Component.Generic;
 
 public interface IGenericFrom : IFromChainLink
 {
-    string Id { get; }
+    Guid Id { get; }
 
-    void SetId(string id);
+    void SetId(Guid id);
 }
