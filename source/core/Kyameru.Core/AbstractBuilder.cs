@@ -65,13 +65,14 @@ namespace Kyameru.Core
         /// <param name="from">Valid component name.</param>
         /// <param name="headers">Dictionary of headers</param>
         /// <param name="serviceProvider">DI Service provider.</param>
+        /// <param name="id">Identity of the chain link</param>
         /// <returns>Returns an instance of the <see cref="IScheduleChainLink"/> interface.</returns>
-        protected IScheduleChainLink CreateScheduled(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        protected IScheduleChainLink CreateScheduled(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider, Guid id)
         {
             IScheduleChainLink response = null;
             try
             {
-                response = GetOasis(from).CreateScheduleComponent(headers, serviceProvider);
+                response = GetOasis(from).CreateScheduleComponent(headers, serviceProvider, id);
             }
             catch (Exception ex)
             {
@@ -86,11 +87,12 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="serviceCollection">DI Service descriptors</param>
         /// <param name="component">Component to target.</param>
-        protected void RegisterToServices(IServiceCollection serviceCollection, string component)
+        /// <param name="id">Identity of the chain link</param>
+        protected void RegisterToServices(IServiceCollection serviceCollection, string component, Guid id)
         {
             try
             {
-                GetOasis(component).RegisterTo(serviceCollection);
+                GetOasis(component).RegisterTo(serviceCollection, id);
             }
             catch (Exception ex)
             {
@@ -103,11 +105,12 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="serviceCollection">DI Service descriptors</param>
         /// <param name="component">Component to target.</param>
-        protected void RegisterFromServices(IServiceCollection serviceCollection, string component)
+        /// <param name="id">Identity of the chain link</param>
+        protected void RegisterFromServices(IServiceCollection serviceCollection, string component, Guid id)
         {
             try
             {
-                GetOasis(component).RegisterFrom(serviceCollection);
+                GetOasis(component).RegisterFrom(serviceCollection, id);
             }
             catch (Exception ex)
             {
@@ -120,11 +123,12 @@ namespace Kyameru.Core
         /// </summary>
         /// <param name="serviceCollection">DI Service descriptors</param>
         /// <param name="component">Component to target.</param>
-        protected void RegisterScheduledServices(IServiceCollection serviceCollection, string component)
+        /// <param name="id">Identity of the chain link</param>
+        protected void RegisterScheduledServices(IServiceCollection serviceCollection, string component, Guid id)
         {
             try
             {
-                GetOasis(component).RegisterScheduled(serviceCollection);
+                GetOasis(component).RegisterScheduled(serviceCollection, id);
             }
             catch (NotImplementedException)
             {

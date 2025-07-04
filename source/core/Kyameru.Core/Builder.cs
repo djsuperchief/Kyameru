@@ -446,12 +446,12 @@ namespace Kyameru.Core
 
                 if (schedule == null)
                 {
-                    var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x);
+                    var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x, fromUri.Id);
                     return new From(from, next, logger, identity, raiseExceptions);
                 }
                 else
                 {
-                    var scheduled = CreateScheduled(fromUri.ComponentName, fromUri.Headers, x);
+                    var scheduled = CreateScheduled(fromUri.ComponentName, fromUri.Headers, x, fromUri.Id);
                     return new Scheduled(scheduled, next, logger, identity, raiseExceptions, schedule);
                 }
 
@@ -464,14 +464,14 @@ namespace Kyameru.Core
         /// </summary>
         private void RunComponentDiRegistration(IServiceCollection services)
         {
-            RegisterFromServices(services, fromUri.ComponentName);
+            RegisterFromServices(services, fromUri.ComponentName, fromUri.Id);
             foreach (var to in toUris)
             {
-                RegisterToServices(services, to.ComponentName);
+                RegisterToServices(services, to.ComponentName, to.Id);
             }
             if (IsScheduled)
             {
-                RegisterScheduledServices(services, fromUri.ComponentName);
+                RegisterScheduledServices(services, fromUri.ComponentName, fromUri.Id);
             }
         }
 

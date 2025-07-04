@@ -80,10 +80,7 @@ public class Builder
             return Task.CompletedTask;
         });
 
-        response.When(x => x.SetId(Arg.Any<Guid>())).Do(x =>
-        {
-            response.Id.Returns(x.Arg<Guid>());
-        });
+        response.When(x => x.SetId(Arg.Any<Guid>())).Do(x => response.Id.Returns(x.Arg<Guid>()));
 
         return response;
     }

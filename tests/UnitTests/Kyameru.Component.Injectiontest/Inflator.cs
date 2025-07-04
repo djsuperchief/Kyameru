@@ -7,7 +7,7 @@ namespace Kyameru.Component.Injectiontest
 {
     public class Inflator : Kyameru.Core.Contracts.IOasis
     {
-        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider, Guid id)
         {
             if (headers.ContainsKey("WillError"))
             {
@@ -19,7 +19,7 @@ namespace Kyameru.Component.Injectiontest
             return response;
         }
 
-        public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider, Guid id)
         {
             if (headers.ContainsKey("WillError"))
             {
@@ -31,22 +31,22 @@ namespace Kyameru.Component.Injectiontest
             return response;
         }
 
-        public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
+        public IServiceCollection RegisterTo(IServiceCollection serviceCollection, Guid id)
         {
             return serviceCollection.InstallToService();
         }
 
-        public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
+        public IServiceCollection RegisterFrom(IServiceCollection serviceCollection, Guid id)
         {
             return serviceCollection.InstallFromService();
         }
 
-        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider, Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
+        public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection, Guid id)
         {
             throw new NotImplementedException();
         }
