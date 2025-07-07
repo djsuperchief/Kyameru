@@ -11,6 +11,8 @@ public class Builder
     private Func<Routable> _fromProcessing;
     private Action<Routable> _toProcessing;
 
+    private bool _willSetId = true;
+
 #pragma warning disable CS8618
     protected Builder()
 
@@ -43,6 +45,12 @@ public class Builder
         return this;
     }
 
+    public Builder WithoutIdSetting()
+    {
+        _willSetId = false;
+        return this;
+    }
+
     public void Build(IServiceCollection services)
     {
         services.AddTransient<IGenericFrom>(x =>
@@ -61,7 +69,11 @@ public class Builder
         var response = Substitute.For<IGenericTo>();
         response.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
-            x.Arg<Routable>().SetHeader("&ToId", response.Id.ToString());
+            if (_willSetId)
+            {
+                x.Arg<Routable>().SetHeader("&ToId", response.Id.ToString());
+            }
+
             _toProcessing.Invoke(x.Arg<Routable>());
             return Task.CompletedTask;
         });
@@ -77,7 +89,11 @@ public class Builder
         response.StartAsync(default).ReturnsForAnyArgs(x =>
         {
             var routable = _fromProcessing.Invoke();
-            routable.SetHeader("&FromId", response.Id.ToString());
+            if (_willSetId)
+            {
+                routable.SetHeader("&FromId", response.Id.ToString());
+            }
+
             var routableData = new RoutableEventData(routable, x.Arg<CancellationToken>());
             response.OnActionAsync += Raise.Event<AsyncEventHandler<RoutableEventData>>(null, routableData);
             return Task.CompletedTask;

@@ -99,10 +99,12 @@ public class IoCFacts : BaseTests
             })
             .Build(services);
 
-        Route.From("generic:///CanExecute")
+        var route = Route.From("generic:///CanExecute")
             .Process<Tests.Mocks.IMyComponent>()
-            .To("generic:///CanExecute")
-            .Build(services);
+            .To("generic:///CanExecute");
+        expected.Insert(2, $"FromId:{route.fromChainLink.Id.ToString()}");
+        expected.Insert(4, $"ToId:{route.toChainLinks[0].Id.ToString()}");
+        route.Build(services);
         var serviceProvider = services.BuildServiceProvider();
         var service = serviceProvider.GetRequiredService<IHostedService>();
         thread.SetThread(service.StartAsync);
@@ -160,7 +162,8 @@ public class IoCFacts : BaseTests
                 {
                     thread.Continue();
                 }
-            });
+            })
+            .WithoutIdSetting();
 
         var builder = Route.From("generic:///start")
             .Process(processComponent)
@@ -172,6 +175,7 @@ public class IoCFacts : BaseTests
         thread.SetThread(service.StartAsync);
         thread.StartAndWait();
         await thread.CancelAsync();
+        Assert.False(routable.InError);
         Assert.Equal(expected, routable.Headers.ToAssertable());
     }
 
@@ -195,7 +199,8 @@ public class IoCFacts : BaseTests
 
         var generics = Component.Generic.Builder.Create()
             .WithFrom()
-            .WithTo(x => { });
+            .WithTo(x => { })
+            .WithoutIdSetting();
 
         Core.Builder builder = null;
 
