@@ -65,6 +65,32 @@ public class BuilderTests
     }
 
     [Fact]
+    public void AddFromDependencyAddsCorrectlyAfterFrom()
+    {
+        var route = Route.From("test://test")
+        .AddFromDependency<ITestContract, TestImplementation>()
+        .To("test://test");
+
+        var fromId = route.fromChainLink.Id;
+
+        Assert.Single(route.dependencies);
+        Assert.Equal(fromId, route.dependencies.First().Id);
+    }
+
+    [Fact]
+    public void AddFromFactoryLateAddsCorrectly()
+    {
+        var route = Route.From("test://test")
+        .AddFromDependency<ITestContract>(() => new TestImplementation())
+        .To("test://test");
+
+        var fromId = route.fromChainLink.Id;
+
+        Assert.Single(route.dependencies);
+        Assert.Equal(fromId, route.dependencies.First().Id);
+    }
+
+    [Fact]
     public void RegisterFromDependencyHasRegistered()
     {
         var builder = Route.From("test://test")

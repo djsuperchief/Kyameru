@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Kyameru.Core.Entities;
@@ -25,6 +26,11 @@ namespace Kyameru.Core
         /// Host assembly namespace.
         /// </summary>
         private readonly Assembly hostAssembly;
+
+        /// <summary>
+        /// Dependencies to register.
+        /// </summary>
+        private readonly List<Entities.ChainDependency> chainDependencies = new List<ChainDependency>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RouteBuilder"/> class.
@@ -144,6 +150,43 @@ namespace Kyameru.Core
         public RouteBuilder AddHeader(string key, Func<Routable, string> callback)
         {
             components.Add(Processable.Create(new BaseProcessors.AddHeader(key, callback)));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a DI component to the From chain link.
+        /// </summary>
+        /// <typeparam name="TContract">Contract interface.</typeparam>
+        /// <typeparam name="TImplementation">Concrete implementation.</typeparam>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        /// <exception cref="Exceptions.DependencyRegisterException"></exception>
+        public RouteBuilder AddFromDependency<TContract, TImplementation>()
+        {
+            if (chainDependencies.Any(x => x.Contract == typeof(TContract) && x.Implementation == typeof(TImplementation) && x.Id == fromUri.Id))
+            {
+                throw new Exceptions.DependencyRegisterException(string.Format(Resources.ERROR_DUPLICATE_DEPENDENCY, nameof(TContract), "From"));
+            }
+
+            chainDependencies.Add(ChainDependency.Create(fromUri.Id, typeof(TContract), typeof(TImplementation)));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a DI component to the From chain link.
+        /// </summary>
+        /// <typeparam name="TContract">Contract interface.</typeparam>
+        /// <param name="implementationFactory">Implementation Factory</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        /// <exception cref="Exceptions.DependencyRegisterException"></exception>
+
+        public RouteBuilder AddFromDependency<TContract>(Func<TContract> implementationFactory)
+        {
+            if (chainDependencies.Any(x => x.Contract == typeof(TContract) && x.Id == fromUri.Id))
+            {
+                throw new Exceptions.DependencyRegisterException(string.Format(Resources.ERROR_DUPLICATE_DEPENDENCY, nameof(TContract), "From"));
+            }
+
+            chainDependencies.Add(ChainDependency.Create<TContract>(fromUri.Id, implementationFactory));
             return this;
         }
 
@@ -283,8 +326,11 @@ namespace Kyameru.Core
             return new Builder(
                 components,
                 fromUri,
+                chainDependencies,
                 hostAssembly
             );
         }
+
+
     }
 }

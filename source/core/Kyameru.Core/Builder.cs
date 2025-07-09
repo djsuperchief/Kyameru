@@ -68,9 +68,11 @@ namespace Kyameru.Core
         /// <param name="components">List of intermediary components.</param>
         /// <param name="fromUri">From Uri.</param>
         /// <param name="callingAssembly">Calling assembly namespace</param>
+        /// <param name="dependencies">List of current chain link dependencies.</param>
         internal Builder(
             List<Processable> components,
             RouteAttributes fromUri,
+            List<Entities.ChainDependency> dependencies,
             Assembly callingAssembly = null
         )
         {
@@ -78,6 +80,7 @@ namespace Kyameru.Core
             this.components = components;
             raiseExceptions = false;
             hostAssembly = callingAssembly;
+            chainDependencies = dependencies;
         }
 
         internal RouteAttributes fromChainLink => fromUri;
@@ -100,8 +103,6 @@ namespace Kyameru.Core
         /// Gets a value indicating whether the route is on a schedule.
         /// </summary>
         public bool IsScheduled => schedule != null;
-
-
 
         /// <summary>
         /// Creates a new To component chain.
@@ -381,7 +382,7 @@ namespace Kyameru.Core
                 throw new Exceptions.DependencyRegisterException(string.Format(Resources.ERROR_DUPLICATE_DEPENDENCY, nameof(TContract), "To"));
             }
 
-            chainDependencies.Add(new ChainDependency(toUris.Last().Id, typeof(TContract), typeof(TImplementation)));
+            chainDependencies.Add(ChainDependency.Create(toUris.Last().Id, typeof(TContract), typeof(TImplementation)));
             return this;
         }
 
@@ -399,7 +400,7 @@ namespace Kyameru.Core
                 throw new Exceptions.DependencyRegisterException(string.Format(Resources.ERROR_DUPLICATE_DEPENDENCY, nameof(TContract), "From"));
             }
 
-            chainDependencies.Add(new ChainDependency(fromUri.Id, typeof(TContract), typeof(TImplementation)));
+            chainDependencies.Add(ChainDependency.Create(fromUri.Id, typeof(TContract), typeof(TImplementation)));
             return this;
         }
 
@@ -413,9 +414,7 @@ namespace Kyameru.Core
         /// <exception cref="NotImplementedException"></exception>
         public Builder AddDependency<TContract, TImplementation>(Guid identity)
         {
-            // TODO: Implementation.
-            var dependency = new ChainDependency(identity, typeof(TContract), typeof(TImplementation));
-            chainDependencies.Add(dependency);
+            chainDependencies.Add(ChainDependency.Create(identity, typeof(TContract), typeof(TImplementation)));
 
             return this;
         }
