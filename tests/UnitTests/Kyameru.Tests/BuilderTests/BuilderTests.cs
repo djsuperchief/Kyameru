@@ -113,6 +113,27 @@ public class BuilderTests
     }
 
     [Fact]
+    public async Task AddFromFactoryResolves()
+    {
+        var builder = Route.From("test://test")
+            .AddFromDependency<ITestContract>(() => new TestImplementation())
+            .To("test://test")
+            .AddToDependency<ITestContract, TestImplementation>();
+        var firstToId = builder.toChainLinks.Last().Id;
+        var fromId = builder.fromChainLink.Id;
+
+        var serviceDescriptors = new ServiceCollection();
+        builder.Build(serviceDescriptors);
+
+        var provider = serviceDescriptors.BuildServiceProvider();
+
+        Assert.NotNull(provider.GetKeyedService<ITestContract>(fromId));
+        Assert.NotNull(provider.GetKeyedService<ITestContract>(firstToId));
+
+
+    }
+
+    [Fact]
     public async Task ChainLinkGetsIdFromBuilder()
     {
         var serviceDescriptors = GetServiceDescriptors();
