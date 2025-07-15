@@ -91,6 +91,19 @@ public class BuilderTests
     }
 
     [Fact]
+    public void AddToFactoryDependencyRegisters()
+    {
+        var route = Route.From("test://test")
+        .To("test://test")
+        .AddToDependency<ITestContract>(() => new TestImplementation());
+
+        var toId = route.toChainLinks.Last().Id;
+
+        Assert.Single(route.dependencies);
+        Assert.Equal(toId, route.dependencies.First().Id);
+    }
+
+    [Fact]
     public void RegisterFromDependencyHasRegistered()
     {
         var builder = Route.From("test://test")
@@ -113,13 +126,15 @@ public class BuilderTests
     }
 
     [Fact]
-    public async Task AddFromFactoryResolves()
+    public void AddFactoriesResolves()
     {
         var builder = Route.From("test://test")
             .AddFromDependency<ITestContract>(() => new TestImplementation())
             .To("test://test")
-            .AddToDependency<ITestContract, TestImplementation>();
-        var firstToId = builder.toChainLinks.Last().Id;
+            .AddToDependency<ITestContract>(() => new TestImplementation())
+            .To("test:///second");
+        var firstToId = builder.toChainLinks.First().Id;
+        var secondToId = builder.toChainLinks.Last().Id;
         var fromId = builder.fromChainLink.Id;
 
         var serviceDescriptors = new ServiceCollection();
@@ -129,8 +144,6 @@ public class BuilderTests
 
         Assert.NotNull(provider.GetKeyedService<ITestContract>(fromId));
         Assert.NotNull(provider.GetKeyedService<ITestContract>(firstToId));
-
-
     }
 
     [Fact]

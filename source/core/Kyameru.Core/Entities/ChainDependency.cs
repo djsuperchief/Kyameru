@@ -14,7 +14,9 @@ namespace Kyameru.Core.Entities
 
         public Type Implementation { get; private set; }
 
-        public Func<object> ImplementationFactory { get; private set; }
+        //public Func<object> ImplementationFactory { get; private set; }
+
+        public Func<IServiceProvider, object, object> ImplementationFactory { get; set; }
 
         private ChainDependency(Guid id, Type contract, Type implementation)
         {
@@ -23,7 +25,7 @@ namespace Kyameru.Core.Entities
             Implementation = implementation;
         }
 
-        private ChainDependency(Guid id, Type contract, Func<object> implementationFactory)
+        private ChainDependency(Guid id, Type contract, Func<IServiceProvider, object, object> implementationFactory)
         {
             Id = id;
             Contract = contract;
@@ -33,12 +35,22 @@ namespace Kyameru.Core.Entities
         public static ChainDependency Create(Guid id, Type contract, Type implementation) =>
             new ChainDependency(id, contract, implementation);
 
-        public static ChainDependency Create<TContract>(Guid id, Func<TContract> implementationFactory) =>
+        public static ChainDependency Create<TContract>(Guid id, Func<TContract> implementationFactory)
+        {
+            var factory = Box<TContract>(implementationFactory, id);
+
+            return new ChainDependency(id, typeof(TContract), factory);
+        }
+
+
+        public static ChainDependency Create<TContract>(Guid id, Func<IServiceProvider, Guid, TContract> implementationFactory) =>
             new ChainDependency(id, typeof(TContract), Box(implementationFactory));
 
-        private static Func<object> Box<T>(Func<T> factory)
+        private static Func<IServiceProvider, object, object> Box<T>(Func<IServiceProvider, Guid, T> factory)
         {
-            return () => factory();
+            return (serviceProvider, o) => factory(serviceProvider, (Guid)o);
         }
+
+        private static Func<IServiceProvider, object, object> Box<T>(Func<T> factory, Guid identifier) => (serviceProvider, o) => factory();
     }
 }

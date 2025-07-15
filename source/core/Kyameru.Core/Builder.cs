@@ -387,6 +387,24 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Adds a DI component to the last known To chain link.
+        /// </summary>
+        /// <typeparam name="TContract">Contract interface.</typeparam>
+        /// <param name="implementationFactory">Implementation Factory.</param>
+        /// <returns>Returns an instance of the <see cref="Builder"/> class.</returns>
+        /// <exception cref="Exceptions.DependencyRegisterException"></exception>
+        public Builder AddToDependency<TContract>(Func<TContract> implementationFactory)
+        {
+            if (chainDependencies.Any(x => x.Contract == typeof(TContract) && x.Id == toUris.Last().Id))
+            {
+                throw new Exceptions.DependencyRegisterException(string.Format(Resources.ERROR_DUPLICATE_DEPENDENCY, nameof(TContract), "To"));
+            }
+
+            chainDependencies.Add(ChainDependency.Create<TContract>(toUris.Last().Id, implementationFactory));
+            return this;
+        }
+
+        /// <summary>
         /// Adds a DI component to the From chain link.
         /// </summary>
         /// <typeparam name="TContract">Contract interface.</typeparam>
@@ -423,7 +441,14 @@ namespace Kyameru.Core
         {
             foreach (var service in chainDependencies)
             {
-                services.AddKeyedTransient(service.Contract, service.Id, service.Implementation);
+                if (service.ImplementationFactory == null)
+                {
+                    services.AddKeyedTransient(service.Contract, service.Id, service.Implementation);
+                }
+                else
+                {
+                    services.AddKeyedTransient(service.Contract, service.Id, service.ImplementationFactory);
+                }
             }
 
             RunComponentDiRegistration(services);
