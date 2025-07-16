@@ -18,6 +18,7 @@ namespace Kyameru.Core
 
         public static Builder AuthWithApiToken(this Builder builder, string header, string token)
         {
+
             return builder;
         }
 
