@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{FBF56CC3-7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Core", "..\..\core\Kyameru.Core\Kyameru.Core.csproj", "{DFF1106C-49B8-4FC3-ACC1-DFD1BB857D9C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.TestUtilities", "..\..\..\tests\Shared\Kyameru.TestUtilities\Kyameru.TestUtilities.csproj", "{3BEC142D-49E5-4243-9B64-008CC8268CB8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{DFF1106C-49B8-4FC3-ACC1-DFD1BB857D9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFF1106C-49B8-4FC3-ACC1-DFD1BB857D9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFF1106C-49B8-4FC3-ACC1-DFD1BB857D9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BEC142D-49E5-4243-9B64-008CC8268CB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BEC142D-49E5-4243-9B64-008CC8268CB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BEC142D-49E5-4243-9B64-008CC8268CB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BEC142D-49E5-4243-9B64-008CC8268CB8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,5 +47,6 @@ Global
 		{0B9EA087-9603-4FF2-AC98-B39AC76C59D4} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{9AD31065-464C-42D9-8C1E-AFE1D9606753} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{DFF1106C-49B8-4FC3-ACC1-DFD1BB857D9C} = {FBF56CC3-7AE6-AD2D-3F14-7F97FD322CD6}
+		{3BEC142D-49E5-4243-9B64-008CC8268CB8} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

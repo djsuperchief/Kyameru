@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using Kyameru.Component.Rest.Extensions;
 
 namespace Kyameru.Component.Rest.Implementation
@@ -8,6 +9,8 @@ namespace Kyameru.Component.Rest.Implementation
     public abstract class CommonBase
     {
         protected Dictionary<string, string> _headers;
+
+        protected readonly HttpMessageHandler httpHandler;
         protected readonly string[] _requiredHeaders = new string[]
         {
             "endpoint",
@@ -23,6 +26,10 @@ namespace Kyameru.Component.Rest.Implementation
             "delete"
         };
 
+        protected CommonBase(HttpMessageHandler httpMessageHandler = null)
+        {
+            httpHandler = httpMessageHandler;
+        }
 
         public string HttpMethod { get; protected set; }
 
@@ -56,6 +63,21 @@ namespace Kyameru.Component.Rest.Implementation
 
             HttpMethod = _headers["method"];
             SetUrl();
+        }
+
+        protected HttpClient GetHttpClient()
+        {
+            HttpClient response;
+            if (httpHandler == null)
+            {
+                response = new HttpClient();
+            }
+            else
+            {
+                response = new HttpClient(httpHandler);
+            }
+
+            return response;
         }
     }
 }

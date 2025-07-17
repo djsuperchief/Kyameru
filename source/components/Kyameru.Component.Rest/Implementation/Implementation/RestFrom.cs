@@ -1,0 +1,57 @@
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using Kyameru.Component.Rest.Contracts;
+using Kyameru.Core.Entities;
+using Kyameru.Core.Sys;
+
+namespace Kyameru.Component.Rest.Implementation
+{
+    public class RestFrom : CommonBase, IRestFrom
+    {
+        public event EventHandler<Log> OnLog;
+        public event AsyncEventHandler<RoutableEventData> OnActionAsync;
+
+        public RestFrom(HttpMessageHandler httpMessageHandler = null) : base(httpMessageHandler)
+        {
+
+        }
+
+        public void Setup()
+        {
+            // do nothing.
+        }
+
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            using (var client = this.GetHttpClient())
+            {
+                var response = await client.GetAsync(Url, cancellationToken);
+                if (response.IsSuccessStatusCode)
+                {
+                    var routable = new Routable(new Dictionary<string, string>(), response.Content);
+                    foreach (var header in response.Headers)
+                    {
+                        routable.SetHeader(header.Key, header.Value.ToString());
+                    }
+
+                    OnActionAsync?.Invoke(this, new RoutableEventData(routable, cancellationToken));
+                }
+            }
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            // nothing to do...yet
+            return Task.CompletedTask;
+        }
+
+        public void SetHeaders(Dictionary<string, string> headers)
+        {
+            _headers = headers;
+            ValidateHeaders();
+        }
+    }
+}

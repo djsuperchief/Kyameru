@@ -11,13 +11,10 @@ namespace Kyameru.Component.Rest.Implementation
 {
     public class RestTo : CommonBase, IRestTo
     {
-        private readonly HttpMessageHandler httpHandler;
-
         public event EventHandler<Log> OnLog;
 
-        public RestTo(HttpMessageHandler httpMessageHandler = null)
+        public RestTo(HttpMessageHandler httpMessageHandler = null) : base(httpMessageHandler)
         {
-            httpHandler = httpMessageHandler;
         }
 
         public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
@@ -36,21 +33,6 @@ namespace Kyameru.Component.Rest.Implementation
         {
             _headers = headers;
             ValidateHeaders();
-        }
-
-        private HttpClient GetHttpClient()
-        {
-            HttpClient response;
-            if (httpHandler == null)
-            {
-                response = new HttpClient();
-            }
-            else
-            {
-                response = new HttpClient(httpHandler);
-            }
-
-            return response;
         }
     }
 }

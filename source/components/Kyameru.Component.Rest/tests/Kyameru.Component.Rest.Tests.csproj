@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../../../../tests/Shared/Kyameru.TestUtilities/Kyameru.TestUtilities.csproj" />
     <ProjectReference Include="../Implementation/Kyameru.Component.Rest.csproj" />
   </ItemGroup>
 
