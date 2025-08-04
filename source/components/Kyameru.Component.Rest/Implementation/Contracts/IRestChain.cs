@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 
 namespace Kyameru.Component.Rest.Contracts
 {
@@ -7,7 +8,7 @@ namespace Kyameru.Component.Rest.Contracts
     {
         void SetHeaders(Dictionary<string, string> headers);
 
-        string HttpMethod { get; }
+        HttpMethod HttpMethod { get; }
 
         string Url { get; }
     }

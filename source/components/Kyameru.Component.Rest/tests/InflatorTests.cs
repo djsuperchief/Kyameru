@@ -17,7 +17,7 @@ public class InflatorTests
         var headers = GetValidHeaders();
         var toChain = inflator.CreateToComponent(headers, serviceProvider, Guid.NewGuid());
         Assert.NotNull(toChain);
-        Assert.Equal("get", ((IRestTo)toChain).HttpMethod);
+        Assert.Equal(HttpMethod.Get, ((IRestTo)toChain).HttpMethod);
         Assert.Equal("https://localhost:8080/api/v1/hello", ((IRestTo)toChain).Url);
     }
 
@@ -39,7 +39,7 @@ public class InflatorTests
         {
             var toChain = inflator.CreateToComponent(headers, serviceProvider, Guid.NewGuid());
             Assert.NotNull(toChain);
-            Assert.Equal(method, ((IRestTo)toChain).HttpMethod);
+            Assert.Equal(HttpMethod.Get, ((IRestTo)toChain).HttpMethod);
             Assert.Equal("https://localhost:8080/api/v1/hello", ((IRestTo)toChain).Url);
         }
         else
@@ -60,7 +60,7 @@ public class InflatorTests
         headers.Add("date", "2025-01-01");
         var toChain = inflator.CreateToComponent(headers, serviceProvider, Guid.NewGuid());
         Assert.NotNull(toChain);
-        Assert.Equal("get", ((IRestTo)toChain).HttpMethod);
+        Assert.Equal(HttpMethod.Get, ((IRestTo)toChain).HttpMethod);
         Assert.Equal("https://localhost:8080/api/v1/hello?id=20&date=2025-01-01", ((IRestTo)toChain).Url);
     }
 

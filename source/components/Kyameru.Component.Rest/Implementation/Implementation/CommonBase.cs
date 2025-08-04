@@ -31,9 +31,9 @@ namespace Kyameru.Component.Rest.Implementation
             httpHandler = httpMessageHandler;
         }
 
-        public string HttpMethod { get; protected set; }
+        public HttpMethod HttpMethod { get; private set; }
 
-        public string Url { get; protected set; }
+        public string Url { get; private set; }
 
         protected void SetUrl()
         {
@@ -56,12 +56,12 @@ namespace Kyameru.Component.Rest.Implementation
                 _headers["method"] = "get";
             }
 
-            if (!_validMethods.Any(x => x == _headers["method"]))
+            if (_validMethods.All(x => x != _headers["method"].ToLower()))
             {
                 throw new Core.Exceptions.ComponentException(string.Format(Resources.ERROR_INVALID_METHOD, _headers["method"]));
             }
 
-            HttpMethod = _headers["method"];
+            HttpMethod = new HttpMethod(_headers["method"]);
             SetUrl();
         }
 

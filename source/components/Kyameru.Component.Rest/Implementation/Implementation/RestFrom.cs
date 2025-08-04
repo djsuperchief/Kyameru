@@ -28,7 +28,12 @@ namespace Kyameru.Component.Rest.Implementation
         {
             using (var client = this.GetHttpClient())
             {
-                var response = await client.GetAsync(Url, cancellationToken);
+                var httpRequest = new HttpRequestMessage()
+                {
+                    Method = new HttpMethod(_headers["method"]),
+                    RequestUri = new Uri(Url)
+                };
+                var response = await client.SendAsync(httpRequest, cancellationToken);
                 if (response.IsSuccessStatusCode)
                 {
                     var routable = new Routable(new Dictionary<string, string>(), response.Content);
