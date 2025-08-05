@@ -17,7 +17,7 @@ public abstract class BaseTestWithMockhandler
             {
                 Content = JsonContent.Create<Entities.GetResponse>(new Entities.GetResponse()
                 {
-                    Method = requestMessage.Method.ToString(),
+                    Method = requestMessage.Method.ToString().ToUpper(),
                     Url = requestMessage.RequestUri.ToString()
                 })
             };

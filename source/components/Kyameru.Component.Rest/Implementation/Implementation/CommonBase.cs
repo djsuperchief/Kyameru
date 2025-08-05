@@ -23,7 +23,12 @@ namespace Kyameru.Component.Rest.Implementation
             "post",
             "get",
             "put",
-            "delete"
+            "delete",
+            "connect",
+            "head",
+            "options",
+            "trace",
+            "patch"
         };
 
         protected CommonBase(HttpMessageHandler httpMessageHandler = null)
