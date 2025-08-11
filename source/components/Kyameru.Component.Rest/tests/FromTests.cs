@@ -5,6 +5,8 @@ using Kyameru.Component.Rest.Tests.Utils;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Sys;
 using Kyameru.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 
 namespace Kyameru.Component.Rest.Tests;
 
@@ -24,9 +26,10 @@ public class FromTests : BaseTestWithMockhandler
     public async Task FromExecutesGetRequestWithParams_WithoutAuth(string method, string expected = "GET")
     {
         var httpMessageHandlerMock = GetMockHttpMessageHandler();
+        var keyedServiceProvider = Substitute.For<IKeyedServiceProvider>();
         var methodAttr = string.IsNullOrWhiteSpace(method) ? string.Empty : $"&method={method}";
         var routeAttr = new RouteAttributes($"rest://api/v1/hello?endpoint=localhost:8080&id=546{methodAttr}");
-        var from = new RestFrom(httpMessageHandlerMock);
+        var from = new RestFrom(keyedServiceProvider, httpMessageHandlerMock);
         from.SetHeaders(routeAttr.Headers);
         var routable = new Routable(new Dictionary<string, string>(), "test");
         var thread = TestThread.CreateNew(from.StartAsync, 5);
@@ -56,8 +59,9 @@ public class FromTests : BaseTestWithMockhandler
     public async Task FromExecutesRequestWithMethod_WithoutAuth(string method)
     {
         var httpMessageHandlerMock = GetMockHttpMessageHandler();
+        var keyedServiceProvider = Substitute.For<IKeyedServiceProvider>();
         var routeAttr = new RouteAttributes($"rest://api/v1/hello?endpoint=localhost:8080&method={method}");
-        var from = new RestFrom(httpMessageHandlerMock);
+        var from = new RestFrom(keyedServiceProvider, httpMessageHandlerMock);
         from.SetHeaders(routeAttr.Headers);
         var routable = new Routable(new Dictionary<string, string>(), "test");
         var thread = TestThread.CreateNew(from.StartAsync, 5);

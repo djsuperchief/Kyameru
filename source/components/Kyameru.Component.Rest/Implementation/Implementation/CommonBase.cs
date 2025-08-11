@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using Kyameru.Component.Rest.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Kyameru.Component.Rest.Implementation
 {
@@ -11,6 +12,7 @@ namespace Kyameru.Component.Rest.Implementation
         protected Dictionary<string, string> _headers;
 
         protected readonly HttpMessageHandler httpHandler;
+        protected readonly IKeyedServiceProvider KeyedServiceProvider;
         protected readonly string[] _requiredHeaders = new string[]
         {
             "endpoint",
@@ -31,9 +33,10 @@ namespace Kyameru.Component.Rest.Implementation
             "patch"
         };
 
-        protected CommonBase(HttpMessageHandler httpMessageHandler = null)
+        protected CommonBase(IKeyedServiceProvider keyedServiceProvider, HttpMessageHandler httpMessageHandler = null)
         {
             httpHandler = httpMessageHandler;
+            KeyedServiceProvider = keyedServiceProvider;
         }
 
         public HttpMethod HttpMethod { get; private set; }

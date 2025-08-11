@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Kyameru.Component.Rest.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Sys;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Kyameru.Component.Rest.Implementation
 {
@@ -14,9 +15,8 @@ namespace Kyameru.Component.Rest.Implementation
         public event EventHandler<Log> OnLog;
         public event AsyncEventHandler<RoutableEventData> OnActionAsync;
 
-        public RestFrom(HttpMessageHandler httpMessageHandler = null) : base(httpMessageHandler)
+        public RestFrom(IKeyedServiceProvider keyedServiceProvider,HttpMessageHandler httpMessageHandler = null) : base(keyedServiceProvider,httpMessageHandler)
         {
-
         }
 
         public void Setup()
@@ -26,6 +26,7 @@ namespace Kyameru.Component.Rest.Implementation
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            var authenticationStrategy = KeyedServiceProvider.GetRequiredService<IAuthenticationStrategy>();
             using (var client = this.GetHttpClient())
             {
                 var httpRequest = new HttpRequestMessage()
@@ -33,6 +34,7 @@ namespace Kyameru.Component.Rest.Implementation
                     Method = new HttpMethod(_headers["method"]),
                     RequestUri = new Uri(Url)
                 };
+                await authenticationStrategy.ApplyAsyc(client);
                 var response = await client.SendAsync(httpRequest, cancellationToken);
                 if (response.IsSuccessStatusCode)
                 {

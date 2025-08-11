@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Kyameru.Component.Rest.Implementation;
 using Kyameru.Component.Rest.Tests.Utils;
 using Kyameru.Core.Entities;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 
 namespace Kyameru.Component.Rest.Tests;
@@ -13,9 +14,10 @@ public class ToTests
     public async Task ToExecutesGetRequest_WithoutAuth()
     {
         var httpMessageHandlerMock = GetMockHttpMessageHandler();
+        var keyedServiceProvider = Substitute.For<IKeyedServiceProvider>();
         var routeAttr = new RouteAttributes("rest://api/v1/hello?endpoint=localhost:8080");
 
-        var to = new RestTo(httpMessageHandlerMock);
+        var to = new RestTo(keyedServiceProvider, httpMessageHandlerMock);
         to.SetHeaders(routeAttr.Headers);
         var routable = new Routable(new Dictionary<string, string>(), "test");
         await to.ProcessAsync(routable, default);
@@ -30,8 +32,9 @@ public class ToTests
     public async Task ToExecutesGetRequestWithParameters_WithoutAuth()
     {
         var httpMessageHandlerMock = GetMockHttpMessageHandler();
+        var keyedServiceProvider = Substitute.For<IKeyedServiceProvider>();
         var routeAttr = new RouteAttributes("rest://api/v1/hello?endpoint=localhost:8080&id=1");
-        var to = new RestTo(httpMessageHandlerMock);
+        var to = new RestTo(keyedServiceProvider, httpMessageHandlerMock);
         to.SetHeaders(routeAttr.Headers);
         var routable = new Routable(new Dictionary<string, string>(), "test");
         await to.ProcessAsync(routable, default);

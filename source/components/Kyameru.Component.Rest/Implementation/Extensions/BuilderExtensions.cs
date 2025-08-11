@@ -1,4 +1,6 @@
 using System;
+using Kyameru.Component.Rest.Contracts;
+using Kyameru.Component.Rest.Implementation;
 
 namespace Kyameru.Core
 {
@@ -12,7 +14,7 @@ namespace Kyameru.Core
 
         public static RouteBuilder AuthWithApiToken(this RouteBuilder routeBuilder, string token)
         {
-
+            routeBuilder.AddFromDependency<IAuthenticationStrategy>(() => new AuthApiToken(token));
             return routeBuilder;
         }
 

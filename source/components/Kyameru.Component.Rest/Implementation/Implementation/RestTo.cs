@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Component.Rest.Contracts;
 using Kyameru.Core.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Kyameru.Component.Rest.Implementation
 {
@@ -13,7 +14,8 @@ namespace Kyameru.Component.Rest.Implementation
     {
         public event EventHandler<Log> OnLog;
 
-        public RestTo(HttpMessageHandler httpMessageHandler = null) : base(httpMessageHandler)
+        public RestTo(IKeyedServiceProvider keyedServiceProvider, HttpMessageHandler httpMessageHandler = null) : base(
+            keyedServiceProvider, httpMessageHandler)
         {
         }
 
