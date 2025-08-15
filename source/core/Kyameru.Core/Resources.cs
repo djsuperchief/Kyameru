@@ -36,5 +36,7 @@
         internal const string ERROR_SCHEDULE_ALREADY_DEFINED = "A schedule has already been defined.";
 
         internal const string ERROR_COMPONENT_NOT_FOUND = "Component not found {1}";
+        
+        internal const string ERROR_SUBSCRIPTION_NOT_FOUND = "Subscription not found {0}";
     }
 }
