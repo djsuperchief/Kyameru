@@ -57,6 +57,34 @@ namespace Kyameru.Core
 
             return response;
         }
+        
+        /// <summary>
+        /// Creates the from chain link that is event driven.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="headers"></param>
+        /// <param name="serviceProvider"></param>
+        /// <returns></returns>
+        protected IFromEventChainLink CreateEventFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        {
+            IFromEventChainLink response = null;
+            try
+            {
+                var activator = GetOasis(from);
+                if (!activator.EventsEnabled)
+                {
+                    throw new Exceptions.ActivationException(Resources.ERROR_EVENT_TRIGGER_UNSUPPORTED, "FromEvent");
+                }
+                
+                response = activator.CreateFromEvent(headers, serviceProvider);
+            }
+            catch (Exception ex)
+            {
+                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_FROM, ex, "From");
+            }
+
+            return response;
+        }
 
         /// <summary>
         /// Creates the scheduled component.

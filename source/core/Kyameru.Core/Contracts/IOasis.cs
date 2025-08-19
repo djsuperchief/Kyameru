@@ -10,6 +10,11 @@ namespace Kyameru.Core.Contracts
     public interface IOasis
     {
         /// <summary>
+        /// Gets a value indicating whether event driven triggers are supported in the component.
+        /// </summary>
+        bool EventsEnabled { get; }
+        
+        /// <summary>
         /// Creates a from component.
         /// </summary>
         /// <param name="headers">Dictionary of headers to apply.</param>
@@ -32,6 +37,14 @@ namespace Kyameru.Core.Contracts
         /// <param name="serviceProvider">DI Service provider</param>
         /// <returns>Returns an instance of the <see cref="IScheduleChainLink"/> interface.</returns>
         IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider);
+        
+        /// <summary>
+        /// Creates a from component triggered by an event.
+        /// </summary>
+        /// <param name="headers"></param>
+        /// <param name="serviceProvider"></param>
+        /// <returns></returns>
+        IFromEventChainLink CreateFromEvent(Dictionary<string, string> headers, IServiceProvider serviceProvider);
 
         /// <summary>
         /// Registers internal to services
@@ -53,5 +66,7 @@ namespace Kyameru.Core.Contracts
         /// <param name="serviceCollection">IoC collection</param>
         /// <returns>Returns the <see cref="IServiceCollection"/>.</returns>
         IServiceCollection RegisterScheduled(IServiceCollection serviceCollection);
+
+        
     }
 }

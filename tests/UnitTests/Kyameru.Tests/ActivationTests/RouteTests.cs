@@ -108,6 +108,14 @@ namespace Kyameru.Tests.ActivationTests
             Assert.True(builder.IsScheduled);
         }
 
+        [Fact]
+        public void CanRequestEventDriven()
+        {
+            var builder = this.CreateTo(this.CreateRoute());
+            builder.EventTrigger();
+            Assert.True(builder.EventDriven);
+        }
+
         private Core.RouteBuilder CreateRoute(string route = "test://hello")
         {
             return Route.From(route);
