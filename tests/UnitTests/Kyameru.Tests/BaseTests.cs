@@ -16,6 +16,22 @@ public abstract class BaseTests
         return services.BuildServiceProvider().GetRequiredService<IHostedService>();
     }
 
+    protected IHostedService BuildAndGetServices(Core.Builder kyameruBuilder)
+    {
+        var services = GetServiceDescriptors();
+        kyameruBuilder.Build(services);
+        return services.BuildServiceProvider().GetRequiredService<IHostedService>();
+    }
+
+    protected IServiceProvider BuildAndGetProvider(Core.Builder kyameruBuilder,
+        Component.Generic.Builder componentBuilder)
+    {
+        var services = GetServiceDescriptors();
+        componentBuilder.Build(services);
+        kyameruBuilder.Build(services);
+        return services.BuildServiceProvider();
+    }
+
     protected IServiceCollection GetServiceDescriptors()
     {
         IServiceCollection serviceCollection = new ServiceCollection();

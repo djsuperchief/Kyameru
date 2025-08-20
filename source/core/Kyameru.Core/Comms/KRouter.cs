@@ -14,7 +14,7 @@ namespace Kyameru.Core.Comms
     /// <summary>
     /// Kyameru message router.
     /// </summary>
-    public class KRouter : IKRouter
+    internal class KRouter : IKRouter
     {
         private readonly ConcurrentDictionary<Type, List<object>> _channels =
             new ConcurrentDictionary<Type, List<object>>();

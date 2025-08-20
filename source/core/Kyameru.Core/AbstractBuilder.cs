@@ -80,7 +80,7 @@ namespace Kyameru.Core
             }
             catch (Exception ex)
             {
-                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_FROM, ex, "From");
+                throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_FROM, ex, "FromEvent");
             }
 
             return response;
