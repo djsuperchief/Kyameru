@@ -7,7 +7,7 @@ namespace Kyameru.Core.Contracts
     /// <summary>
     /// Kyameru router interface.
     /// </summary>
-    internal interface IKRouter
+    public interface IKRouter
     {
         /// <summary>
         /// Creates a subscription for messages of a type.

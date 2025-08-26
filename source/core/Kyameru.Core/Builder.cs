@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Kyameru.Core.Chain;
+using Kyameru.Core.Comms;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Enums;
@@ -393,6 +394,8 @@ namespace Kyameru.Core
 
         private void BuildKyameru(IServiceCollection services)
         {
+            services.AddSingleton<IKExchange, KExchange>();
+            services.AddSingleton<IKRouter, KRouter>();
             RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
             {
@@ -419,8 +422,9 @@ namespace Kyameru.Core
                         var scheduled = CreateScheduled(fromUri.ComponentName, fromUri.Headers, x);
                         return new Scheduled(scheduled, next, logger, identity, raiseExceptions, schedule);
                     case FromType.Event:
-                        var eventFrom = CreateEventFrom(fromUri.ComponentName, fromUri.Headers, x);
-                        return null;
+                        var bus = x.GetRequiredService<IKRouter>();
+                        var eventFrom = CreateEventFrom(fromUri.ComponentName, fromUri.Headers, bus, x);
+                        return new Event(eventFrom.chainLink, next, logger, identity, eventFrom.messageQueue.Reader, raiseExceptions);
                 }
                 
                 // We should never be at this point; a return statement is always reached.

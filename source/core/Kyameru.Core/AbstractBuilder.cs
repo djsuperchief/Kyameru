@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Threading.Channels;
 using Kyameru.Core.Entities;
 
 namespace Kyameru.Core
@@ -57,33 +58,36 @@ namespace Kyameru.Core
 
             return response;
         }
-        
+
         /// <summary>
         /// Creates the from chain link that is event driven.
         /// </summary>
         /// <param name="from"></param>
         /// <param name="headers"></param>
+        /// <param name="bus"></param>
         /// <param name="serviceProvider"></param>
         /// <returns></returns>
-        protected IFromEventChainLink CreateEventFrom(string from, Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        protected (IFromEventChainLink chainLink, Channel<IRouteCommsMessage> messageQueue) CreateEventFrom(string from, Dictionary<string, string> headers, IKRouter bus,
+            IServiceProvider serviceProvider)
         {
             IFromEventChainLink response = null;
             try
             {
-                var activator = GetOasis(from);
+                var activator = GetEventOasis(from);
+                
                 if (!activator.EventsEnabled)
                 {
                     throw new Exceptions.ActivationException(Resources.ERROR_EVENT_TRIGGER_UNSUPPORTED, "FromEvent");
                 }
-                
+
+                var channel = activator.SubscribeToEvents<IRouteCommsMessage>(bus);
                 response = activator.CreateFromEvent(headers, serviceProvider);
+                return (response, channel);
             }
             catch (Exception ex)
             {
                 throw new Exceptions.ActivationException(Resources.ERROR_ACTIVATION_FROM, ex, "FromEvent");
             }
-
-            return response;
         }
 
         /// <summary>
@@ -172,6 +176,17 @@ namespace Kyameru.Core
         {
             Type fromType = Type.GetType($"Kyameru.Component.{component}.Inflator, Kyameru.Component.{component}");
             return (IOasis)Activator.CreateInstance(fromType);
+        }
+
+        /// <summary>
+        /// Gets the event activator from the component.
+        /// </summary>
+        /// <param name="component">Component name.</param>
+        /// <returns>Returns an instance of the <see cref="IEventOasis"/> interface.</returns>
+        private IEventOasis GetEventOasis(string component)
+        {
+            Type fromType = Type.GetType($"Kyameru.Component.{component}.Inflator, Kyameru.Component.{component}");
+            return (IEventOasis)Activator.CreateInstance(fromType);
         }
     }
 }

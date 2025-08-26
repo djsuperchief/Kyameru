@@ -10,11 +10,6 @@ namespace Kyameru.Core.Contracts
     public interface IOasis
     {
         /// <summary>
-        /// Gets a value indicating whether event driven triggers are supported in the component.
-        /// </summary>
-        bool EventsEnabled { get; }
-        
-        /// <summary>
         /// Creates a from component.
         /// </summary>
         /// <param name="headers">Dictionary of headers to apply.</param>
