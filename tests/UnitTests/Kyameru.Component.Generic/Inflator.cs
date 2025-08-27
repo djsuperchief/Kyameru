@@ -7,7 +7,7 @@ namespace Kyameru.Component.Generic;
 
 public class Inflator : IOasis
 {
-    public bool EventsEnabled => true;
+
 
     public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
@@ -17,11 +17,6 @@ public class Inflator : IOasis
     public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
         throw new NotImplementedException();
-    }
-
-    public IFromEventChainLink CreateFromEvent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
-    {
-        return serviceProvider.GetRequiredService<IGenericEventFrom>();
     }
 
     public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)

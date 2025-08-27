@@ -24,7 +24,7 @@ namespace Kyameru.Core.Comms
         /// </summary>
         /// <typeparam name="T">Message type to subscribe to.</typeparam>
         /// <returns>An instance of <see cref="ChannelReader{T}"/>.</returns>
-        public ChannelReader<T> Subscribe<T>()
+        public ChannelReader<T> Subscribe<T>() where T : class, IRouteCommsMessage
         {
             var channel = Channel.CreateUnbounded<T>();
             var channels = _channels.GetOrAdd(typeof(T), _ => new List<object>());
@@ -42,7 +42,7 @@ namespace Kyameru.Core.Comms
         /// <param name="message">Message to publish.</param>
         /// <param name="cancellationToken">Threading cancellation token.</param>
         /// <typeparam name="T">Type of <see cref="IRouteCommsMessage"/>.</typeparam>
-        public async Task Publish<T>(T message, CancellationToken cancellationToken) where T : class, IRouteCommsMessage
+        public async Task PublishAsync<T>(T message, CancellationToken cancellationToken) where T : class, IRouteCommsMessage
         {
             if (_channels.TryGetValue(message.GetType(), out List<object> channels))
             {

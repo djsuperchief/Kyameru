@@ -1,3 +1,6 @@
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Kyameru.Core.Contracts
 {
     /// <summary>
@@ -9,6 +12,7 @@ namespace Kyameru.Core.Contracts
         /// Publishes a message into the internal event bus.
         /// </summary>
         /// <param name="message">Message to publish.</param>
-        void PublishMessage(IRouteCommsMessage message);
+        /// <param name="cancellationToken">Cancellation token.</param>
+        Task PublishMessageAsync(IRouteCommsMessage message, CancellationToken cancellationToken);
     }
 }

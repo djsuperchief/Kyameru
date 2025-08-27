@@ -67,7 +67,7 @@ namespace Kyameru.Core
         /// <param name="bus"></param>
         /// <param name="serviceProvider"></param>
         /// <returns></returns>
-        protected (IFromEventChainLink chainLink, Channel<IRouteCommsMessage> messageQueue) CreateEventFrom(string from, Dictionary<string, string> headers, IKRouter bus,
+        protected (IFromEventChainLink chainLink, ChannelReader<IRouteCommsMessage> messageQueue) CreateEventFrom(string from, Dictionary<string, string> headers, IKRouter bus,
             IServiceProvider serviceProvider)
         {
             IFromEventChainLink response = null;
@@ -185,7 +185,7 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IEventOasis"/> interface.</returns>
         private IEventOasis GetEventOasis(string component)
         {
-            Type fromType = Type.GetType($"Kyameru.Component.{component}.Inflator, Kyameru.Component.{component}");
+            Type fromType = Type.GetType($"Kyameru.Component.{component}.EventInflator, Kyameru.Component.{component}");
             return (IEventOasis)Activator.CreateInstance(fromType);
         }
     }

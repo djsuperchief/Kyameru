@@ -53,10 +53,14 @@ public class Builder
 
     public void Build(IServiceCollection services)
     {
-        services.AddTransient<IGenericFrom>(x =>
+        if (eventFrom)
         {
-            return CreateFrom();
-        });
+            services.AddTransient<IGenericEventFrom>(x => CreateFromEvent());
+        }
+        else
+        {
+            services.AddTransient<IGenericFrom>(x => CreateFrom());
+        }
 
         services.AddTransient<IGenericTo>(x =>
         {

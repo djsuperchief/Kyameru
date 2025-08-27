@@ -28,7 +28,7 @@ public class RouterTests : BaseTests
         var router = new KRouter();
         var channel = router.Subscribe<TestMessage>();
 
-        await router.Publish<TestMessage>(new TestMessage("Hello world"), CancellationToken.None);
+        await router.PublishAsync<TestMessage>(new TestMessage("Hello world"), CancellationToken.None);
         TestMessage receivedMessage = null;
         await foreach (var message in channel.ReadAllAsync())
         {
@@ -52,13 +52,13 @@ public class RouterTests : BaseTests
             });
         var builder = Route.From("generic:///test")
             .To("generic:///test");
-        
+        builder.EventTrigger();
         var serviceProvider = BuildAndGetProvider(builder, generics);
         var exchange = serviceProvider.GetRequiredService<IKExchange>();
         var route = serviceProvider.GetRequiredService<IHostedService>();
         thread.SetThread(route.StartAsync);
         thread.Start();
-        exchange.PublishMessage(GenericMessage.Create("Test Message"));
+        await exchange.PublishMessageAsync(GenericMessage.Create("Test Message"), thread.CancelToken);
         thread.WaitForExecution();
         await thread.CancelAsync();
         

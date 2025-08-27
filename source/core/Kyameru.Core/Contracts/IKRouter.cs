@@ -14,7 +14,7 @@ namespace Kyameru.Core.Contracts
         /// </summary>
         /// <typeparam name="T">Message type to subscribe to.</typeparam>
         /// <returns>An instance of <see cref="ChannelReader{T}"/>.</returns>
-        ChannelReader<T> Subscribe<T>();
+        ChannelReader<T> Subscribe<T>() where T : class, IRouteCommsMessage;
 
         /// <summary>
         /// Publishes a message.
@@ -22,6 +22,6 @@ namespace Kyameru.Core.Contracts
         /// <param name="message">Message to publish.</param>
         /// <param name="cancellationToken">Threading cancellation token.</param>
         /// <exception cref="Exceptions.CommsException"></exception>
-        Task Publish<T>(T message, CancellationToken cancellationToken) where T : class, IRouteCommsMessage;
+        Task PublishAsync<T>(T message, CancellationToken cancellationToken) where T : class, IRouteCommsMessage;
     }
 }

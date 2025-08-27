@@ -424,7 +424,7 @@ namespace Kyameru.Core
                     case FromType.Event:
                         var bus = x.GetRequiredService<IKRouter>();
                         var eventFrom = CreateEventFrom(fromUri.ComponentName, fromUri.Headers, bus, x);
-                        return new Event(eventFrom.chainLink, next, logger, identity, eventFrom.messageQueue.Reader, raiseExceptions);
+                        return new Event(eventFrom.chainLink, next, logger, identity, eventFrom.messageQueue, raiseExceptions);
                 }
                 
                 // We should never be at this point; a return statement is always reached.
