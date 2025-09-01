@@ -46,10 +46,7 @@ namespace Kyameru.Core
         /// </summary>
         private bool raiseExceptions;
 
-        /// <summary>
-        /// Route Id.
-        /// </summary>
-        private string identity;
+        
 
         /// <summary>
         /// Used for when reflection is needed for host assembly reflection.

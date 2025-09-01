@@ -1,5 +1,6 @@
 using System;
 using System.Dynamic;
+using Kyameru.Core.Comms;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Sys;
 using Microsoft.Extensions.DependencyInjection;
@@ -99,8 +100,9 @@ public class Builder
         var response = Substitute.For<IGenericEventFrom>();
         response.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
         {
+            var message = ((GenericMessage)x.Arg<CommsMessage>().Data).Info;
             var routable = new Routable(new Dictionary<string, string> { { "EventFrom", "Executed" } },
-                x.Arg<GenericMessage>().Data);
+                message);
             var routableData = new RoutableEventData(routable, x.Arg<CancellationToken>());
             response.OnActionAsync += Raise.Event<AsyncEventHandler<RoutableEventData>>(null, routableData);
             return Task.CompletedTask;

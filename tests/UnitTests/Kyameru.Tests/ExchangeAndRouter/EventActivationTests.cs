@@ -35,7 +35,8 @@ public class EventActivationTests : BaseTests
             .WithTo(x => { });
 
         var builder = Route.From("generic:///test")
-            .To("generic:///test");
+            .To("generic:///test")
+            .EventTrigger();
         var exception = await Record.ExceptionAsync(async () =>
         {
             var service = BuildAndGetServices(builder,  generics);

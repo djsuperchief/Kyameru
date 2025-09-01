@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Kyameru.Core.Comms;
 
 namespace Kyameru.Core.Contracts
 {
@@ -11,8 +12,9 @@ namespace Kyameru.Core.Contracts
         /// <summary>
         /// Publishes a message into the internal event bus.
         /// </summary>
+        /// <param name="routingKey">Routing key for the message.</param>
         /// <param name="message">Message to publish.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        Task PublishMessageAsync(IRouteCommsMessage message, CancellationToken cancellationToken);
+        Task PublishMessageAsync<T>(string routingKey, T message, CancellationToken cancellationToken) where T : class;
     }
 }

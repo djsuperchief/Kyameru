@@ -18,25 +18,36 @@ public class RouterTests : BaseTests
     public void CanRegisterChannelForMessageType()
     {
         var router = new KRouter();
-        var channel = router.Subscribe<TestMessage>();
+        var channel = router.Subscribe("test");
         Assert.NotNull(channel);
+    }
+
+    [Fact]
+    public void DuplicateRegistersThrowsException()
+    {
+        var router = new KRouter();
+        var channel = router.Subscribe("test");
+        var exception = Record.Exception(() => router.Subscribe("test"));
+        Assert.NotNull(exception);
+        Assert.Equal("A route with the identifier 'test' already exists in the message queues.", exception.Message);
     }
 
     [Fact]
     public async Task CanPublishMessage()
     {
         var router = new KRouter();
-        var channel = router.Subscribe<TestMessage>();
+        var channel = router.Subscribe("test");
 
-        await router.PublishAsync<TestMessage>(new TestMessage("Hello world"), CancellationToken.None);
-        TestMessage receivedMessage = null;
+        var publishMessage = CommsMessage.Create("test", new TestMessage("Hello world"));
+        await router.PublishAsync(publishMessage, CancellationToken.None);
+        CommsMessage receivedMessage = null;
         await foreach (var message in channel.ReadAllAsync())
         {
             receivedMessage = message;
             break;
         }
         
-        Assert.Equal(receivedMessage.Data, "Hello world");
+        Assert.Equal("Hello world", ((TestMessage)receivedMessage.Data).Name);
     }
 
     [Fact]
@@ -51,17 +62,21 @@ public class RouterTests : BaseTests
                 eventData = x;
             });
         var builder = Route.From("generic:///test")
-            .To("generic:///test");
+            .To("generic:///test")
+            .Id("test");
         builder.EventTrigger();
+        
         var serviceProvider = BuildAndGetProvider(builder, generics);
         var exchange = serviceProvider.GetRequiredService<IKExchange>();
         var route = serviceProvider.GetRequiredService<IHostedService>();
         thread.SetThread(route.StartAsync);
         thread.Start();
-        await exchange.PublishMessageAsync(GenericMessage.Create("Test Message"), thread.CancelToken);
+        await exchange.PublishMessageAsync("test", GenericMessage.Create("Test Message"), thread.CancelToken);
         thread.WaitForExecution();
         await thread.CancelAsync();
         
         Assert.Equal("Test Message", eventData.Body);
     }
+
+    
 }

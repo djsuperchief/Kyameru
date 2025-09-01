@@ -16,22 +16,22 @@ namespace Kyameru.Core.Comms
     /// </summary>
     internal class KRouter : IKRouter
     {
-        private readonly ConcurrentDictionary<Type, List<object>> _channels =
-            new ConcurrentDictionary<Type, List<object>>();
+        private readonly ConcurrentDictionary<string, Channel<CommsMessage>> _messageQueues =
+            new ConcurrentDictionary<string, Channel<CommsMessage>>();
         
         /// <summary>
         /// Creates a subscription for messages of a type.
         /// </summary>
-        /// <typeparam name="T">Message type to subscribe to.</typeparam>
-        /// <returns>An instance of <see cref="ChannelReader{T}"/>.</returns>
-        public ChannelReader<T> Subscribe<T>() where T : class, IRouteCommsMessage
+        /// <returns>An instance of <see cref="ChannelReader{CommsMessage}"/>.</returns>
+        public ChannelReader<CommsMessage> Subscribe(string identity)
         {
-            var channel = Channel.CreateUnbounded<T>();
-            var channels = _channels.GetOrAdd(typeof(T), _ => new List<object>());
-            lock (channels)
+            if (_messageQueues.ContainsKey(identity))
             {
-                channels.Add(channel);
+                throw new Core.Exceptions.ComponentException(string.Format(Resources.ERROR_EVENT_IDENTITY_REGISTERED, identity));
             }
+            
+            var channel = Channel.CreateUnbounded<CommsMessage>();
+            _messageQueues.TryAdd(identity, channel);
 
             return channel.Reader;
         }
@@ -41,26 +41,15 @@ namespace Kyameru.Core.Comms
         /// </summary>
         /// <param name="message">Message to publish.</param>
         /// <param name="cancellationToken">Threading cancellation token.</param>
-        /// <typeparam name="T">Type of <see cref="IRouteCommsMessage"/>.</typeparam>
-        public async Task PublishAsync<T>(T message, CancellationToken cancellationToken) where T : class, IRouteCommsMessage
+        public async Task PublishAsync(CommsMessage message, CancellationToken cancellationToken)
         {
-            if (_channels.TryGetValue(message.GetType(), out List<object> channels))
+            if (_messageQueues.TryGetValue(message.RoutingKey, out Channel<CommsMessage> channel))
             {
-                List<object> channelsSnapshot;
-                lock (channels)
-                {
-                    channelsSnapshot = channels.ToList();
-                }
-
-                foreach (var channel in channelsSnapshot)
-                {
-                    var broadcastChannel = (Channel<T>)channel;
-                    await broadcastChannel.Writer.WriteAsync(message, cancellationToken);
-                }
+               await channel.Writer.WriteAsync(message, cancellationToken);
             }
             else
             {
-                throw new CommsException(string.Format(Resources.ERROR_SUBSCRIPTION_NOT_FOUND, typeof(T).FullName));
+                throw new CommsException(string.Format(Resources.ERROR_SUBSCRIPTION_NOT_FOUND, "test"));
             }
         }
     }

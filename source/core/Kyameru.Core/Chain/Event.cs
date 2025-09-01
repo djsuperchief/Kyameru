@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using Kyameru.Core.Comms;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Extensions;
@@ -18,9 +19,9 @@ namespace Kyameru.Core.Chain
         private readonly ILogger _logger;
         private readonly string _identity;
         private readonly bool _raiseExceptions;
-        private readonly ChannelReader<IRouteCommsMessage> _messageQueue;
+        private readonly ChannelReader<CommsMessage> _messageQueue;
 
-        public Event(IFromEventChainLink fromChainLink, IChain<Routable> next, ILogger logger, string id, ChannelReader<IRouteCommsMessage> msgQueue, bool raiseExceptions)
+        public Event(IFromEventChainLink fromChainLink, IChain<Routable> next, ILogger logger, string id, ChannelReader<CommsMessage> msgQueue, bool raiseExceptions)
         {
             _from =  fromChainLink;
             _next = next;

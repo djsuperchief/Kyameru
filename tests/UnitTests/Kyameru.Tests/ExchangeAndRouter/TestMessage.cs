@@ -3,14 +3,12 @@ using Kyameru.Core.Contracts;
 
 namespace Kyameru.Tests.ExchangeAndRouter;
 
-public class TestMessage : IRouteCommsMessage
+public class TestMessage 
 {
-    public Guid MessageId { get; }
-    public object Data { get; }
+    public string Name { get; set; }
 
-    public TestMessage(string data)
+    public TestMessage(string name)
     {
-        this.MessageId = Guid.NewGuid();
-        this.Data = data;
+        this.Name = name;
     }
 }

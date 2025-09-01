@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Threading.Channels;
+using Kyameru.Core.Comms;
 using Kyameru.Core.Entities;
 
 namespace Kyameru.Core
@@ -16,6 +17,11 @@ namespace Kyameru.Core
     /// </remarks>
     public abstract class AbstractBuilder
     {
+        /// <summary>
+        /// Route Id.
+        /// </summary>
+        protected string identity;
+        
         /// <summary>
         /// Creates the to component.
         /// </summary>
@@ -67,20 +73,15 @@ namespace Kyameru.Core
         /// <param name="bus"></param>
         /// <param name="serviceProvider"></param>
         /// <returns></returns>
-        protected (IFromEventChainLink chainLink, ChannelReader<IRouteCommsMessage> messageQueue) CreateEventFrom(string from, Dictionary<string, string> headers, IKRouter bus,
+        protected (IFromEventChainLink chainLink, ChannelReader<CommsMessage> messageQueue) CreateEventFrom(string from, Dictionary<string, string> headers, IKRouter bus,
             IServiceProvider serviceProvider)
         {
             IFromEventChainLink response = null;
             try
             {
                 var activator = GetEventOasis(from);
-                
-                if (!activator.EventsEnabled)
-                {
-                    throw new Exceptions.ActivationException(Resources.ERROR_EVENT_TRIGGER_UNSUPPORTED, "FromEvent");
-                }
 
-                var channel = activator.SubscribeToEvents<IRouteCommsMessage>(bus);
+                var channel = bus.Subscribe(identity);
                 response = activator.CreateFromEvent(headers, serviceProvider);
                 return (response, channel);
             }
@@ -186,6 +187,11 @@ namespace Kyameru.Core
         private IEventOasis GetEventOasis(string component)
         {
             Type fromType = Type.GetType($"Kyameru.Component.{component}.EventInflator, Kyameru.Component.{component}");
+            if (fromType == null)
+            {
+                throw new Exceptions.ActivationException(Resources.ERROR_EVENT_TRIGGER_UNSUPPORTED, "FromEvent");
+            }
+            
             return (IEventOasis)Activator.CreateInstance(fromType);
         }
     }

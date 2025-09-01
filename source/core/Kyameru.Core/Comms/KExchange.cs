@@ -24,10 +24,11 @@ namespace Kyameru.Core.Comms
         /// Publishes a message into the internal event bus.
         /// </summary>
         /// <param name="message">Message to publish.</param>
+        /// <param name="routingKey">The routing key to use.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        public async Task PublishMessageAsync(IRouteCommsMessage message, CancellationToken cancellationToken)
+        public async Task PublishMessageAsync<T>(string routingKey, T message, CancellationToken cancellationToken) where T : class
         {
-            await _router.PublishAsync(message, cancellationToken);
+            await _router.PublishAsync(CommsMessage.Create(routingKey, message), cancellationToken);
         }
     }
 }

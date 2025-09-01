@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using Kyameru.Core.Comms;
 
 namespace Kyameru.Core.Contracts
 {
@@ -12,9 +13,8 @@ namespace Kyameru.Core.Contracts
         /// <summary>
         /// Creates a subscription for messages of a type.
         /// </summary>
-        /// <typeparam name="T">Message type to subscribe to.</typeparam>
-        /// <returns>An instance of <see cref="ChannelReader{T}"/>.</returns>
-        ChannelReader<T> Subscribe<T>() where T : class, IRouteCommsMessage;
+        /// <returns>An instance of <see cref="ChannelReader{CommsMessage}"/>.</returns>
+        ChannelReader<CommsMessage> Subscribe(string identity);
 
         /// <summary>
         /// Publishes a message.
@@ -22,6 +22,6 @@ namespace Kyameru.Core.Contracts
         /// <param name="message">Message to publish.</param>
         /// <param name="cancellationToken">Threading cancellation token.</param>
         /// <exception cref="Exceptions.CommsException"></exception>
-        Task PublishAsync<T>(T message, CancellationToken cancellationToken) where T : class, IRouteCommsMessage;
+        Task PublishAsync(CommsMessage message, CancellationToken cancellationToken);
     }
 }

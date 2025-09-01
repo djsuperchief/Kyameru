@@ -1,14 +1,13 @@
+using Kyameru.Core.Comms;
 using Kyameru.Core.Contracts;
 
 namespace Kyameru.Component.Generic;
 
-public class GenericMessage : IRouteCommsMessage
+public class GenericMessage
 {
-    public Guid MessageId { get; private init; }
-    public object Data { get; private init; }
-
+    public string Info { get; private set; }
     public static GenericMessage Create(string data)
     {
-        return new GenericMessage() { MessageId = Guid.NewGuid(), Data = data };
+        return new GenericMessage() { Info = data };
     }
 }
