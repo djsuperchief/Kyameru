@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -76,6 +78,53 @@ public class RouterTests : BaseTests
         await thread.CancelAsync();
         
         Assert.Equal("Test Message", eventData.Body);
+    }
+
+    [Fact]
+    public async Task MultipleRoutesProcessMessagesCorrectly()
+    {
+        var routeOne = TestThread.CreateDeferred();
+        var routeTwo = TestThread.CreateDeferred();
+        var received = new Dictionary<string, string>();
+        
+        var serviceDescriptors = GetServiceDescriptors();
+        Component.Generic.Builder.Create()
+            .WithEventFrom()
+            .WithTo(x => { })
+            .Build(serviceDescriptors);
+
+        Route.From("generic:///test?name=One")
+            .To("generic:///test", x =>
+            {
+                received.Add("first", x.Body.ToString());
+                routeOne.Continue();
+            })
+            .Id("first")
+            .EventTrigger()
+            .Build(serviceDescriptors);
+        Route.From("generic:///test?name=Two")
+            .To("generic:///test", x =>
+            {
+                received.Add("second", x.Body.ToString());
+                routeTwo.Continue();
+            })
+            .Id("second")
+            .EventTrigger()
+            .Build(serviceDescriptors);
+        
+        var provider = serviceDescriptors.BuildServiceProvider();
+        var exchange = provider.GetRequiredService<IKExchange>();
+        var services = provider.GetServices<IHostedService>();
+        routeOne.SetThread(services.ElementAt(0).StartAsync);
+        routeTwo.SetThread(services.ElementAt(1).StartAsync);
+        await exchange.PublishMessageAsync("first",  GenericMessage.Create("Message For One"), routeOne.CancelToken);
+        await exchange.PublishMessageAsync("second", GenericMessage.Create("Message For Two"), routeTwo.CancelToken);
+        routeOne.StartAndWait();
+        routeTwo.StartAndWait();
+        
+        Assert.Equal(2, received.Count);
+        Assert.Equal("Message For One", received["first"]);
+        Assert.Equal("Message For Two", received["second"]);
     }
 
     

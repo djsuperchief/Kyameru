@@ -42,7 +42,6 @@ public class Builder
     public Builder WithEventFrom()
     {
         eventFrom = true;
-        _fromProcessing = () => new Routable(new Dictionary<string, string> { { "FROM", "Executed" } }, "CanExecute");
         return this;
     }
 
