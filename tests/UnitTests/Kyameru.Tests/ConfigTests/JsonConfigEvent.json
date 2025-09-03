@@ -1,0 +1,13 @@
+{
+  "From": {
+    "Uri": "generic:///mememe"
+  },
+  "To": [
+    {
+      "Uri": "test://test?RouteCallName=EventTo"
+    }
+  ],
+  "Options": {
+    "EventDriven":true
+  }
+}

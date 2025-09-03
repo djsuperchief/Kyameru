@@ -10,6 +10,8 @@ using Kyameru.Core.Entities;
 using Kyameru.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using Xunit;
 
 namespace Kyameru.Tests.ExchangeAndRouter;
@@ -19,7 +21,8 @@ public class RouterTests : BaseTests
     [Fact]
     public void CanRegisterChannelForMessageType()
     {
-        var router = new KRouter();
+        var loggerMock = Substitute.For<ILogger<KRouter>>();
+        var router = new KRouter(loggerMock);
         var channel = router.Subscribe("test");
         Assert.NotNull(channel);
     }
@@ -27,7 +30,8 @@ public class RouterTests : BaseTests
     [Fact]
     public void DuplicateRegistersThrowsException()
     {
-        var router = new KRouter();
+        var loggerMock = Substitute.For<ILogger<KRouter>>();
+        var router = new KRouter(loggerMock);
         var channel = router.Subscribe("test");
         var exception = Record.Exception(() => router.Subscribe("test"));
         Assert.NotNull(exception);
@@ -37,7 +41,8 @@ public class RouterTests : BaseTests
     [Fact]
     public async Task CanPublishMessage()
     {
-        var router = new KRouter();
+        var loggerMock = Substitute.For<ILogger<KRouter>>();
+        var router = new KRouter(loggerMock);
         var channel = router.Subscribe("test");
 
         var publishMessage = CommsMessage.Create("test", new TestMessage("Hello world"));
@@ -83,8 +88,8 @@ public class RouterTests : BaseTests
     [Fact]
     public async Task MultipleRoutesProcessMessagesCorrectly()
     {
-        var routeOne = TestThread.CreateDeferred();
-        var routeTwo = TestThread.CreateDeferred();
+        var routeOne = TestThread.CreateDeferred(20);
+        var routeTwo = TestThread.CreateDeferred(20);
         var received = new Dictionary<string, string>();
         
         var serviceDescriptors = GetServiceDescriptors();

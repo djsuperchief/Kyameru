@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Kyameru.Core.Comms;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Exceptions;
 using Kyameru.TestUtilities;
@@ -107,6 +108,35 @@ public class LoadedConfigTests
         AssertLogger(logger, "ConfigWhenExecutes_To", LogLevel.Information);
     }
 
+    [Fact]
+    public async Task EventDrivenFromConfigurationWorks()
+    {
+        var logger = Substitute.For<ILogger<Route>>();
+        logger.IsEnabled(Arg.Is<LogLevel>(LogLevel.Information)).Returns(true);
+        
+        var serviceDescriptors = GetServiceDescriptors(logger);
+        Component.Generic.Builder.Create()
+            .WithEventFrom()
+            .WithTo(x => { })
+            .Build(serviceDescriptors);
+        
+        
+        var routeConfig = RouteConfig.Load("ConfigTests/JsonConfigEvent.json");
+        Route.FromConfig(routeConfig, serviceDescriptors);
+        var provider = serviceDescriptors.BuildServiceProvider();
+        var service = provider.GetService<IHostedService>();
+
+        var thread = TestThread.CreateNew(service.StartAsync, 5);
+        var exchange = provider.GetService<KExchange>();
+        
+        // TODO: need to publish a message BUT we also need to fix the id not being assigned!
+        thread.Start();
+        thread.WaitForExecution();
+        await thread.CancelAsync();
+
+        AssertLogger(logger, "EventTo", LogLevel.Information);
+    }
+
     private CancellationTokenSource GetCancellationToken(int timeInSeconds)
     {
         return new CancellationTokenSource(TimeSpan.FromSeconds(timeInSeconds));
@@ -117,6 +147,7 @@ public class LoadedConfigTests
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddTransient(sp => logger);
         serviceCollection.AddTransient<Mocks.IMyComponent, Mocks.MyComponent>();
+        serviceCollection.AddTransient<ILogger<KRouter>>(x => Substitute.For<ILogger<KRouter>>());
 
         return serviceCollection;
     }
