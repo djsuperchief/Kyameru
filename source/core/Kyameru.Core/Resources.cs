@@ -36,5 +36,6 @@
         internal const string ERROR_CRITICAL_FAILURE =
             "Critical failure has occurred. This is most likely a problem in the library, please log a ticket.";
         internal const string ERROR_EVENT_IDENTITY_REGISTERED = "A route with the identifier '{0}' already exists in the message queues.";
+        internal const string ERROR_EVENT_IDENTITY_BLANK = "Event driven routes must have an Id";
     }
 }

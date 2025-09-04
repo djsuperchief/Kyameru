@@ -1,7 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Kyameru.Component.Generic;
 using Kyameru.Core.Comms;
+using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Exceptions;
 using Kyameru.TestUtilities;
@@ -111,30 +113,33 @@ public class LoadedConfigTests
     [Fact]
     public async Task EventDrivenFromConfigurationWorks()
     {
+        var thread = TestThread.CreateDeferred(5);
         var logger = Substitute.For<ILogger<Route>>();
         logger.IsEnabled(Arg.Is<LogLevel>(LogLevel.Information)).Returns(true);
-        
+        Routable data = null;
         var serviceDescriptors = GetServiceDescriptors(logger);
         Component.Generic.Builder.Create()
             .WithEventFrom()
-            .WithTo(x => { })
+            .WithTo(x =>
+            {
+                data = x;
+            })
             .Build(serviceDescriptors);
-        
         
         var routeConfig = RouteConfig.Load("ConfigTests/JsonConfigEvent.json");
         Route.FromConfig(routeConfig, serviceDescriptors);
         var provider = serviceDescriptors.BuildServiceProvider();
-        var service = provider.GetService<IHostedService>();
+        var service = provider.GetRequiredService<IHostedService>();
 
-        var thread = TestThread.CreateNew(service.StartAsync, 5);
-        var exchange = provider.GetService<KExchange>();
         
-        // TODO: need to publish a message BUT we also need to fix the id not being assigned!
+        var exchange = provider.GetRequiredService<IKExchange>();
+        await exchange.PublishMessageAsync("JsonConfig", GenericMessage.Create("This is a test message"), thread.CancelToken);
+        thread.SetThread(service.StartAsync);
         thread.Start();
         thread.WaitForExecution();
         await thread.CancelAsync();
 
-        AssertLogger(logger, "EventTo", LogLevel.Information);
+        Assert.Equal("This is a test message", data.Body.ToString());
     }
 
     private CancellationTokenSource GetCancellationToken(int timeInSeconds)

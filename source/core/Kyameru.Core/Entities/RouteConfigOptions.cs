@@ -24,5 +24,10 @@ namespace Kyameru.Core.Entities
         /// Gets or sets a value indicating whether the route should be event driven.
         /// </summary>
         public bool EventDriven { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identity of the route.
+        /// </summary>
+        public string Id { get; set; }
     }
 }

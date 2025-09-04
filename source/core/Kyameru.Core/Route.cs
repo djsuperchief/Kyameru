@@ -99,6 +99,8 @@ namespace Kyameru
                 {
                     final.EventTrigger();
                 }
+
+                final.Id(config.Options?.Id);
             }
 
             

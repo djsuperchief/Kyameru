@@ -56,6 +56,8 @@ namespace Kyameru.Core
         private Schedule schedule;
         
         private FromType fromType;
+        
+        private bool _userSetIdentity = true;
 
         // /// <summary>
         // /// Initializes a new instance of the <see cref="Builder"/> class.
@@ -396,7 +398,12 @@ namespace Kyameru.Core
             RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
             {
-
+                GetIdentity();
+                if (!_userSetIdentity && fromType == FromType.Event)
+                {
+                    throw new Exceptions.CoreException(Resources.ERROR_EVENT_IDENTITY_BLANK);
+                }
+                
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
@@ -526,6 +533,7 @@ namespace Kyameru.Core
         {
             if (string.IsNullOrWhiteSpace(identity))
             {
+                _userSetIdentity = false;
                 identity = Guid.NewGuid().ToString("N");
             }
 

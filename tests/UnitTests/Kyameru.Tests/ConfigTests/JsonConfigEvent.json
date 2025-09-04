@@ -4,10 +4,11 @@
   },
   "To": [
     {
-      "Uri": "test://test?RouteCallName=EventTo"
+      "Uri": "generic://test"
     }
   ],
   "Options": {
-    "EventDriven":true
+    "EventDriven":true,
+    "Id": "JsonConfig"
   }
 }
