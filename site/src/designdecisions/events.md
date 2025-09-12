@@ -17,6 +17,7 @@ Not every component will have events enabled so adding an additional inflator wo
 
 # Solution
 
+## Overview
 And enter [Channels](https://learn.microsoft.com/en-us/dotnet/core/extensions/channels). I won't go over the specifics of this because you can read the documentation yourselves but this seemed to fit the bill perfectly. Asynchronous, thread safe messaging channels that can be embedded into a new chain. The message sent in will be the same (due to primarily how Kyameru is built and constructed) but the data packet in each message will be whatever the component specifies.
 Each component will have one or more messages it can use and it is up to the component and chain link to decide how to use it. The whole solution will consist of an `Exchange` which will eventually hold information about every route and a `Router` responsible for sending messages and subscribing to the message bus.
 
@@ -35,3 +36,13 @@ classDiagram
 ```
 
 Both the exchange and router will be singletons and the exchange should be used when publishing messages to the message / event bus.
+
+## Initial Steps
+
+For the time being, every route that uses an event will need the user to define and Id so that this becomes the `routing key` and we can send messages to the right route. It would make sense for the message being sent in to have this information in a header but for the time being, for simplicity, we'll stick to explicit routing keys / route ids.
+
+To utilise sending messages from your application or within a route, you need to add a dependency for the `IKExchange` which will allow you to send messages into the internal event bus.
+
+# Naming
+
+As a side note although a sensible suggestion for naming the exchange and router would have been `IExchange` or `IRouter`, we need to make sure it is kept entirely separate from other frameworks. I wanted to avoid using `IKyameruExchange` and the router derivative because it was just too lengthy and decided on `IKExchange` and `IKRouter`.

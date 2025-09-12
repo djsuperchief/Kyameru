@@ -179,6 +179,36 @@ Kyameru.Route.From("sqs://myqueue")
 >{:note}
 Some components `From` chain link will already offer polling (S3, SQS for example) so a schedule will not be necessary.
 
+# Additional Functionality
+## Event Driven Routes
+
+Some components will support event driven `from` chain links. These chain links rely on a message being processed to trigger the routes execution. Not every chain link is configured to work with events and you should check the documentation for the components you intend to use.
+
+### Example Setup
+
+To enable event driven routes, when configuring your route you need to add the `EventTrigger` directive:
+
+```
+Route.From("from://whatever")
+.To("to://wherever")
+.EventTrigger()
+.Id("RouteId")
+.Build(services)
+```
+
+It is also important to note that you must also give your route an Id which acts as a routing key for the internal event bus.
+
+### Example Usage
+
+To send a message to your route, you need to know its Id and the type of message the component is expecting you to send and utilise the `IKExchange` to send the message.
+
+```
+var exchange = IServiceProvider.GetRequiredService<IKExchange>();
+await exchange.PublishMessageAsync("MyRouteId", MyMessageObject, CancellationToken);
+```
+
+It is advised that you use the `IKExchange` as the `IKRouter` is an internal component and the exchange abstracts over the routers functionality.
+
 ## Config
 Kyameru routes can also be setup through config. You can do this either by specifying a Json file OR by adding a Kyamery section in your appsettings file.
 
@@ -209,6 +239,7 @@ classDiagram
         +bool RaiseExceptions
         +RouteConfigSchedule ScheduleEvery
         +RouteConfigSchedule ScheduleAt
+        +bool EventDriven
     }
 
     class RouteConfigSchedule {
