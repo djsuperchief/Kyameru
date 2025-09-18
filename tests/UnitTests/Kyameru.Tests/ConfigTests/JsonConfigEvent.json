@@ -1,0 +1,14 @@
+{
+  "From": {
+    "Uri": "generic:///mememe"
+  },
+  "To": [
+    {
+      "Uri": "generic://test"
+    }
+  ],
+  "Options": {
+    "EventDriven":true,
+    "Id": "JsonConfig"
+  }
+}

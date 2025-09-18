@@ -19,5 +19,15 @@ namespace Kyameru.Core.Entities
         /// Gets or sets a value indicating a route should be executed at x unit.
         /// </summary>
         public RouteConfigSchedule ScheduleAt { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the route should be event driven.
+        /// </summary>
+        public bool EventDriven { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identity of the route.
+        /// </summary>
+        public string Id { get; set; }
     }
 }

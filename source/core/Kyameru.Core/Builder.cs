@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Kyameru.Core.Chain;
+using Kyameru.Core.Comms;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Enums;
@@ -45,10 +46,7 @@ namespace Kyameru.Core
         /// </summary>
         private bool raiseExceptions;
 
-        /// <summary>
-        /// Route Id.
-        /// </summary>
-        private string identity;
+        
 
         /// <summary>
         /// Used for when reflection is needed for host assembly reflection.
@@ -56,6 +54,10 @@ namespace Kyameru.Core
         private Assembly hostAssembly;
 
         private Schedule schedule;
+        
+        private FromType fromType;
+        
+        private bool _userSetIdentity = true;
 
         // /// <summary>
         // /// Initializes a new instance of the <see cref="Builder"/> class.
@@ -95,6 +97,7 @@ namespace Kyameru.Core
             this.fromUri = fromUri;
             raiseExceptions = false;
             hostAssembly = callingAssembly;
+            fromType = FromType.Normal;
         }
 
         /// <summary>
@@ -110,7 +113,12 @@ namespace Kyameru.Core
         /// <summary>
         /// Gets a value indicating whether the route is on a schedule.
         /// </summary>
-        public bool IsScheduled => schedule != null;
+        public bool IsScheduled => schedule != null && fromType == FromType.Scheduled;
+
+        /// <summary>
+        /// Gets a value indicating whether the route is to be requested as an event driven trigger.
+        /// </summary>
+        public bool EventDriven => fromType == FromType.Event;
 
         /// <summary>
         /// Creates a new To component chain.
@@ -359,6 +367,15 @@ namespace Kyameru.Core
             AddSchedule(unit, value, false);
             return this;
         }
+        
+        /// <summary>
+        /// Sets the from chain to be triggered by the event bus.
+        /// </summary>
+        public Builder EventTrigger()
+        {
+            fromType = FromType.Event;
+            return this;
+        }
 
         /// <summary>
         /// Builds the final chain into dependency injection.
@@ -376,10 +393,17 @@ namespace Kyameru.Core
 
         private void BuildKyameru(IServiceCollection services)
         {
+            services.AddSingleton<IKExchange, KExchange>();
+            services.AddSingleton<IKRouter, KRouter>();
             RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>
             {
-
+                GetIdentity();
+                if (!_userSetIdentity && fromType == FromType.Event)
+                {
+                    throw new Exceptions.CoreException(Resources.ERROR_EVENT_IDENTITY_BLANK);
+                }
+                
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
@@ -393,18 +417,22 @@ namespace Kyameru.Core
                     next = toChain;
                 }
 
-                if (schedule == null)
+                switch (fromType)
                 {
-                    var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x);
-                    return new From(from, next, logger, identity, raiseExceptions);
+                    case  FromType.Normal:
+                        var from = CreateFrom(fromUri.ComponentName, fromUri.Headers, x);
+                        return new From(from, next, logger, identity, raiseExceptions);
+                    case FromType.Scheduled:
+                        var scheduled = CreateScheduled(fromUri.ComponentName, fromUri.Headers, x);
+                        return new Scheduled(scheduled, next, logger, identity, raiseExceptions, schedule);
+                    case FromType.Event:
+                        var bus = x.GetRequiredService<IKRouter>();
+                        var eventFrom = CreateEventFrom(fromUri.ComponentName, fromUri.Headers, bus, x);
+                        return new Event(eventFrom.chainLink, next, logger, identity, eventFrom.messageQueue, raiseExceptions);
                 }
-                else
-                {
-                    var scheduled = CreateScheduled(fromUri.ComponentName, fromUri.Headers, x);
-                    return new Scheduled(scheduled, next, logger, identity, raiseExceptions, schedule);
-                }
-
-
+                
+                // We should never be at this point; a return statement is always reached.
+                throw new Exceptions.CoreException(Resources.ERROR_CRITICAL_FAILURE);
             });
         }
 
@@ -505,6 +533,7 @@ namespace Kyameru.Core
         {
             if (string.IsNullOrWhiteSpace(identity))
             {
+                _userSetIdentity = false;
                 identity = Guid.NewGuid().ToString("N");
             }
 
@@ -549,6 +578,7 @@ namespace Kyameru.Core
             }
 
             schedule = new Schedule(unit, value, isEvery);
+            fromType = FromType.Scheduled;
         }
 
         private IConditionalProcessor GetReflectedConditionalComponent(string componentTypeName, Assembly hostAssembly)
@@ -569,5 +599,7 @@ namespace Kyameru.Core
 
             return response;
         }
+
+
     }
 }

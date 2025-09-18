@@ -26,14 +26,22 @@ namespace Kyameru.Core.Entities
             if (!cancellationToken.IsCancellationRequested)
             {
                 OnLog?.Invoke(this, new Entities.Log(Microsoft.Extensions.Logging.LogLevel.Information, "Running process delegate"));
-                if (processAction != null)
+                try
                 {
-                    processAction.Invoke(routable);
+                    if (processAction != null)
+                    {
+                        processAction.Invoke(routable);
+                    }
+                    else
+                    {
+                        await processFunc.Invoke(routable);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    await processFunc.Invoke(routable);
+                    OnLog?.Invoke(this, new Entities.Log(Microsoft.Extensions.Logging.LogLevel.Error, ex.ToString(), ex));
                 }
+                
             }
 
             await Task.CompletedTask;

@@ -7,6 +7,8 @@ namespace Kyameru.Component.Injectiontest
 {
     public class Inflator : Kyameru.Core.Contracts.IOasis
     {
+        public bool EventsEnabled => false;
+
         public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             if (headers.ContainsKey("WillError"))
@@ -29,6 +31,11 @@ namespace Kyameru.Component.Injectiontest
             IMyTo response = serviceProvider.GetRequiredService<IMyTo>();
             response.AddHeaders(headers);
             return response;
+        }
+
+        public IFromEventChainLink CreateFromEvent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        {
+            throw new NotImplementedException();
         }
 
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)

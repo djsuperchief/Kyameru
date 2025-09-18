@@ -44,9 +44,12 @@ namespace Kyameru
         private static Builder ConfigBuilder(RouteConfig config, Assembly callingAssembly)
         {
             var builder = new RouteBuilder(config.From.ToString(), callingAssembly);
-            foreach (var processor in config.Process)
+            if (config.Process != null)
             {
-                builder.Process(processor);
+                foreach (var processor in config.Process)
+                {
+                    builder.Process(processor);
+                }
             }
 
             // This is not great (understatement). Need to refactor this.
@@ -80,15 +83,27 @@ namespace Kyameru
                 final.RaiseExceptions();
             }
 
-            if (config.Options?.ScheduleEvery != null)
+            if (config.Options != null)
             {
-                final.ScheduleEvery(config.Options.ScheduleEvery.TimeUnit, config.Options.ScheduleEvery.Value);
+                if (config.Options?.ScheduleEvery != null)
+                {
+                    final.ScheduleEvery(config.Options.ScheduleEvery.TimeUnit, config.Options.ScheduleEvery.Value);
+                }
+
+                if (config.Options?.ScheduleAt != null)
+                {
+                    final.ScheduleEvery(config.Options.ScheduleAt.TimeUnit, config.Options.ScheduleAt.Value);
+                }
+
+                if (config.Options.EventDriven)
+                {
+                    final.EventTrigger();
+                }
+
+                final.Id(config.Options?.Id);
             }
 
-            if (config.Options?.ScheduleAt != null)
-            {
-                final.ScheduleEvery(config.Options.ScheduleAt.TimeUnit, config.Options.ScheduleAt.Value);
-            }
+            
 
             return final;
         }

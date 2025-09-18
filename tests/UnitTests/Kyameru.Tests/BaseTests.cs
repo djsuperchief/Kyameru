@@ -1,4 +1,5 @@
 using System;
+using Kyameru.Core.Comms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,13 +17,27 @@ public abstract class BaseTests
         return services.BuildServiceProvider().GetRequiredService<IHostedService>();
     }
 
+    protected IHostedService BuildAndGetServices(Core.Builder kyameruBuilder)
+    {
+        var services = GetServiceDescriptors();
+        kyameruBuilder.Build(services);
+        return services.BuildServiceProvider().GetRequiredService<IHostedService>();
+    }
+
+    protected IServiceProvider BuildAndGetProvider(Core.Builder kyameruBuilder,
+        Component.Generic.Builder componentBuilder)
+    {
+        var services = GetServiceDescriptors();
+        componentBuilder.Build(services);
+        kyameruBuilder.Build(services);
+        return services.BuildServiceProvider();
+    }
+
     protected IServiceCollection GetServiceDescriptors()
     {
         IServiceCollection serviceCollection = new ServiceCollection();
-        serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp =>
-        {
-            return Substitute.For<ILogger<Kyameru.Route>>();
-        });
+        serviceCollection.AddTransient<ILogger<KRouter>>(x => Substitute.For<ILogger<KRouter>>());
+        serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp => Substitute.For<ILogger<Kyameru.Route>>());
         serviceCollection.AddTransient<Tests.Mocks.IMyComponent, Tests.Mocks.MyComponent>();
 
         return serviceCollection;

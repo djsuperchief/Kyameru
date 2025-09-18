@@ -7,6 +7,8 @@ namespace Kyameru.Component.Generic;
 
 public class Inflator : IOasis
 {
+
+
     public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
     {
         return serviceProvider.GetRequiredService<IGenericFrom>();

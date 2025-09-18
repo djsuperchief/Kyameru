@@ -18,23 +18,24 @@
         internal const string ERROR_ROUTE_URI = "Error in constructing route from URI, see inner exception.";
         internal const string ERROR_HEADER_IMMUTABLE_ADDED = "Error adding immutable header {0}, already present.";
         internal const string ERROR_SETUP_COMPONENT_INVOCATION = "Error activating processor. No valid invocation.";
-
         internal const string ERROR_SCHEDULE_NOTSUPPORTED = "Component '{0}' does not support scheduling";
 
         /// <summary>
         /// Message for unavailable routes.
         /// </summary>
         public const string ERROR_ROUTE_UNAVAILABLE = "Error, Route '{0}' not available in component '{1}";
-
         internal const string WARNING_ROUTE_EXIT = "Route indicated for early exit. {0}";
-
         internal const string DEBUG_HEADER_DETERMINE = "Determining which header callback to use.";
         internal const string DEBUG_HEADER_RUNNING = "Running header callback.";
-
         internal const string ERROR_SCHEDULE_TIME_INVALID = "An invalid unit has been specified for schedule. Minutes 0-59, Hours 0-23";
-
         internal const string ERROR_SCHEDULE_ALREADY_DEFINED = "A schedule has already been defined.";
-
         internal const string ERROR_COMPONENT_NOT_FOUND = "Component not found {1}";
+        internal const string ERROR_SUBSCRIPTION_NOT_FOUND = "Subscription not found {0}";
+        internal const string ERROR_EVENT_TRIGGER_UNSUPPORTED =
+            "The selected from chain does not support event driven triggers";
+        internal const string ERROR_CRITICAL_FAILURE =
+            "Critical failure has occurred. This is most likely a problem in the library, please log a ticket.";
+        internal const string ERROR_EVENT_IDENTITY_REGISTERED = "A route with the identifier '{0}' already exists in the message queues.";
+        internal const string ERROR_EVENT_IDENTITY_BLANK = "Event driven routes must have an Id";
     }
 }

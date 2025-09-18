@@ -53,5 +53,7 @@ namespace Kyameru.Core.Contracts
         /// <param name="serviceCollection">IoC collection</param>
         /// <returns>Returns the <see cref="IServiceCollection"/>.</returns>
         IServiceCollection RegisterScheduled(IServiceCollection serviceCollection);
+
+        
     }
 }

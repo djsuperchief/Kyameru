@@ -1,6 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Kyameru.Component.Generic;
+using Kyameru.Core.Comms;
+using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Exceptions;
 using Kyameru.TestUtilities;
@@ -107,6 +110,38 @@ public class LoadedConfigTests
         AssertLogger(logger, "ConfigWhenExecutes_To", LogLevel.Information);
     }
 
+    [Fact]
+    public async Task EventDrivenFromConfigurationWorks()
+    {
+        var thread = TestThread.CreateDeferred(5);
+        var logger = Substitute.For<ILogger<Route>>();
+        logger.IsEnabled(Arg.Is<LogLevel>(LogLevel.Information)).Returns(true);
+        Routable data = null;
+        var serviceDescriptors = GetServiceDescriptors(logger);
+        Component.Generic.Builder.Create()
+            .WithEventFrom()
+            .WithTo(x =>
+            {
+                data = x;
+            })
+            .Build(serviceDescriptors);
+        
+        var routeConfig = RouteConfig.Load("ConfigTests/JsonConfigEvent.json");
+        Route.FromConfig(routeConfig, serviceDescriptors);
+        var provider = serviceDescriptors.BuildServiceProvider();
+        var service = provider.GetRequiredService<IHostedService>();
+
+        
+        var exchange = provider.GetRequiredService<IKExchange>();
+        await exchange.PublishMessageAsync("JsonConfig", GenericMessage.Create("This is a test message"), thread.CancelToken);
+        thread.SetThread(service.StartAsync);
+        thread.Start();
+        thread.WaitForExecution();
+        await thread.CancelAsync();
+
+        Assert.Equal("This is a test message", data.Body.ToString());
+    }
+
     private CancellationTokenSource GetCancellationToken(int timeInSeconds)
     {
         return new CancellationTokenSource(TimeSpan.FromSeconds(timeInSeconds));
@@ -117,6 +152,7 @@ public class LoadedConfigTests
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddTransient(sp => logger);
         serviceCollection.AddTransient<Mocks.IMyComponent, Mocks.MyComponent>();
+        serviceCollection.AddTransient<ILogger<KRouter>>(x => Substitute.For<ILogger<KRouter>>());
 
         return serviceCollection;
     }

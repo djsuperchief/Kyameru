@@ -10,6 +10,8 @@ namespace Kyameru.Component.Test
 {
     public class Inflator : IOasis
     {
+        public bool EventsEnabled => false;
+
         public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             return new From(headers);
@@ -18,6 +20,11 @@ namespace Kyameru.Component.Test
         public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             return new To(headers);
+        }
+
+        public IFromEventChainLink CreateFromEvent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
+        {
+            throw new NotImplementedException();
         }
 
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)

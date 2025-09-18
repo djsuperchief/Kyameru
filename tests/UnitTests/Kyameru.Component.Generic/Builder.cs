@@ -1,4 +1,6 @@
 using System;
+using System.Dynamic;
+using Kyameru.Core.Comms;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Sys;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,10 +12,10 @@ public class Builder
 {
     private Func<Routable> _fromProcessing;
     private Action<Routable> _toProcessing;
+    private bool eventFrom = false;
 
 #pragma warning disable CS8618
-    protected Builder()
-
+    private Builder()
     {
 
     }
@@ -37,6 +39,12 @@ public class Builder
         return this;
     }
 
+    public Builder WithEventFrom()
+    {
+        eventFrom = true;
+        return this;
+    }
+
     public Builder WithTo(Action<Routable> processing)
     {
         _toProcessing = processing;
@@ -45,10 +53,14 @@ public class Builder
 
     public void Build(IServiceCollection services)
     {
-        services.AddTransient<IGenericFrom>(x =>
+        if (eventFrom)
         {
-            return CreateFrom();
-        });
+            services.AddTransient<IGenericEventFrom>(x => CreateFromEvent());
+        }
+        else
+        {
+            services.AddTransient<IGenericFrom>(x => CreateFrom());
+        }
 
         services.AddTransient<IGenericTo>(x =>
         {
@@ -74,6 +86,22 @@ public class Builder
         response.StartAsync(default).ReturnsForAnyArgs(x =>
         {
             var routable = _fromProcessing.Invoke();
+            var routableData = new RoutableEventData(routable, x.Arg<CancellationToken>());
+            response.OnActionAsync += Raise.Event<AsyncEventHandler<RoutableEventData>>(null, routableData);
+            return Task.CompletedTask;
+        });
+
+        return response;
+    }
+
+    private IGenericEventFrom CreateFromEvent()
+    {
+        var response = Substitute.For<IGenericEventFrom>();
+        response.ProcessAsync(default, default).ReturnsForAnyArgs(x =>
+        {
+            var message = ((GenericMessage)x.Arg<CommsMessage>().Data).Info;
+            var routable = new Routable(new Dictionary<string, string> { { "EventFrom", "Executed" } },
+                message);
             var routableData = new RoutableEventData(routable, x.Arg<CancellationToken>());
             response.OnActionAsync += Raise.Event<AsyncEventHandler<RoutableEventData>>(null, routableData);
             return Task.CompletedTask;
