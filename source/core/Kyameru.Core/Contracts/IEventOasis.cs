@@ -14,9 +14,9 @@ namespace Kyameru.Core.Contracts
         /// <summary>
         /// Creates a from component triggered by an event.
         /// </summary>
-        /// <param name="headers"></param>
-        /// <param name="serviceProvider"></param>
-        /// <returns></returns>
+        /// <param name="headers">Dictionary of headers.</param>
+        /// <param name="serviceProvider">DI Service Provider.</param>
+        /// <returns>Returns an instance of the <see cref="IFromEventChainLink"/>.</returns>
         IFromEventChainLink CreateFromEvent(Dictionary<string, string> headers, IServiceProvider serviceProvider);
     }
 }
