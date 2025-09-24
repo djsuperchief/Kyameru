@@ -10,8 +10,12 @@ namespace Kyameru.Component.Rest.Implementation
 {
     public class RestTo : CommonBase, IRestTo
     {
-
         public event EventHandler<Log>? OnLog;
+
+        public RestTo(HttpMessageHandler httpMessageHandler = null) : base(httpMessageHandler)
+        {
+        }
+        
         public Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
