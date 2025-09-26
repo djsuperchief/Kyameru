@@ -91,11 +91,12 @@ public class ToTests : BaseTestWithMockHandler
         Assert.Equal("https://localhost:8080/api/v1/hello?id=20&date=2025-01-01", ((IRestTo)toChain).Url);
     }
 
-    [Fact]
-    public async Task ToExecutesGetRequest_NoAuth()
+    [Theory]
+    [InlineData("GET")]
+    public async Task MethodExecutesGetRequest_NoAuth(string method)
     {
         var httpMessageHandlerMock = GetMockMessageHandler();
-        var routeAttr = new RouteAttributes("rest://api/v1/hello?endpoint=localhost:8080");
+        var routeAttr = new RouteAttributes($"rest://api/v1/hello?endpoint=localhost:8080&method={method}");
 
         var to = new RestTo(httpMessageHandlerMock);
         to.SetHeaders(routeAttr.Headers);
