@@ -10,6 +10,20 @@ namespace Kyameru.Component.Rest.Tests;
 
 public class ToTests : BaseTestWithMockHandler
 {
+    private static readonly Dictionary<string, bool> Methods = new()
+    {
+        { "post", true },
+        { "put", true },
+        { "get", true },
+        { "delete", true },
+        { "connect", true },
+        { "head", true },
+        { "options", true },
+        { "trace", true },
+        { "patch", true },
+        { "invalid", false }
+    };
+    
     [Theory]
     [MemberData(nameof(MethodTests))]
     public void UrlIsValidForMethod(string method, bool isValid)
@@ -35,7 +49,6 @@ public class ToTests : BaseTestWithMockHandler
     }
 
     [Theory]
-    [InlineData("endpoint", false)]
     [InlineData("method", true)]
     [InlineData("Target", false)]
     [InlineData("Host", false)]
@@ -92,20 +105,19 @@ public class ToTests : BaseTestWithMockHandler
     }
 
     [Theory]
-    [InlineData("GET")]
+    [MemberData(nameof(JustMethodTests))]
     public async Task MethodExecutesGetRequest_NoAuth(string method)
     {
         var httpMessageHandlerMock = GetMockMessageHandler();
-        var routeAttr = new RouteAttributes($"rest://api/v1/hello?endpoint=localhost:8080&method={method}");
-
+        var routeAttr = new RouteAttributes($"rest://localhost:8080/api/v1/hello?method={method}");
         var to = new RestTo(httpMessageHandlerMock);
         to.SetHeaders(routeAttr.Headers);
         var routable = new Routable(new Dictionary<string, string>(), "test");
-        await to.ProcessAsync(routable, default);
+        await to.ProcessAsync(routable, CancellationToken.None);
 
         var response = (routable.Body as JsonContent).Value as Entities.GetResponse;
 
-        Assert.Equal("GET", response.Method);
+        Assert.Equal(method.ToUpper(), response.Method);
         Assert.Equal("https://localhost:8080/api/v1/hello", response.Url);
     }
     
@@ -118,31 +130,28 @@ public class ToTests : BaseTestWithMockHandler
 
     private Dictionary<string, string> GetValidHeaders(string method = "get") => new Dictionary<string, string>()
     {
-        { "endpoint", "localhost:8080" },
-        { "Host", "api" },
-        { "Target", "/v1/hello" },
-        { "method", method }
+        { "Host", "localhost" },
+        { "Target", "/api/v1/hello" },
+        { "method", method },
+        { "Port", "8080"}
     };
 
     public static IEnumerable<object[]> MethodTests()
     {
-        var methods = new Dictionary<string, bool>()
-        {
-            { "post", true },
-            { "put", true },
-            { "get", true },
-            { "delete", true },
-            { "connect", true },
-            { "head", true },
-            { "options", true },
-            { "trace", true },
-            { "patch", true },
-            { "invalid", false }
-        };
-        
-        foreach(var method in methods)
+        foreach(var method in Methods)
         {
             yield return [method.Key, method.Value];
+        }
+    }
+
+    public static IEnumerable<object[]> JustMethodTests()
+    {
+        foreach (var method in Methods)
+        {
+            if (method.Value)
+            {
+                yield return [method.Key];
+            }
         }
     }
 }

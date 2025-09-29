@@ -19,23 +19,7 @@ namespace Kyameru.Component.Rest.Implementation
         
         public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
         {
-            using (var client = GetHttpClient())
-            {
-                var httpRequest = new HttpRequestMessage()
-                {
-                    Method = new HttpMethod(Headers["method"]),
-                    RequestUri = new Uri(Url)
-                };
-                var response = await client.SendAsync(httpRequest, cancellationToken);
-                if (response.IsSuccessStatusCode)
-                {
-                    routable.SetBody(response.Content);
-                }
-                else
-                {
-                    Log(LogLevel.Error, string.Format(Resources.ERROR_REQUEST,  response.ReasonPhrase));
-                }
-            }
+            await SendAsync(routable, cancellationToken);
         }
 
         public void SetHeaders(Dictionary<string, string> headers)

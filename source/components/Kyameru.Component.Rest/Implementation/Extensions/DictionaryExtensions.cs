@@ -12,8 +12,10 @@ namespace Kyameru.Component.Rest.Extensions
             {
                 protocol = "http";
             }
+            
+            var port = input.TryGetValue("Port", out var portString) ? portString : "80";
 
-            var response = $"{protocol}://{input["endpoint"]}/{input["Host"]}{input["Target"]}";
+            var response = $"{protocol}://{input["Host"]}:{port}{input["Target"]}";
             if (headersToRemove != null)
             {
                 var remaining = input.Where(x => !headersToRemove.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);

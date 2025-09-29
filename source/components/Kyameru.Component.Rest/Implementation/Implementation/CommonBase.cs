@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Kyameru.Component.Rest.Extensions;
 using Kyameru.Core;
 using Kyameru.Core.Entities;
@@ -11,6 +13,11 @@ namespace Kyameru.Component.Rest.Implementation
 {
     public abstract class CommonBase
     {
+        protected readonly List<string> AcceptedBodyRequests = new List<string>()
+        {
+            "PUT", "POST", "Patch"
+        };
+        
         public event EventHandler<Log>? OnLog;
         
         protected Dictionary<string, string> Headers =  new Dictionary<string, string>();
@@ -28,7 +35,6 @@ namespace Kyameru.Component.Rest.Implementation
         
         private readonly string[] _requiredHeaders = new string[]
         {
-            "endpoint",
             "Host",
             "Target"
         };
@@ -66,13 +72,7 @@ namespace Kyameru.Component.Rest.Implementation
             HttpMethod = new HttpMethod(Headers["method"]);
             SetUrl();
         }
-        
-        private void SetUrl()
-        {
-            var toRemove = _requiredHeaders.Union(new string[] { "method" }).ToArray();
-            Url = Headers.ToValidApiEndpoint(toRemove);
-        }
-        
+
         protected HttpClient GetHttpClient()
         {
             HttpClient response;
@@ -91,6 +91,72 @@ namespace Kyameru.Component.Rest.Implementation
         protected void Log(LogLevel logLevel, string message, Exception? exception = null)
         {
             this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
+        }
+
+        protected async Task SendAsync(Routable routable, CancellationToken cancellationToken)
+        {
+            if (AcceptedBodyRequests.Contains(Headers["method"]) && routable.Body != null)
+            {
+                await SendWithBody(routable, cancellationToken);
+            }
+            else
+            {
+                await SendWithoutBody(routable, cancellationToken);
+            }
+        }
+
+        private async Task SendWithoutBody(Routable routable, CancellationToken cancellationToken)
+        {
+            using var client = GetHttpClient();
+            var httpRequest = new HttpRequestMessage()
+            {
+                Method = new HttpMethod(Headers["method"]),
+                RequestUri = new Uri(Url)
+            };
+            var response = await client.SendAsync(httpRequest, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                routable.SetBody(response.Content);
+            }
+            else
+            {
+                Log(LogLevel.Error, string.Format(Resources.ERROR_REQUEST,  response.ReasonPhrase));
+            }
+        }
+
+        private async Task SendWithBody(Routable routable, CancellationToken cancellationToken)
+        {
+            using var client = GetHttpClient();
+            var httpRequest = new HttpRequestMessage()
+            {
+                Method = new HttpMethod(Headers["method"]),
+                RequestUri = new Uri(Url),
+                Content = new StringContent(routable.Body as string)
+            };
+            var response = await client.SendAsync(httpRequest, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                routable.SetBody(response.Content);
+            }
+            else
+            {
+                Log(LogLevel.Error, string.Format(Resources.ERROR_REQUEST,  response.ReasonPhrase));
+            }
+        }
+
+        private void CheckEndpointHeader()
+        {
+            if ((!Headers.ContainsKey("endpoint") || string.IsNullOrWhiteSpace(Headers["endpoint"]))
+                && (!string.IsNullOrWhiteSpace(Headers["Host"]) && !string.IsNullOrWhiteSpace(Headers["Port"])))
+            {
+                Headers.TryAdd("endpoint", $"{Headers["Host"]}:{Headers["Port"]}");
+            }
+        }
+        
+        private void SetUrl()
+        {
+            var toRemove = _requiredHeaders.Union(new string[] { "method", "Port" }).ToArray();
+            Url = Headers.ToValidApiEndpoint(toRemove);
         }
     }
 }
