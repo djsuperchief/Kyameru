@@ -12,14 +12,24 @@ public class BaseTestWithMockHandler
             .ReturnsForAnyArgs(x =>
             {
                 var requestMessage = x.Arg<HttpRequestMessage>();
+                object? data = null;
+                if (requestMessage.Content != null)
+                {
+                    data = requestMessage.Content;
+                }
+                
                 return new HttpResponseMessage()
                 {
                     Content = JsonContent.Create<Entities.GetResponse>(new()
                     {
                         Method = requestMessage.Method.ToString().ToUpper(),
-                        Url = requestMessage.RequestUri.ToString()
+                        Url = requestMessage.RequestUri.ToString(),
+                        Data = data
                     })
                 };
+
+                
+                
             });
         
         return httpMessageHandlerMock;

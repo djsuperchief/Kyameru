@@ -1,5 +1,7 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using Kyameru.Component.Rest.Contracts;
+using Kyameru.Component.Rest.Extensions;
 using Kyameru.Component.Rest.Implementation;
 using Kyameru.Component.Rest.Tests.Utils;
 using Kyameru.Core.Entities;
@@ -8,7 +10,7 @@ using NSubstitute;
 
 namespace Kyameru.Component.Rest.Tests;
 
-public class ToTests : BaseTestWithMockHandler
+public class RestToTests : BaseTestWithMockHandler
 {
     private static readonly Dictionary<string, bool> Methods = new()
     {
@@ -23,12 +25,19 @@ public class ToTests : BaseTestWithMockHandler
         { "patch", true },
         { "invalid", false }
     };
+
+    private static readonly List<string> BodyMethods = new()
+    {
+        "POST",
+        "PUT",
+        "PATCH"
+    };
     
     [Theory]
     [MemberData(nameof(MethodTests))]
     public void UrlIsValidForMethod(string method, bool isValid)
     {
-        var inflator = new To();
+        var inflator = new Inflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterTo(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -54,7 +63,7 @@ public class ToTests : BaseTestWithMockHandler
     [InlineData("Host", false)]
     public void UrlIsValidForRemovedRequiredHeaders(string header, bool isValid)
     {
-        var inflator = new To();
+        var inflator = new Inflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterTo(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -77,7 +86,7 @@ public class ToTests : BaseTestWithMockHandler
     [Fact]
     public void CreateToCreatesChain()
     {
-        var inflator = new To();
+        var inflator = new Inflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterTo(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -91,7 +100,7 @@ public class ToTests : BaseTestWithMockHandler
     [Fact]
     public void QueryParametersAreCorrect()
     {
-        var inflator = new To();
+        var inflator = new Inflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterTo(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -119,6 +128,25 @@ public class ToTests : BaseTestWithMockHandler
 
         Assert.Equal(method.ToUpper(), response.Method);
         Assert.Equal("https://localhost:8080/api/v1/hello", response.Url);
+    }
+
+    [Theory]
+    [MemberData(nameof(HttpBodyTests))]
+    public async Task HttpPostBodyIsCorrect(string contentType, object input, object output, string method, Func<Routable, Task<object>> getResponse)
+    {
+        var httpMessageHandlerMock = GetMockMessageHandler();
+        var routeAttr = new RouteAttributes($"rest://localhost:8080/api/v1/hello?method={method}");
+        var to = new RestTo(httpMessageHandlerMock);
+        to.SetHeaders(routeAttr.Headers);
+        var routable = new Routable(new Dictionary<string, string>(), "test");
+        routable.SetBody(input);
+        routable.SetHeader("HttpContentType", contentType);
+        routable.ToJsonContent();
+        await to.ProcessAsync(routable, CancellationToken.None);
+
+        var toCompare = await getResponse(routable);
+        
+        Assert.Equivalent(output, toCompare);
     }
     
     private IServiceCollection GetServiceCollection()
@@ -153,5 +181,50 @@ public class ToTests : BaseTestWithMockHandler
                 yield return [method.Key];
             }
         }
+    }
+
+    public static IEnumerable<object[]> HttpBodyTests()
+    {
+        foreach (var method in BodyMethods)
+        {
+            yield return
+            [
+                "application/json",
+                new Content.JsonContent() { Test = "Hello World" },
+                new Content.JsonContent() { Test = "Hello World" },
+                method,
+                GetJsonResponse
+            ];
+            yield return
+            [
+                "text/json",
+                new Content.JsonContent() { Test = "Hello World" },
+                new Content.JsonContent() { Test = "Hello World" },
+                method,
+                GetJsonResponse
+            ];
+            yield return
+            [
+                "text/plain",
+                "Hello World",
+                "\"Hello World\"",
+                method,
+                GetStringResponse
+            ];
+        }
+    }
+
+    public static async Task<object> GetJsonResponse(Routable routable)
+    {
+        var response = (routable.Body as JsonContent).Value as Entities.GetResponse;
+        var bodyString = await response.GetStringContentBody();
+        return JsonSerializer.Deserialize<Content.JsonContent>(bodyString);
+    }
+    
+    public static async Task<object> GetStringResponse(Routable routable)
+    {
+        var response = (routable.Body as JsonContent).Value as Entities.GetResponse;
+        var bodyString = await response.GetStringContentBody();
+        return bodyString;
     }
 }

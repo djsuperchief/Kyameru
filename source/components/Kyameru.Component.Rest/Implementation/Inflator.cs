@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Kyameru.Component.Rest
 {
-    public class To : IEventOasis
+    public class Inflator : IEventOasis
     {
         public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {

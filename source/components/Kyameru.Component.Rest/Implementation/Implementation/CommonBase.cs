@@ -13,9 +13,9 @@ namespace Kyameru.Component.Rest.Implementation
 {
     public abstract class CommonBase
     {
-        protected readonly List<string> AcceptedBodyRequests = new List<string>()
+        private readonly List<string> _acceptedBodyRequests = new List<string>()
         {
-            "PUT", "POST", "Patch"
+            "PUT", "POST", "PATCH"
         };
         
         public event EventHandler<Log>? OnLog;
@@ -95,7 +95,7 @@ namespace Kyameru.Component.Rest.Implementation
 
         protected async Task SendAsync(Routable routable, CancellationToken cancellationToken)
         {
-            if (AcceptedBodyRequests.Contains(Headers["method"]) && routable.Body != null)
+            if (_acceptedBodyRequests.Contains(Headers["method"]) && routable.Body != null)
             {
                 await SendWithBody(routable, cancellationToken);
             }
@@ -131,7 +131,7 @@ namespace Kyameru.Component.Rest.Implementation
             {
                 Method = new HttpMethod(Headers["method"]),
                 RequestUri = new Uri(Url),
-                Content = new StringContent(routable.Body as string)
+                Content = HttpContentFactory.Create(routable)
             };
             var response = await client.SendAsync(httpRequest, cancellationToken);
             if (response.IsSuccessStatusCode)
