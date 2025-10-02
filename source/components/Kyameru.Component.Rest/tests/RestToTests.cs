@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using Kyameru.Component.Rest.Contracts;
 using Kyameru.Component.Rest.Extensions;
@@ -119,7 +120,7 @@ public class RestToTests : BaseTestWithMockHandler
     {
         var httpMessageHandlerMock = GetMockMessageHandler();
         var routeAttr = new RouteAttributes($"rest://localhost:8080/api/v1/hello?method={method}");
-        var to = new RestTo(httpMessageHandlerMock);
+        var to = new RestTo(new HttpContentFactory(), httpMessageHandlerMock);
         to.SetHeaders(routeAttr.Headers);
         var routable = new Routable(new Dictionary<string, string>(), "test");
         await to.ProcessAsync(routable, CancellationToken.None);
@@ -136,12 +137,11 @@ public class RestToTests : BaseTestWithMockHandler
     {
         var httpMessageHandlerMock = GetMockMessageHandler();
         var routeAttr = new RouteAttributes($"rest://localhost:8080/api/v1/hello?method={method}");
-        var to = new RestTo(httpMessageHandlerMock);
+        var to = new RestTo(new HttpContentFactory(), httpMessageHandlerMock);
         to.SetHeaders(routeAttr.Headers);
         var routable = new Routable(new Dictionary<string, string>(), "test");
         routable.SetBody(input);
         routable.SetHeader("HttpContentType", contentType);
-        routable.ToJsonContent();
         await to.ProcessAsync(routable, CancellationToken.None);
 
         var toCompare = await getResponse(routable);
@@ -190,7 +190,7 @@ public class RestToTests : BaseTestWithMockHandler
             yield return
             [
                 "application/json",
-                new Content.JsonContent() { Test = "Hello World" },
+                "{ \"Test\":\"Hello World\"}",
                 new Content.JsonContent() { Test = "Hello World" },
                 method,
                 GetJsonResponse
@@ -198,7 +198,7 @@ public class RestToTests : BaseTestWithMockHandler
             yield return
             [
                 "text/json",
-                new Content.JsonContent() { Test = "Hello World" },
+                "{ \"Test\":\"Hello World\"}",
                 new Content.JsonContent() { Test = "Hello World" },
                 method,
                 GetJsonResponse
@@ -207,24 +207,39 @@ public class RestToTests : BaseTestWithMockHandler
             [
                 "text/plain",
                 "Hello World",
-                "\"Hello World\"",
+                "Hello World",
                 method,
                 GetStringResponse
+            ];
+            yield return
+            [
+                "application/octet-stream",
+                Encoding.UTF8.GetBytes("Hello world"),
+                Encoding.UTF8.GetBytes("Hello world"),
+                method,
+                GetByteArray
             ];
         }
     }
 
-    public static async Task<object> GetJsonResponse(Routable routable)
+    private static async Task<object> GetJsonResponse(Routable routable)
     {
-        var response = (routable.Body as JsonContent).Value as Entities.GetResponse;
-        var bodyString = await response.GetStringContentBody();
-        return JsonSerializer.Deserialize<Content.JsonContent>(bodyString);
+        var response = (routable.Body as JsonContent)!.Value as Entities.GetResponse;
+        var bodyString = await response!.GetStringContentBody();
+        return JsonSerializer.Deserialize<Content.JsonContent>(bodyString)!;
     }
-    
-    public static async Task<object> GetStringResponse(Routable routable)
+
+    private static async Task<object> GetStringResponse(Routable routable)
     {
-        var response = (routable.Body as JsonContent).Value as Entities.GetResponse;
-        var bodyString = await response.GetStringContentBody();
+        var response = (routable.Body as JsonContent)!.Value as Entities.GetResponse;
+        var bodyString = await response!.GetStringContentBody();
         return bodyString;
+    }
+
+    private static async Task<object> GetByteArray(Routable routable)
+    {
+        var response = (routable.Body as JsonContent)!.Value as Entities.GetResponse;
+        var body = await response!.GetBodyByteArrayAsString();
+        return body;
     }
 }

@@ -11,4 +11,9 @@ public class GetResponse
     {
         return await ((StringContent)Data).ReadAsStringAsync();
     }
+
+    public async Task<string> GetBodyByteArrayAsString()
+    {
+        return await ((ByteArrayContent)Data).ReadAsStringAsync();
+    }
 }

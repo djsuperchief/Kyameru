@@ -11,12 +11,13 @@ namespace Kyameru.Component.Rest.Implementation
 {
     public class RestTo : CommonBase, IRestTo
     {
-        
 
-        public RestTo(HttpMessageHandler httpMessageHandler = null) : base(httpMessageHandler)
+
+        public RestTo(IHttpContentFactory contentFactory, HttpMessageHandler? httpMessageHandler = null) : base(
+            contentFactory, httpMessageHandler)
         {
         }
-        
+
         public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
         {
             await SendAsync(routable, cancellationToken);

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Kyameru.Component.Rest.Contracts;
 using Kyameru.Component.Rest.Extensions;
 using Kyameru.Core;
 using Kyameru.Core.Entities;
@@ -13,6 +14,7 @@ namespace Kyameru.Component.Rest.Implementation
 {
     public abstract class CommonBase
     {
+        private readonly IHttpContentFactory _httpContentFactory;
         private readonly List<string> _acceptedBodyRequests = new List<string>()
         {
             "PUT", "POST", "PATCH"
@@ -22,15 +24,16 @@ namespace Kyameru.Component.Rest.Implementation
         
         protected Dictionary<string, string> Headers =  new Dictionary<string, string>();
         
-        private readonly HttpMessageHandler _httpHandler;
+        private readonly HttpMessageHandler? _httpHandler;
 
         public HttpMethod HttpMethod { get; private set; } = null!;
 
         public string Url { get; private set; } = null!;
         
-        protected CommonBase(HttpMessageHandler httpMessageHandler = null)
+        protected CommonBase(IHttpContentFactory contentFactory, HttpMessageHandler? httpMessageHandler = null)
         {
             _httpHandler = httpMessageHandler;
+            _httpContentFactory = contentFactory;
         }
         
         private readonly string[] _requiredHeaders = new string[]
@@ -51,7 +54,7 @@ namespace Kyameru.Component.Rest.Implementation
             "trace",
             "patch"
         };
-        
+
         protected void ValidateHeaders()
         {
             foreach (var required in _requiredHeaders)
@@ -73,7 +76,7 @@ namespace Kyameru.Component.Rest.Implementation
             SetUrl();
         }
 
-        protected HttpClient GetHttpClient()
+        private HttpClient GetHttpClient()
         {
             HttpClient response;
             if (_httpHandler == null)
@@ -87,10 +90,10 @@ namespace Kyameru.Component.Rest.Implementation
 
             return response;
         }
-        
-        protected void Log(LogLevel logLevel, string message, Exception? exception = null)
+
+        private void Log(LogLevel logLevel, string message, Exception? exception = null)
         {
-            this.OnLog?.Invoke(this, new Core.Entities.Log(logLevel, message, exception));
+            OnLog?.Invoke(this, new Log(logLevel, message, exception));
         }
 
         protected async Task SendAsync(Routable routable, CancellationToken cancellationToken)
@@ -131,7 +134,7 @@ namespace Kyameru.Component.Rest.Implementation
             {
                 Method = new HttpMethod(Headers["method"]),
                 RequestUri = new Uri(Url),
-                Content = HttpContentFactory.Create(routable)
+                Content = _httpContentFactory.Create(routable)
             };
             var response = await client.SendAsync(httpRequest, cancellationToken);
             if (response.IsSuccessStatusCode)
