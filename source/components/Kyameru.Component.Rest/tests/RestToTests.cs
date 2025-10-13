@@ -13,27 +13,6 @@ namespace Kyameru.Component.Rest.Tests;
 
 public class RestToTests : BaseTestWithMockHandler
 {
-    private static readonly Dictionary<string, bool> Methods = new()
-    {
-        { "post", true },
-        { "put", true },
-        { "get", true },
-        { "delete", true },
-        { "connect", true },
-        { "head", true },
-        { "options", true },
-        { "trace", true },
-        { "patch", true },
-        { "invalid", false }
-    };
-
-    private static readonly List<string> BodyMethods = new()
-    {
-        "POST",
-        "PUT",
-        "PATCH"
-    };
-    
     [Theory]
     [MemberData(nameof(MethodTests))]
     public void UrlIsValidForMethod(string method, bool isValid)

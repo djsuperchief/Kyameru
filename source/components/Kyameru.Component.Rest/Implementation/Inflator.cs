@@ -12,7 +12,9 @@ namespace Kyameru.Component.Rest
     {
         public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
-            throw new NotImplementedException();
+            var fromChain = serviceProvider.GetRequiredService<IRestFrom>();
+            fromChain.SetHeaders(headers);
+            return fromChain;
         }
 
         public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
@@ -30,13 +32,15 @@ namespace Kyameru.Component.Rest
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
         {
             serviceCollection.TryAddTransient<IHttpContentFactory, HttpContentFactory>();
-            serviceCollection.AddTransient<IRestTo, RestTo>();
+            serviceCollection.TryAddTransient<IRestTo, RestTo>();
             return serviceCollection;
         }
 
         public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
         {
-            throw new NotImplementedException();
+            serviceCollection.TryAddTransient<IHttpContentFactory, HttpContentFactory>();
+            serviceCollection.TryAddTransient<IRestFrom, RestFrom>();
+            return serviceCollection;
         }
 
         public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
