@@ -12,9 +12,7 @@ namespace Kyameru.Component.Rest
     {
         public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
-            var fromChain = serviceProvider.GetRequiredService<IRestFrom>();
-            fromChain.SetHeaders(headers);
-            return fromChain;
+            throw new NotImplementedException();
         }
 
         public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
@@ -50,7 +48,9 @@ namespace Kyameru.Component.Rest
 
         public IFromEventChainLink CreateFromEvent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
-            throw new NotImplementedException();
+            var from = serviceProvider.GetRequiredService<IRestFrom>();
+            from.SetHeaders(headers);
+            return from;
         }
     }
 }

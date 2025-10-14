@@ -1,4 +1,7 @@
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+using Kyameru.Core.Entities;
 using NSubstitute;
 
 namespace Kyameru.Component.Rest.Tests.Utils;
@@ -54,5 +57,84 @@ public abstract class BaseTestWithMockHandler
             });
         
         return httpMessageHandlerMock;
+    }
+    
+    public static IEnumerable<object[]> HttpBodyTests()
+    {
+        foreach (var method in BodyMethods)
+        {
+            yield return
+            [
+                "application/json",
+                "{ \"Test\":\"Hello World\"}",
+                new Content.JsonContent() { Test = "Hello World" },
+                method,
+                GetJsonResponse
+            ];
+            yield return
+            [
+                "text/json",
+                "{ \"Test\":\"Hello World\"}",
+                new Content.JsonContent() { Test = "Hello World" },
+                method,
+                GetJsonResponse
+            ];
+            yield return
+            [
+                "text/plain",
+                "Hello World",
+                "Hello World",
+                method,
+                GetStringResponse
+            ];
+            yield return
+            [
+                "application/octet-stream",
+                Encoding.UTF8.GetBytes("Hello world"),
+                Encoding.UTF8.GetBytes("Hello world"),
+                method,
+                GetByteArray
+            ];
+        }
+    }
+
+    private static async Task<object> GetJsonResponse(Routable routable)
+    {
+        var response = (routable.Body as JsonContent)!.Value as Entities.GetResponse;
+        var bodyString = await response!.GetStringContentBody();
+        return JsonSerializer.Deserialize<Content.JsonContent>(bodyString)!;
+    }
+
+    private static async Task<object> GetStringResponse(Routable routable)
+    {
+        var response = (routable.Body as JsonContent)!.Value as Entities.GetResponse;
+        var bodyString = await response!.GetStringContentBody();
+        return bodyString;
+    }
+
+    private static async Task<object> GetByteArray(Routable routable)
+    {
+        var response = (routable.Body as JsonContent)!.Value as Entities.GetResponse;
+        var body = await response!.GetBodyByteArrayAsString();
+        return body;
+    }
+    
+    public static IEnumerable<object[]> MethodTests()
+    {
+        foreach(var method in Methods)
+        {
+            yield return [method.Key, method.Value];
+        }
+    }
+
+    public static IEnumerable<object[]> JustMethodTests()
+    {
+        foreach (var method in Methods)
+        {
+            if (method.Value)
+            {
+                yield return [method.Key];
+            }
+        }
     }
 }
