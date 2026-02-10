@@ -27,7 +27,7 @@ namespace Kyameru.Component.Rest.Implementation
         public async Task ProcessAsync(CommsMessage commsMessage, CancellationToken cancellationToken)
         {
             var httpMessageData = commsMessage.Data as Messages.HttpMessageData;
-            var routable = new Routable(httpMessageData.Headers, "");
+            var routable = new Routable(httpMessageData.Headers, httpMessageData.Data);
             
             await SendAsync(routable, cancellationToken);
             OnActionAsync?.Invoke(this, new RoutableEventData(routable, cancellationToken));

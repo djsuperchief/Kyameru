@@ -23,7 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Implementation\Kyameru.Component.Rest.csproj" />
+      <ProjectReference Include="../Implementation/Kyameru.Component.Rest.csproj" />
     </ItemGroup>
 
 </Project>
