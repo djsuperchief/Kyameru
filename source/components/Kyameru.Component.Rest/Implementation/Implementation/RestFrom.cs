@@ -16,8 +16,7 @@ namespace Kyameru.Component.Rest.Implementation
         public RestFrom(IHttpContentFactory contentFactory, HttpMessageHandler? httpMessageHandler = null) : base(contentFactory, httpMessageHandler)
         {
         }
-
-        public event EventHandler<Log>? OnLog;
+        
         public event AsyncEventHandler<RoutableEventData>? OnActionAsync;
         public void Setup()
         {
@@ -27,6 +26,18 @@ namespace Kyameru.Component.Rest.Implementation
         public async Task ProcessAsync(CommsMessage commsMessage, CancellationToken cancellationToken)
         {
             var httpMessageData = commsMessage.Data as Messages.HttpMessageData;
+            if (httpMessageData == null)
+            {
+                Log(LogLevel.Error, Resources.ERROR_EVENTDATA_EMPTY);
+            }
+            
+            if (httpMessageData!.Headers == null)
+            {
+                httpMessageData.Headers = new Dictionary<string, string>()
+                {
+                    { "KyameruMessageId", commsMessage.Id.ToString() }
+                };
+            }
             var routable = new Routable(httpMessageData.Headers, httpMessageData.Data);
             
             await SendAsync(routable, cancellationToken);

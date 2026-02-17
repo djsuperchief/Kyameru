@@ -91,7 +91,7 @@ namespace Kyameru.Component.Rest.Implementation
             return response;
         }
 
-        private void Log(LogLevel logLevel, string message, Exception? exception = null)
+        protected void Log(LogLevel logLevel, string message, Exception? exception = null)
         {
             OnLog?.Invoke(this, new Log(logLevel, message, exception));
         }

@@ -17,7 +17,7 @@ public class RestToTests : BaseTestWithMockHandler
     [MemberData(nameof(MethodTests))]
     public void UrlIsValidForMethod(string method, bool isValid)
     {
-        var inflator = new Inflator();
+        var inflator = new EventInflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterTo(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -43,7 +43,7 @@ public class RestToTests : BaseTestWithMockHandler
     [InlineData("Host", false)]
     public void UrlIsValidForRemovedRequiredHeaders(string header, bool isValid)
     {
-        var inflator = new Inflator();
+        var inflator = new EventInflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterTo(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -66,7 +66,7 @@ public class RestToTests : BaseTestWithMockHandler
     [Fact]
     public void CreateToCreatesChain()
     {
-        var inflator = new Inflator();
+        var inflator = new EventInflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterTo(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -80,7 +80,7 @@ public class RestToTests : BaseTestWithMockHandler
     [Fact]
     public void QueryParametersAreCorrect()
     {
-        var inflator = new Inflator();
+        var inflator = new EventInflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterTo(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();

@@ -18,14 +18,12 @@ namespace Kyameru.Core.Comms
     /// </summary>
     internal class KRouter : IKRouter
     {
-        
-        
         private readonly ConcurrentDictionary<string, Channel<CommsMessage>> _messageQueues =
             new ConcurrentDictionary<string, Channel<CommsMessage>>();
 
-        private readonly ILogger<KRouter> _logger;
+        private readonly ILogger<IKRouter> _logger;
         
-        public KRouter(ILogger<KRouter> logger)
+        public KRouter(ILogger<IKRouter> logger)
         {
             _logger = logger;
         }

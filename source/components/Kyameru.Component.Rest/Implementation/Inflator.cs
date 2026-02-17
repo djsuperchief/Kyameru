@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Kyameru.Component.Rest
 {
-    public class Inflator : IEventOasis
+    public class Inflator : IOasis
     {
         public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
@@ -44,13 +44,6 @@ namespace Kyameru.Component.Rest
         public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
         {
             throw new NotImplementedException();
-        }
-
-        public IFromEventChainLink CreateFromEvent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
-        {
-            var from = serviceProvider.GetRequiredService<IRestFrom>();
-            from.SetHeaders(headers);
-            return from;
         }
     }
 }
