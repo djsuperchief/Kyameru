@@ -8,6 +8,7 @@ using Kyameru.Component.Rest.Contracts;
 using Kyameru.Component.Rest.Extensions;
 using Kyameru.Core;
 using Kyameru.Core.Entities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Component.Rest.Implementation
@@ -24,16 +25,24 @@ namespace Kyameru.Component.Rest.Implementation
         
         protected Dictionary<string, string> Headers =  new Dictionary<string, string>();
         
+        protected readonly IKeyedServiceProvider _keyedServiceProvider;
+        
         private readonly HttpMessageHandler? _httpHandler;
 
         public HttpMethod HttpMethod { get; private set; } = null!;
 
         public string Url { get; private set; } = null!;
         
-        protected CommonBase(IHttpContentFactory contentFactory, HttpMessageHandler? httpMessageHandler = null)
+        public void AddAuthDependencyId(Guid id)
+        {
+            AuthDependencyId = id;
+        }
+        
+        protected CommonBase(IHttpContentFactory contentFactory, IKeyedServiceProvider keyedServiceProvider, HttpMessageHandler? httpMessageHandler = null)
         {
             _httpHandler = httpMessageHandler;
             _httpContentFactory = contentFactory;
+            _keyedServiceProvider = keyedServiceProvider;
         }
         
         private readonly string[] _requiredHeaders = new string[]
@@ -54,6 +63,9 @@ namespace Kyameru.Component.Rest.Implementation
             "trace",
             "patch"
         };
+
+        private Guid AuthDependencyId;
+
 
         protected void ValidateHeaders()
         {
@@ -98,17 +110,19 @@ namespace Kyameru.Component.Rest.Implementation
 
         protected async Task SendAsync(Routable routable, CancellationToken cancellationToken)
         {
+            var authStrategy = _keyedServiceProvider.GetRequiredKeyedService<IAuthStrategy>(AuthDependencyId);
             if (_acceptedBodyRequests.Contains(Headers["method"]) && routable.Body != null)
             {
-                await SendWithBody(routable, cancellationToken);
+                await SendWithBody(routable, authStrategy, cancellationToken);
             }
             else
             {
-                await SendWithoutBody(routable, cancellationToken);
+                await SendWithoutBody(routable, authStrategy, cancellationToken);
             }
         }
 
-        private async Task SendWithoutBody(Routable routable, CancellationToken cancellationToken)
+        private async Task SendWithoutBody(Routable routable, IAuthStrategy authStrategy,
+            CancellationToken cancellationToken)
         {
             using var client = GetHttpClient();
             var httpRequest = new HttpRequestMessage()
@@ -116,6 +130,7 @@ namespace Kyameru.Component.Rest.Implementation
                 Method = new HttpMethod(Headers["method"]),
                 RequestUri = new Uri(Url)
             };
+            await authStrategy.ApplyAsync(client);
             var response = await client.SendAsync(httpRequest, cancellationToken);
             if (response.IsSuccessStatusCode)
             {
@@ -127,7 +142,8 @@ namespace Kyameru.Component.Rest.Implementation
             }
         }
 
-        private async Task SendWithBody(Routable routable, CancellationToken cancellationToken)
+        private async Task SendWithBody(Routable routable, IAuthStrategy authStrategy,
+            CancellationToken cancellationToken)
         {
             using var client = GetHttpClient();
             var httpRequest = new HttpRequestMessage()
@@ -136,6 +152,7 @@ namespace Kyameru.Component.Rest.Implementation
                 RequestUri = new Uri(Url),
                 Content = _httpContentFactory.Create(routable)
             };
+            await authStrategy.ApplyAsync(client);
             var response = await client.SendAsync(httpRequest, cancellationToken);
             if (response.IsSuccessStatusCode)
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Kyameru.Component.Rest.Contracts;
 using Kyameru.Component.Rest.Implementation;
 using Kyameru.Core.Contracts;
+using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -10,6 +11,10 @@ namespace Kyameru.Component.Rest
 {
     public class Inflator : IOasis
     {
+        private List<Core.Entities.ChainLinkDependency> _fromChainLinkDependencies;
+        
+        private List<Core.Entities.ChainLinkDependency> _toChainLinkDependencies;
+        
         public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
             throw new NotImplementedException();
@@ -44,6 +49,12 @@ namespace Kyameru.Component.Rest
         public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
         {
             throw new NotImplementedException();
+        }
+
+        public void RegisterDependencies(List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies)
+        {
+            _fromChainLinkDependencies = fromDependencies;
+            _toChainLinkDependencies = toDependencies;
         }
     }
 }

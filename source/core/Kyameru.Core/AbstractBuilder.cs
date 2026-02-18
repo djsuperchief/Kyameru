@@ -21,6 +21,16 @@ namespace Kyameru.Core
         /// Route Id.
         /// </summary>
         protected string identity;
+
+        /// <summary>
+        /// Instances of component inflators.
+        /// </summary>
+        protected readonly Dictionary<string, IOasis> ComponentInflators = new Dictionary<string, IOasis>();
+        
+        /// <summary>
+        /// Instances of component event inflators.
+        /// </summary>
+        protected readonly Dictionary<string, IEventOasis> ComponentEventInflators = new  Dictionary<string, IEventOasis>();
         
         /// <summary>
         /// Creates the to component.
@@ -175,8 +185,20 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IOasis"/> interface.</returns>
         private IOasis GetOasis(string component)
         {
-            Type fromType = Type.GetType($"Kyameru.Component.{component}.Inflator, Kyameru.Component.{component}");
-            return (IOasis)Activator.CreateInstance(fromType);
+            var componentLocation = $"$Kyameru.Component.{component}.Inflator";
+            IOasis fromType = null;
+            if (ComponentInflators.ContainsKey(componentLocation))
+            {
+                fromType = ComponentInflators[componentLocation];
+            }
+            else
+            {
+                Type createType = Type.GetType($"Kyameru.Component.{component}.Inflator, Kyameru.Component.{component}");
+                fromType = (IOasis)Activator.CreateInstance(createType);
+                ComponentInflators.Add(componentLocation, fromType);
+            }
+
+            return fromType;
         }
 
         /// <summary>
@@ -186,13 +208,20 @@ namespace Kyameru.Core
         /// <returns>Returns an instance of the <see cref="IEventOasis"/> interface.</returns>
         private IEventOasis GetEventOasis(string component)
         {
-            Type fromType = Type.GetType($"Kyameru.Component.{component}.EventInflator, Kyameru.Component.{component}");
-            if (fromType == null)
+            var componentLocation = $"$Kyameru.Component.{component}.EventInflator";
+            IEventOasis fromType = null;
+            if (!ComponentEventInflators.TryGetValue(componentLocation, out fromType))
             {
-                throw new Exceptions.ActivationException(Resources.ERROR_EVENT_TRIGGER_UNSUPPORTED, "FromEvent");
+                Type createType = Type.GetType($"Kyameru.Component.{component}.EventInflator, Kyameru.Component.{component}");
+                if (createType == null)
+                {
+                    throw new Exceptions.ActivationException(Resources.ERROR_EVENT_TRIGGER_UNSUPPORTED, "FromEvent");
+                }
+                fromType = (IEventOasis)Activator.CreateInstance(createType);
+                ComponentEventInflators.Add(componentLocation, fromType);
             }
             
-            return (IEventOasis)Activator.CreateInstance(fromType);
+            return fromType;
         }
     }
 }

@@ -434,6 +434,7 @@ namespace Kyameru.Core
             services.AddSingleton<IKExchange, KExchange>();
             services.AddSingleton<IKRouter, KRouter>();
             RunComponentDiRegistration(services);
+            RunChainLinkDependencyInjection();
             services.AddTransient<IHostedService>(x =>
             {
                 GetIdentity();
@@ -487,6 +488,24 @@ namespace Kyameru.Core
             if (IsScheduled)
             {
                 RegisterScheduledServices(services, fromUri.ComponentName);
+            }
+        }
+
+        /// <summary>
+        /// Adds the chain link dependencies for each registered inflator.
+        /// </summary>
+        private void RunChainLinkDependencyInjection()
+        {
+            var from = dependencies.Where(x => x.ChainLink == ChainLinkDependencyType.From).ToList();
+            var to = dependencies.Where(x => x.ChainLink == ChainLinkDependencyType.To).ToList();
+            foreach (var inflator in ComponentInflators)
+            {
+                inflator.Value.RegisterDependencies(from, to);
+            }
+
+            foreach (var inflator in ComponentEventInflators)
+            {
+                inflator.Value.RegisterDependencies(from, to);
             }
         }
 

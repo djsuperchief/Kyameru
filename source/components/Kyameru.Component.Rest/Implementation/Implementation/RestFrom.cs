@@ -7,16 +7,19 @@ using Kyameru.Component.Rest.Contracts;
 using Kyameru.Core.Comms;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Sys;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Component.Rest.Implementation
 {
     public class RestFrom : CommonBase, IRestFrom
     {
-        public RestFrom(IHttpContentFactory contentFactory, HttpMessageHandler? httpMessageHandler = null) : base(contentFactory, httpMessageHandler)
+        public RestFrom(IHttpContentFactory contentFactory, IKeyedServiceProvider keyedServiceProvider,
+            HttpMessageHandler? httpMessageHandler = null) : base(contentFactory, keyedServiceProvider,
+            httpMessageHandler)
         {
         }
-        
+
         public event AsyncEventHandler<RoutableEventData>? OnActionAsync;
         public void Setup()
         {
