@@ -14,8 +14,8 @@ namespace Kyameru.Component.Rest.Implementation
 {
     public class RestFrom : CommonBase, IRestFrom
     {
-        public RestFrom(IHttpContentFactory contentFactory, IKeyedServiceProvider keyedServiceProvider,
-            HttpMessageHandler? httpMessageHandler = null) : base(contentFactory, keyedServiceProvider,
+        public RestFrom(IHttpContentFactory contentFactory, IServiceProvider serviceProvider,
+            HttpMessageHandler? httpMessageHandler = null) : base(contentFactory, serviceProvider,
             httpMessageHandler)
         {
         }

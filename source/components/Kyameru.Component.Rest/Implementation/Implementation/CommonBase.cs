@@ -25,7 +25,7 @@ namespace Kyameru.Component.Rest.Implementation
         
         protected Dictionary<string, string> Headers =  new Dictionary<string, string>();
         
-        protected readonly IKeyedServiceProvider _keyedServiceProvider;
+        protected readonly IServiceProvider _keyedServiceProvider;
         
         private readonly HttpMessageHandler? _httpHandler;
 
@@ -38,7 +38,7 @@ namespace Kyameru.Component.Rest.Implementation
             AuthDependencyId = id;
         }
         
-        protected CommonBase(IHttpContentFactory contentFactory, IKeyedServiceProvider keyedServiceProvider, HttpMessageHandler? httpMessageHandler = null)
+        protected CommonBase(IHttpContentFactory contentFactory, IServiceProvider keyedServiceProvider, HttpMessageHandler? httpMessageHandler = null)
         {
             _httpHandler = httpMessageHandler;
             _httpContentFactory = contentFactory;

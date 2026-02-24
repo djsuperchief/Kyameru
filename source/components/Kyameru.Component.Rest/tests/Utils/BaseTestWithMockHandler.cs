@@ -1,7 +1,11 @@
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using Kyameru.Component.Rest.Contracts;
+using Kyameru.Component.Rest.Implementation;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 
 namespace Kyameru.Component.Rest.Tests.Utils;
@@ -136,5 +140,16 @@ public abstract class BaseTestWithMockHandler
                 yield return [method.Key];
             }
         }
+    }
+    
+    protected IServiceProvider GetServiceProvider(out Guid fromId, out Guid toId)
+    {
+        var serviceCollection = new ServiceCollection();
+        toId = serviceCollection.RegisterKyameruDependency<IAuthStrategy>(ChainLinkDependencyType.From, () => new NoAuth()).Id;
+        fromId = serviceCollection.RegisterKyameruDependency<IAuthStrategy>(ChainLinkDependencyType.To, () => new NoAuth()).Id;
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        // need to actually build services
+        
+        return serviceProvider;
     }
 }

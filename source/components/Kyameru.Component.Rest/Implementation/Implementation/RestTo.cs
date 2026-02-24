@@ -14,7 +14,7 @@ namespace Kyameru.Component.Rest.Implementation
     {
 
 
-        public RestTo(IHttpContentFactory contentFactory, IKeyedServiceProvider keyedServiceProvider,
+        public RestTo(IHttpContentFactory contentFactory, IServiceProvider keyedServiceProvider,
             HttpMessageHandler? httpMessageHandler = null) : base(contentFactory, keyedServiceProvider,
             httpMessageHandler)
         {

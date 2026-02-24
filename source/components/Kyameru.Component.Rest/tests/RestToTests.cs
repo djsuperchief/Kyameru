@@ -20,6 +20,7 @@ public class RestToTests : BaseTestWithMockHandler
         var inflator = new EventInflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterTo(serviceCollection);
+        inflator.RegisterDependencies(serviceCollection, null, null);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var headers = GetValidHeaders(method);
         var exception = Record.Exception(() => inflator.CreateToComponent(headers, serviceProvider));
@@ -46,6 +47,7 @@ public class RestToTests : BaseTestWithMockHandler
         var inflator = new EventInflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterTo(serviceCollection);
+        inflator.RegisterDependencies(serviceCollection, null, null);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var headers = GetValidHeaders();
         headers.Remove(header);
@@ -69,6 +71,7 @@ public class RestToTests : BaseTestWithMockHandler
         var inflator = new EventInflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterTo(serviceCollection);
+        inflator.RegisterDependencies(serviceCollection, null, null);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var headers = GetValidHeaders();
         var toChain = inflator.CreateToComponent(headers, serviceProvider);
@@ -83,6 +86,7 @@ public class RestToTests : BaseTestWithMockHandler
         var inflator = new EventInflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterTo(serviceCollection);
+        inflator.RegisterDependencies(serviceCollection, null, null);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var headers = GetValidHeaders();
         headers.Add("id", "20");
@@ -99,8 +103,9 @@ public class RestToTests : BaseTestWithMockHandler
     {
         var httpMessageHandlerMock = GetMockMessageHandler();
         var routeAttr = new RouteAttributes($"rest://localhost:8080/api/v1/hello?method={method}");
-        var to = new RestTo(new HttpContentFactory(), httpMessageHandlerMock);
+        var to = new RestTo(new HttpContentFactory(), GetServiceProvider(out var fromId, out var  toId), httpMessageHandlerMock);
         to.SetHeaders(routeAttr.Headers);
+        to.AddAuthDependencyId(toId);
         var routable = new Routable(new Dictionary<string, string>(), "test");
         await to.ProcessAsync(routable, CancellationToken.None);
 
@@ -116,8 +121,9 @@ public class RestToTests : BaseTestWithMockHandler
     {
         var httpMessageHandlerMock = GetMockMessageHandler();
         var routeAttr = new RouteAttributes($"rest://localhost:8080/api/v1/hello?method={method}");
-        var to = new RestTo(new HttpContentFactory(), httpMessageHandlerMock);
+        var to = new RestTo(new HttpContentFactory(), GetServiceProvider(out var fromId, out var  toId), httpMessageHandlerMock);
         to.SetHeaders(routeAttr.Headers);
+        to.AddAuthDependencyId(toId);
         var routable = new Routable(new Dictionary<string, string>(), "test");
         routable.SetBody(input);
         routable.SetHeader("HttpContentType", contentType);

@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Kyameru.Component.Rest.Contracts;
 using Kyameru.Component.Rest.Implementation;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -11,9 +13,9 @@ namespace Kyameru.Component.Rest
 {
     public class Inflator : IOasis
     {
-        private List<Core.Entities.ChainLinkDependency> _fromChainLinkDependencies;
+        protected List<Core.Entities.ChainLinkDependency> _fromChainLinkDependencies;
         
-        private List<Core.Entities.ChainLinkDependency> _toChainLinkDependencies;
+        protected List<Core.Entities.ChainLinkDependency> _toChainLinkDependencies;
         
         public IFromChainLink CreateFromComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
@@ -22,8 +24,11 @@ namespace Kyameru.Component.Rest
 
         public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
+            var authId = _toChainLinkDependencies
+                .First(x => x.DependencyType == typeof(IAuthStrategy)).Id;
             var toChain = serviceProvider.GetRequiredService<IRestTo>();
             toChain.SetHeaders(headers);
+            toChain.AddAuthDependencyId(authId);
             return toChain;
         }
 
@@ -51,10 +56,35 @@ namespace Kyameru.Component.Rest
             throw new NotImplementedException();
         }
 
-        public void RegisterDependencies(List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies)
+        public void RegisterDependencies(IServiceCollection services, List<ChainLinkDependency>? fromDependencies, List<ChainLinkDependency>? toDependencies)
         {
-            _fromChainLinkDependencies = fromDependencies;
-            _toChainLinkDependencies = toDependencies;
+            if (fromDependencies != null)
+            {
+                _fromChainLinkDependencies = fromDependencies;
+            }
+
+            if (toDependencies != null)
+            {
+                _toChainLinkDependencies = toDependencies;
+            }
+
+            RegisterNoAuth(services);
+        }
+
+        protected void RegisterNoAuth(IServiceCollection serviceCollection)
+        {
+            var auth = new NoAuth();
+            _fromChainLinkDependencies ??= new List<ChainLinkDependency>();
+            _toChainLinkDependencies ??= new List<ChainLinkDependency>();
+            if (_fromChainLinkDependencies.All(x => x.DependencyType != typeof(IAuthStrategy)))
+            {
+                _fromChainLinkDependencies.Add(serviceCollection.RegisterKyameruDependency<IAuthStrategy>(ChainLinkDependencyType.From,() => auth));
+            }
+            
+            if (_toChainLinkDependencies.All(x => x.DependencyType != typeof(IAuthStrategy)))
+            {
+                _toChainLinkDependencies.Add(serviceCollection.RegisterKyameruDependency<IAuthStrategy>(ChainLinkDependencyType.To,() => auth));
+            }
         }
     }
 }

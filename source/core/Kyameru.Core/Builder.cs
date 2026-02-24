@@ -433,8 +433,8 @@ namespace Kyameru.Core
         {
             services.AddSingleton<IKExchange, KExchange>();
             services.AddSingleton<IKRouter, KRouter>();
+            RunChainLinkDependencyInjection(services);
             RunComponentDiRegistration(services);
-            RunChainLinkDependencyInjection();
             services.AddTransient<IHostedService>(x =>
             {
                 GetIdentity();
@@ -494,18 +494,20 @@ namespace Kyameru.Core
         /// <summary>
         /// Adds the chain link dependencies for each registered inflator.
         /// </summary>
-        private void RunChainLinkDependencyInjection()
+        /// <param name="services"></param>
+        private void RunChainLinkDependencyInjection(IServiceCollection services)
         {
+            FillInflators(services, fromUri.ComponentName, toUris.Select(x => x.ComponentName).ToList());
             var from = dependencies.Where(x => x.ChainLink == ChainLinkDependencyType.From).ToList();
             var to = dependencies.Where(x => x.ChainLink == ChainLinkDependencyType.To).ToList();
             foreach (var inflator in ComponentInflators)
             {
-                inflator.Value.RegisterDependencies(from, to);
+                inflator.Value.RegisterDependencies(services, from, to);
             }
 
             foreach (var inflator in ComponentEventInflators)
             {
-                inflator.Value.RegisterDependencies(from, to);
+                inflator.Value.RegisterDependencies(services, from, to);
             }
         }
 
@@ -657,6 +659,6 @@ namespace Kyameru.Core
             return response;
         }
 
-
+        
     }
 }

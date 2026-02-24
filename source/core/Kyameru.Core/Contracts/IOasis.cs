@@ -58,8 +58,9 @@ namespace Kyameru.Core.Contracts
         /// <summary>
         /// Registers chain link dependencies.
         /// </summary>
+        /// <param name="services">Service collection.</param>
         /// <param name="fromDependencies">From chain link dependencies.</param>
         /// <param name="toDependencies">To chain link dependencies.</param>
-        void RegisterDependencies(List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies);
+        void RegisterDependencies(IServiceCollection services, List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies);
     }
 }

@@ -25,6 +25,7 @@ public class RestFromTests : BaseTestWithMockHandler
         var inflator = new EventInflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterFrom(serviceCollection);
+        inflator.RegisterDependencies(serviceCollection, null, null);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var headers = GetValidHeaders(method);
         var exception = Record.Exception(() => inflator.CreateFromEvent(headers, serviceProvider));
@@ -51,6 +52,7 @@ public class RestFromTests : BaseTestWithMockHandler
         var inflator = new EventInflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterFrom(serviceCollection);
+        inflator.RegisterDependencies(serviceCollection, null, null);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var headers = GetValidHeaders();
         headers.Remove(header);
@@ -74,6 +76,7 @@ public class RestFromTests : BaseTestWithMockHandler
         var inflator = new EventInflator();
         var serviceCollection = GetServiceCollection();
         inflator.RegisterFrom(serviceCollection);
+        inflator.RegisterDependencies(serviceCollection, null, null);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var headers = GetValidHeaders();
         headers.Add("id", "20");
@@ -90,7 +93,9 @@ public class RestFromTests : BaseTestWithMockHandler
     {
         var httpMessageHandlerMock = GetMockMessageHandler();
         var routeAttr = new RouteAttributes($"rest://localhost:8080/api/v1/hello?method={method}");
-        var from = new RestFrom(new HttpContentFactory(), httpMessageHandlerMock);
+        var serviceProvider =  GetServiceProvider(out var fromId, out var  toId);
+        var from = new RestFrom(new HttpContentFactory(), serviceProvider, httpMessageHandlerMock);
+        from.AddAuthDependencyId(fromId);
         from.SetHeaders(routeAttr.Headers);
         var routable = new Routable(new Dictionary<string, string>(), "test");
         var message = CommsMessage.Create<HttpMessageData>("Test", new HttpMessageData()
@@ -116,8 +121,10 @@ public class RestFromTests : BaseTestWithMockHandler
     public async Task HttpPostBodyIsCorrect(string contentType, object input, object output, string method, Func<Routable, Task<object>> getResponse)
     {
         var httpMessageHandlerMock = GetMockMessageHandler();
+        var keyedServiceProvider = GetServiceProvider(out var fromId, out var toId);
         var routeAttr = new RouteAttributes($"rest://localhost:8080/api/v1/hello?method={method}");
-        var from = new RestFrom(new HttpContentFactory(), httpMessageHandlerMock);
+        var from = new RestFrom(new HttpContentFactory(), keyedServiceProvider, httpMessageHandlerMock);
+        from.AddAuthDependencyId(fromId);
         from.SetHeaders(routeAttr.Headers);
         var routable = new Routable(new Dictionary<string, string>(), "test");
         Dictionary<string, string> messageHeaders = new Dictionary<string, string>();
@@ -147,6 +154,7 @@ public class RestFromTests : BaseTestWithMockHandler
         var httpMessageHandlerMock = Substitute.ForPartsOf<MockMessageHandler>();
         var receivedFromToken = string.Empty;
         var receivedToToken = string.Empty;
+        var testThread = TestThread.CreateDeferred(20);
         httpMessageHandlerMock.Send(Arg.Any<HttpRequestMessage>(), Arg.Any<CancellationToken>())
             .ReturnsForAnyArgs(x =>
             {
@@ -157,13 +165,13 @@ public class RestFromTests : BaseTestWithMockHandler
                     data = requestMessage.Content;
                 }
 
-                if (requestMessage.RequestUri.ToString().Contains("/From"))
+                if (requestMessage.RequestUri.ToString().Contains("/from"))
                 {
-                    receivedFromToken = requestMessage.Headers.Authorization.Parameter;
+                    receivedFromToken = requestMessage.Headers.GetValues("X-API-KEY").FirstOrDefault();
                 }
                 else
                 {
-                    receivedToToken = requestMessage.Headers.Authorization.Parameter;
+                    receivedToToken = requestMessage.Headers.GetValues("X-API-KEY").FirstOrDefault();
                 }
                 
                 return new HttpResponseMessage()
@@ -179,14 +187,14 @@ public class RestFromTests : BaseTestWithMockHandler
                 
                 
             });
-        var routeAttr = new RouteAttributes($"rest://localhost:8080/api/v1/hello");
+
         var servicesCollection = GetServiceCollection();
         servicesCollection.AddTransient<HttpMessageHandler>((x) => httpMessageHandlerMock);
         servicesCollection.AddSingleton(httpMessageHandlerMock);
         var fromApiToken = servicesCollection.RegisterKyameruRestAuthApi("FromApiKey");
         var toApiToken = servicesCollection.RegisterKyameruRestAuthApi("ToApiKey");
-        var routeId = Route.From("rest://localhost:8080/api/v1/hello")
-            .To("rest://localhost:8080/api/v1/hello")
+        var routeId = Route.From("rest://localhost:8080/api/v1/from/hello")
+            .To("rest://localhost:8080/api/v1/to/hello")
             .AddDependency(fromApiToken, ChainLinkDependencyType.From)
             .AddDependency(toApiToken, ChainLinkDependencyType.To)
             .EventTrigger()
@@ -195,13 +203,14 @@ public class RestFromTests : BaseTestWithMockHandler
         var serviceProvider = servicesCollection.BuildServiceProvider();
         var service = serviceProvider.GetService<IHostedService>();
         var exchange = serviceProvider.GetRequiredService<IKExchange>();
-        var testThread = TestThread.CreateDeferred(20);
+        
         var message = HttpMessageData.Create("Test");
         testThread.SetThread(service.StartAsync);
         testThread.Start();
         await exchange.PublishMessageAsync(routeId, message, testThread.CancelToken);
         testThread.WaitForExecution();
         Assert.Equal("FromApiKey",  receivedFromToken);
+        Assert.Equal("ToApiKey", receivedToToken);
     }
     
     private Dictionary<string, string> GetValidHeaders(string method = "get") => new Dictionary<string, string>()
@@ -219,6 +228,7 @@ public class RestFromTests : BaseTestWithMockHandler
         IServiceCollection serviceCollection = new ServiceCollection();
         serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp => logger);
         serviceCollection.AddTransient<ILogger<IKRouter>>(sp => routerLogger);
+
         // Any generic items here
         return serviceCollection;
     }
