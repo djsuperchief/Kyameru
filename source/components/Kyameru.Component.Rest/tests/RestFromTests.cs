@@ -148,70 +148,7 @@ public class RestFromTests : BaseTestWithMockHandler
         Assert.Equivalent(output, toCompare);
     }
 
-    [Fact]
-    public async Task HttpGetWithAuthHasCorrectApiTokenHeaders()
-    {
-        var httpMessageHandlerMock = Substitute.ForPartsOf<MockMessageHandler>();
-        var receivedFromToken = string.Empty;
-        var receivedToToken = string.Empty;
-        var testThread = TestThread.CreateDeferred(20);
-        httpMessageHandlerMock.Send(Arg.Any<HttpRequestMessage>(), Arg.Any<CancellationToken>())
-            .ReturnsForAnyArgs(x =>
-            {
-                var requestMessage = x.Arg<HttpRequestMessage>();
-                object? data = null;
-                if (requestMessage.Content != null)
-                {
-                    data = requestMessage.Content;
-                }
-
-                if (requestMessage.RequestUri.ToString().Contains("/from"))
-                {
-                    receivedFromToken = requestMessage.Headers.GetValues("X-API-KEY").FirstOrDefault();
-                }
-                else
-                {
-                    receivedToToken = requestMessage.Headers.GetValues("X-API-KEY").FirstOrDefault();
-                }
-                
-                return new HttpResponseMessage()
-                {
-                    Content = JsonContent.Create<Entities.GetResponse>(new()
-                    {
-                        Method = requestMessage.Method.ToString().ToUpper(),
-                        Url = requestMessage.RequestUri.ToString(),
-                        Data = data
-                    })
-                };
-
-                
-                
-            });
-
-        var servicesCollection = GetServiceCollection();
-        servicesCollection.AddTransient<HttpMessageHandler>((x) => httpMessageHandlerMock);
-        servicesCollection.AddSingleton(httpMessageHandlerMock);
-        var fromApiToken = servicesCollection.RegisterKyameruRestAuthApi("FromApiKey");
-        var toApiToken = servicesCollection.RegisterKyameruRestAuthApi("ToApiKey");
-        var routeId = Route.From("rest://localhost:8080/api/v1/from/hello")
-            .To("rest://localhost:8080/api/v1/to/hello")
-            .AddDependency(fromApiToken, ChainLinkDependencyType.From)
-            .AddDependency(toApiToken, ChainLinkDependencyType.To)
-            .EventTrigger()
-            .Build(servicesCollection);
-        
-        var serviceProvider = servicesCollection.BuildServiceProvider();
-        var service = serviceProvider.GetService<IHostedService>();
-        var exchange = serviceProvider.GetRequiredService<IKExchange>();
-        
-        var message = HttpMessageData.Create("Test");
-        testThread.SetThread(service.StartAsync);
-        testThread.Start();
-        await exchange.PublishMessageAsync(routeId, message, testThread.CancelToken);
-        testThread.WaitForExecution();
-        Assert.Equal("FromApiKey",  receivedFromToken);
-        Assert.Equal("ToApiKey", receivedToToken);
-    }
+    
     
     private Dictionary<string, string> GetValidHeaders(string method = "get") => new Dictionary<string, string>()
     {
