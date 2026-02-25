@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text;
 using Kyameru.Component.Rest.Messages;
 using Kyameru.Component.Rest.Tests.Utils;
 using Kyameru.Core.Contracts;
@@ -16,12 +17,12 @@ public class AuthTests : BaseTestWithMockHandler
 {
     [Theory]
     [MemberData(nameof(AuthTestData))]
-    public async Task HttpGetWithAuthHasCorrectHeaders(Func<IServiceCollection, (ChainLinkDependency fromToken, ChainLinkDependency toToken)> authRegister, Func<HttpRequestMessage, string> extract)
+    public async Task HttpGetWithAuthHasCorrectHeaders(Func<IServiceCollection, (ChainLinkDependency fromToken, ChainLinkDependency toToken)> authRegister, Func<HttpRequestMessage, string> extract, string expectedFrom, string expectedTo)
     {
         var httpMessageHandlerMock = Substitute.ForPartsOf<MockMessageHandler>();
         var receivedFromToken = string.Empty;
         var receivedToToken = string.Empty;
-        var testThread = TestThread.CreateDeferred(20);
+        var testThread = TestThread.CreateDeferred(5);
         httpMessageHandlerMock.Send(Arg.Any<HttpRequestMessage>(), Arg.Any<CancellationToken>())
             .ReturnsForAnyArgs(x =>
             {
@@ -75,13 +76,15 @@ public class AuthTests : BaseTestWithMockHandler
         testThread.Start();
         await exchange.PublishMessageAsync(routeId, message, testThread.CancelToken);
         testThread.WaitForExecution();
-        Assert.Equal("FromApiKey",  receivedFromToken);
-        Assert.Equal("ToApiKey", receivedToToken);
+        Assert.Equal(expectedFrom,  receivedFromToken);
+        Assert.Equal(expectedTo, receivedToToken);
     }
 
     public static IEnumerable<object[]> AuthTestData()
     {
-        yield return [GetApiAuth, GetApiAuthToken];
+        yield return [GetApiAuth, GetApiAuthToken, "FromApiKey", "ToApiKey"];
+        yield return [GetBearerAuth, GetBearerAuthToken, "Bearer FROMTOKEN", "Bearer TOTOKEN" ];
+        yield return [GetBasicAuth, GetBasicAuthToken, "username:passwordfrom", "username:passwordto" ];
     }
 
     private static (ChainLinkDependency from, ChainLinkDependency to) GetApiAuth(IServiceCollection services)
@@ -95,7 +98,33 @@ public class AuthTests : BaseTestWithMockHandler
     {
         return requestMessage.Headers.GetValues("X-API-KEY").FirstOrDefault();
     }
-    
+
+    private static (ChainLinkDependency fromToken, ChainLinkDependency toToken) GetBearerAuth(
+        IServiceCollection services)
+    {
+        var from = services.RegisterKyameruRestAuthBearer("FROMTOKEN");
+        var to = services.RegisterKyameruRestAuthBearer("TOTOKEN");
+        return (from, to);
+    }
+
+    private static string GetBearerAuthToken(HttpRequestMessage requestMessage)
+    {
+        return requestMessage.Headers.Authorization.ToString();
+    }
+
+    private static (ChainLinkDependency fromToken, ChainLinkDependency toToken) GetBasicAuth(
+        IServiceCollection services)
+    {
+        var from = services.RegisterKyameruRestAuthBasic("username", "passwordfrom");
+        var to = services.RegisterKyameruRestAuthBasic("username", "passwordto");
+        return (from, to);
+    }
+
+    private static string GetBasicAuthToken(HttpRequestMessage requestMessage)
+    {
+        var token = requestMessage.Headers.Authorization.Parameter;
+        return Encoding.ASCII.GetString(Convert.FromBase64String(token));
+    }
     
     private IServiceCollection GetServiceCollection()
     {

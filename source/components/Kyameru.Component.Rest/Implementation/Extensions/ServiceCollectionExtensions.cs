@@ -14,5 +14,19 @@ namespace Microsoft.Extensions.DependencyInjection
             var apiToken = new ApiAuthToken(apiKey, header);
             return services.RegisterKyameruDependency<IAuthStrategy>(chainLink,() => apiToken);
         }
+
+        public static ChainLinkDependency RegisterKyameruRestAuthBearer(this IServiceCollection services, string token,
+            ChainLinkDependencyType chainLink = ChainLinkDependencyType.Unset)
+        {
+            var bearerToken = new BearerAuthToken(token);
+            return services.RegisterKyameruDependency<IAuthStrategy>(chainLink,() => bearerToken);
+        }
+
+        public static ChainLinkDependency RegisterKyameruRestAuthBasic(this IServiceCollection services, string username,
+            string password, ChainLinkDependencyType chainLink = ChainLinkDependencyType.Unset)
+        {
+            var basicAuth = new BasicAuthToken(username, password);
+            return services.RegisterKyameruDependency<IAuthStrategy>(chainLink,() => basicAuth);
+        }
     }
 }
