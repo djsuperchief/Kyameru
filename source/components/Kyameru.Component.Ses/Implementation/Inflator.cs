@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Amazon.SimpleEmail;
 using Kyameru.Core.Contracts;
+using Kyameru.Core.Entities;
 using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,6 +35,11 @@ public class Inflator : IOasis
     public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
     {
         throw new NotImplementedException();
+    }
+
+    public void RegisterDependencies(IServiceCollection services, List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies)
+    {
+        
     }
 
     public IServiceCollection RegisterTo(IServiceCollection serviceCollection)

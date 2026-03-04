@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Kyameru.Core.Exceptions;
 using Kyameru.Core.Contracts;
+using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kyameru.Component.File
@@ -45,6 +46,10 @@ namespace Kyameru.Component.File
         public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
         {
             throw new NotImplementedException();
+        }
+
+        public void RegisterDependencies(IServiceCollection services, List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies)
+        {
         }
 
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)

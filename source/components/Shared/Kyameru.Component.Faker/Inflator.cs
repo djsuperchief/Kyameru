@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Kyameru.Core.Contracts;
+using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kyameru.Component.Faker
@@ -39,6 +40,11 @@ namespace Kyameru.Component.Faker
         public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
         {
             throw new NotImplementedException();
+        }
+
+        public void RegisterDependencies(IServiceCollection services, List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies)
+        {
+            
         }
     }
 }

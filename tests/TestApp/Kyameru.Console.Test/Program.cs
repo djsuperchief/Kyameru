@@ -26,8 +26,6 @@ namespace Kyameru.Console.Test
             string fileLocation;
             await new HostBuilder().ConfigureServices((hostContext, services) =>
             {
-
-
                 IConfiguration Configuration = new ConfigurationBuilder()
                     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                     .AddEnvironmentVariables()
