@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Channels;
 using Kyameru.Core.Comms;
 using Kyameru.Core.Entities;
+using Kyameru.Core.Exceptions;
 
 namespace Kyameru.Core
 {
@@ -211,6 +212,11 @@ namespace Kyameru.Core
             else
             {
                 Type createType = Type.GetType($"Kyameru.Component.{component}.Inflator, Kyameru.Component.{component}");
+                if (createType == null)
+                {
+                    throw new ActivationException(string.Format(Resources.ERROR_ACTIVATION_FROM, component), component);    
+                }
+                
                 fromType = (IOasis)Activator.CreateInstance(createType);
                 ComponentInflators.Add(componentLocation, fromType);
             }

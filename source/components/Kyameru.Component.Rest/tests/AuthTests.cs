@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text;
 using Kyameru.Component.Rest.Messages;
 using Kyameru.Component.Rest.Tests.Utils;
+using Kyameru.Core.Comms;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Enums;
@@ -129,10 +130,10 @@ public class AuthTests : BaseTestWithMockHandler
     private IServiceCollection GetServiceCollection()
     {
         var logger = Substitute.For<ILogger<Route>>();
-        var routerLogger = Substitute.For<ILogger<IKRouter>>();
+        var routerLogger = Substitute.For<ILogger<KRouter>>();
         IServiceCollection serviceCollection = new ServiceCollection();
         serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp => logger);
-        serviceCollection.AddTransient<ILogger<IKRouter>>(sp => routerLogger);
+        serviceCollection.AddTransient<ILogger<KRouter>>(sp => routerLogger);
 
         // Any generic items here
         return serviceCollection;

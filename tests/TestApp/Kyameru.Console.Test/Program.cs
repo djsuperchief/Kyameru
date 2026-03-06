@@ -114,5 +114,19 @@ namespace Kyameru.Console.Test
             .Id("sestest")
             .Build(services);
         }
+
+        static void SetupRestTest(IServiceCollection services)
+        {
+            services.TryAddAwsService<IAmazonSimpleEmailServiceV2>();
+            services.TryAddAwsService<IAmazonSimpleEmailService>();
+            Kyameru.Route.From("rest://localhost:3060/hello")
+                .Process(x =>
+                {
+                    x.SetBody("I have pinged a website");
+                })
+                .To("ses:///?from=kyameru@kyameru.com")
+                .EventTrigger()
+                .Build(services);
+        }
     }
 }

@@ -21,9 +21,9 @@ namespace Kyameru.Core.Comms
         private readonly ConcurrentDictionary<string, Channel<CommsMessage>> _messageQueues =
             new ConcurrentDictionary<string, Channel<CommsMessage>>();
 
-        private readonly ILogger<IKRouter> _logger;
+        private readonly ILogger<KRouter> _logger;
         
-        public KRouter(ILogger<IKRouter> logger)
+        public KRouter(ILogger<KRouter> logger)
         {
             _logger = logger;
         }
