@@ -45,7 +45,9 @@ namespace Kyameru.Console.Test
                 services.AddLogging();
                 services.AddLocalStack(Configuration);
                 services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
-                SetupSnsTest(services);
+                services.AddTransient<IMessageProcessor, Processor>();
+                var messageQueue = SetupRestTest(services);
+                SetupSnsTest(services, messageQueue);
                 SetupSesTest(services);
                 SetupS3Route(services, fileLocation);
 
@@ -77,11 +79,16 @@ namespace Kyameru.Console.Test
                 .Build(services);
         }
 
-        static void SetupSnsTest(IServiceCollection services)
+        static void SetupSnsTest(IServiceCollection services, string messageQueue)
         {
             services.AddAwsService<IAmazonSQS>();
             services.AddAwsService<IAmazonSimpleNotificationService>();
             Kyameru.Route.From("sqs://kyameru-from")
+                .Process(x =>
+                {
+                    x.SetHeader("MessageQueue", messageQueue);
+                })
+                .Process<IMessageProcessor>()
             .To("sns://arn:aws:sns:eu-west-2:000000000000:kyameru_to")
             .Id("SNS_TEST")
             .Build(services);
@@ -115,14 +122,19 @@ namespace Kyameru.Console.Test
             .Build(services);
         }
 
-        static void SetupRestTest(IServiceCollection services)
+        static string SetupRestTest(IServiceCollection services)
         {
             services.TryAddAwsService<IAmazonSimpleEmailServiceV2>();
             services.TryAddAwsService<IAmazonSimpleEmailService>();
-            Kyameru.Route.From("rest://localhost:3060/hello")
+            return Kyameru.Route.From("rest://localhost:3060/hello?https=false")
                 .Process(x =>
                 {
-                    x.SetBody("I have pinged a website");
+                    x.SetBody<SesMessage>(new SesMessage()
+                    {
+                        BodyText = "I have pinged a website",
+                        Subject = "Test Message Queue"
+                    });
+                    x.SetHeader("SESTo", "test@test.com");
                 })
                 .To("ses:///?from=kyameru@kyameru.com")
                 .EventTrigger()

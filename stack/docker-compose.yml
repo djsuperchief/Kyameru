@@ -39,3 +39,13 @@ services:
         condition: service_healthy
     volumes:
       - "./terraform:/terraform"
+  
+  web:
+    image: nginx
+    #volumes:
+    #  - ./templates:/etc/nginx/templates
+    ports:
+      - "3060:80"
+    environment:
+      #- NGINX_HOST=foobar.com
+      - NGINX_PORT=80

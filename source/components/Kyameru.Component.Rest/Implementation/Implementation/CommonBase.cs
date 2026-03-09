@@ -139,6 +139,7 @@ namespace Kyameru.Component.Rest.Implementation
             else
             {
                 Log(LogLevel.Error, string.Format(Resources.ERROR_REQUEST,  response.ReasonPhrase));
+                routable.SetInError(new Error("Rest", "Sending Without Body", string.Format(Resources.ERROR_REQUEST,  response.ReasonPhrase)));
             }
         }
 
@@ -161,6 +162,7 @@ namespace Kyameru.Component.Rest.Implementation
             else
             {
                 Log(LogLevel.Error, string.Format(Resources.ERROR_REQUEST,  response.ReasonPhrase));
+                routable.SetInError(new Error("Rest", "Sending Without Body", string.Format(Resources.ERROR_REQUEST,  response.ReasonPhrase)));
             }
         }
 
