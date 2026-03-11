@@ -1,0 +1,9 @@
+{
+  "name": "Ruby Jekyll Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "forwardPorts": [4000],
+  "postCreateCommand": "bundle config set path 'vendor/bundle' && bundle install",
+  "remoteUser": "root"
+}
