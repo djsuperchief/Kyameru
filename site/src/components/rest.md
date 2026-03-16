@@ -64,8 +64,15 @@ The `routeId` will be a GUID and this can then be used to send a request into th
 
 ### Message Implementation
 
-TBD
-
+```mermaid
+classDiagram
+    class HttpMessageData {
+        +Dictionary~string,string~ Headers
+        +object Data
+        
+        +Create(data,headers)
+    }
+```
 
 ### Triggering a Rest based route
 
@@ -77,4 +84,34 @@ Once you have setup a route using Rest as the `From` and you have assigned its i
 ```
 await exchange.PublishMessageAsync(routeId, HttpMessageData.Create(routable), cancellationToken);
 ```
+
+## To
+
+The `To` part of the route is the same format as the `From` and will send a request to the specified endpoint.
+
+## Post / Data Notes
+
+If you are intending on posting to an endpoint it is worth noting that the body of the Http post comes from:
+
+### From
+
+The body of the message comes from the event message posted in.
+
+### To
+
+The body of the message comes from the routable and all headers in the message are posted as Http message headers.
+
+### Body Serialization
+
+To control what mechanism is used to serialize the body of the `Routable` or Event message, you need top specify one of the below headers in the message:
+
+| Header          | Value                    | Description                   |
+|-----------------|--------------------------|-------------------------------|
+| HttpContentType | application/json         | Serialize body as JSON        |
+| HttpContentType | application/octet-stream | Serialize body as ByteContent |
+| HttpContentType | text/plain               | Serialize body as PlainText   |
+| HttpContentType | text/json                | Serialize body as JSON        |
+
+
+
 

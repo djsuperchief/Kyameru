@@ -43,6 +43,10 @@ For the time being, every route that uses an event will need the user to define 
 
 To utilise sending messages from your application or within a route, you need to add a dependency for the `IKExchange` which will allow you to send messages into the internal event bus.
 
-# Naming
+### Naming
 
 As a side note although a sensible suggestion for naming the exchange and router would have been `IExchange` or `IRouter`, we need to make sure it is kept entirely separate from other frameworks. I wanted to avoid using `IKyameruExchange` and the router derivative because it was just too lengthy and decided on `IKExchange` and `IKRouter`.
+
+## Monitoring
+
+Each channel needs to be shutdown or marked as complete when an application shuts down so a Monitoring background service will be created so that when this is stopped, it will trigger a completion of all writer channels to ensure applications do not hang when exiting.

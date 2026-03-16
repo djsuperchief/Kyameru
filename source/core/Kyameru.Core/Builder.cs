@@ -10,6 +10,7 @@ using Kyameru.Core.Entities;
 using Kyameru.Core.Enums;
 using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -431,8 +432,8 @@ namespace Kyameru.Core
 
         private void BuildKyameru(IServiceCollection services)
         {
-            services.AddSingleton<IKExchange, KExchange>();
-            services.AddSingleton<IKRouter, KRouter>();
+            services.TryAddSingleton<IKExchange, KExchange>();
+            services.TryAddSingleton<IKRouter, KRouter>();
             RunChainLinkDependencyInjection(services);
             RunComponentDiRegistration(services);
             services.AddTransient<IHostedService>(x =>

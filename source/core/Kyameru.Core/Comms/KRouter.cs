@@ -60,8 +60,21 @@ namespace Kyameru.Core.Comms
             }
             else
             {
-                throw new CommsException(string.Format(Resources.ERROR_SUBSCRIPTION_NOT_FOUND, "test"));
+                throw new CommsException(string.Format(Resources.ERROR_SUBSCRIPTION_NOT_FOUND, message.RoutingKey));
             }
+        }
+
+        public async Task CloseAll()
+        {
+            foreach (Channel<CommsMessage> channel in _messageQueues.Values)
+            {
+                if (!channel.Reader.Completion.IsCompleted)
+                {
+                    channel.Writer.Complete();
+                }
+            }
+
+            await Task.CompletedTask;
         }
     }
 }

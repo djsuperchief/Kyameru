@@ -32,6 +32,11 @@ namespace Kyameru.Core
         /// Instances of component event inflators.
         /// </summary>
         protected readonly Dictionary<string, IEventOasis> ComponentEventInflators = new  Dictionary<string, IEventOasis>();
+
+        /// <summary>
+        /// Value indicating if the route specifies an event and so can add a router monitor.
+        /// </summary>
+        protected bool HasEventRoute;
         
         /// <summary>
         /// Creates the to component.

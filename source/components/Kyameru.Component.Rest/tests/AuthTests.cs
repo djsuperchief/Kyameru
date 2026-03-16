@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using System.Text;
+using Kyameru.Component.Rest.Contracts;
 using Kyameru.Component.Rest.Messages;
 using Kyameru.Component.Rest.Tests.Utils;
 using Kyameru.Core.Comms;
@@ -86,6 +87,21 @@ public class AuthTests : BaseTestWithMockHandler
         yield return [GetApiAuth, GetApiAuthToken, "FromApiKey", "ToApiKey"];
         yield return [GetBearerAuth, GetBearerAuthToken, "Bearer FROMTOKEN", "Bearer TOTOKEN" ];
         yield return [GetBasicAuth, GetBasicAuthToken, "username:passwordfrom", "username:passwordto" ];
+        yield return [GetCustomAuth, GetCustomAuthToken, "CustomFrom", "CustomTo"];
+    }
+
+    private static (ChainLinkDependency fromToken, ChainLinkDependency toToken) GetCustomAuth(
+        IServiceCollection services)
+    {
+        var from = services.RegisterKyameruDependency<IAuthStrategy>(ChainLinkDependencyType.From,() => new CustomAuth("CustomFrom"));
+        var to = services.RegisterKyameruDependency<IAuthStrategy>(ChainLinkDependencyType.To,() => new CustomAuth("CustomTo"));
+        
+        return (from, to);
+    }
+
+    private static string GetCustomAuthToken(HttpRequestMessage requestMessage)
+    {
+        return requestMessage.Headers.GetValues("CustomAuth").FirstOrDefault();
     }
 
     private static (ChainLinkDependency from, ChainLinkDependency to) GetApiAuth(IServiceCollection services)

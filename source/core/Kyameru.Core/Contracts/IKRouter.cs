@@ -23,5 +23,11 @@ namespace Kyameru.Core.Contracts
         /// <param name="cancellationToken">Threading cancellation token.</param>
         /// <exception cref="Exceptions.CommsException"></exception>
         Task PublishAsync(CommsMessage message, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Stops all message queues.
+        /// </summary>
+        /// <remarks>This is intended for internal use only.</remarks>
+        Task CloseAll();
     }
 }
