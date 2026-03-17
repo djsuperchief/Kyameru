@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Kyameru.Core.Contracts;
@@ -11,6 +12,8 @@ namespace Kyameru.Core.Comms
     public class RouterMonitor : BackgroundService
     {
         private readonly IKRouter _router;
+        
+        private readonly AutoResetEvent _autoResetEvent = new AutoResetEvent(false);
 
         /// <summary>
         /// Instantiates a new instance of the <see cref="RouterMonitor"/> class.
@@ -20,14 +23,17 @@ namespace Kyameru.Core.Comms
         {
             _router = router;
         }
+        
+        /// <inheritdoc/>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                
+                _autoResetEvent.WaitOne(TimeSpan.FromSeconds(30));
             }
         }
 
+        /// <inheritdoc/>
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
             await _router.CloseAll();

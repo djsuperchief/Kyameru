@@ -436,6 +436,11 @@ namespace Kyameru.Core
             services.TryAddSingleton<IKRouter, KRouter>();
             RunChainLinkDependencyInjection(services);
             RunComponentDiRegistration(services);
+            if (HasEventRoute)
+            {
+                services.AddSingleton<IHostedService, RouterMonitor>();
+            }
+            
             services.AddTransient<IHostedService>(x =>
             {
                 GetIdentity();

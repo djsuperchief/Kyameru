@@ -99,6 +99,7 @@ namespace Kyameru.Core
 
                 var channel = bus.Subscribe(identity);
                 response = activator.CreateFromEvent(headers, serviceProvider);
+                HasEventRoute = true;
                 return (response, channel);
             }
             catch (Exception ex)
