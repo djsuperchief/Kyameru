@@ -33,13 +33,20 @@ public abstract class BaseTests
         return services.BuildServiceProvider();
     }
 
-    protected IServiceCollection GetServiceDescriptors()
+    protected IServiceCollection GetServiceDescriptors(ILogger<Route> genericLogger = null)
     {
         IServiceCollection serviceCollection = new ServiceCollection();
         serviceCollection.AddTransient<ILogger<KRouter>>(x => Substitute.For<ILogger<KRouter>>());
-        serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp => Substitute.For<ILogger<Kyameru.Route>>());
-        serviceCollection.AddTransient<Tests.Mocks.IMyComponent, Tests.Mocks.MyComponent>();
+        if (genericLogger == null)
+        {
+            serviceCollection.AddTransient<ILogger<Kyameru.Route>>(sp => Substitute.For<ILogger<Kyameru.Route>>());
+        }
+        else
+        {
+            serviceCollection.AddTransient<ILogger<Route>>(sp => genericLogger);
+        }
 
+        serviceCollection.AddTransient<Tests.Mocks.IMyComponent, Tests.Mocks.MyComponent>();
         return serviceCollection;
     }
 }
