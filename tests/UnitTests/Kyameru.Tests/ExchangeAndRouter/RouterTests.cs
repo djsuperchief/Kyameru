@@ -175,9 +175,32 @@ public class RouterTests : BaseTests
         routeOne.StartAndWait();
 
         Assert.Equal(0, received.Count);
-        foreach(var x in logger.ReceivedCalls())
-        {
-            string test = "test";
-        }
+        Assert.Equal("Kyameru.Route:first => The method or operation is not implemented.", receivedMessage);
+    }
+
+    [Fact]
+    public async Task CloseAllClosesQueues()
+    {
+        var loggerMock = Substitute.For<ILogger<KRouter>>();
+        var router = new KRouter(loggerMock);
+        var channel = router.Subscribe("test");
+
+        var publishMessage = CommsMessage.Create("test", new TestMessage("Hello world"));
+        await router.CloseAll();
+
+        Assert.True(channel.Completion.IsCompleted);
+    }
+    
+    [Fact]
+    public async Task RouterMonitorClosesAllQueues()
+    {
+        var mockRouter = Substitute.For<IKRouter>();
+        var testThread = TestThread.CreateDeferred(5);
+        var monitor = new RouterMonitor(mockRouter);
+        testThread.SetThread(monitor.StartAsync);
+        testThread.StartAndWait();
+        await testThread.CancelAsync();
+        await monitor.StopAsync(CancellationToken.None);
+        mockRouter.Received(1).CloseAll();
     }
 }

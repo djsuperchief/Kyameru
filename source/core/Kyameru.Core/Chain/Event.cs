@@ -70,7 +70,7 @@ namespace Kyameru.Core.Chain
             }
             else
             {
-                _logger.LogError(_identity, e.Message, e.Error);
+                _logger.KyameruException(_identity, e.Message, e.Error);
             }
         }
     }

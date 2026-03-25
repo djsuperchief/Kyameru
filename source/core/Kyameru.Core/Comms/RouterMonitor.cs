@@ -38,6 +38,7 @@ namespace Kyameru.Core.Comms
         {
             await _router.CloseAll();
             await base.StopAsync(cancellationToken);
+            _autoResetEvent.Set();
         }
     }
 }

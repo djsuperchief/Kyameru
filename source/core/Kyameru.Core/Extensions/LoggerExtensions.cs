@@ -60,7 +60,8 @@ namespace Kyameru.Core.Extensions
 
         public static void KyameruError(this ILogger logger, string routeId, string errorMessage)
         {
-            error(logger, routeId, errorMessage, null);
+            //error(logger, routeId, errorMessage, null);
+            logger.LogError(message:PrintMessage(routeId, errorMessage));
         }
 
         public static void KyameruWarning(this ILogger logger, string routeId, string message)
@@ -70,7 +71,8 @@ namespace Kyameru.Core.Extensions
 
         public static void KyameruException(this ILogger logger, string routeId, string errorMessage, Exception ex)
         {
-            error(logger, routeId, errorMessage, ex);
+            //error(logger, routeId, errorMessage, ex);
+            logger.LogError(ex, PrintMessage(routeId, errorMessage));
         }
 
         public static void KyameruLog(this ILogger logger, string routeId, string message, LogLevel logLevel)
@@ -97,6 +99,11 @@ namespace Kyameru.Core.Extensions
                     KyameruDebug(logger, routeId, message);
                     break;
             }
+        }
+
+        private static string PrintMessage(string routeId, string message)
+        {
+            return $"Kyameru.Route:{routeId} => {message}";
         }
     }
 }
