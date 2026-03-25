@@ -174,7 +174,7 @@ public class RouterTests : BaseTests
         await exchange.PublishMessageAsync("first", GenericMessage.Create("Message For One"), routeOne.CancelToken);
         routeOne.StartAndWait();
 
-        Assert.Equal(0, received.Count);
+        Assert.Empty(received);
         Assert.Equal("Kyameru.Route:first => The method or operation is not implemented.", receivedMessage);
     }
 

@@ -69,6 +69,15 @@ public class InjectionTests
         var inflator = new Inflator();
         Assert.Throws<NotImplementedException>(() => inflator.CreateScheduleComponent(null, null));
     }
+    
+    [Fact]
+    public void RegisterDependenciesDoesNothing()
+    {
+        var mockServices = Substitute.For<IServiceCollection>();
+        var inflator = new Inflator();
+        inflator.RegisterDependencies(mockServices, default, default);
+        Assert.Empty(mockServices.ReceivedCalls());
+    }
 
     private ServiceProvider RegisterTo(Inflator inflator)
     {
