@@ -22,6 +22,11 @@ namespace Kyameru.Core
     public class Builder : AbstractBuilder
     {
         /// <summary>
+        /// Gets the list of registered dependencies.
+        /// </summary>
+        public IReadOnlyList<ChainLinkDependency> RegisteredDependencies => dependencies;
+        
+        /// <summary>
         /// List of processing components.
         /// </summary>
         private readonly List<Processable> components;
@@ -46,8 +51,6 @@ namespace Kyameru.Core
         /// False indicates framework should "swallow" the exception but still log it.
         /// </summary>
         private bool raiseExceptions;
-
-        
 
         /// <summary>
         /// Used for when reflection is needed for host assembly reflection.

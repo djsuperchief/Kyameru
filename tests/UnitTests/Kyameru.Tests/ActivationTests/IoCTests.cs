@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Kyameru.Core.Enums;
+using Kyameru.Core.Exceptions;
 using Xunit;
 
 namespace Kyameru.Facts.ActivationFacts;
@@ -277,6 +279,32 @@ public class IoCFacts : BaseTests
         await threadTwo.CancelAsync();
 
         Assert.Equal(2, calls);
+    }
+
+    [Fact]
+    public void BuilderThrowsDependencyExceptionOnUnset()
+    {
+        // Trying to add an unset dependency throws an exception
+        var builder = Kyameru.Route.From("generic:///test").To("generic:///test");
+        Assert.Throws<DependencyException>(() => builder.AddDependency(new ChainLinkDependency()
+        {
+            DependencyType = typeof(IProcessor),
+            Id = Guid.NewGuid(),
+            ChainLink = ChainLinkDependencyType.Unset
+        }));
+    }
+
+    [Fact]
+    public void BuilderRegisterDependencyCorrectly()
+    {
+        var builder = Kyameru.Route.From("generic:///test").To("generic:///test");
+        builder.AddDependency(new ChainLinkDependency()
+        {
+            DependencyType = typeof(IProcessor),
+            Id = Guid.NewGuid(),
+            ChainLink = ChainLinkDependencyType.From
+        });
+        Assert.True(builder.RegisteredDependencies[0].DependencyType == typeof(IProcessor));
     }
 
     #region Helpers
