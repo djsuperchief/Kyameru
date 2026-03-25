@@ -195,9 +195,9 @@ public class RouterTests : BaseTests
     public async Task RouterMonitorClosesAllQueues()
     {
         var mockRouter = Substitute.For<IKRouter>();
-        var testThread = TestThread.CreateDeferred(5);
+        //var testThread = TestThread.CreateDeferred(5);
         var monitor = new RouterMonitor(mockRouter);
-        testThread.SetThread(monitor.StartAsync);
+        var testThread = TestThread.CreateNew(monitor.StartAsync, 5);
         testThread.StartAndWait();
         await testThread.CancelAsync();
         await monitor.StopAsync(CancellationToken.None);
