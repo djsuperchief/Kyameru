@@ -38,6 +38,20 @@ public class InflatorTests
     {
         Assert.Throws<RouteNotAvailableException>(() => this.GetServiceDescriptors(true));
     }
+    
+    [Fact]
+    public void RegisterScheduledThrowsException()
+    {
+        var inflator = new Inflator();
+        Assert.Throws<NotImplementedException>(() => inflator.RegisterScheduled(null));
+    }
+    
+    [Fact]
+    public void CreateScheduledThrowsException()
+    {
+        var inflator = new Inflator();
+        Assert.Throws<NotImplementedException>(() => inflator.CreateScheduleComponent(null, null));
+    }
 
 
     private IServiceCollection GetServiceDescriptors(bool tryFrom = false)

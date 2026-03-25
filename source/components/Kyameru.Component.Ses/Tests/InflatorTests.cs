@@ -49,4 +49,18 @@ public class InflatorTests
         var component = inflator.CreateToComponent(new Dictionary<string, string>(), builder);
         Assert.NotNull(component);
     }
+    
+    [Fact]
+    public void RegisterScheduledThrowsException()
+    {
+        var inflator = new Inflator();
+        Assert.Throws<NotImplementedException>(() => inflator.RegisterScheduled(null));
+    }
+    
+    [Fact]
+    public void CreateScheduledThrowsException()
+    {
+        var inflator = new Inflator();
+        Assert.Throws<NotImplementedException>(() => inflator.CreateScheduleComponent(null, null));
+    }
 }

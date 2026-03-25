@@ -55,6 +55,20 @@ public class InjectionTests
         var provider = RegisterTo(inflator);
         Assert.Throws<ComponentException>(() => inflator.CreateToComponent(new Dictionary<string, string>(), provider));
     }
+    
+    [Fact]
+    public void RegisterScheduledThrowsException()
+    {
+        var inflator = new Inflator();
+        Assert.Throws<NotImplementedException>(() => inflator.RegisterScheduled(null));
+    }
+    
+    [Fact]
+    public void CreateScheduledThrowsException()
+    {
+        var inflator = new Inflator();
+        Assert.Throws<NotImplementedException>(() => inflator.CreateScheduleComponent(null, null));
+    }
 
     private ServiceProvider RegisterTo(Inflator inflator)
     {

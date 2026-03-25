@@ -26,6 +26,20 @@ public class InflatorTests
         IToChainLink toComponent = new Ftp.Inflator().CreateToComponent(this.GetHeaders(), serviceProvider);
         Assert.NotNull(toComponent);
     }
+    
+    [Fact]
+    public void RegisterScheduledThrowsException()
+    {
+        var inflator = new Inflator();
+        Assert.Throws<NotImplementedException>(() => inflator.RegisterScheduled(null));
+    }
+    
+    [Fact]
+    public void CreateScheduledThrowsException()
+    {
+        var inflator = new Inflator();
+        Assert.Throws<NotImplementedException>(() => inflator.CreateScheduleComponent(null, null));
+    }
 
     private Dictionary<string, string> GetHeaders()
     {
