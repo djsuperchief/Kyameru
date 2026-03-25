@@ -293,6 +293,19 @@ public class IoCFacts : BaseTests
             ChainLink = ChainLinkDependencyType.Unset
         }));
     }
+    
+    [Fact]
+    public void BuilderThrowsDependencyExceptionOnUnsetSecond()
+    {
+        // Trying to add an unset dependency throws an exception
+        var builder = Kyameru.Route.From("generic:///test").To("generic:///test");
+        Assert.Throws<DependencyException>(() => builder.AddDependency(new ChainLinkDependency()
+        {
+            DependencyType = typeof(IProcessor),
+            Id = Guid.NewGuid(),
+            ChainLink = ChainLinkDependencyType.Unset
+        }, ChainLinkDependencyType.Unset));
+    }
 
     [Fact]
     public void BuilderRegisterDependencyCorrectly()
@@ -304,6 +317,19 @@ public class IoCFacts : BaseTests
             Id = Guid.NewGuid(),
             ChainLink = ChainLinkDependencyType.From
         });
+        Assert.True(builder.RegisteredDependencies[0].DependencyType == typeof(IProcessor));
+    }
+    
+    [Fact]
+    public void BuilderRegisterDependencyCorrectlySecond()
+    {
+        var builder = Kyameru.Route.From("generic:///test").To("generic:///test");
+        builder.AddDependency(new ChainLinkDependency()
+        {
+            DependencyType = typeof(IProcessor),
+            Id = Guid.NewGuid(),
+            ChainLink = ChainLinkDependencyType.From
+        }, ChainLinkDependencyType.From);
         Assert.True(builder.RegisteredDependencies[0].DependencyType == typeof(IProcessor));
     }
 
