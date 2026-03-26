@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Kyameru.Core.Contracts;
+﻿using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 

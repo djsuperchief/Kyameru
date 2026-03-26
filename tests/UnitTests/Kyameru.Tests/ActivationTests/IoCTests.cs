@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Kyameru.Core.Enums;
 using Kyameru.Core.Exceptions;
+using Kyameru.Tests.Mocks;
 using Xunit;
 
 namespace Kyameru.Facts.ActivationFacts;
@@ -331,6 +332,30 @@ public class IoCFacts : BaseTests
             ChainLink = ChainLinkDependencyType.From
         }, ChainLinkDependencyType.From);
         Assert.True(builder.RegisteredDependencies[0].DependencyType == typeof(IProcessor));
+    }
+
+    [Fact]
+    public void RegisterScheduledErrorThrows()
+    {
+        var builder = new BuilderFacade();
+        var serviceCollection = GetServiceDescriptors();
+        Assert.Throws<ActivationException>(() => builder.RegisterScheduled(serviceCollection));
+    }
+    
+    [Fact]
+    public void RegisterToErrorThrows()
+    {
+        var builder = new BuilderFacade();
+        var serviceCollection = GetServiceDescriptors();
+        Assert.Throws<ActivationException>(() => builder.RegisterTo(serviceCollection));
+    }
+    
+    [Fact]
+    public void RegisterFromErrorThrows()
+    {
+        var builder = new BuilderFacade();
+        var serviceCollection = GetServiceDescriptors();
+        Assert.Throws<ActivationException>(() => builder.RegisterFrom(serviceCollection));
     }
 
     #region Helpers
