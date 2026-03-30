@@ -112,6 +112,67 @@ To control what mechanism is used to serialize the body of the `Routable` or Eve
 | HttpContentType | text/plain               | Serialize body as PlainText   |
 | HttpContentType | text/json                | Serialize body as JSON        |
 
+## Authentication
 
+Kyameru only provides some basic authentication strategies:
 
+- API Key
+- Bearer Token
+- Basic (username, password)
 
+### Adding Authentication
+#### General Rules
+##### ChainLinkDependencyType
+
+This is chain link to add the authentication to (`From` or `To`). Functionality has been provided to allow you to have different auth strategies for each chain link.
+
+Kyameru provides three extension methods for registering authentication.
+
+- RegisterKyameruRestAuthApi(string apiKey, ChainLinkDependencyType chainLink, string header = "X-API-Key")
+- RegisterKyameruRestAuthBearer(string token, ChainLinkDependencyType chainLink)
+- RegisterKyameruRestAuthBasic(string username, string password, ChainLinkDependencyType chainLink)
+
+#### Example: RegisterKyameruRestAuthApi(string apiKey, ChainLinkDependencyType chainLink, string header = "X-API-Key")
+
+To add an API key authentication, you can call the following extension method on an `IServiceCollection`:
+
+```csharp
+var fromAuth = services.RegisterKyameruRestAuthApi("MyKey",ChainLinkDependencyType.From, "myHeader");
+
+Route.From("rest://localhost/api/v1/from")
+    .To("rest://localhost/api/v1/to")
+    .AddDependency(fromAuth, ChainLinkDependencyType.From)
+    .EventTrigger()
+    .Build(services)
+```
+### Custom Authentication
+
+To Add your own custom authentication, follow the below steps.
+
+#### Implement IAuthStrategy
+
+```csharp
+public class CustomAuth(string value) :IAuthStrategy
+{
+    public async Task ApplyAsync(HttpClient client)
+    {
+        client.DefaultRequestHeaders.Add("CustomAuth", value);
+        await Task.CompletedTask;
+    }
+}
+```
+
+#### Add To ServiceCollection
+
+```csharp
+var customAuth = services.RegisterKyameruDependency<IAuthStrategy>(ChainLinkDependencyType.From,() => new CustomAuth("CustomFrom"));
+```
+
+#### Add To Route
+```csharp
+Route.From("rest://localhost/api/v1/from")
+    .To("rest://localhost/api/v1/to")
+    .AddDependency(customAuth, ChainLinkDependencyType.From)
+    .EventTrigger()
+    .Build(services)
+```
