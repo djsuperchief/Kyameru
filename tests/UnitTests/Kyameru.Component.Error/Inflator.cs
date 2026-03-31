@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Kyameru.Core.Entities;
 
 namespace Kyameru.Component.Error
 {
@@ -43,6 +44,11 @@ namespace Kyameru.Component.Error
         public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
         {
             return serviceCollection;
+        }
+
+        public void RegisterDependencies(IServiceCollection services, List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies)
+        {
+            
         }
     }
 }

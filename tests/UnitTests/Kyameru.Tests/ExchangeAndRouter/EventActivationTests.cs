@@ -50,21 +50,4 @@ public class EventActivationTests : BaseTests
         
         Assert.Null(exception);
     }
-
-    [Fact]
-    public void EventWithoutIdThrows()
-    {
-        var services = GetServiceDescriptors();
-        var generics = Component.Generic.Builder.Create()
-            .WithEventFrom()
-            .WithTo(x => { });
-
-        var builder = Route.From("generic:///test")
-            .To("generic:///test")
-            .EventTrigger();
-
-        var exception = Record.Exception(() => BuildAndGetServices(builder, generics));
-        Assert.NotNull(exception);
-        Assert.Equal("Event driven routes must have an Id", exception.Message);
-    }
 }

@@ -41,6 +41,7 @@ namespace Kyameru.Core.Chain
                 {
                     try
                     {
+                        From_OnLog(this, new Log(LogLevel.Information, string.Format(Resources.INFO_PROCESSING_MESSAGE, message.Id)));
                         await _from.ProcessAsync(message, stoppingToken);
                     }
                     catch (Exception ex)
@@ -65,7 +66,7 @@ namespace Kyameru.Core.Chain
         {
             if (e.Error == null)
             {
-                _logger.KyameruLog(_identity, e.Message, e.LogLevel);
+                _logger.LogInformation(_identity, e.Message, e.LogLevel);
             }
             else
             {

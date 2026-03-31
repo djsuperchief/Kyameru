@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kyameru.Core.Contracts
@@ -54,6 +55,12 @@ namespace Kyameru.Core.Contracts
         /// <returns>Returns the <see cref="IServiceCollection"/>.</returns>
         IServiceCollection RegisterScheduled(IServiceCollection serviceCollection);
 
-        
+        /// <summary>
+        /// Registers chain link dependencies.
+        /// </summary>
+        /// <param name="services">Service collection.</param>
+        /// <param name="fromDependencies">From chain link dependencies.</param>
+        /// <param name="toDependencies">To chain link dependencies.</param>
+        void RegisterDependencies(IServiceCollection services, List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies);
     }
 }

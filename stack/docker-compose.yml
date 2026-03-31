@@ -13,8 +13,9 @@ services:
       - DEFAULT_REGION=eu-west-2
       - DEBUG=0
       - EXTENSION_AUTO_INSTALL=localstack-extension-mailhog
+      - DOCKER_SOCK=/run/podman/podman.sock
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      #- "/var/run/docker.sock:/var/run/docker.sock"
       - "./localstack-init.sh:/etc/localstack/init/ready.d/init-aws.sh" # ready hook
     healthcheck:
       test:
@@ -38,3 +39,13 @@ services:
         condition: service_healthy
     volumes:
       - "./terraform:/terraform"
+  
+  web:
+    image: nginx
+    #volumes:
+    #  - ./templates:/etc/nginx/templates
+    ports:
+      - "3060:80"
+    environment:
+      #- NGINX_HOST=foobar.com
+      - NGINX_PORT=80

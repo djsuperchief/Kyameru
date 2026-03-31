@@ -1,4 +1,6 @@
 # Kyameru
+![logo](./docs/logo.png)
+
 [![Build](https://github.com/djsuperchief/Kyameru/actions/workflows/build.yml/badge.svg)](https://github.com/djsuperchief/Kyameru/actions/workflows/build.yml)
 [![Coverage Status](https://coveralls.io/repos/github/djsuperchief/Kyameru/badge.svg?branch=main)](https://coveralls.io/github/djsuperchief/Kyameru?branch=main)
 ![GitHub Tag](https://img.shields.io/github/v/tag/djsuperchief/kyameru)
@@ -6,72 +8,108 @@
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Kyameru.Core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## About
-![Logo](docs/logo.png)
+Kyameru is a lightweight, extensible integration framework for .NET, built around simple, composable routes. It enables you to connect systems, trigger events, transform data, and orchestrate workflows using a clean, fluent API.
 
-Kyameru is a processing engine built with heavy inspiration from Apache Camel.
-It is currently in very Alpha stage and contains very few components but more will be added over the coming weeks and months.
+Whether you're wiring together microservices, polling external systems, or building message‑driven pipelines, Kyameru provides a predictable and flexible foundation.
 
-## Basic Overview
-### Architecture
+## 📚 Documentation
 
-![Image of Kyameru Component](docs/arch.png)
+Full documentation, examples, and component reference are available at:
 
-#### Structure
-Kyameru is built on the Chain Of Responsibility pattern. It is built up using the three main construction objects:
+👉 **[https://djsuperchief.github.io/Kyameru/](https://djsuperchief.github.io/Kyameru/)**
 
-1. Route
-1. RouteBuilder
-1. Builder
+The documentation site includes:
+- Getting started guides
+- Component reference (File, AWS, REST, etc.)
+- Route building concepts
+- Authentication and configuration
+- Advanced usage and extension points
 
-Each of the objects above are instantiated in the order specified. Route provides the start of the construction by allowing the definition of a From component. This returns a RouteBuilder object allowing you to add Processing components, add headers or a number of other tasks related to message processing.
-The To component is also created here which in turn returns the final Builder object which allows you to add more To components for final processing and an Error component to handle any chain errors.
+## 🚀 Features
 
-The Builder component is responsible for injection into the DI container of .NET Core (which is in turn responsible for resolving ILogger instances) and creates an IHosted service for what is known as a Route.
+- **Route‑based integration model**
+- **REST “from” and “to” components** with authentication
+- **File, AWS, and other built‑in components**
+- **Extensible architecture** for custom components
+- **Dependency injection support**
+- **Lightweight and easy to embed**
+- **Modern .NET support**
 
-### Workflow
-![Image of workflow](docs/workflow.png)
+## 🧩 Quick Start
 
-The workflow is fairly simple. Everything starts at the From component. This raises an OnAction event which is picked up by the From chain object that then starts the process off. The Routable message is then passed from component to component until it reaches the last To component in the chain.
-What is important is each of the declared components sit within a core Chain object responsible for handling logging, errors and passing execution to injected components during the build.
+A minimal example showing how to build a simple route:
 
-If at any point the Routable message is deemed to be in error, all processing stops and the only component that continues to process is an Error component that is entirely optional.
-
-#### FTP Example
-For instance an FTP download will download a file to a temporary location to be processed. Whilst it can assume some sort of processing on the data of that file will happen it is not known what the end state of the file will be. The FTP component will clean up after itself but it is up to the engineer to decide if any processing failed on the file, what should they do with the temporary file downloaded? Should they move it to an error folder? As far as the FTP component is concerned, its job was to download the file, delete the source and raise the internal message for processing.
-
-## Basic Syntax
-### URI Format
-
-As stated before, Kyameru is inspired by Apache Camel and the URI format of injecting components seemed like a sensible approach as it is highly descriptive and a format we have been using for decades. The Uri is split into several parts:
-
-* Scheme = Kyameru component
-* Path = Kyameru "target" header
-* Query = Kyameru headers
-
-An example of this (file component)
-
-```
-Kyameru.Route.From("file:///C:/Test?Notifications=Created&SubDirectories=true&Filter=*.*)
-.To("file:///C:/backup?Action=Move)
-.Build(services);
+```csharp
+var route = Route.Create()
+    .From("timer://5s")
+    .To("log://info");
 ```
 
-The above example is very simple but you can see from the syntax that the From construction that:
+Or a REST‑based route:
 
-* Scheme is file -> this intializes the from component Kyameru.Component.File
-* Path is C:/Test -> this sets the component header "Target" to C:/Test
-* Query -> Adds the headers Notifications, SubDirectories and Filter
+```csharp
+var route = Route.Create()
+    .From("rest://get:https://api.example.com/data")
+    .To("log://info");
+```
 
-## Current Status
-This project is still very much in beta but has been released to the wider community early for feedback and to be used.
+See the documentation for full examples and configuration options.
 
-## Wiki (WIP)
-[Wiki Home](https://github.com/djsuperchief/Kyameru/wiki)
+## 📦 Installation
 
-## Components In Progress
+Kyameru is available on NuGet:
 
-* MSSQL (First)
-* RabbitMQ
-* SQL (GENERIC)
-* sFTP
+```bash
+dotnet add package Kyameru
+```
+
+Additional components (REST, File, etc.) are available as separate packages.
+
+## 🛠️ Components
+
+Kyameru ships with a growing set of components, including:
+
+- **REST** (inbound & outbound)
+- **File**
+- **AWS**
+- **Slack**
+- **FTP**
+
+Each component is documented in detail at:  
+[https://djsuperchief.github.io/Kyameru/components](https://djsuperchief.github.io/Kyameru/components)
+
+## 🧱 Architecture Overview
+
+Kyameru is built around four core ideas:
+
+- **From** — where messages originate
+- **Process** - where custom logic is run
+- **To** — where messages are sent
+- **Route** — the pipeline connecting them
+
+
+## 🧪 Contributing
+
+Kyameru welcomes contributions!
+The contributing guide will be available soon.
+
+## 📄 Release Notes
+
+Kyameru 1.0 introduces:
+- A fully re‑implemented REST component
+- Improved routing engine
+- Better dependency injection
+- New monitoring and shutdown behaviour
+- Expanded test coverage
+- Updated documentation site
+
+Full release notes are available at:  
+[https://djsuperchief.github.io/Kyameru/releases/1.0.html](https://djsuperchief.github.io/Kyameru/releases/1.0.html)
+
+## 📜 License
+
+Kyameru is released under the MIT License.
+
+## ⭐ Support the Project
+
+If Kyameru helps you build something great, consider starring the repository to support its development.

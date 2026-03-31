@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Amazon.SQS;
 using Kyameru.Core.Exceptions;
 using Kyameru.Core.Contracts;
+using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -46,5 +47,9 @@ public class Inflator : IOasis
     public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
     {
         throw new NotImplementedException();
+    }
+
+    public void RegisterDependencies(IServiceCollection services, List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies)
+    {
     }
 }

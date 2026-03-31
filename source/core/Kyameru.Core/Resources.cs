@@ -9,6 +9,7 @@
         internal const string INFO_PROCESSINGCOMPONENT = "Setting up processor {0}...";
         internal const string INFO_SETUP_TO = "Setting up to chain link {0}...";
         internal const string INFO_SETUP_ERR = "Setting up error processor {0}...";
+        internal const string INFO_PROCESSING_MESSAGE = "Processing message {0}...";
         internal const string ERROR_ACTIVATION_FROM = "Error activating from chain link.";
         internal const string ERROR_ACTIVATION_TO = "Error activating to chain link.";
         internal const string ERROR_FROM_COMPONENT = "Error in starting from chain link, see inner exception.";
@@ -19,6 +20,7 @@
         internal const string ERROR_HEADER_IMMUTABLE_ADDED = "Error adding immutable header {0}, already present.";
         internal const string ERROR_SETUP_COMPONENT_INVOCATION = "Error activating processor. No valid invocation.";
         internal const string ERROR_SCHEDULE_NOTSUPPORTED = "Component '{0}' does not support scheduling";
+        internal const string ERROR_ACTIVATION_GENERIC = "Error activating component {0}. Component not found.";
 
         /// <summary>
         /// Message for unavailable routes.
@@ -37,5 +39,8 @@
             "Critical failure has occurred. This is most likely a problem in the library, please log a ticket.";
         internal const string ERROR_EVENT_IDENTITY_REGISTERED = "A route with the identifier '{0}' already exists in the message queues.";
         internal const string ERROR_EVENT_IDENTITY_BLANK = "Event driven routes must have an Id";
+
+        internal const string ERROR_DEPENDENCY_UNSET =
+            "Dependency chain link is set to UNSET, you must specify a chain link.";
     }
 }

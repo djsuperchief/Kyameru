@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Kyameru.Core.Entities;
 
 namespace Kyameru.Component.Test
 {
@@ -45,6 +46,11 @@ namespace Kyameru.Component.Test
         public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
         {
             return serviceCollection;
+        }
+
+        public void RegisterDependencies(IServiceCollection services, List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies)
+        {
+            
         }
     }
 }

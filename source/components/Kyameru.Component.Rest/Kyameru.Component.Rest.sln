@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{970A269A-6A31-46F1-AFDA-83F3B89DDED9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{09B48F0D-24D0-4A85-8F00-40501B775EE8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Rest.Tests", "tests\Kyameru.Component.Rest.Tests.csproj", "{FF4B0199-0E04-416E-B608-9DA938F3D473}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.TestUtilities", "..\..\..\tests\Shared\Kyameru.TestUtilities\Kyameru.TestUtilities.csproj", "{CB11F7CF-DD10-4865-89FA-2371C2FE3D4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Rest", "Implementation\Kyameru.Component.Rest.csproj", "{E3628290-E999-4C02-BAF2-B523A6AAC085}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Core", "..\..\core\Kyameru.Core\Kyameru.Core.csproj", "{FA4A0083-F6E9-4290-9B1A-0B572E423DC2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FF4B0199-0E04-416E-B608-9DA938F3D473} = {09B48F0D-24D0-4A85-8F00-40501B775EE8}
+		{CB11F7CF-DD10-4865-89FA-2371C2FE3D4F} = {09B48F0D-24D0-4A85-8F00-40501B775EE8}
+		{E3628290-E999-4C02-BAF2-B523A6AAC085} = {970A269A-6A31-46F1-AFDA-83F3B89DDED9}
+		{FA4A0083-F6E9-4290-9B1A-0B572E423DC2} = {970A269A-6A31-46F1-AFDA-83F3B89DDED9}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FF4B0199-0E04-416E-B608-9DA938F3D473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF4B0199-0E04-416E-B608-9DA938F3D473}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF4B0199-0E04-416E-B608-9DA938F3D473}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF4B0199-0E04-416E-B608-9DA938F3D473}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB11F7CF-DD10-4865-89FA-2371C2FE3D4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB11F7CF-DD10-4865-89FA-2371C2FE3D4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB11F7CF-DD10-4865-89FA-2371C2FE3D4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB11F7CF-DD10-4865-89FA-2371C2FE3D4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3628290-E999-4C02-BAF2-B523A6AAC085}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3628290-E999-4C02-BAF2-B523A6AAC085}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3628290-E999-4C02-BAF2-B523A6AAC085}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3628290-E999-4C02-BAF2-B523A6AAC085}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA4A0083-F6E9-4290-9B1A-0B572E423DC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA4A0083-F6E9-4290-9B1A-0B572E423DC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA4A0083-F6E9-4290-9B1A-0B572E423DC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA4A0083-F6E9-4290-9B1A-0B572E423DC2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

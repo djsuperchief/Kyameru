@@ -10,6 +10,7 @@ using Kyameru.Core.Entities;
 using Kyameru.Core.Enums;
 using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -20,6 +21,11 @@ namespace Kyameru.Core
     /// </summary>
     public class Builder : AbstractBuilder
     {
+        /// <summary>
+        /// Gets the list of registered dependencies.
+        /// </summary>
+        public IReadOnlyList<ChainLinkDependency> RegisteredDependencies => dependencies;
+        
         /// <summary>
         /// List of processing components.
         /// </summary>
@@ -46,8 +52,6 @@ namespace Kyameru.Core
         /// </summary>
         private bool raiseExceptions;
 
-        
-
         /// <summary>
         /// Used for when reflection is needed for host assembly reflection.
         /// </summary>
@@ -57,7 +61,10 @@ namespace Kyameru.Core
         
         private FromType fromType;
         
-        private bool _userSetIdentity = true;
+        //private bool _userSetIdentity = true;
+
+        private List<ChainLinkDependency> dependencies = new List<ChainLinkDependency>();
+        
 
         // /// <summary>
         // /// Initializes a new instance of the <see cref="Builder"/> class.
@@ -378,10 +385,44 @@ namespace Kyameru.Core
         }
 
         /// <summary>
+        /// Adds a dependency.
+        /// </summary>
+        /// <param name="dependency">Kyameru ChainLinkDependency</param>
+        /// <returns>Returns the current instance of <see cref="Builder"/>.</returns>
+        public Builder AddDependency(ChainLinkDependency dependency)
+        {
+            if (dependency.ChainLink == ChainLinkDependencyType.Unset)
+            {
+                throw new DependencyException(Resources.ERROR_DEPENDENCY_UNSET);
+            }
+            
+            dependencies.Add(dependency);
+            return this;
+        }
+        
+        /// <summary>
+        /// Adds a dependency.
+        /// </summary>
+        /// <param name="dependency">Kyameru ChainLinkDependency.</param>
+        /// <param name="dependencyType">Chain link dependency type.</param>
+        /// <returns>Returns the current instance of <see cref="Builder"/>.</returns>
+        public Builder AddDependency(ChainLinkDependency dependency, ChainLinkDependencyType dependencyType)
+        {
+            if (dependencyType == ChainLinkDependencyType.Unset)
+            {
+                throw new DependencyException(Resources.ERROR_DEPENDENCY_UNSET);
+            }
+
+            dependency.ChainLink = dependencyType;
+            dependencies.Add(dependency);
+            return this;
+        }
+        
+        /// <summary>
         /// Builds the final chain into dependency injection.
         /// </summary>
         /// <param name="services">Service collection.</param>
-        public void Build(IServiceCollection services)
+        public string Build(IServiceCollection services)
         {
             if (hostAssembly == null && ContainsReflectionComponents())
             {
@@ -389,20 +430,27 @@ namespace Kyameru.Core
             }
 
             BuildKyameru(services);
+            return GetIdentity();
         }
 
         private void BuildKyameru(IServiceCollection services)
         {
-            services.AddSingleton<IKExchange, KExchange>();
-            services.AddSingleton<IKRouter, KRouter>();
+            services.TryAddSingleton<IKExchange, KExchange>();
+            services.TryAddSingleton<IKRouter, KRouter>();
+            RunChainLinkDependencyInjection(services);
             RunComponentDiRegistration(services);
+            if (HasEventRoute)
+            {
+                services.AddSingleton<IHostedService, RouterMonitor>();
+            }
+            
             services.AddTransient<IHostedService>(x =>
             {
                 GetIdentity();
-                if (!_userSetIdentity && fromType == FromType.Event)
-                {
-                    throw new Exceptions.CoreException(Resources.ERROR_EVENT_IDENTITY_BLANK);
-                }
+                //if (!_userSetIdentity && fromType == FromType.Event)
+                //{
+                //    throw new Exceptions.CoreException(Resources.ERROR_EVENT_IDENTITY_BLANK);
+                //}
                 
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
@@ -449,6 +497,26 @@ namespace Kyameru.Core
             if (IsScheduled)
             {
                 RegisterScheduledServices(services, fromUri.ComponentName);
+            }
+        }
+
+        /// <summary>
+        /// Adds the chain link dependencies for each registered inflator.
+        /// </summary>
+        /// <param name="services"></param>
+        private void RunChainLinkDependencyInjection(IServiceCollection services)
+        {
+            FillInflators(services, fromUri.ComponentName, toUris.Select(x => x.ComponentName).ToList());
+            var from = dependencies.Where(x => x.ChainLink == ChainLinkDependencyType.From).ToList();
+            var to = dependencies.Where(x => x.ChainLink == ChainLinkDependencyType.To).ToList();
+            foreach (var inflator in ComponentInflators)
+            {
+                inflator.Value.RegisterDependencies(services, from, to);
+            }
+
+            foreach (var inflator in ComponentEventInflators)
+            {
+                inflator.Value.RegisterDependencies(services, from, to);
             }
         }
 
@@ -533,7 +601,7 @@ namespace Kyameru.Core
         {
             if (string.IsNullOrWhiteSpace(identity))
             {
-                _userSetIdentity = false;
+                //_userSetIdentity = false;
                 identity = Guid.NewGuid().ToString("N");
             }
 
@@ -600,6 +668,6 @@ namespace Kyameru.Core
             return response;
         }
 
-
+        
     }
 }

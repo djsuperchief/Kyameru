@@ -3,6 +3,7 @@ using Kyameru.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using Kyameru.Core.Entities;
 
 namespace Kyameru.Component.Slack
 {
@@ -44,6 +45,11 @@ namespace Kyameru.Component.Slack
         public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
         {
             throw new NotImplementedException();
+        }
+
+        public void RegisterDependencies(IServiceCollection services, List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies)
+        {
+            
         }
 
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)

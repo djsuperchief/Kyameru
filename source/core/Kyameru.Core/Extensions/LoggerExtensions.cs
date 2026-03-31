@@ -8,69 +8,29 @@ namespace Kyameru.Core.Extensions
     /// </summary>
     internal static class LoggerExtensions
     {
-        /// <summary>
-        /// Information log for from.
-        /// </summary>
-        private static readonly Action<ILogger, string, string, Exception> info;
-
-        /// <summary>
-        /// Debug log for from
-        /// </summary>
-        private static readonly Action<ILogger, string, string, Exception> debug;
-
-        /// <summary>
-        /// Error log
-        /// </summary>
-        private static readonly Action<ILogger, string, string, Exception> error;
-
-        private static readonly Action<ILogger, string, string, Exception> warning;
-
-        static LoggerExtensions()
-        {
-            info = LoggerMessage.Define<string, string>(
-                LogLevel.Information,
-                new EventId(1, "Kyameru.Route"),
-                "{Route} => {Message}");
-
-            debug = LoggerMessage.Define<string, string>(
-                LogLevel.Debug,
-                new EventId(2, "Kyameru.Route"),
-                "{Route} => {Message}");
-
-            error = LoggerMessage.Define<string, string>(
-                LogLevel.Error,
-                new EventId(3, "Kyameru.Route"),
-                "{Route} => {Exception}");
-
-            warning = LoggerMessage.Define<string, string>(
-                LogLevel.Warning,
-                new EventId(4, "Kyameru.Route"),
-                "{Route} => {Message}");
-        }
-
         public static void KyameruInfo(this ILogger logger, string routeId, string message)
         {
-            info(logger, routeId, message, null);
+            logger.LogInformation(PrintMessage(routeId, message));
         }
 
         public static void KyameruDebug(this ILogger logger, string routeId, string message)
         {
-            debug(logger, routeId, message, null);
+            logger.LogDebug(PrintMessage(routeId, message));
         }
 
         public static void KyameruError(this ILogger logger, string routeId, string errorMessage)
         {
-            error(logger, routeId, errorMessage, null);
+            logger.LogError(message:PrintMessage(routeId, errorMessage));
         }
 
         public static void KyameruWarning(this ILogger logger, string routeId, string message)
         {
-            warning(logger, routeId, message, null);
+            logger.LogWarning(PrintMessage(routeId, message));
         }
 
         public static void KyameruException(this ILogger logger, string routeId, string errorMessage, Exception ex)
         {
-            error(logger, routeId, errorMessage, ex);
+            logger.LogError(ex, PrintMessage(routeId, errorMessage));
         }
 
         public static void KyameruLog(this ILogger logger, string routeId, string message, LogLevel logLevel)
@@ -97,6 +57,11 @@ namespace Kyameru.Core.Extensions
                     KyameruDebug(logger, routeId, message);
                     break;
             }
+        }
+
+        private static string PrintMessage(string routeId, string message)
+        {
+            return $"Kyameru.Route:{routeId} => {message}";
         }
     }
 }

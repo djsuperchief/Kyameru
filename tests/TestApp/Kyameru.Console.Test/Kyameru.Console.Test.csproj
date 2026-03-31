@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.File\Implementation\Kyameru.Component.File.csproj" />
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Ftp\Implementation\Kyameru.Component.Ftp.csproj" />
+    <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Rest\Implementation\Kyameru.Component.Rest.csproj" />
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.Slack\Implementation\Kyameru.Component.Slack.csproj" />
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.S3\Implementation\Kyameru.Component.S3.csproj" />
     <ProjectReference Include="..\..\..\source\components\Kyameru.Component.SQS\Implementation\Kyameru.Component.SQS.csproj" />

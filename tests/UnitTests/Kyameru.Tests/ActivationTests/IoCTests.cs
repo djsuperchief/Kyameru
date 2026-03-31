@@ -11,6 +11,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Kyameru.Core.Enums;
+using Kyameru.Core.Exceptions;
+using Kyameru.Tests.Mocks;
 using Xunit;
 
 namespace Kyameru.Facts.ActivationFacts;
@@ -277,6 +280,82 @@ public class IoCFacts : BaseTests
         await threadTwo.CancelAsync();
 
         Assert.Equal(2, calls);
+    }
+
+    [Fact]
+    public void BuilderThrowsDependencyExceptionOnUnset()
+    {
+        // Trying to add an unset dependency throws an exception
+        var builder = Kyameru.Route.From("generic:///test").To("generic:///test");
+        Assert.Throws<DependencyException>(() => builder.AddDependency(new ChainLinkDependency()
+        {
+            DependencyType = typeof(IProcessor),
+            Id = Guid.NewGuid(),
+            ChainLink = ChainLinkDependencyType.Unset
+        }));
+    }
+    
+    [Fact]
+    public void BuilderThrowsDependencyExceptionOnUnsetSecond()
+    {
+        // Trying to add an unset dependency throws an exception
+        var builder = Kyameru.Route.From("generic:///test").To("generic:///test");
+        Assert.Throws<DependencyException>(() => builder.AddDependency(new ChainLinkDependency()
+        {
+            DependencyType = typeof(IProcessor),
+            Id = Guid.NewGuid(),
+            ChainLink = ChainLinkDependencyType.Unset
+        }, ChainLinkDependencyType.Unset));
+    }
+
+    [Fact]
+    public void BuilderRegisterDependencyCorrectly()
+    {
+        var builder = Kyameru.Route.From("generic:///test").To("generic:///test");
+        builder.AddDependency(new ChainLinkDependency()
+        {
+            DependencyType = typeof(IProcessor),
+            Id = Guid.NewGuid(),
+            ChainLink = ChainLinkDependencyType.From
+        });
+        Assert.True(builder.RegisteredDependencies[0].DependencyType == typeof(IProcessor));
+    }
+    
+    [Fact]
+    public void BuilderRegisterDependencyCorrectlySecond()
+    {
+        var builder = Kyameru.Route.From("generic:///test").To("generic:///test");
+        builder.AddDependency(new ChainLinkDependency()
+        {
+            DependencyType = typeof(IProcessor),
+            Id = Guid.NewGuid(),
+            ChainLink = ChainLinkDependencyType.From
+        }, ChainLinkDependencyType.From);
+        Assert.True(builder.RegisteredDependencies[0].DependencyType == typeof(IProcessor));
+    }
+
+    [Fact]
+    public void RegisterScheduledErrorThrows()
+    {
+        var builder = new BuilderFacade();
+        var serviceCollection = GetServiceDescriptors();
+        Assert.Throws<ActivationException>(() => builder.RegisterScheduled(serviceCollection));
+    }
+    
+    [Fact]
+    public void RegisterToErrorThrows()
+    {
+        var builder = new BuilderFacade();
+        var serviceCollection = GetServiceDescriptors();
+        Assert.Throws<ActivationException>(() => builder.RegisterTo(serviceCollection));
+    }
+    
+    [Fact]
+    public void RegisterFromErrorThrows()
+    {
+        var builder = new BuilderFacade();
+        var serviceCollection = GetServiceDescriptors();
+        Assert.Throws<ActivationException>(() => builder.RegisterFrom(serviceCollection));
     }
 
     #region Helpers

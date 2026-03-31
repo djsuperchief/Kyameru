@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Kyameru.Core.Contracts;
+﻿using Kyameru.Core.Contracts;
+using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kyameru.Component.Generic;
@@ -32,6 +31,11 @@ public class Inflator : IOasis
     public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
     {
         return serviceCollection;
+    }
+
+    public void RegisterDependencies(IServiceCollection services, List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies)
+    {
+        
     }
 
     public IServiceCollection RegisterTo(IServiceCollection serviceCollection)

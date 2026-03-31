@@ -1,5 +1,3 @@
-using System;
-using System.Dynamic;
 using Kyameru.Core.Comms;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Sys;
@@ -12,6 +10,7 @@ public class Builder
 {
     private Func<Routable> _fromProcessing;
     private Action<Routable> _toProcessing;
+    private Func<Routable> _eventProcessing;
     private bool eventFrom = false;
 
 #pragma warning disable CS8618
@@ -42,6 +41,13 @@ public class Builder
     public Builder WithEventFrom()
     {
         eventFrom = true;
+        return this;
+    }
+
+    public Builder WithEventFrom(Func<Routable> processing)
+    {
+        eventFrom = true;
+        _eventProcessing = processing;
         return this;
     }
 
@@ -101,7 +107,12 @@ public class Builder
         {
             var message = ((GenericMessage)x.Arg<CommsMessage>().Data).Info;
             var routable = new Routable(new Dictionary<string, string> { { "EventFrom", "Executed" } },
-                message);
+                message); 
+            if (_eventProcessing != null)
+            {
+                routable =  _eventProcessing.Invoke();    
+            }
+
             var routableData = new RoutableEventData(routable, x.Arg<CancellationToken>());
             response.OnActionAsync += Raise.Event<AsyncEventHandler<RoutableEventData>>(null, routableData);
             return Task.CompletedTask;
