@@ -91,12 +91,6 @@ Kyameru is built around four core ideas:
 ## 🧪 Contributing
 
 Kyameru welcomes contributions!
-
-The repository includes:
-- A development container
-- A full test suite
-- Documentation tooling
-
 The contributing guide will be available soon.
 
 ## 📄 Release Notes
