@@ -127,14 +127,6 @@ When loading routes by config it is important to note that you need to have a co
 }
 ```
 
-### Id
-
-Every route can be assigned an Id specified by you or it will be assigned at random. To specify an Id, use the Id function. The random Id assigned will be a Guid.
-
-```
-.Id("my-route")
-```
-
 This may help identify errors if you use several routes.
 
 ### Bubble Errors

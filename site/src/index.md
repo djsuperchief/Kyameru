@@ -12,7 +12,7 @@ nav_order: 1
 ![kyameru logo](/assets/img/logo.png)
 
 {: .note }
-> Welcome to the Kyameru documentation home. This is still relatively new and will constantly be being updated. The product is still in it's beta phase and is available on NuGet.
+> Welcome to the Kyameru documentation home. This is still relatively new and will constantly be being updated.
 
 ## Status
 [![Build](https://github.com/djsuperchief/Kyameru/actions/workflows/build.yml/badge.svg)](https://github.com/djsuperchief/Kyameru/actions/workflows/build.yml)
