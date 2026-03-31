@@ -20,7 +20,7 @@ jobs:
       - name: Determine Release Type
         run: |
           if ${PRE_RELEASE}; then
-            echo "RELEASE_TYPE=beta" >> "$GITHUB_ENV"
+            echo "RELEASE_TYPE=-beta" >> "$GITHUB_ENV"
             echo Doing beta release
           else
             RELEASE_TYPE=""
@@ -29,7 +29,7 @@ jobs:
         run: |
           git fetch origin --tags
           TAG_VERSION=$(git tag --list "${MAJOR_VERSION}.*.*" --sort=-version:refname | head -n 1)
-          echo "RELEASE_VERSION=${TAG_VERSION}-${RELEASE_TYPE}" >> "$GITHUB_ENV"
+          echo "RELEASE_VERSION=${TAG_VERSION}${RELEASE_TYPE}" >> "$GITHUB_ENV"
       
       - name: Print Release Version
         run: |
