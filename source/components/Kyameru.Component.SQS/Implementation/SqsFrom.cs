@@ -100,7 +100,7 @@ public class SqsFrom(IAmazonSQS client) : IFrom
         try
         {
 
-            if (message?.Messages.Count > 0)
+            if (message?.Messages?.Count > 0)
             {
                 Log(LogLevel.Information, Resources.INFORMATION_MESSAGE_RECEIVED);
                 if (await ProcessMessage(message.Messages[0], cancellationToken))
