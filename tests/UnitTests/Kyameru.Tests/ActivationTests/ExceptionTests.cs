@@ -9,6 +9,8 @@ using NSubstitute;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Kyameru.Tests.Mocks;
+using NSubstitute.ExceptionExtensions;
 using Xunit;
 
 namespace Kyameru.Tests.ActivationTests;
@@ -50,23 +52,13 @@ public class ExceptionTests : BaseTests
     [Fact]
     public async Task FromRaiseException()
     {
-        var errorComponent = Substitute.For<IErrorProcessor>();
-        var generics = Component.Generic.Builder.Create()
-            .WithFrom(() =>
-            {
-                throw new NotImplementedException();
-            })
-            .WithTo((x) => { });
-
-        var builder = Route.From("generic:///error")
-            .To("generic:///wontexecute")
-            .Error(errorComponent)
-            .RaiseExceptions();
-        var service = BuildAndGetServices(builder, generics);
+        var mockFrom = Substitute.For<IFromChainLink>();
+        mockFrom.StartAsync(default).ThrowsForAnyArgs(new NotImplementedException());
+        var service = new TestableFrom(mockFrom, null, Substitute.For<ILogger>(), "test", true);
 
         await Assert.ThrowsAsync<NotImplementedException>(async () =>
         {
-            await service.StartAsync(default);
+            await service.InvokeExecuteAsync(CancellationToken.None);
         });
     }
 
