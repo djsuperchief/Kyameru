@@ -100,7 +100,7 @@ public class SqsFrom(IAmazonSQS client) : IFrom
         try
         {
 
-            if (message?.Messages.Count > 0)
+            if (message?.Messages?.Count > 0)
             {
                 Log(LogLevel.Information, Resources.INFORMATION_MESSAGE_RECEIVED);
                 if (await ProcessMessage(message.Messages[0], cancellationToken))
@@ -124,8 +124,13 @@ public class SqsFrom(IAmazonSQS client) : IFrom
     private async Task<bool> ProcessMessage(Message message, CancellationToken cancellationToken)
     {
         Log(LogLevel.Information, string.Format(Resources.INFORMATION_PROCESSING_RECEIVED, message.MessageId));
-        var attributes = message.MessageAttributes.Where(x => x.Value.DataType == "String" || x.Value.DataType == null);
-        var routable = new Routable(attributes.ToDictionary(x => x.Key, x => x.Value.StringValue), message.Body);
+        var attributes = new List<KeyValuePair<string, MessageAttributeValue>>();
+        if (message.MessageAttributes != null)
+        {
+            attributes = message.MessageAttributes.Where(x => x.Value.DataType == "String" || x.Value.DataType == null).ToList();
+        }
+
+        var routable = new Routable(attributes?.ToDictionary(x => x.Key, x => x.Value.StringValue), message.Body);
         if (OnActionAsync != null)
         {
             await OnActionAsync.Invoke(this, new RoutableEventData(routable, cancellationToken));

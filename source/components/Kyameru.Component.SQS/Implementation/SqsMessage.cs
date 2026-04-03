@@ -30,6 +30,10 @@ public class SqsMessage
     {
         SetQueueLocation();
         var response = new SendMessageRequest(Queue, Body);
+        if (response.MessageAttributes == null)
+        {
+            response.MessageAttributes = new Dictionary<string, MessageAttributeValue>();
+        }
         foreach (var header in message)
         {
             if (header.Key != queueHeader && !string.IsNullOrWhiteSpace(header.Value))

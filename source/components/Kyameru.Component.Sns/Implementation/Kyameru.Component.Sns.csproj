@@ -5,9 +5,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.300" />
-    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.301.35" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.29" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="4.0.2.23" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
   </ItemGroup>
 
   <PropertyGroup>

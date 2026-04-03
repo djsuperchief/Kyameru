@@ -44,6 +44,8 @@ services:
     image: nginx
     #volumes:
     #  - ./templates:/etc/nginx/templates
+    volumes:
+      - ./nginx/test.html:/usr/share/nginx/html/hello.html
     ports:
       - "3060:80"
     environment:

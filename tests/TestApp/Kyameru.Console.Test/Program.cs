@@ -126,7 +126,7 @@ namespace Kyameru.Console.Test
         {
             services.TryAddAwsService<IAmazonSimpleEmailServiceV2>();
             services.TryAddAwsService<IAmazonSimpleEmailService>();
-            return Kyameru.Route.From("rest://localhost:3060/hello?https=false")
+            return Kyameru.Route.From("rest://localhost:3060/hello.html?https=false")
                 .Process(x =>
                 {
                     x.SetBody<SesMessage>(new SesMessage()
