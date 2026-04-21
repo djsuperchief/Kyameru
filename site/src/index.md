@@ -30,6 +30,6 @@ Kyameru is a processing engine built with heavy inspiration from Apache Camel. T
 All components are available from NuGet or you can download the source directly and reference it within your projects. The recommended way is to use NuGet; follow instructions [here](getting_started.md).
 
 ## Sponsors
-Kyameru is build, tested and deployed with the help from the following sponsors.
+Kyameru is built, tested and deployed with the help from the following sponsors.
 
 ![Localstack](/assets/img/localstack-logo-horizontal-color.png){:width="200px"}
