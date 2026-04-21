@@ -9,8 +9,15 @@ nav_order: 9
 
 Kyameru is &copy; 2020-2024 by [Giles Papworth](https://github.com/djsuperchief)
 
+## Sponsors
+Kyameru is glad to have the support from the following sponsors.
+
+![Localstack](/assets/img/localstack-logo-horizontal-color.png){:width="200px"}
+
+Localstack provides the platform for testing the AWS components.
+
 ## License
-Just the Docs is distributed by an MIT license.
+Kyameru is distributed by an MIT license.
 
 ## Contributing
 When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change. Read more about becoming a contributor in our GitHub repo.

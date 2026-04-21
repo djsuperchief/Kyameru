@@ -104,11 +104,16 @@ Kyameru 1.0 introduces:
 - Updated documentation site
 
 Full release notes are available at:  
-[https://djsuperchief.github.io/Kyameru/releases/1.0.html](https://djsuperchief.github.io/Kyameru/releases/1.0.html)
+[https://djsuperchief.github.io/Kyameru/versions/1.0.html](https://djsuperchief.github.io/Kyameru/versions/1.0.html)
 
 ## 📜 License
 
 Kyameru is released under the MIT License.
+
+## Sponsors
+Kyameru is glad to have the support from the following sponsors for local testing, development and deployment.
+
+![Localstack](/docs/localstack-logo-horizontal-color-small.png)
 
 ## ⭐ Support the Project
 
