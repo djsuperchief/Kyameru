@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
 using Kyameru.Component.DynamoDB.Contracts;
 using Kyameru.Core.Entities;
 
@@ -10,11 +12,12 @@ namespace Kyameru.Component.DynamoDB
 {
     public class DynamoDbTo : ITo
     {
-        private readonly IDynamoDBContext _dynamoDbClient;
+        private readonly IDynamoDbUpserter _dbUpserter;
+        private bool processBatch = false;
 
-        public DynamoDbTo(IDynamoDBContext dynamoDb)
+        public DynamoDbTo(IDynamoDbUpserter dbUpserter)
         {
-            _dynamoDbClient = dynamoDb;
+            _dbUpserter = dbUpserter;
         }
         
         public event EventHandler<Log>? OnLog;
@@ -22,7 +25,16 @@ namespace Kyameru.Component.DynamoDB
         public async Task ProcessAsync(Routable routable, CancellationToken cancellationToken)
         {
             ValidateRoutable(routable);
-
+            var overrideTable = routable.Headers.TryGetValue("DynamoDbOverrideTable", string.Empty);
+            if (processBatch)
+            {
+                await _dbUpserter.SaveAsync(routable.Body as List<IDynamoRecord>, overrideTable, 25, cancellationToken);
+            }
+            else
+            {
+                await _dbUpserter.SaveAsync(routable.Body as IDynamoRecord, overrideTable, cancellationToken);
+            }
+            
             await Task.CompletedTask;
         }
 
@@ -33,7 +45,7 @@ namespace Kyameru.Component.DynamoDB
                 throw new Exceptions.InvalidTypeException(Resources.EXCEPTION_ROUTABLEEMPTY);
             }
 
-            if (!(routable.Body is IDynamoTable))
+            if (!(routable.Body is IDynamoRecord) && !(routable.Body is IEnumerable<IDynamoRecord>))
             {
                 throw new Exceptions.InvalidTypeException(Resources.EXCEPTION_ROUTABLENOTCOMPATIBLE);
             }

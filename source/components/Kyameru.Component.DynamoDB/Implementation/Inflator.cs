@@ -5,6 +5,7 @@ using Kyameru.Component.DynamoDB.Contracts;
 using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Kyameru.Component.DynamoDB
 {
@@ -29,6 +30,7 @@ namespace Kyameru.Component.DynamoDB
         {
             serviceCollection.TryAddAWSService<IAmazonDynamoDB>();
             serviceCollection.AddTransient<ITo, DynamoDbTo>();
+            serviceCollection.TryAddTransient<IDynamoDbUpserter, DynamoDbUpserter>();
             return serviceCollection;
         }
 
