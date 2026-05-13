@@ -1,9 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.DynamoDBv2.Model;
 using Kyameru.Component.DynamoDB.Contracts;
+using Kyameru.Component.DynamoDB.Entities;
 using Kyameru.Component.DynamoDB.Exceptions;
 using Microsoft.Extensions.Logging;
 
@@ -13,17 +19,26 @@ namespace Kyameru.Component.DynamoDB
     {
         private readonly IDynamoDBContext _dynamoDbContext;
         private readonly ILogger<DynamoDbUpserter> _logger;
+        private readonly IAmazonDynamoDB _client;
 
-        public DynamoDbUpserter(IDynamoDBContext dbContext, ILogger<DynamoDbUpserter> logger)
+        public DynamoDbUpserter(IDynamoDBContext dbContext, IAmazonDynamoDB client, ILogger<DynamoDbUpserter> logger)
         {
             _dynamoDbContext = dbContext;
             _logger = logger;
+            _client = client;
         }
         
-        public async Task SaveAsync(IDynamoRecord entity, string tableOverride = "", CancellationToken cancellationToken = default)
+        public async Task SaveAsync(object entity, string tableOverride = "", CancellationToken cancellationToken = default)
         {
-            var saveConfig = GetSaveConfig(tableOverride);
-            await _dynamoDbContext.SaveAsync(entity, saveConfig, cancellationToken);
+
+            var doc = Document.FromJson(JsonSerializer.Serialize(entity));
+            var request = new PutItemRequest()
+            {
+                TableName = tableOverride,
+                Item = doc.ToAttributeMap()
+            };
+            await _client.PutItemAsync(request, cancellationToken);
+
         }
 
         public async Task SaveAsync(IEnumerable<IDynamoRecord>? entities, string tableOverride = "", int batchSize = 25, CancellationToken cancellationToken = default)
