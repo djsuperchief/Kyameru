@@ -37,6 +37,7 @@ namespace Kyameru.Component.DynamoDB
                 TableName = tableOverride,
                 Item = doc.ToAttributeMap()
             };
+            
             await _client.PutItemAsync(request, cancellationToken);
 
         }
