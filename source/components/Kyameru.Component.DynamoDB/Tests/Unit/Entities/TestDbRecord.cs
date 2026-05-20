@@ -4,11 +4,8 @@ using Kyameru.Component.DynamoDB.Entities;
 
 namespace Kyameru.Component.DynamoDB.Tests.Entities;
 
-public class TestDbRecord : DynamoRecord<string, string>
+public class TestDbRecord : DynamoRecord<string>
 {
     [DynamoDBHashKey]
     public override string HashKey { get; set; }
-    
-    [DynamoDBRangeKey]
-    public override string RangeKey { get; set; }
 }

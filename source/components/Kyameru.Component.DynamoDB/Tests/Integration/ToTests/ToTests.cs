@@ -17,22 +17,57 @@ public class ToTests : BaseTests
     [Fact]
     public async Task ToCanWriteToDynamoDb()
     {
-        var provider =  ConfigureServices().BuildServiceProvider();
-        var table = await CreateDynamoDbTable(provider);
-        var dbRecord = new DynamoDbRecords.BasicRecord("This is a test");
+        BuildServiceProvider();
+        var table = await CreateDynamoDbTable("Department", "Identity");
+        var dbRecord = new BasicRecord("This is a test", "HR");
         var routable = new Routable(new Dictionary<string, string>() {{ "DynamoDbOverrideTable", table}}, dbRecord);
-        var to = provider.GetRequiredService<ITo>();
+        var to = ServiceProvider.GetRequiredService<ITo>();
         await to.ProcessAsync(routable, CancellationToken.None);
         
-        var dbContext = provider.GetRequiredService<IAmazonDynamoDB>();
+        var dbContext = ServiceProvider.GetRequiredService<IAmazonDynamoDB>();
         var record = await GetRecord<BasicRecord>(dbContext, table, new Dictionary<string, string>()
         {
-            { "Identity", dbRecord.HashKey},
-            { "Title", dbRecord.RangeKey }
+            { "Department", dbRecord.HashKey},
+            { "Identity", dbRecord.Identity }
         });
         
         Assert.Equal(JsonSerializer.Serialize(dbRecord), JsonSerializer.Serialize(record));
+        await DeleteDynamoDbTable(table);
+    }
+
+    [Fact]
+    public async Task ToCanWiteMultipleDynamoDbRecords()
+    {
+        BuildServiceProvider();
+        var table = await CreateDynamoDbTable("Department", "Identity");
+        var dbRecords = new List<BasicRecord>()
+        {
+            new("This is a test", "HR"),
+            new("This is another test", "HR"),
+        };
+        var routable = new Routable(new Dictionary<string, string>() {{ "DynamoDbOverrideTable", table}}, dbRecords);
+        var to = ServiceProvider.GetRequiredService<ITo>();
+        await to.ProcessAsync(routable, CancellationToken.None);
+        var dbContext = ServiceProvider.GetRequiredService<IAmazonDynamoDB>();
+        var records = await QueryRecords<BasicRecord>(dbContext, table, new Dictionary<string, string>()
+        {
+            { "Department", "HR" }
+        });
         
-        await DeleteDynamoDbTable(provider, table);
+        Assert.Equal(JsonSerializer.Serialize(dbRecords), JsonSerializer.Serialize(records));
+        await DeleteDynamoDbTable(table);
+    }
+
+    [Fact]
+    public async Task ToRejectsIncompatibleDynamoDbRecord()
+    {
+        
+    }
+
+    protected override IServiceCollection AddServices(IServiceCollection services)
+    {
+        services.AddTransient<IDynamoDbUpserter, DynamoDbUpserter>();
+        services.AddTransient<ITo, DynamoDbTo>();
+        return services;
     }
 }

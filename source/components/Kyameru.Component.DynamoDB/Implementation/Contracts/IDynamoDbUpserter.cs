@@ -7,7 +7,7 @@ namespace Kyameru.Component.DynamoDB.Contracts
 {
     public interface IDynamoDbUpserter
     {
-        Task SaveAsync(object entity, string tableOverride = "", CancellationToken cancellationToken = default);
-        Task SaveAsync(IEnumerable<IDynamoRecord>? entities, string tableOverride = "", int batchSize = 50, CancellationToken cancellationToken = default);
+        Task SaveAsync(object entity, string table = "", CancellationToken cancellationToken = default);
+        Task SaveAsync(IEnumerable<object>? entities, string table, CancellationToken cancellationToken = default);
     }
 }

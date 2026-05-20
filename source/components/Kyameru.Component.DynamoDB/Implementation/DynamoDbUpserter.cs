@@ -9,7 +9,6 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Kyameru.Component.DynamoDB.Contracts;
-using Kyameru.Component.DynamoDB.Entities;
 using Kyameru.Component.DynamoDB.Exceptions;
 using Microsoft.Extensions.Logging;
 
@@ -28,31 +27,41 @@ namespace Kyameru.Component.DynamoDB
             _client = client;
         }
         
-        public async Task SaveAsync(object entity, string tableOverride = "", CancellationToken cancellationToken = default)
+        public async Task SaveAsync(object entity, string table = "", CancellationToken cancellationToken = default)
         {
 
-            var doc = Document.FromJson(JsonSerializer.Serialize(entity));
+            var attributeMap = GenerateAttributeMap(entity);
             var request = new PutItemRequest()
             {
-                TableName = tableOverride,
-                Item = doc.ToAttributeMap()
+                TableName = table,
+                Item = attributeMap
             };
             
             await _client.PutItemAsync(request, cancellationToken);
 
         }
 
-        public async Task SaveAsync(IEnumerable<IDynamoRecord>? entities, string tableOverride = "", int batchSize = 25, CancellationToken cancellationToken = default)
+        public async Task SaveAsync(IEnumerable<object>? entities, string table, CancellationToken cancellationToken = default)
         {
-            var saveConfig = GetBatchWriteConfig(tableOverride);
             if (entities != null)
             {
-                var batches = GenerateBatches(entities.ToList(), batchSize);
-                foreach (var recordBatch in batches)
+                var writeRequests = entities.Select(x => new WriteRequest()
                 {
-                    var writeBatch = _dynamoDbContext.CreateBatchWrite<IDynamoRecord>(saveConfig);
-                    writeBatch.AddPutItems(recordBatch);
-                }
+                    PutRequest = new PutRequest()
+                    {
+                        Item = GenerateAttributeMap(x),
+                    }
+                }).ToList();
+
+                var batchRequest = new BatchWriteItemRequest()
+                {
+                    RequestItems = new Dictionary<string, List<WriteRequest>>()
+                    {
+                        { table, writeRequests }
+                    }
+                };
+                
+                await _client.BatchWriteItemAsync(batchRequest, cancellationToken);
             }
             else
             {
@@ -61,7 +70,13 @@ namespace Kyameru.Component.DynamoDB
             }
         }
 
-        private List<List<IDynamoRecord>> GenerateBatches(List<IDynamoRecord> records, int batchSize) =>
+        private Dictionary<string, AttributeValue> GenerateAttributeMap(object entity)
+        {
+            var doc = Document.FromJson(JsonSerializer.Serialize(entity));
+            return doc.ToAttributeMap();
+        }
+
+        private List<List<object>> GenerateBatches(List<object> records, int batchSize) =>
             records.Select((item, index) => new { item, index })
                 .GroupBy(x => x.index / batchSize)
                 .Select(group => group.Select(x => x.item).ToList())

@@ -33,7 +33,7 @@ namespace Kyameru.Component.DynamoDB
             
             if (processBatch)
             {
-                await _dbUpserter.SaveAsync(((IEnumerable)routable.Body).Cast<IDynamoRecord>().ToList(), overrideTable, 25, cancellationToken);
+                await _dbUpserter.SaveAsync(((IEnumerable)routable.Body).Cast<IDynamoRecord>().ToList(), overrideTable, cancellationToken);
             }
             else
             {

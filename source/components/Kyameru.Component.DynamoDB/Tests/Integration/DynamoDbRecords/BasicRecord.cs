@@ -7,24 +7,22 @@ using Newtonsoft.Json;
 namespace Kyameru.Component.DynamoDB.IntegrationTests.DynamoDbRecords;
 
 [DynamoDBTable("KyameruTestFrom")]
-public class BasicRecord : DynamoRecord<string, string>
+public class BasicRecord : DynamoRecord<string>
 {
-    [JsonPropertyName("Identity")]
+    [JsonPropertyName("Department")]
     public override string HashKey { get; set; }
-    
-    [JsonPropertyName("Title")]
-    public override string RangeKey { get; set; }
 
+    public string Identity { get; set; }
+    
     public string Contents { get; set; }
 
     public BasicRecord() { }
 
-    public BasicRecord(string contents)
+    public BasicRecord(string contents, string department)
     {
         Contents = contents;
-        HashKey = Guid.NewGuid().ToString();
-        RangeKey = Guid.NewGuid().ToString();
-        
+        HashKey = department;
+        Identity = Guid.NewGuid().ToString();
     }
 
     
