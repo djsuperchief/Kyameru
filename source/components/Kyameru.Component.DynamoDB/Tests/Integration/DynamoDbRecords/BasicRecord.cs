@@ -25,5 +25,15 @@ public class BasicRecord : DynamoRecord<string>
         Identity = Guid.NewGuid().ToString();
     }
 
-    
+    public override bool Equals(object? obj)
+    {
+        if (obj is BasicRecord other)
+        {
+            return HashKey == other.HashKey
+                && Identity == other.Identity
+                && Contents ==  other.Contents;
+        }
+
+        return false;
+    }
 }

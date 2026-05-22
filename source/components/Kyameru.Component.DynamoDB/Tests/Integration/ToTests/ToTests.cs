@@ -53,8 +53,12 @@ public class ToTests : BaseTests
         {
             { "Department", "HR" }
         });
+        foreach (var record in records)
+        {
+            var compare = dbRecords.Single(x => x.Identity == record.Identity);
+            Assert.Equal(compare, record);
+        }
         
-        Assert.Equal(JsonSerializer.Serialize(dbRecords), JsonSerializer.Serialize(records));
         await DeleteDynamoDbTable(table);
     }
 
