@@ -18,7 +18,9 @@ namespace Kyameru.Component.DynamoDB
 
         public IToChainLink CreateToComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
-            throw new NotImplementedException();
+            var component = serviceProvider.GetRequiredService<ITo>();
+            component.SetHeaders(headers);
+            return component;
         }
 
         public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)

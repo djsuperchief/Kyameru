@@ -62,12 +62,6 @@ public class ToTests : BaseTests
         await DeleteDynamoDbTable(table);
     }
 
-    [Fact]
-    public async Task ToRejectsIncompatibleDynamoDbRecord()
-    {
-        
-    }
-
     protected override IServiceCollection AddServices(IServiceCollection services)
     {
         services.AddTransient<IDynamoDbUpserter, DynamoDbUpserter>();

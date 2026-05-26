@@ -16,13 +16,11 @@ namespace Kyameru.Component.DynamoDB
 {
     public class DynamoDbUpserter : IDynamoDbUpserter
     {
-        private readonly IDynamoDBContext _dynamoDbContext;
         private readonly ILogger<DynamoDbUpserter> _logger;
         private readonly IAmazonDynamoDB _client;
 
-        public DynamoDbUpserter(IDynamoDBContext dbContext, IAmazonDynamoDB client, ILogger<DynamoDbUpserter> logger)
+        public DynamoDbUpserter(IAmazonDynamoDB client, ILogger<DynamoDbUpserter> logger)
         {
-            _dynamoDbContext = dbContext;
             _logger = logger;
             _client = client;
         }
