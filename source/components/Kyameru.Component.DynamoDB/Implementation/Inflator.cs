@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Amazon.DynamoDBStreams;
 using Amazon.DynamoDBv2;
 using Kyameru.Component.DynamoDB.Contracts;
 using Kyameru.Core.Contracts;
@@ -38,7 +39,10 @@ namespace Kyameru.Component.DynamoDB
 
         public IServiceCollection RegisterFrom(IServiceCollection serviceCollection)
         {
-            throw new NotImplementedException();
+            serviceCollection.TryAddAWSService<IAmazonDynamoDB>();
+            serviceCollection.TryAddAWSService<IAmazonDynamoDBStreams>();
+            serviceCollection.TryAddTransient<IFrom, DynamoDbFrom>();
+            return serviceCollection;
         }
 
         public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)

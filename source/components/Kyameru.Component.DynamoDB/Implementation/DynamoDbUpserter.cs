@@ -27,7 +27,7 @@ namespace Kyameru.Component.DynamoDB
         
         public async Task SaveAsync(object entity, string table = "", CancellationToken cancellationToken = default)
         {
-
+            _logger.LogInformation("Saving DynamoDB Entity");
             var attributeMap = GenerateAttributeMap(entity);
             var request = new PutItemRequest()
             {
@@ -41,6 +41,7 @@ namespace Kyameru.Component.DynamoDB
 
         public async Task SaveAsync(IEnumerable<object>? entities, string table, CancellationToken cancellationToken = default)
         {
+            _logger.LogInformation("Saving DynamoDB multiple entities");
             if (entities != null)
             {
                 var writeRequests = entities.Select(x => new WriteRequest()
@@ -70,10 +71,12 @@ namespace Kyameru.Component.DynamoDB
 
         private Dictionary<string, AttributeValue> GenerateAttributeMap(object entity)
         {
+            _logger.LogDebug("Generating attribute map");
             var doc = Document.FromJson(JsonSerializer.Serialize(entity));
             return doc.ToAttributeMap();
         }
 
+        // The below might be obsolete. Left over from DBContext (Before lower level API implementation).
         private List<List<object>> GenerateBatches(List<object> records, int batchSize) =>
             records.Select((item, index) => new { item, index })
                 .GroupBy(x => x.index / batchSize)
