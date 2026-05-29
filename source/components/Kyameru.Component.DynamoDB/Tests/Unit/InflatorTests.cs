@@ -62,5 +62,37 @@ public class InflatorTests
         Assert.True(serviceCollection.Contains(typeof(IAmazonDynamoDB)));
         Assert.True(serviceCollection.Contains(typeof(IAmazonDynamoDBStreams)));
     }
+
+    [Fact]
+    public void CreateFromComponentSucceeds()
+    {
+        var serviceCollection = new ServiceCollection();
+        var mockDynamoClient = Substitute.For<IAmazonDynamoDB>();
+        serviceCollection.AddSingleton<IAmazonDynamoDB>(mockDynamoClient);
+        serviceCollection.AddSingleton<IAmazonDynamoDBStreams>(Substitute.For<IAmazonDynamoDBStreams>());
+        serviceCollection.AddLogging();
+        var dynamoDbUri = new RouteAttributes("DynamoDB://test-table");
+        var inflator = new Inflator();
+        inflator.RegisterFrom(serviceCollection);
+        var provider = serviceCollection.BuildServiceProvider();
+        var component = inflator.CreateFromComponent(dynamoDbUri.Headers, provider);
+
+        Assert.NotNull(component);
+    }
+    
+    [Fact]
+    public void FromMissingTableNameThrowsException()
+    {
+        var serviceCollection = new ServiceCollection();
+        var mockDynamoClient = Substitute.For<IAmazonDynamoDB>();
+        serviceCollection.AddSingleton<IAmazonDynamoDB>(mockDynamoClient);
+        serviceCollection.AddSingleton<IAmazonDynamoDBStreams>(Substitute.For<IAmazonDynamoDBStreams>());
+        serviceCollection.AddLogging();
+        var dynamoDbUri = new RouteAttributes("DynamoDB:///");
+        var inflator = new Inflator();
+        inflator.RegisterFrom(serviceCollection);
+        var provider = serviceCollection.BuildServiceProvider();
+        Assert.Throws<MissingHeaderException>(() => inflator.CreateFromComponent(dynamoDbUri.Headers, provider));
+    }
     
 }

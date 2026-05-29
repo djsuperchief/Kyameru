@@ -36,7 +36,6 @@ namespace Kyameru.Component.DynamoDB
 
         public void Setup()
         {
-            ValidateHeaders();
             
         }
 
@@ -57,6 +56,7 @@ namespace Kyameru.Component.DynamoDB
         public void SetHeaders(Dictionary<string, string> headers)
         {
             _headers = headers;
+            ValidateHeaders();
         }
         
         private async void TimerElapsed(object state)
@@ -121,6 +121,12 @@ namespace Kyameru.Component.DynamoDB
             }
             
             _tableName = header;
+            _polltime = 60;
+            if (_headers.TryGetValue("PollTime", out var pollTimeValue))
+            {
+                _polltime = int.Parse(pollTimeValue);
+            }
+            
         }
     }
 }

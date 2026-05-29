@@ -52,9 +52,21 @@ public abstract class BaseTests
             keySchema.Add(new KeySchemaElement(rangeKeyName, KeyType.RANGE));
             attributes.Add(new AttributeDefinition() { AttributeName =  rangeKeyName, AttributeType = "S" });
         }
+
+        var createTableRequest = new CreateTableRequest()
+        {
+            AttributeDefinitions = attributes,
+            KeySchema = keySchema,
+            TableName = tableName,
+            ProvisionedThroughput = new ProvisionedThroughput(1, 1),
+            StreamSpecification = new StreamSpecification()
+            {
+                StreamEnabled = true,
+                StreamViewType = StreamViewType.NEW_AND_OLD_IMAGES
+            }
+        };
         
-        
-        await dbClient.CreateTableAsync(tableName, keySchema, attributes, new ProvisionedThroughput(1, 1));
+        await dbClient.CreateTableAsync(createTableRequest);
         
         return tableName;
     }
