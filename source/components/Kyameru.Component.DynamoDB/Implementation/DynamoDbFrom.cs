@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.DynamoDBStreams;
@@ -11,6 +12,7 @@ using Kyameru.Component.DynamoDB.Extensions;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Exceptions;
 using Kyameru.Core.Sys;
+using Microsoft.Extensions.Logging;
 
 namespace Kyameru.Component.DynamoDB
 {
@@ -28,7 +30,6 @@ namespace Kyameru.Component.DynamoDB
         private readonly IAmazonDynamoDB _dynamoDbClient;
         private readonly IAmazonDynamoDBStreams _dynamoDbStreams;
         private CancellationToken _cancellationToken;
-        private System.Threading.Timer _poller;
         private int _polltime;
         private bool _isStopping = false;
         private AutoResetEvent _timerEvent = new AutoResetEvent(false);
@@ -43,14 +44,12 @@ namespace Kyameru.Component.DynamoDB
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _cancellationToken = cancellationToken;
-            _poller = new Timer(TimerElapsed, _timerEvent, TimeSpan.FromSeconds(_polltime), TimeSpan.FromSeconds(_polltime));
             await Process(_cancellationToken);
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             _isStopping = true;
-            await _poller.DisposeAsync();
         }
 
         public void SetHeaders(Dictionary<string, string> headers)
@@ -71,46 +70,73 @@ namespace Kyameru.Component.DynamoDB
 
         private async Task Process(CancellationToken stoppingToken)
         {
-            var table = await _dynamoDbClient.DescribeTableAsync(_tableName, stoppingToken);
-            var stream = table.Table.LatestStreamArn;
-
-            var shards = await _dynamoDbStreams.DescribeStreamAsync(stream, stoppingToken);
-
-            foreach (var shard in shards.StreamDescription.Shards)
+            try
             {
-                await ProcessShard(shard, stream, stoppingToken);
+
+                var table = await _dynamoDbClient.DescribeTableAsync(_tableName, stoppingToken);
+                var stream = table.Table.LatestStreamArn;
+
+                var shards = await _dynamoDbStreams.DescribeStreamAsync(stream, stoppingToken);
+
+                var tasks = shards.StreamDescription.Shards.Select(shard => ProcessShard(shard, stream, stoppingToken));
+                
+                await Task.WhenAll(tasks);
             }
-            
+            catch (TaskCanceledException)
+            {
+                Log(LogLevel.Information, Resources.INFO_PROCESSINGTERMINATED);
+            }
         }
 
         private async Task ProcessShard(Shard shard, string streamArn, CancellationToken stoppingToken)
         {
-            var shardIteratorResponse = await _dynamoDbStreams.GetShardIteratorAsync(new GetShardIteratorRequest()
+            try
+            {
+                var iterator = string.Empty;
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    var records = new List<string>();
+                    if (string.IsNullOrWhiteSpace(iterator))
+                    {
+                        var shardIterator = await GetNextShardIterator(shard, streamArn, stoppingToken);
+                        iterator = shardIterator.ShardIterator;
+                    }
+
+                    var recordsResponse = await _dynamoDbStreams.GetRecordsAsync(iterator, stoppingToken);
+                    foreach (var record in recordsResponse.Records)
+                    {
+                        records.Add(record.Dynamodb.Keys.ToJson());
+                    }
+
+                    if (records.Any())
+                    {
+                        var routable = new Routable(new Dictionary<string, string>(), records);
+                        if (OnActionAsync != null)
+                        {
+                            await OnActionAsync.Invoke(this, new RoutableEventData(routable, stoppingToken));
+                        }
+                    }
+
+                    iterator = recordsResponse.NextShardIterator;
+
+                    await Task.Delay(_polltime, stoppingToken);
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                
+                Log(LogLevel.Information, Resources.INFO_PROCESSINGTERMINATED);
+            }
+        }
+
+        private async Task<GetShardIteratorResponse> GetNextShardIterator(Shard shard, string streamArn,
+            CancellationToken stoppingToken) => await _dynamoDbStreams.GetShardIteratorAsync(
+            new GetShardIteratorRequest()
             {
                 StreamArn = streamArn,
                 ShardId = shard.ShardId,
                 ShardIteratorType = ShardIteratorType.LATEST
             }, stoppingToken);
-            
-            var iterator = shardIteratorResponse.ShardIterator;
-            var records = new List<string>();
-            while (!string.IsNullOrWhiteSpace(iterator) && !stoppingToken.IsCancellationRequested)
-            {
-                var recordsResponse = await _dynamoDbStreams.GetRecordsAsync(iterator, stoppingToken);
-                foreach (var record in recordsResponse.Records)
-                {
-                    records.Add(record.Dynamodb.Keys.ToJson());
-                }
-
-                iterator = recordsResponse.NextShardIterator;
-            }
-
-            var routable = new Routable(new Dictionary<string, string>(), records);
-            if (OnActionAsync != null)
-            {
-                await OnActionAsync.Invoke(this, new RoutableEventData(routable,  stoppingToken));
-            }
-        }
 
 
         private void ValidateHeaders()
@@ -121,12 +147,20 @@ namespace Kyameru.Component.DynamoDB
             }
             
             _tableName = header;
-            _polltime = 60;
+            _polltime = 60000;
             if (_headers.TryGetValue("PollTime", out var pollTimeValue))
             {
-                _polltime = int.Parse(pollTimeValue);
+                _polltime = int.Parse(pollTimeValue) * 1000;
             }
             
+        }
+
+        private void Log(LogLevel logLevel, string message, Exception? exception = null)
+        {
+            if (OnLog != null)
+            {
+                OnLog(this, new Log(logLevel, message, exception));
+            }
         }
     }
 }

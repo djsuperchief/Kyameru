@@ -17,14 +17,8 @@ public class FromTests : BaseTests
         BuildServiceProvider();
         var routable = new Routable(new Dictionary<string, string>(), "Default");
         var table = await CreateDynamoDbTable("Department", "Identity");
-        var dbRecords = new List<BasicRecord>()
-        {
-            new("This is a test", "HR")
-        };
         
-        var dbUpserter = ServiceProvider.GetRequiredService<IDynamoDbUpserter>();
-        await dbUpserter.SaveAsync(dbRecords, table, CancellationToken.None);
-        var worker = TestThread.CreateDeferred(60, 60);
+        var worker = TestThread.CreateDeferred(30, 30);
         var from = ServiceProvider.GetRequiredService<IFrom>();
         from.SetHeaders(new Dictionary<string, string>()
         {
@@ -40,7 +34,16 @@ public class FromTests : BaseTests
         };
         
         worker.SetThread(from.StartAsync);
-        worker.StartAndWait();
+        worker.Start();
+        var dbRecords = new List<BasicRecord>()
+        {
+            new("This is a test", "HR")
+        };
+
+        await Task.Delay(5000, worker.CancelToken);
+        var dbUpserter = ServiceProvider.GetRequiredService<IDynamoDbUpserter>();
+        await dbUpserter.SaveAsync(dbRecords, table, CancellationToken.None);
+        worker.WaitForExecution();
         await from.StopAsync(worker.CancelToken);
         await worker.CancelAsync();
         
