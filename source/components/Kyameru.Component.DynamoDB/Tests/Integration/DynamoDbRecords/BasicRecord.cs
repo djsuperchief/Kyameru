@@ -36,4 +36,9 @@ public class BasicRecord : DynamoRecord<string>
 
         return false;
     }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(HashKey, Identity, Contents);
+    }
 }

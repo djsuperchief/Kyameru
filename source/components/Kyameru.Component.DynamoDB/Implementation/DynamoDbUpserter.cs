@@ -27,7 +27,7 @@ namespace Kyameru.Component.DynamoDB
         
         public async Task SaveAsync(object entity, string table = "", CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation("Saving DynamoDB Entity");
+            _logger.LogInformation(Resources.INFO_PROCESSINGSINGLE);
             var attributeMap = GenerateAttributeMap(entity);
             var request = new PutItemRequest()
             {
@@ -36,12 +36,12 @@ namespace Kyameru.Component.DynamoDB
             };
             
             await _client.PutItemAsync(request, cancellationToken);
-
+            _logger.LogInformation(Resources.INFO_PROCESSINGCOMPLETE);
         }
 
         public async Task SaveAsync(IEnumerable<object>? entities, string table, CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation("Saving DynamoDB multiple entities");
+            _logger.LogInformation(Resources.INFO_PROCESSINGMULTIPLE);
             if (entities != null)
             {
                 var writeRequests = entities.Select(x => new WriteRequest()
@@ -67,6 +67,8 @@ namespace Kyameru.Component.DynamoDB
                 _logger.LogWarning(Resources.WARNING_NOENTITIES);
                 await Task.CompletedTask;
             }
+            
+            _logger.LogInformation(Resources.INFO_PROCESSINGCOMPLETE);
         }
 
         private Dictionary<string, AttributeValue> GenerateAttributeMap(object entity)

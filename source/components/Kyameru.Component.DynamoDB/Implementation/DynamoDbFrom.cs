@@ -105,7 +105,7 @@ namespace Kyameru.Component.DynamoDB
                     var recordsResponse = await _dynamoDbStreams.GetRecordsAsync(iterator, stoppingToken);
                     foreach (var record in recordsResponse.Records)
                     {
-                        records.Add(record.Dynamodb.Keys.ToJson());
+                        records.Add(record.Dynamodb.NewImage.ToJson());
                     }
 
                     if (records.Any())

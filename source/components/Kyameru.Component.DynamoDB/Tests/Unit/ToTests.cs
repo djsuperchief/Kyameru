@@ -136,4 +136,30 @@ public class ToTests
         await to.ProcessAsync(routable, CancellationToken.None);
         await dynamoDbMock.Received(1).PutItemAsync(Arg.Any<PutItemRequest>(), Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task ProcessingLogsAreOutput()
+    {
+        var dynamoDbMock = Substitute.For<IAmazonDynamoDB>();
+        var mockLogger = Substitute.For<ILogger<DynamoDbUpserter>>();
+        var dbUpserter = new DynamoDbUpserter(dynamoDbMock, mockLogger);
+        
+        var to = new DynamoDbTo(dbUpserter);
+        to.SetHeaders(new Dictionary<string, string>()
+        {
+            { "Host", "testtable"}
+        });
+        var routable = new Routable(new Dictionary<string, string>(), new TestDbRecord());
+        await to.ProcessAsync(routable, CancellationToken.None);
+        
+        var logMessages = new List<string>() { "Processing single record to DynamoDB", "Generating attribute map", "Processing complete" };
+        foreach (var logMessage in logMessages)
+        {
+            mockLogger.Received().Log(Arg.Any<LogLevel>(),
+                Arg.Any<EventId>(),
+                Arg.Is<object>(v => v.ToString().Contains(logMessage)),
+                null,
+                Arg.Any<Func<object, Exception, string>>());
+        }
+    }
 }

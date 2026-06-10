@@ -15,5 +15,6 @@ namespace Kyameru.Component.DynamoDB
         public const string INFO_PROCESSINGSINGLE = "Processing single record to DynamoDB";
         public const string INFO_PROCESSINGMULTIPLE = "Processing multiple records to DynamoDB";
         public const string INFO_PROCESSINGTERMINATED = "Processing terminated";
+        public const string INFO_PROCESSINGCOMPLETE = "Processing complete";
     }
 }
