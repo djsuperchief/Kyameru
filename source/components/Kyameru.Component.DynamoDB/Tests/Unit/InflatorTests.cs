@@ -6,6 +6,7 @@ using Kyameru.Core.Entities;
 using Kyameru.Core.Exceptions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NotSupportedException = Kyameru.Core.Exceptions.NotSupportedException;
 
 namespace Kyameru.Component.DynamoDB.Tests;
 
@@ -94,5 +95,42 @@ public class InflatorTests
         var provider = serviceCollection.BuildServiceProvider();
         Assert.Throws<MissingHeaderException>(() => inflator.CreateFromComponent(dynamoDbUri.Headers, provider));
     }
+
+    [Fact]
+    public void RegisterScheduledRaisesActivationException()
+    {
+        var serviceCollection = new ServiceCollection();
+        var mockDynamoClient = Substitute.For<IAmazonDynamoDB>();
+        serviceCollection.AddSingleton<IAmazonDynamoDB>(mockDynamoClient);
+        serviceCollection.AddLogging();
+        var dynamoDbUri = new RouteAttributes("DynamoDB:///");
+        var inflator = new Inflator();
+        var ex = Assert.Throws<NotSupportedException>(() => inflator.RegisterScheduled(serviceCollection));
+        Assert.Equal("DynamoDB component does not support scheduling", ex.Message);
+    }
     
+    [Fact]
+    public void RegisterDependenciesRaisesActivationException()
+    {
+        var serviceCollection = new ServiceCollection();
+        var mockDynamoClient = Substitute.For<IAmazonDynamoDB>();
+        serviceCollection.AddSingleton<IAmazonDynamoDB>(mockDynamoClient);
+        serviceCollection.AddLogging();
+        var inflator = new Inflator();
+        var ex = Assert.Throws<NotSupportedException>(() => inflator.RegisterDependencies(serviceCollection, new List<ChainLinkDependency>(), new List<ChainLinkDependency>()));
+        Assert.Equal("DynamoDB component does not support scheduling", ex.Message);
+    }
+    
+    [Fact]
+    public void CreateScheduledRaisesActivationException()
+    {
+        var serviceCollection = new ServiceCollection();
+        var mockDynamoClient = Substitute.For<IAmazonDynamoDB>();
+        serviceCollection.AddSingleton<IAmazonDynamoDB>(mockDynamoClient);
+        serviceCollection.AddLogging();
+        var provider = serviceCollection.BuildServiceProvider();
+        var inflator = new Inflator();
+        var ex = Assert.Throws<NotSupportedException>(() => inflator.CreateScheduleComponent(new Dictionary<string, string>(), provider));
+        Assert.Equal("DynamoDB component does not support scheduling", ex.Message);
+    }
 }

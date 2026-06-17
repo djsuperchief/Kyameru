@@ -32,7 +32,6 @@ namespace Kyameru.Component.DynamoDB
         private CancellationToken _cancellationToken;
         private int _polltime;
         private bool _isStopping = false;
-        private AutoResetEvent _timerEvent = new AutoResetEvent(false);
         private Dictionary<string, string> _headers;
 
         public void Setup()
@@ -57,24 +56,14 @@ namespace Kyameru.Component.DynamoDB
             _headers = headers;
             ValidateHeaders();
         }
-        
-        private async void TimerElapsed(object state)
-        {
-            if (!_isStopping)
-            {
-                await Process(_cancellationToken);
-            }
-
-            await Task.CompletedTask;
-        }
 
         private async Task Process(CancellationToken stoppingToken)
         {
             try
             {
-
                 var table = await _dynamoDbClient.DescribeTableAsync(_tableName, stoppingToken);
                 var stream = table.Table.LatestStreamArn;
+                Log(LogLevel.Information, string.Format(Resources.INFO_PROCESSINGTABLE, _tableName));
 
                 var shards = await _dynamoDbStreams.DescribeStreamAsync(stream, stoppingToken);
 
@@ -147,7 +136,7 @@ namespace Kyameru.Component.DynamoDB
             }
             
             _tableName = header;
-            _polltime = 60000;
+            _polltime = 6;
             if (_headers.TryGetValue("PollTime", out var pollTimeValue))
             {
                 _polltime = int.Parse(pollTimeValue) * 1000;

@@ -7,6 +7,7 @@ namespace Kyameru.Component.DynamoDB
         public const string EXCEPTION_INVALIDBATCHSIZE_SMALL = "Invalid batch size, must be more than or equal to 1";
         public const string EXCEPTION_INVALIDBATCHSIZE_LARGE = "Invalid batch size, must be less than or equal to 25";
         public const string EXCEPTION_MISSINGTABLENAME = "Missing DynamoDB table name";
+        public const string EXCEPTION_CREATIONNOTSUPPORTED = "DynamoDB component does not support {0}";
         
         public const string WARNING_NOENTITIES = "DynamoDb entities empty, no action to perform";
 
@@ -16,5 +17,6 @@ namespace Kyameru.Component.DynamoDB
         public const string INFO_PROCESSINGMULTIPLE = "Processing multiple records to DynamoDB";
         public const string INFO_PROCESSINGTERMINATED = "Processing terminated";
         public const string INFO_PROCESSINGCOMPLETE = "Processing complete";
+        public const string INFO_PROCESSINGTABLE = "Processing table: {0}";
     }
 }

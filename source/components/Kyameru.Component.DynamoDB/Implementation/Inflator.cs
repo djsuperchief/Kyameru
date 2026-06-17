@@ -7,6 +7,7 @@ using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using NotSupportedException = Kyameru.Core.Exceptions.NotSupportedException;
 
 namespace Kyameru.Component.DynamoDB
 {
@@ -28,7 +29,7 @@ namespace Kyameru.Component.DynamoDB
 
         public IScheduleChainLink CreateScheduleComponent(Dictionary<string, string> headers, IServiceProvider serviceProvider)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException(string.Format(Resources.EXCEPTION_CREATIONNOTSUPPORTED, "scheduling"));
         }
 
         public IServiceCollection RegisterTo(IServiceCollection serviceCollection)
@@ -49,12 +50,12 @@ namespace Kyameru.Component.DynamoDB
 
         public IServiceCollection RegisterScheduled(IServiceCollection serviceCollection)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException(string.Format(Resources.EXCEPTION_CREATIONNOTSUPPORTED, "scheduling"));
         }
 
         public void RegisterDependencies(IServiceCollection services, List<ChainLinkDependency> fromDependencies, List<ChainLinkDependency> toDependencies)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException(string.Format(Resources.EXCEPTION_CREATIONNOTSUPPORTED, "internal dependencies"));
         }
     }
 }

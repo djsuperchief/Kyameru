@@ -1,11 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using Amazon.DynamoDBv2.DataModel;
-using Kyameru.Component.DynamoDB.Contracts;
 using Kyameru.Component.DynamoDB.Entities;
-using Newtonsoft.Json;
 
 namespace Kyameru.Component.DynamoDB.IntegrationTests.DynamoDbRecords;
 
+[ExcludeFromCodeCoverage]
 [DynamoDBTable("KyameruTestFrom")]
 public class BasicRecord : DynamoRecord<string>
 {

@@ -84,48 +84,5 @@ namespace Kyameru.Component.DynamoDB
                 .GroupBy(x => x.index / batchSize)
                 .Select(group => group.Select(x => x.item).ToList())
                 .ToList();
-
-        private bool ValidateBatchSize(int batchSize)
-        {
-            if (batchSize < 1)
-            {
-                throw new InvalidBatchSizeException(Resources.EXCEPTION_INVALIDBATCHSIZE_SMALL);
-            }
-
-            if (batchSize > 25)
-            {
-                throw new InvalidBatchSizeException(Resources.EXCEPTION_INVALIDBATCHSIZE_LARGE);
-            }
-
-            return true;
-        }
-
-        private SaveConfig? GetSaveConfig(string tableOverride)
-        {
-            SaveConfig saveConfig = null;
-            if (!string.IsNullOrWhiteSpace(tableOverride))
-            {
-                saveConfig = new SaveConfig()
-                {
-                    OverrideTableName = tableOverride,
-                };
-            }
-
-            return saveConfig;
-        }
-
-        private BatchWriteConfig? GetBatchWriteConfig(string tableOverride)
-        {
-            BatchWriteConfig? saveConfig = null;
-            if (!string.IsNullOrWhiteSpace(tableOverride))
-            {
-                saveConfig = new BatchWriteConfig()
-                {
-                    OverrideTableName = tableOverride,
-                };
-            }
-
-            return saveConfig;
-        }
     }
 }
