@@ -77,12 +77,5 @@ namespace Kyameru.Component.DynamoDB
             var doc = Document.FromJson(JsonSerializer.Serialize(entity));
             return doc.ToAttributeMap();
         }
-
-        // The below might be obsolete. Left over from DBContext (Before lower level API implementation).
-        private List<List<object>> GenerateBatches(List<object> records, int batchSize) =>
-            records.Select((item, index) => new { item, index })
-                .GroupBy(x => x.index / batchSize)
-                .Select(group => group.Select(x => x.item).ToList())
-                .ToList();
     }
 }

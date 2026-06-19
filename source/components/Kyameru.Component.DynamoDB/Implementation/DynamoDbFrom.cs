@@ -81,6 +81,7 @@ namespace Kyameru.Component.DynamoDB
         {
             try
             {
+                
                 var iterator = string.Empty;
                 while (!stoppingToken.IsCancellationRequested)
                 {

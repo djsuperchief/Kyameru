@@ -26,6 +26,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\..\tests\Shared\Kyameru.TestUtilities\Kyameru.TestUtilities.csproj" />
+      <ProjectReference Include="..\..\..\..\..\tests\UnitTests\Kyameru.Component.Generic\Kyameru.Component.Generic.csproj" />
       <ProjectReference Include="..\..\Implementation\Kyameru.Component.DynamoDB.csproj" />
     </ItemGroup>
 

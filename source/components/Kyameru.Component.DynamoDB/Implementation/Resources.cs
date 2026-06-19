@@ -18,5 +18,6 @@ namespace Kyameru.Component.DynamoDB
         public const string INFO_PROCESSINGTERMINATED = "Processing terminated";
         public const string INFO_PROCESSINGCOMPLETE = "Processing complete";
         public const string INFO_PROCESSINGTABLE = "Processing table: {0}";
+        public const string INFO_PROCESSINGSHARD = "Processing shard: {0}";
     }
 }

@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.DynamoDB.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.TestUtilities", "..\..\..\tests\Shared\Kyameru.TestUtilities\Kyameru.TestUtilities.csproj", "{6238CADF-29A7-4248-9C3D-CB6CDA2537C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Generic", "..\..\..\tests\UnitTests\Kyameru.Component.Generic\Kyameru.Component.Generic.csproj", "{A34E02FA-D65E-40F3-9C08-E41BB8686484}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,10 @@ Global
 		{6238CADF-29A7-4248-9C3D-CB6CDA2537C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6238CADF-29A7-4248-9C3D-CB6CDA2537C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6238CADF-29A7-4248-9C3D-CB6CDA2537C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A34E02FA-D65E-40F3-9C08-E41BB8686484}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A34E02FA-D65E-40F3-9C08-E41BB8686484}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A34E02FA-D65E-40F3-9C08-E41BB8686484}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A34E02FA-D65E-40F3-9C08-E41BB8686484}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{631E0425-BF2F-44BB-8DE8-15F2C11F36AA} = {1A381CFD-CE17-4481-9E96-67DEDF36F641}
@@ -49,5 +55,6 @@ Global
 		{D47F57BA-5608-4E78-84AF-6FD593DB6983} = {6BCCB2ED-22C2-4CA5-BB8D-B8CFE9B2A2A5}
 		{502C5C0D-2544-49DC-9D66-032B2CC8BF70} = {6BCCB2ED-22C2-4CA5-BB8D-B8CFE9B2A2A5}
 		{6238CADF-29A7-4248-9C3D-CB6CDA2537C6} = {6BCCB2ED-22C2-4CA5-BB8D-B8CFE9B2A2A5}
+		{A34E02FA-D65E-40F3-9C08-E41BB8686484} = {6BCCB2ED-22C2-4CA5-BB8D-B8CFE9B2A2A5}
 	EndGlobalSection
 EndGlobal

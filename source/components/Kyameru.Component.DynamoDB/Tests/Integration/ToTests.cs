@@ -6,9 +6,11 @@ using Amazon.DynamoDBv2.Model;
 using Kyameru.Component.DynamoDB.Contracts;
 using Kyameru.Component.DynamoDB.IntegrationTests.DynamoDbRecords;
 using Kyameru.Core.Entities;
+using Kyameru.TestUtilities;
 using LocalStack.Client.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Kyameru.Component.DynamoDB.IntegrationTests.ToTests;
 
@@ -59,6 +61,37 @@ public class ToTests : BaseTests
             Assert.Equal(compare, record);
         }
         
+        await DeleteDynamoDbTable(table);
+    }
+
+    [Fact]
+    public async Task FullImplementationWorksAsExpected()
+    {
+        var thread = TestThread.CreateDeferred(10);
+        var tableName = Guid.NewGuid();
+        var dbRecord = new BasicRecord("This is a test", "HR");
+        Kyameru.Route.From("generic://test")
+            .Process(x =>
+            {
+                x.SetBody(dbRecord);
+            })
+            .To($"dynamoDB://{tableName}")
+            .Build(ServiceCollection);
+        BuildServiceProvider();
+        var table = await CreateDynamoDbTable("Department", "Identity");
+        
+        var service = ServiceProvider.GetRequiredService<IHostedService>();
+        thread.SetThread(service.StartAsync);
+        thread.StartAndWait();
+        await thread.CancelAsync();
+        var dbContext = ServiceProvider.GetRequiredService<IAmazonDynamoDB>();
+        var record = await GetRecord<BasicRecord>(dbContext, table, new Dictionary<string, string>()
+        {
+            { "Department", dbRecord.HashKey},
+            { "Identity", dbRecord.Identity }
+        });
+        
+        Assert.Equal(JsonSerializer.Serialize(dbRecord), JsonSerializer.Serialize(record));
         await DeleteDynamoDbTable(table);
     }
 

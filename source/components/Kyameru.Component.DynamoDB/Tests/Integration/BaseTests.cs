@@ -25,9 +25,9 @@ public abstract class BaseTests
         ServiceProvider = ServiceCollection.BuildServiceProvider();
     }
     
-    protected async Task<string> CreateDynamoDbTable(string hashKeyName, string rangeKeyName)
+    protected async Task<string> CreateDynamoDbTable(string hashKeyName, string rangeKeyName, Guid? requestedTableName = null)
     {
-        var tableName = Guid.NewGuid().ToString();
+        var tableName = requestedTableName is null ? Guid.NewGuid().ToString() :  requestedTableName.ToString();
         var dbClient = ServiceProvider.GetRequiredService<IAmazonDynamoDB>();
         var keySchema = new List<KeySchemaElement>()
         {
