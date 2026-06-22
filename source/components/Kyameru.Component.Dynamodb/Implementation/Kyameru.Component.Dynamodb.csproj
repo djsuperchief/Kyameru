@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\core\Kyameru.Core\Kyameru.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AWSSDK.DynamoDBStreams" Version="4.0.4.32" />
+      <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.17.10" />
+      <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.34" />
+    </ItemGroup>
+
+</Project>
