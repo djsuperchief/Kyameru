@@ -3,6 +3,17 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
         <Nullable>enable</Nullable>
+        <RootNamespace>Kyameru.Component.Dynamodb</RootNamespace>
+        <Description>Kyameru Dynamodb component adds the ability to read and write to and from dynamodb tables.</Description>
+        <Copyright>Giles Papworth 2026</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://djsuperchief.github.io/Kyameru/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/djsuperchief/Kyameru</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <NeutralLanguage>B</NeutralLanguage>
+        <Authors>Giles Papworth</Authors>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>

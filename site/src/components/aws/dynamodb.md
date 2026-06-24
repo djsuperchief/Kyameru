@@ -30,7 +30,7 @@ TO
 
 #### Example
 ```
-Kyameru.Route.From("dynamodb://mytable?PollTime=10"
+Kyameru.Route.From("dynamodb://mytable?PollTime=10)"
 ```
 
 ##### PollTime
@@ -59,8 +59,15 @@ The `To` chain link needs the routable to be of type `IDynamoRecord`. This type 
 Additionally, you can override the `IDynamoDBUpserter` for Kyameru to implement your own insert and update logic. The interface is
 deliberately simple to maximise compatibility with any table.
 
-### Example
-
+```mermaid
+classDiagram
+    class IDynamoDBUpserter {
+        +SaveAsync(object entity, string table = "", CancellationToken cancellationToken)
+        +SaveAsync(IEnumerable~object~> entities, string table, CancellationToken cancellationToken)
+    }
 ```
 
-```
+## Default From Monitoring
+The `From` chain link gets records out of the target table by getting the streams and iterating over the shards every (x) seconds. This means that the component will only process new records from the time after the route has been started.
+This was chosen because the most likely scenarios did not include wanting to get historical records and to keep things simple.
+This of course can be changed with usage and feature requests.

@@ -7,6 +7,7 @@ using Kyameru.Core.Entities;
 using Kyameru.TestUtilities;
 using LocalStack.Client.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Kyameru.Component.Dynamodb.IntegrationTests;
 
@@ -57,6 +58,39 @@ public class FromTests : BaseTests
         {
             await DeleteDynamoDbTable(table);
         }
+    }
+
+    [Fact]
+    public async Task FullFromRouteWorksAsIntended()
+    {
+        var thread = TestThread.CreateDeferred(30, 30);
+        var tableName = Guid.NewGuid();
+        var dbRecord = new BasicRecord("This is a test", "HR");
+        var recordString = new List<string>();
+        Component.Generic.Builder.Create().WithTo(x =>
+        {
+            recordString = x.Body as List<string>;
+        }).Build(ServiceCollection);
+
+        Kyameru.Route.From($"dynamodb://{tableName}?PollTime=5")
+            .To("generic://test", x =>
+            {
+                thread.Continue();
+            })
+            .Build(ServiceCollection);
+        BuildServiceProvider();
+        var table = await CreateDynamoDbTable("Department", "Identity", tableName);
+        var service = ServiceProvider.GetRequiredService<IHostedService>();
+        var dbUpserter = ServiceProvider.GetRequiredService<IDynamoDbUpserter>();
+        thread.SetThread(service.StartAsync);
+        thread.Start();
+        await Task.Delay(TimeSpan.FromSeconds(10));
+        await dbUpserter.SaveAsync(dbRecord, table, CancellationToken.None);
+
+        thread.WaitForExecution();
+        await thread.CancelAsync();
+        await DeleteDynamoDbTable(table);
+        Assert.Equal(dbRecord, JsonSerializer.Deserialize<BasicRecord>(recordString[0]));
     }
 
     public static IEnumerable<object[]> DynamoDbData()

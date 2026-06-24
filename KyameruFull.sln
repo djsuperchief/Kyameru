@@ -114,6 +114,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Rest.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Generic", "tests\UnitTests\Kyameru.Component.Generic\Kyameru.Component.Generic.csproj", "{43BD4B04-C73E-42A1-B571-87D9DDD6EDA3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DynamoDB", "DynamoDB", "{A4471790-F937-4D9C-A257-BF271077E618}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{73016004-F214-4166-A76D-BA678BD78E3E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{37FF8DE7-1C7C-49A9-A743-954C4319D2D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Dynamodb", "source\components\Kyameru.Component.Dynamodb\Implementation\Kyameru.Component.Dynamodb.csproj", "{8655B7E7-D849-4D03-9C5B-B7CB4F12EC95}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Dynamodb.Tests", "source\components\Kyameru.Component.Dynamodb\Tests\Unit\Kyameru.Component.Dynamodb.Tests.csproj", "{FCD8CDB4-AC32-4532-8FC9-C1C867307D9B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.Dynamodb.IntegrationTests", "source\components\Kyameru.Component.Dynamodb\Tests\Integration\Kyameru.Component.Dynamodb.IntegrationTests.csproj", "{0A9C32CF-70CC-41FA-B673-B11251A72D75}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -220,6 +232,18 @@ Global
 		{43BD4B04-C73E-42A1-B571-87D9DDD6EDA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43BD4B04-C73E-42A1-B571-87D9DDD6EDA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43BD4B04-C73E-42A1-B571-87D9DDD6EDA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8655B7E7-D849-4D03-9C5B-B7CB4F12EC95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8655B7E7-D849-4D03-9C5B-B7CB4F12EC95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8655B7E7-D849-4D03-9C5B-B7CB4F12EC95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8655B7E7-D849-4D03-9C5B-B7CB4F12EC95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCD8CDB4-AC32-4532-8FC9-C1C867307D9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCD8CDB4-AC32-4532-8FC9-C1C867307D9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCD8CDB4-AC32-4532-8FC9-C1C867307D9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCD8CDB4-AC32-4532-8FC9-C1C867307D9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A9C32CF-70CC-41FA-B673-B11251A72D75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A9C32CF-70CC-41FA-B673-B11251A72D75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A9C32CF-70CC-41FA-B673-B11251A72D75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A9C32CF-70CC-41FA-B673-B11251A72D75}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -278,6 +302,12 @@ Global
 		{BD7F45B4-157B-45C4-A629-B31649123C69} = {A2966313-E04C-40E7-922D-0AABBC8F2D67}
 		{079AA6A8-696A-49D1-AC75-AC8F9B1DAC6A} = {D25C4AAF-08FD-4E00-A7ED-E6B53D0253DF}
 		{43BD4B04-C73E-42A1-B571-87D9DDD6EDA3} = {EDEB676C-36AF-4A38-8401-6E9C54FD40C7}
+		{A4471790-F937-4D9C-A257-BF271077E618} = {19472432-EA22-483D-B2C3-A7E964D23B9A}
+		{73016004-F214-4166-A76D-BA678BD78E3E} = {A4471790-F937-4D9C-A257-BF271077E618}
+		{37FF8DE7-1C7C-49A9-A743-954C4319D2D5} = {A4471790-F937-4D9C-A257-BF271077E618}
+		{8655B7E7-D849-4D03-9C5B-B7CB4F12EC95} = {73016004-F214-4166-A76D-BA678BD78E3E}
+		{FCD8CDB4-AC32-4532-8FC9-C1C867307D9B} = {37FF8DE7-1C7C-49A9-A743-954C4319D2D5}
+		{0A9C32CF-70CC-41FA-B673-B11251A72D75} = {37FF8DE7-1C7C-49A9-A743-954C4319D2D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {86AAF1E5-3D43-424B-9101-A04C77A0D14F}

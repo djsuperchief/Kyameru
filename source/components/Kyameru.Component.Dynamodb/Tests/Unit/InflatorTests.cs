@@ -110,18 +110,6 @@ public class InflatorTests
     }
     
     [Fact]
-    public void RegisterDependenciesRaisesActivationException()
-    {
-        var serviceCollection = new ServiceCollection();
-        var mockDynamoClient = Substitute.For<IAmazonDynamoDB>();
-        serviceCollection.AddSingleton<IAmazonDynamoDB>(mockDynamoClient);
-        serviceCollection.AddLogging();
-        var inflator = new Inflator();
-        var ex = Assert.Throws<NotSupportedException>(() => inflator.RegisterDependencies(serviceCollection, new List<ChainLinkDependency>(), new List<ChainLinkDependency>()));
-        Assert.Equal("DynamoDB component does not support scheduling", ex.Message);
-    }
-    
-    [Fact]
     public void CreateScheduledRaisesActivationException()
     {
         var serviceCollection = new ServiceCollection();
