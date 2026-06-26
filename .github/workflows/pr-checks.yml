@@ -41,7 +41,7 @@ jobs:
         env:
           LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK }}
         run: |
-          docker compose up -d
+          docker compose -f docker-compose-ci.yml up -d
           docker compose wait terraform
 
 
@@ -58,7 +58,7 @@ jobs:
         if: always()
         working-directory: ./stack
         run: |
-          docker compose down
+          docker compose -f docker-compose-ci.yml down
 
       - name: Release Version Check
         run: |
