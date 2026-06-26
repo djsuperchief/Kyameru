@@ -7,8 +7,6 @@ services:
       - "4566:4566" # LocalStack Gateway
       #- "127.0.0.1:4510-4559:4510-4559"  # external services port range
     environment:
-      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
-      #- DEBUG=${DEBUG:-0}
       - SERVICES=s3, sqs, sts, sns, ses, sesv2, dynamodb
       - DEFAULT_REGION=eu-west-2
       - DEBUG=0
