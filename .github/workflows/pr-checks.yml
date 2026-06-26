@@ -37,10 +37,10 @@ jobs:
 
       # Run docker stack for localstack and other integration bits.
       - name: Docker compose
-        working-directory: ./stack
         env:
           LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK }}
         run: |
+          cd ./stack
           docker compose -f docker-compose-ci.yml up -d
           docker compose wait terraform
 
