@@ -36,6 +36,8 @@ services:
     depends_on:
       localstack:
         condition: service_healthy
+    environment:
+      LOCALSTACK_AUTH_TOKEN: "${LOCALSTACK_AUTH_TOKEN}"
     volumes:
       - "./terraform:/terraform"
   
