@@ -3,6 +3,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
+using Kyameru.TestUtilities.Localstack;
 using LocalStack.Client.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,58 +25,6 @@ public abstract class BaseTests
     {
         ServiceProvider = ServiceCollection.BuildServiceProvider();
     }
-    
-    protected async Task<string> CreateDynamoDbTable(string hashKeyName, string rangeKeyName, Guid? requestedTableName = null)
-    {
-        var tableName = requestedTableName is null ? Guid.NewGuid().ToString() :  requestedTableName.ToString();
-        var dbClient = ServiceProvider.GetRequiredService<IAmazonDynamoDB>();
-        var keySchema = new List<KeySchemaElement>()
-        {
-            new()
-            {
-                AttributeName = hashKeyName,
-                KeyType = "HASH"
-            }
-        };
-
-        var attributes = new List<AttributeDefinition>()
-        {
-            new()
-            {
-                AttributeName = hashKeyName,
-                AttributeType = "S"
-            }
-        };
-
-        if (!string.IsNullOrEmpty(rangeKeyName))
-        {
-            keySchema.Add(new KeySchemaElement(rangeKeyName, KeyType.RANGE));
-            attributes.Add(new AttributeDefinition() { AttributeName =  rangeKeyName, AttributeType = "S" });
-        }
-
-        var createTableRequest = new CreateTableRequest()
-        {
-            AttributeDefinitions = attributes,
-            KeySchema = keySchema,
-            TableName = tableName,
-            ProvisionedThroughput = new ProvisionedThroughput(1, 1),
-            StreamSpecification = new StreamSpecification()
-            {
-                StreamEnabled = true,
-                StreamViewType = StreamViewType.NEW_AND_OLD_IMAGES
-            }
-        };
-        
-        await dbClient.CreateTableAsync(createTableRequest);
-        
-        return tableName;
-    }
-
-    protected async Task DeleteDynamoDbTable(string tableName)
-    {
-        var dbClient = ServiceProvider.GetRequiredService<IAmazonDynamoDB>();
-        await dbClient.DeleteTableAsync(tableName, CancellationToken.None);
-    }
 
     protected IServiceCollection ConfigureServices()
     {
@@ -84,14 +33,7 @@ public abstract class BaseTests
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
             .AddEnvironmentVariables()
             .Build();
-        ServiceCollection.AddLocalStack(config);
-        ServiceCollection.AddDefaultAWSOptions(config.GetAWSOptions());
-        ServiceCollection.AddAwsService<IAmazonDynamoDB>();
-        ServiceCollection.AddScoped<IDynamoDBContext>(x =>
-        {
-            var dynamoClient = x.GetRequiredService<IAmazonDynamoDB>();
-            return new DynamoDBContextBuilder().WithDynamoDBClient(() => dynamoClient).Build();
-        });
+        ServiceCollection.InstallLocalstack(config);
         AddServices(ServiceCollection);
         ServiceCollection.AddLogging();
 

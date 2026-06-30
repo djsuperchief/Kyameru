@@ -5,6 +5,8 @@ using Kyameru.Component.Dynamodb.Contracts;
 using Kyameru.Component.Dynamodb.IntegrationTests.DynamoDbRecords;
 using Kyameru.Core.Entities;
 using Kyameru.TestUtilities;
+using Kyameru.TestUtilities.Enums;
+using Kyameru.TestUtilities.Localstack;
 using LocalStack.Client.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,10 +19,16 @@ public class FromTests : BaseTests
     [MemberData(nameof(DynamoDbData))]   
     public async Task FromCanGetSingleRecord(List<BasicRecord> dbRecords)
     {
+        var table = Guid.NewGuid().ToString();
         BuildServiceProvider();
-        var table = await CreateDynamoDbTable("Department", "Identity");
-        try
+        using (var localstackSession = Builder.Create(ServiceProvider)
+                   .With(table, LocalstackService.DynamoDb, new Dictionary<string, string>()
+                   {
+                       { "HashKey", "Department" },
+                       { "RangeKey", "Identity" }
+                   }).Build())
         {
+            await localstackSession.Init();
             var routable = new Routable(new Dictionary<string, string>(), "Default");
             var worker = TestThread.CreateDeferred(30, 30);
             var from = ServiceProvider.GetRequiredService<IFrom>();
@@ -38,25 +46,21 @@ public class FromTests : BaseTests
             };
             worker.SetThread(from.StartAsync);
             worker.Start();
-            
+
             await Task.Delay(5000, worker.CancelToken);
             var dbUpserter = ServiceProvider.GetRequiredService<IDynamoDbUpserter>();
             await dbUpserter.SaveAsync(dbRecords, table, CancellationToken.None);
             worker.WaitForExecution();
             await from.StopAsync(worker.CancelToken);
             await worker.CancelAsync();
-            
+
             var received = new List<BasicRecord>();
             foreach (var record in routable.Body as List<string>)
             {
                 received.Add(JsonSerializer.Deserialize<BasicRecord>(record));
             }
-            
+
             Assert.Equal(dbRecords, received);
-        }
-        finally
-        {
-            await DeleteDynamoDbTable(table);
         }
     }
 
@@ -64,7 +68,7 @@ public class FromTests : BaseTests
     public async Task FullFromRouteWorksAsIntended()
     {
         var thread = TestThread.CreateDeferred(30, 30);
-        var tableName = Guid.NewGuid();
+        var tableName = Guid.NewGuid().ToString();
         var dbRecord = new BasicRecord("This is a test", "HR");
         var recordString = new List<string>();
         Component.Generic.Builder.Create().WithTo(x =>
@@ -79,18 +83,25 @@ public class FromTests : BaseTests
             })
             .Build(ServiceCollection);
         BuildServiceProvider();
-        var table = await CreateDynamoDbTable("Department", "Identity", tableName);
-        var service = ServiceProvider.GetRequiredService<IHostedService>();
-        var dbUpserter = ServiceProvider.GetRequiredService<IDynamoDbUpserter>();
-        thread.SetThread(service.StartAsync);
-        thread.Start();
-        await Task.Delay(TimeSpan.FromSeconds(10));
-        await dbUpserter.SaveAsync(dbRecord, table, CancellationToken.None);
+        using (var localstackSession = Builder.Create(ServiceProvider)
+                   .With(tableName, LocalstackService.DynamoDb, new Dictionary<string, string>()
+                   {
+                       { "HashKey", "Department" },
+                       { "RangeKey", "Identity" }
+                   }).Build())
+        {
+            await localstackSession.Init();
+            var service = ServiceProvider.GetRequiredService<IHostedService>();
+            var dbUpserter = ServiceProvider.GetRequiredService<IDynamoDbUpserter>();
+            thread.SetThread(service.StartAsync);
+            thread.Start();
+            await Task.Delay(TimeSpan.FromSeconds(10));
+            await dbUpserter.SaveAsync(dbRecord, tableName, CancellationToken.None);
 
-        thread.WaitForExecution();
-        await thread.CancelAsync();
-        await DeleteDynamoDbTable(table);
-        Assert.Equal(dbRecord, JsonSerializer.Deserialize<BasicRecord>(recordString[0]));
+            thread.WaitForExecution();
+            await thread.CancelAsync();
+            Assert.Equal(dbRecord, JsonSerializer.Deserialize<BasicRecord>(recordString[0]));
+        }
     }
 
     public static IEnumerable<object[]> DynamoDbData()
