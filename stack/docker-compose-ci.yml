@@ -2,20 +2,17 @@
 services:
   localstack:
     container_name: "localstack-main"
-    image: localstack/localstack-pro
+    image: localstack/localstack
     ports:
       - "4566:4566" # LocalStack Gateway
       #- "127.0.0.1:4510-4559:4510-4559"  # external services port range
-    env_file: .env
     environment:
-      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
-      #- DEBUG=${DEBUG:-0}
-      - SERVICES=s3, sqs, sts, sns, ses, sesv2, dynamodb
-      - DEFAULT_REGION=eu-west-2
-      - DEBUG=0
-      - EXTENSION_AUTO_INSTALL=localstack-extension-mailhog
-      - DOCKER_SOCK=/run/podman/podman.sock
-      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}
+      SERVICES: "s3,sqs,sts,sns,ses,sesv2,dynamodb"
+      DEFAULT_REGION: "eu-west-2"
+      DEBUG: "0"
+      EXTENSION_AUTO_INSTALL: "localstack-extension-mailhog"
+      DOCKER_SOCK: "/run/podman/podman.sock"
+      LOCALSTACK_AUTH_TOKEN: "${LOCALSTACK_AUTH_TOKEN}"
     volumes:
       #- "/var/run/docker.sock:/var/run/docker.sock"
       - "./localstack-init.sh:/etc/localstack/init/ready.d/init-aws.sh" # ready hook
@@ -30,17 +27,6 @@ services:
           "--bucket",
           "tfstate"
         ]
-
-  terraform:
-    container_name: "terraform"
-    build:
-      context: .
-      dockerfile: terraform.Dockerfile
-    depends_on:
-      localstack:
-        condition: service_healthy
-    volumes:
-      - "./terraform:/terraform"
   
   web:
     image: nginx

@@ -18,6 +18,14 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
             dotnet-version: 10.0.x
+      
+      # Setup docker - might not need it
+      # - name: Set up Docker Compose
+      #   uses: docker/setup-compose-action@v2
+      #   with:
+      #     version: latest
+
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -26,6 +34,16 @@ jobs:
         run: dotnet restore KyameruFull.sln
       - name: Build
         run: dotnet build KyameruFull.sln --configuration Release --no-restore
+
+      # Run docker stack for localstack and other integration bits.
+      - name: Docker compose
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK }}
+        run: |
+          cd ./stack
+          docker compose -f docker-compose-ci.yml up -d
+
+
       - name: Test
         #run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=TestCoverage/
         run: dotnet test KyameruFull.sln --no-restore --verbosity quiet /p:ExcludeByFile="**/[Tt]ests/**/*.cs" /p:CollectCoverage=true /p:CoverletOutputFormat="lcov%2cjson" /p:CoverletOutput=${GITHUB_WORKSPACE}/build/TestCoverage/ /p:MergeWith="${GITHUB_WORKSPACE}/build/TestCoverage/coverage.json" --blame-hang-timeout 2m
@@ -34,6 +52,12 @@ jobs:
         #run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=TestCoverage/
       #  run: dotnet test --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat="lcov%2cjson" /p:CoverletOutput=${GITHUB_WORKSPACE}/build/TestCoverage/ /p:MergeWith="${GITHUB_WORKSPACE}/build/TestCoverage/coverage.json"
       #  working-directory: source/components/Kyameru.Component.S3/Tests
+
+      - name: Tear down test stack
+        if: always()
+        working-directory: ./stack
+        run: |
+          docker compose -f docker-compose-ci.yml down
 
       - name: Release Version Check
         run: |

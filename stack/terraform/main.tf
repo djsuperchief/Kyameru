@@ -34,6 +34,7 @@ provider "aws" {
     sqs            = "http://localstack-main:4566"
     sns            = "http://localstack-main:4566"
     ses            = "http://localstack-main:4566"
+    dynamodb       = "http://localstack-main:4566"
   }
 }
 
@@ -52,6 +53,10 @@ module "component_sns" {
 
 module "component_ses" {
   source = "./components/ses"
+}
+
+module "component_dynamodb" {
+  source = "./components/dynamodb"
 }
 
 # SQS Subscriptions

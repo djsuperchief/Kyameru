@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Kyameru.Component.Dynamodb</RootNamespace>
+        <Description>Kyameru Dynamodb component adds the ability to read and write to and from dynamodb tables.</Description>
+        <Copyright>Giles Papworth 2026</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://djsuperchief.github.io/Kyameru/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/djsuperchief/Kyameru</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <NeutralLanguage>B</NeutralLanguage>
+        <Authors>Giles Papworth</Authors>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\core\Kyameru.Core\Kyameru.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AWSSDK.DynamoDBStreams" Version="4.0.4.32" />
+      <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.17.10" />
+      <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.34" />
+    </ItemGroup>
+
+</Project>
