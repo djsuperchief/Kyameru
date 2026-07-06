@@ -24,6 +24,15 @@ jobs:
         run: dotnet restore KyameruFull.sln
       - name: Build
         run: dotnet build KyameruFull.sln --configuration Release --no-restore
+
+      # Run docker stack for localstack and other integration bits.
+      - name: Docker compose
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK }}
+        run: |
+          cd ./stack
+          docker compose -f docker-compose-ci.yml up -d
+
       - name: Test
         #run: dotnet test tests/UnitTests/Kyameru.Tests/Kyameru.Tests.csproj --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=TestCoverage/
         run: dotnet test KyameruFull.sln --no-restore --verbosity normal /p:ExcludeSources=tests/* /p:CollectCoverage=true /p:CoverletOutputFormat="lcov%2cjson" /p:CoverletOutput=${GITHUB_WORKSPACE}/build/TestCoverage/ /p:MergeWith="${GITHUB_WORKSPACE}/build/TestCoverage/coverage.json"  --blame-hang-timeout 2m
@@ -32,6 +41,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ./build/TestCoverage/coverage.info
+
+      
+
       - name: generate_tag
         run: |
           git fetch origin --tags
@@ -47,6 +59,12 @@ jobs:
           
           git tag $NEW_TAG
           git push origin tag $NEW_TAG
+
+      - name: Tear down test stack
+        if: always()
+        working-directory: ./stack
+        run: |
+          docker compose -f docker-compose-ci.yml down
 
 
   # analyze:
