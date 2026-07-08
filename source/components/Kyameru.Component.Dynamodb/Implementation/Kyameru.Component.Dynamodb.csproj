@@ -26,4 +26,8 @@
       <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.34" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="readme.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
 </Project>
