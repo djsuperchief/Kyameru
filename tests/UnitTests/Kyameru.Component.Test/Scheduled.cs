@@ -21,7 +21,7 @@ namespace Kyameru.Component.Test
             var routable = new Routable(new Dictionary<string, string>()
             {
                 {"Counter", counter.ToString()}
-            }, Kyameru.Core.Utils.TimeProvider.Current.UtcNow);
+            }, DateTime.UtcNow);
 
             OnLog?.Invoke(this, new Log(Microsoft.Extensions.Logging.LogLevel.Debug, "Schedule Has Executed"));
             await OnActionAsync.Invoke(this, new RoutableEventData(routable, cancellationToken));

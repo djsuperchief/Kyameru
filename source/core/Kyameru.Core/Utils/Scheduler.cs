@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Enums;
 using Kyameru.Core.Extensions;
@@ -24,6 +25,7 @@ namespace Kyameru.Core.Utils
         };
 
         private readonly bool isUtc;
+        private readonly ITimeProvider _timeProvider;
 
         /// <summary>
         /// Gets the next execution date.
@@ -34,16 +36,18 @@ namespace Kyameru.Core.Utils
         /// Instantiates a new instance of the <see cref="Scheduler"/> class.
         /// </summary>
         /// <param name="isUtcTime">Value indicating if UTC should be used.</param>
-        public Scheduler(bool isUtcTime = true)
+        /// <param name="timeProvider">Time provider.</param>
+        public Scheduler(ITimeProvider timeProvider, bool isUtcTime = true)
         {
+            _timeProvider = timeProvider;
             isUtc = isUtcTime;
             if (isUtc)
             {
-                NextExecution = Core.Utils.TimeProvider.Current.UtcNow;
+                NextExecution = _timeProvider.UtcNow;
             }
             else
             {
-                NextExecution = Core.Utils.TimeProvider.Current.Now;
+                NextExecution = _timeProvider.Now;
             }
         }
 
@@ -94,7 +98,7 @@ namespace Kyameru.Core.Utils
 
         private DateTime GetTimeProvider()
         {
-            return isUtc ? TimeProvider.Current.UtcNow : TimeProvider.Current.Now;
+            return isUtc ? _timeProvider.UtcNow : _timeProvider.Now;
         }
 
         private DateTime IncreaseWholeUnit(TimeUnit unit, int at)
