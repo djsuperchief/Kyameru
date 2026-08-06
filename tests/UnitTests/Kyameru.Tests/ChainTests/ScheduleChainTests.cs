@@ -57,7 +57,7 @@ public class ScheduleChainTests
         var testDate = new DateTime(2024, 01, 01, 9, 0, 0, DateTimeKind.Utc);
         simulatedTime.UtcNow.Returns(testDate);
         simulatedTime.Now.Returns(testDate.ToLocalTime());
-        Kyameru.Core.Utils.TimeProvider.Current = simulatedTime;
+        serviceCollection.AddTransient<ITimeProvider>(sp => simulatedTime);
         Component.Generic.Builder.Create()
             .WithTo(x =>
             {

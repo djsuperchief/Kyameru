@@ -9,6 +9,7 @@ using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Enums;
 using Kyameru.Core.Exceptions;
+using Kyameru.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -437,6 +438,7 @@ namespace Kyameru.Core
         {
             services.TryAddSingleton<IKExchange, KExchange>();
             services.TryAddSingleton<IKRouter, KRouter>();
+            services.TryAddTransient<ITimeProvider, DefaultTimeProvider>();
             RunChainLinkDependencyInjection(services);
             RunComponentDiRegistration(services);
             if (HasEventRoute)
@@ -451,7 +453,7 @@ namespace Kyameru.Core
                 //{
                 //    throw new Exceptions.CoreException(Resources.ERROR_EVENT_IDENTITY_BLANK);
                 //}
-                
+                var timeProvider = x.GetRequiredService<ITimeProvider>();
                 ILogger logger = x.GetService<ILogger<Route>>();
                 logger.LogInformation(Resources.INFO_SETTINGUPROUTE);
                 IChain<Routable> next = null;
@@ -472,7 +474,7 @@ namespace Kyameru.Core
                         return new From(from, next, logger, identity, raiseExceptions);
                     case FromType.Scheduled:
                         var scheduled = CreateScheduled(fromUri.ComponentName, fromUri.Headers, x);
-                        return new Scheduled(scheduled, next, logger, identity, raiseExceptions, schedule);
+                        return new Scheduled(scheduled, next, logger, identity, raiseExceptions, schedule, timeProvider);
                     case FromType.Event:
                         var bus = x.GetRequiredService<IKRouter>();
                         var eventFrom = CreateEventFrom(fromUri.ComponentName, fromUri.Headers, bus, x);

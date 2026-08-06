@@ -5,6 +5,7 @@ using Kyameru.Core.Contracts;
 using Kyameru.Core.Entities;
 using Kyameru.Core.Extensions;
 using Kyameru.Core.Sys;
+using Kyameru.Core.Utils;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -48,9 +49,10 @@ namespace Kyameru.Core.Chain
         /// <summary>
         /// Scheduler helper.
         /// </summary>
-        private readonly Utils.Scheduler scheduler = new Utils.Scheduler(true);
+        private readonly Utils.Scheduler scheduler;
 
         private readonly AutoResetEvent autoResetEvent = new AutoResetEvent(false);
+        private readonly ITimeProvider _timeProvider;
 
         /// <summary>
         /// Instantiates a new instance of the Scheduled chain component.
@@ -61,13 +63,15 @@ namespace Kyameru.Core.Chain
         /// <param name="id">Route Id.</param>
         /// <param name="raiseExceptions">Value indicating whether the route should bubble exceptions.</param>
         /// <param name="targetedSchedule">Targeted schedule</param>
+        /// <param name="timeProvider">Time provider.</param>
         public Scheduled(
             IScheduleChainLink fromComponent,
             IChain<Routable> next,
             ILogger logger,
             string id,
             bool raiseExceptions,
-            Schedule targetedSchedule)
+            Schedule targetedSchedule,
+            ITimeProvider timeProvider)
         {
             this.fromComponent = fromComponent;
             this.fromComponent.Setup();
@@ -78,6 +82,8 @@ namespace Kyameru.Core.Chain
             fromComponent.OnActionAsync += FromComponent_OnActionAsync;
             this.raiseExceptions = raiseExceptions;
             schedule = targetedSchedule;
+            _timeProvider = timeProvider;
+            scheduler = new Scheduler(_timeProvider, true);
         }
 
         /// <summary>
@@ -89,7 +95,7 @@ namespace Kyameru.Core.Chain
         {
             do
             {
-                if (Utils.TimeProvider.Current.UtcNow >= scheduler.NextExecution)
+                if (_timeProvider.UtcNow >= scheduler.NextExecution)
                 {
                     scheduler.Next(schedule);
                     logger.LogDebug("Scheduled chain executing...");
