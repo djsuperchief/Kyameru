@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.RabbitMQ", "Implementation\Kyameru.Component.RabbitMQ.csproj", "{8E3353B2-15B6-4B17-B673-075DE5C381FA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Implementation", "Implementation", "{58C5E442-C286-4E06-A6F4-DAA67D1B6353}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{12D4C2A7-B73A-4BFA-80AD-B91A59A21A66}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Component.RabbitMQ.Tests", "Tests\Unit\Kyameru.Component.RabbitMQ.Tests.csproj", "{95421155-0896-4787-8729-DB0B5FA41C22}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit", "Unit", "{3649A339-E045-4F06-9070-FD5C2C633556}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{870CA33D-E2DD-45EB-BF4B-E026668C0337}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kyameru.Core", "..\..\core\Kyameru.Core\Kyameru.Core.csproj", "{619256C0-EDBA-49B4-85B1-071FCEF58769}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8E3353B2-15B6-4B17-B673-075DE5C381FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E3353B2-15B6-4B17-B673-075DE5C381FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E3353B2-15B6-4B17-B673-075DE5C381FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E3353B2-15B6-4B17-B673-075DE5C381FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95421155-0896-4787-8729-DB0B5FA41C22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95421155-0896-4787-8729-DB0B5FA41C22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95421155-0896-4787-8729-DB0B5FA41C22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95421155-0896-4787-8729-DB0B5FA41C22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{619256C0-EDBA-49B4-85B1-071FCEF58769}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{619256C0-EDBA-49B4-85B1-071FCEF58769}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{619256C0-EDBA-49B4-85B1-071FCEF58769}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{619256C0-EDBA-49B4-85B1-071FCEF58769}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8E3353B2-15B6-4B17-B673-075DE5C381FA} = {58C5E442-C286-4E06-A6F4-DAA67D1B6353}
+		{3649A339-E045-4F06-9070-FD5C2C633556} = {12D4C2A7-B73A-4BFA-80AD-B91A59A21A66}
+		{95421155-0896-4787-8729-DB0B5FA41C22} = {3649A339-E045-4F06-9070-FD5C2C633556}
+		{619256C0-EDBA-49B4-85B1-071FCEF58769} = {870CA33D-E2DD-45EB-BF4B-E026668C0337}
+	EndGlobalSection
+EndGlobal
